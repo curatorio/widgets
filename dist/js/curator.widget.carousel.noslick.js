@@ -783,8 +783,9 @@ var feedDefaults = {
     scroll:'more',
     slick:{
         dots: false,
-        speed: 500,
+        speed: 700,
         cssEase: 'ease-in-out',
+        useTransfrom: true,
         infinite: false,
         autoplay: true,
         slidesToShow: 4,
@@ -852,7 +853,9 @@ jQuery.extend(Client.prototype,{
     init: function (options) {
         Curator.log("Carousel->init with options:");
 
-        this.options = jQuery.extend({},feedDefaults,options);
+
+        this.options = jQuery.extend({}, feedDefaults, options);
+        this.options.slick = jQuery.extend({}, feedDefaults.slick, options.slick);
 
         Curator.log(this.options);
 

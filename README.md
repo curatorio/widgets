@@ -1,1 +1,1 @@
-# widgets
+# Curator.io Social Feed Widgets
