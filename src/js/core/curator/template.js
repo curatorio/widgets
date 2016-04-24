@@ -24,7 +24,7 @@ Curator.Template = {
             throw new Error ('could not find template '+templateId+'('+cam+')');
         }
 
-        var tmpl = global.parseTemplate(source, data);
+        var tmpl = root.parseTemplate(source, data);
         tmpl = jQuery.parseHTML(tmpl);
         return jQuery(tmpl).filter('div');
     }

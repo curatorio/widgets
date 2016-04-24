@@ -1,20 +1,17 @@
-(function (global, Curator, $) {
-    "use strict";
+var clientDefaults = {
+    feedId:'',
+    postsPerPage:12,
+    maxPosts:0,
+    apiEndpoint:'http://api.curator.io/v1'
+};
 
-    var defaults = {
-        feedId:'',
-        postsPerPage:12,
-        maxPosts:0,
-        apiEndpoint:'http://api.curator.io/v1'
-    };
+var Client = function (options) {
+    this.init(options);
+    this.totalPostsLoaded = 0;
+    this.allLoaded = false;
+};
 
-    var Client = function (options) {
-        this.init(options);
-        this.totalPostsLoaded = 0;
-        this.allLoaded = false;
-    };
-
-    Curator.Templates.postTemplate = ' \
+Curator.Templates.postTemplate = ' \
 <div class="crt-post-c">\
     <div class="crt-post post<%=id%>"> \
         <div class="crt-post-header"> \
@@ -34,101 +31,94 @@
     </div>\
 </div>';
 
-    $.extend(Client.prototype,{
-        containerHeight: 0,
-        loading: false,
-        feed: null,
-        $container: null,
-        $feed: null,
-        posts:[],
+jQuery.extend(Client.prototype,{
+    containerHeight: 0,
+    loading: false,
+    feed: null,
+    $container: null,
+    $feed: null,
+    posts:[],
 
-        init: function (options) {
-            Curator.debug = options.debug;
+    init: function (options) {
+        Curator.debug = options.debug;
 
-            Curator.log("Custom->init with options:");
+        Curator.log("Custom->init with options:");
 
-            this.options = $.extend({},defaults,options);
+        this.options = jQuery.extend({},clientDefaults,options);
 
-            Curator.log(this.options);
+        Curator.log(this.options);
 
-            this.feed = new Curator.Feed ({
-                debug:this.options.debug,
-                feedId:this.options.feedId,
-                postsToFetch:this.options.postsPerPage,
-                apiEndpoint:this.options.apiEndpoint
-            });
-            this.$container = jQuery(this.options.container);
-            this.$feed = jQuery('<div class="crt-feed"></div>').appendTo(this.$container);
-            this.$container.addClass('crt-custom');
+        this.feed = new Curator.Feed ({
+            debug:this.options.debug,
+            feedId:this.options.feedId,
+            postsToFetch:this.options.postsPerPage,
+            apiEndpoint:this.options.apiEndpoint
+        });
+        this.$container = jQuery(this.options.container);
+        this.$feed = jQuery('<div class="crt-feed"></div>').appendTo(this.$container);
+        this.$container.addClass('crt-custom');
 
-            if (!this.feed.checkPowered(this.$container)){
-                global.alert ('Container is missing Powered by Curator');
-            } else {
-                this.loadPosts();
-            }
-        },
-
-        onLoadPosts: function (posts) {
-            Curator.log("loadPosts");
-
-            this.loading = false;
-
-            if (posts.length === 0) {
-                this.allLoaded = true;
-            } else {
-                this.totalPostsLoaded += posts.length;
-
-                var that = this;
-                var postElements = [];
-                jQuery(posts).each(function(){
-                    var p = that.loadPost(this);
-                    postElements.push(p.el);
-                });
-                that.$feed.append(postElements);
-            }
-        },
-
-        onLoadPostsFail: function (data) {
-            this.loading = false;
-            this.$feed.html('<p style="text-align: center">'+data.message+'</p>');
-        },
-
-        onPostClick: function (ev,postJson) {
-            var popup = new Curator.Popup(postJson, this.feed);
-            popup.show();
-        },
-
-        loadPost: function (postJson) {
-            var post = new Curator.Post(postJson);
-            jQuery(post).bind('postClick',$.proxy(this.onPostClick, this));
-            return post;
-        },
-
-        loadPosts : function () {
-            this.feed.loadMorePosts(this.onLoadPosts.bind(this), this.onLoadPostsFail.bind(this));
-        },
-
-        destroy : function () {
-            this.$feed.remove();
-            this.$container.removeClass('crt-custom');
-
-            delete this.$feed;
-            delete this.$container;
-            delete this.options ;
-            delete this.totalPostsLoaded;
-            delete this.loading;
-            delete this.allLoaded;
-
-            // TODO add code to cascade destroy down to Feed & Posts
-            // unregistering events etc
-            delete this.feed;
+        if (!this.feed.checkPowered(this.$container)){
+            root.alert ('Container is missing Powered by Curator');
+        } else {
+            this.loadPosts();
         }
+    },
 
-    });
+    onLoadPosts: function (posts) {
+        Curator.log("loadPosts");
 
-    global.Curator.Custom = Client;
+        this.loading = false;
 
-    return global.curator;
-})(window, window.Curator, window.jQuery);
+        if (posts.length === 0) {
+            this.allLoaded = true;
+        } else {
+            this.totalPostsLoaded += posts.length;
 
+            var that = this;
+            var postElements = [];
+            jQuery(posts).each(function(){
+                var p = that.loadPost(this);
+                postElements.push(p.el);
+            });
+            that.$feed.append(postElements);
+        }
+    },
 
+    onLoadPostsFail: function (data) {
+        this.loading = false;
+        this.$feed.html('<p style="text-align: center">'+data.message+'</p>');
+    },
+
+    onPostClick: function (ev,postJson) {
+        var popup = new Curator.Popup(postJson, this.feed);
+        popup.show();
+    },
+
+    loadPost: function (postJson) {
+        var post = new Curator.Post(postJson);
+        jQuery(post).bind('postClick',jQuery.proxy(this.onPostClick, this));
+        return post;
+    },
+
+    loadPosts : function () {
+        this.feed.loadMorePosts(this.onLoadPosts.bind(this), this.onLoadPostsFail.bind(this));
+    },
+
+    destroy : function () {
+        this.$feed.remove();
+        this.$container.removeClass('crt-custom');
+
+        delete this.$feed;
+        delete this.$container;
+        delete this.options ;
+        delete this.totalPostsLoaded;
+        delete this.loading;
+        delete this.allLoaded;
+
+        // TODO add code to cascade destroy down to Feed & Posts
+        // unregistering events etc
+        delete this.feed;
+    }
+
+});

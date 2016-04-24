@@ -1,20 +1,23 @@
-
+;(function(root, factory) {
+if (typeof define === 'function' && define.amd) {
+    // Cheeky wrapper to add root to the factory call
+    var factoryWrap = function () { 
+        var argsCopy = [].slice.call(arguments); 
+        argsCopy.unshift(root);
+        return factory.apply(this, argsCopy); 
+    };
+    define(['jquery', 'curator'], factoryWrap);
+} else if (typeof exports === 'object') {
+    module.exports = factory(root, require('jquery'), require('curator'));
+} else {
+    root.Curator.Custom = factory(root, root.jQuery, root.Curator);
+}
+}(this, function(root, jQuery, Curator) {
 var clientDefaults = {
     feedId:'',
     postsPerPage:12,
     maxPosts:0,
-    apiEndpoint:'http://api.curator.io/v1',
-    scroll:'more',
-    slick:{
-        dots: false,
-        speed: 500,
-        fade:true,
-        cssEase: 'ease-in-out',
-        infinite: false,
-        autoplay: true,
-        slidesToShow: 1,
-        slidesToScroll: 1
-    }
+    apiEndpoint:'http://api.curator.io/v1'
 };
 
 var Client = function (options) {
@@ -52,13 +55,13 @@ jQuery.extend(Client.prototype,{
     posts:[],
 
     init: function (options) {
-        Curator.log("Carousel->init with options:");
+        Curator.debug = options.debug;
+
+        Curator.log("Custom->init with options:");
 
         this.options = jQuery.extend({},clientDefaults,options);
 
         Curator.log(this.options);
-
-        var that = this;
 
         this.feed = new Curator.Feed ({
             debug:this.options.debug,
@@ -67,25 +70,13 @@ jQuery.extend(Client.prototype,{
             apiEndpoint:this.options.apiEndpoint
         });
         this.$container = jQuery(this.options.container);
-        //this.$scroll = jQuery('<div class="crt-feed-scroll"></div>').appendTo(this.$container);
         this.$feed = jQuery('<div class="crt-feed"></div>').appendTo(this.$container);
-        this.$container.addClass('crt-panel');
+        this.$container.addClass('crt-custom');
 
         if (!this.feed.checkPowered(this.$container)){
-            Curator.alert ('Container is missing Powered by Curator');
+            root.alert ('Container is missing Powered by Curator');
         } else {
-            this.feed.loadPosts(jQuery.proxy(this.onLoadPosts, this),jQuery.proxy(this.onLoadPostsFail, this));
-
-            that.$feed.slick(this.options.slick).on('afterChange', function(event, slick, currentSlide) {
-
-                if (!that.allLoaded) {
-                    //console.log(currentSlide + '>' + (that.totalPostsLoaded - 4));
-
-                    if (currentSlide >= that.totalPostsLoaded - 4) {
-                        that.feed.loadMorePosts(jQuery.proxy(that.onLoadPosts, that), jQuery.proxy(that.onLoadPostsFail, that));
-                    }
-                }
-            });
+            this.loadPosts();
         }
     },
 
@@ -100,12 +91,12 @@ jQuery.extend(Client.prototype,{
             this.totalPostsLoaded += posts.length;
 
             var that = this;
-            //var postElements = [];
+            var postElements = [];
             jQuery(posts).each(function(){
                 var p = that.loadPost(this);
-                //postElements.push(p.el);
-                that.$feed.slick('slickAdd',p.el);
+                postElements.push(p.el);
             });
+            that.$feed.append(postElements);
         }
     },
 
@@ -125,10 +116,13 @@ jQuery.extend(Client.prototype,{
         return post;
     },
 
+    loadPosts : function () {
+        this.feed.loadMorePosts(this.onLoadPosts.bind(this), this.onLoadPostsFail.bind(this));
+    },
+
     destroy : function () {
-        this.$feed.slick('unslick');
         this.$feed.remove();
-        this.$container.removeClass('crt-carousel');
+        this.$container.removeClass('crt-custom');
 
         delete this.$feed;
         delete this.$container;
@@ -141,7 +135,8 @@ jQuery.extend(Client.prototype,{
         // unregistering events etc
         delete this.feed;
     }
+
 });
 
-Curator.Panel = Client;
-
+    return Client;
+}));

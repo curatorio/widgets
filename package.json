@@ -26,6 +26,7 @@
   },
   "devDependencies": {
     "gulp": "*",
+    "gulp-add-src": "^0.2.0",
     "gulp-autoprefixer": "*",
     "gulp-concat": "*",
     "gulp-if": "*",

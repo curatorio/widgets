@@ -83,7 +83,7 @@ jQuery.extend(Curator.prototype, {
     loadMainImage: function (source, $wrapper, classes, removeWrapperClass) {
         $wrapper.show(); //show the wrapper in case it has a pre-loader image
 
-        var img = new global.Image();
+        var img = new root.Image();
 
         source = source.replace(/http:/, 'https:');
 

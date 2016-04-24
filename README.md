@@ -9,7 +9,7 @@ Curator.io Social Feed Widgets
 #### Setup
 
 Sign up to [Curator.io](http://admin.curator.io/auth/register) to set up a social feed - it's free :)
-You'll need your `FEED_ID` to use the widgets.
+You'll need your unique `FEED_ID` to use the widgets.
 
 #### CDN
 

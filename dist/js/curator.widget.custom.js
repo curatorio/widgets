@@ -1,3 +1,18 @@
+;(function(root, factory) {
+if (typeof define === 'function' && define.amd) {
+    // Cheeky wrapper to add root to the factory call
+    var factoryWrap = function () { 
+        var argsCopy = [].slice.call(arguments); 
+        argsCopy.unshift(root);
+        return factory.apply(this, argsCopy); 
+    };
+    define(['jquery'], factoryWrap);
+} else if (typeof exports === 'object') {
+    module.exports = factory(root, require('jquery'));
+} else {
+    root.Curator = factory(root, root.jQuery);
+}
+}(this, function(root, jQuery) {
 
 // Simple JavaScript Templating
 // John Resig - http://ejohn.org/ - MIT Licensed
@@ -59,7 +74,7 @@
             helpers.data = data;
             return func.call(helpers, data);
         } catch (e) {
-            global.console.log ('Template parse error: ' +e.message);
+            root.console.log ('Template parse error: ' +e.message);
             err = e.message;
         }
         return " # ERROR: " + err + " # ";
@@ -71,10 +86,10 @@
 // https://github.com/MoonScript/jQuery-ajaxTransport-XDomainRequest/blob/master/jQuery.XDomainRequest.js
 
 
-if (!jQuery.support.cors && jQuery.ajaxTransport && window.XDomainRequest) {
+if (!jQuery.support.cors && jQuery.ajaxTransport && root.XDomainRequest) {
     var httpRegEx = /^https?:\/\//i;
     var getOrPostRegEx = /^get|post$/i;
-    var sameSchemeRegEx = new RegExp('^'+global.location.protocol, 'i');
+    var sameSchemeRegEx = new RegExp('^'+root.location.protocol, 'i');
     var htmlRegEx = /text\/html/i;
     var jsonRegEx = /\/json/i;
     var xmlRegEx = /\/xml/i;
@@ -88,7 +103,7 @@ if (!jQuery.support.cors && jQuery.ajaxTransport && window.XDomainRequest) {
             var userType = (userOptions.dataType||'').toLowerCase();
             return {
                 send: function(headers, complete){
-                    xdr = new window.XDomainRequest();
+                    xdr = new root.XDomainRequest();
                     if (/^\d+$/.test(userOptions.timeout)) {
                         xdr.timeout = userOptions.timeout;
                     }
@@ -116,7 +131,7 @@ if (!jQuery.support.cors && jQuery.ajaxTransport && window.XDomainRequest) {
                                     //throw 'Invalid JSON: ' + xdr.responseText;
                                 }
                             } else if (userType === 'xml' || (userType !== 'text' && xmlRegEx.test(xdr.contentType))) {
-                                var doc = new window.ActiveXObject('Microsoft.XMLDOM');
+                                var doc = new root.ActiveXObject('Microsoft.XMLDOM');
                                 doc.async = false;
                                 try {
                                     doc.loadXML(xdr.responseText);
@@ -161,19 +176,25 @@ if (!jQuery.support.cors && jQuery.ajaxTransport && window.XDomainRequest) {
 }
 // Test jQuery exists
 
-if (jQuery == global.undefined) {
-    window.alert ('Curator requires jQuery. \n\nPlease include jQuery in your HTML before the Curator widget script tag.\n\nVisit http://jquery.com/download/ to get the latest version');
-}
-
 var Curator = {
     SOURCE_TYPES : ['twitter','instagram'],
 
     log:function (s) {
-        if (global.console) {
-            global.console.log(s);
+        if (root.console) {
+            root.console.log(s);
+        }
+    },
+
+    alert:function (s) {
+        if (root.alert) {
+            root.alert(s);
         }
     }
 };
+
+if (jQuery === undefined) {
+    Curator.alert ('Curator requires jQuery. \n\nPlease include jQuery in your HTML before the Curator widget script tag.\n\nVisit http://jquery.com/download/ to get the latest version');
+}
 
 
 
@@ -465,7 +486,7 @@ jQuery.extend(Curator.prototype, {
     loadMainImage: function (source, $wrapper, classes, removeWrapperClass) {
         $wrapper.show(); //show the wrapper in case it has a pre-loader image
 
-        var img = new global.Image();
+        var img = new root.Image();
 
         source = source.replace(/http:/, 'https:');
 
@@ -516,7 +537,7 @@ Curator.Post = function (json) {
     this.init(json);
 };
 
-jQuery.extend(Curator.prototype,{
+jQuery.extend(Curator.Post.prototype,{
     templateId:'#post-template',
 
     init:function (postJson) {
@@ -548,7 +569,6 @@ jQuery.extend(Curator.prototype,{
 });
 /* global FB */
 
-
 Curator.SocialFacebook = {
     share: function (post) {
         var obj = post;
@@ -564,6 +584,7 @@ Curator.SocialFacebook = {
         }, cb);
     }
 };
+
 
 Curator.SocialPinterest = {
     share: function (post) {
@@ -610,7 +631,7 @@ Curator.Template = {
             throw new Error ('could not find template '+templateId+'('+cam+')');
         }
 
-        var tmpl = global.parseTemplate(source, data);
+        var tmpl = root.parseTemplate(source, data);
         tmpl = jQuery.parseHTML(tmpl);
         return jQuery(tmpl).filter('div');
     }
@@ -690,7 +711,7 @@ Curator.Utils = {
     },
 
     center : function (elementWidth, elementHeight, bound) {
-        var s = global.screen,
+        var s = root.screen,
             b = bound || {},
             bH = b.height || s.height,
             bW = b.width || s.height,
@@ -711,7 +732,7 @@ Curator.Utils = {
                 ',left=' + position.left + ',scrollbars=' + scroll +
                 ',resizable';
 
-        global.window.open(mypage, myname, settings);
+        root.open(mypage, myname, settings);
     },
 
     tinyparser : function (string, obj) {
@@ -763,23 +784,38 @@ Curator.StringUtils = {
 };
 
 
-(function (global, Curator, $) {
-    "use strict";
+    return Curator;
+}));
 
-    var defaults = {
-        feedId:'',
-        postsPerPage:12,
-        maxPosts:0,
-        apiEndpoint:'http://api.curator.io/v1'
+;(function(root, factory) {
+if (typeof define === 'function' && define.amd) {
+    // Cheeky wrapper to add root to the factory call
+    var factoryWrap = function () { 
+        var argsCopy = [].slice.call(arguments); 
+        argsCopy.unshift(root);
+        return factory.apply(this, argsCopy); 
     };
+    define(['jquery', 'curator'], factoryWrap);
+} else if (typeof exports === 'object') {
+    module.exports = factory(root, require('jquery'), require('curator'));
+} else {
+    root.Curator.Custom = factory(root, root.jQuery, root.Curator);
+}
+}(this, function(root, jQuery, Curator) {
+var clientDefaults = {
+    feedId:'',
+    postsPerPage:12,
+    maxPosts:0,
+    apiEndpoint:'http://api.curator.io/v1'
+};
 
-    var Client = function (options) {
-        this.init(options);
-        this.totalPostsLoaded = 0;
-        this.allLoaded = false;
-    };
+var Client = function (options) {
+    this.init(options);
+    this.totalPostsLoaded = 0;
+    this.allLoaded = false;
+};
 
-    Curator.Templates.postTemplate = ' \
+Curator.Templates.postTemplate = ' \
 <div class="crt-post-c">\
     <div class="crt-post post<%=id%>"> \
         <div class="crt-post-header"> \
@@ -799,101 +835,97 @@ Curator.StringUtils = {
     </div>\
 </div>';
 
-    $.extend(Client.prototype,{
-        containerHeight: 0,
-        loading: false,
-        feed: null,
-        $container: null,
-        $feed: null,
-        posts:[],
+jQuery.extend(Client.prototype,{
+    containerHeight: 0,
+    loading: false,
+    feed: null,
+    $container: null,
+    $feed: null,
+    posts:[],
 
-        init: function (options) {
-            Curator.debug = options.debug;
+    init: function (options) {
+        Curator.debug = options.debug;
 
-            Curator.log("Custom->init with options:");
+        Curator.log("Custom->init with options:");
 
-            this.options = $.extend({},defaults,options);
+        this.options = jQuery.extend({},clientDefaults,options);
 
-            Curator.log(this.options);
+        Curator.log(this.options);
 
-            this.feed = new Curator.Feed ({
-                debug:this.options.debug,
-                feedId:this.options.feedId,
-                postsToFetch:this.options.postsPerPage,
-                apiEndpoint:this.options.apiEndpoint
-            });
-            this.$container = jQuery(this.options.container);
-            this.$feed = jQuery('<div class="crt-feed"></div>').appendTo(this.$container);
-            this.$container.addClass('crt-custom');
+        this.feed = new Curator.Feed ({
+            debug:this.options.debug,
+            feedId:this.options.feedId,
+            postsToFetch:this.options.postsPerPage,
+            apiEndpoint:this.options.apiEndpoint
+        });
+        this.$container = jQuery(this.options.container);
+        this.$feed = jQuery('<div class="crt-feed"></div>').appendTo(this.$container);
+        this.$container.addClass('crt-custom');
 
-            if (!this.feed.checkPowered(this.$container)){
-                global.alert ('Container is missing Powered by Curator');
-            } else {
-                this.loadPosts();
-            }
-        },
-
-        onLoadPosts: function (posts) {
-            Curator.log("loadPosts");
-
-            this.loading = false;
-
-            if (posts.length === 0) {
-                this.allLoaded = true;
-            } else {
-                this.totalPostsLoaded += posts.length;
-
-                var that = this;
-                var postElements = [];
-                jQuery(posts).each(function(){
-                    var p = that.loadPost(this);
-                    postElements.push(p.el);
-                });
-                that.$feed.append(postElements);
-            }
-        },
-
-        onLoadPostsFail: function (data) {
-            this.loading = false;
-            this.$feed.html('<p style="text-align: center">'+data.message+'</p>');
-        },
-
-        onPostClick: function (ev,postJson) {
-            var popup = new Curator.Popup(postJson, this.feed);
-            popup.show();
-        },
-
-        loadPost: function (postJson) {
-            var post = new Curator.Post(postJson);
-            jQuery(post).bind('postClick',$.proxy(this.onPostClick, this));
-            return post;
-        },
-
-        loadPosts : function () {
-            this.feed.loadMorePosts(this.onLoadPosts.bind(this), this.onLoadPostsFail.bind(this));
-        },
-
-        destroy : function () {
-            this.$feed.remove();
-            this.$container.removeClass('crt-custom');
-
-            delete this.$feed;
-            delete this.$container;
-            delete this.options ;
-            delete this.totalPostsLoaded;
-            delete this.loading;
-            delete this.allLoaded;
-
-            // TODO add code to cascade destroy down to Feed & Posts
-            // unregistering events etc
-            delete this.feed;
+        if (!this.feed.checkPowered(this.$container)){
+            root.alert ('Container is missing Powered by Curator');
+        } else {
+            this.loadPosts();
         }
+    },
 
-    });
+    onLoadPosts: function (posts) {
+        Curator.log("loadPosts");
 
-    global.Curator.Custom = Client;
+        this.loading = false;
 
-    return global.curator;
-})(window, window.Curator, window.jQuery);
+        if (posts.length === 0) {
+            this.allLoaded = true;
+        } else {
+            this.totalPostsLoaded += posts.length;
 
+            var that = this;
+            var postElements = [];
+            jQuery(posts).each(function(){
+                var p = that.loadPost(this);
+                postElements.push(p.el);
+            });
+            that.$feed.append(postElements);
+        }
+    },
 
+    onLoadPostsFail: function (data) {
+        this.loading = false;
+        this.$feed.html('<p style="text-align: center">'+data.message+'</p>');
+    },
+
+    onPostClick: function (ev,postJson) {
+        var popup = new Curator.Popup(postJson, this.feed);
+        popup.show();
+    },
+
+    loadPost: function (postJson) {
+        var post = new Curator.Post(postJson);
+        jQuery(post).bind('postClick',jQuery.proxy(this.onPostClick, this));
+        return post;
+    },
+
+    loadPosts : function () {
+        this.feed.loadMorePosts(this.onLoadPosts.bind(this), this.onLoadPostsFail.bind(this));
+    },
+
+    destroy : function () {
+        this.$feed.remove();
+        this.$container.removeClass('crt-custom');
+
+        delete this.$feed;
+        delete this.$container;
+        delete this.options ;
+        delete this.totalPostsLoaded;
+        delete this.loading;
+        delete this.allLoaded;
+
+        // TODO add code to cascade destroy down to Feed & Posts
+        // unregistering events etc
+        delete this.feed;
+    }
+
+});
+
+    return Client;
+}));

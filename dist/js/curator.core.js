@@ -1,3 +1,18 @@
+;(function(root, factory) {
+if (typeof define === 'function' && define.amd) {
+    // Cheeky wrapper to add root to the factory call
+    var factoryWrap = function () { 
+        var argsCopy = [].slice.call(arguments); 
+        argsCopy.unshift(root);
+        return factory.apply(this, argsCopy); 
+    };
+    define(['jquery'], factoryWrap);
+} else if (typeof exports === 'object') {
+    module.exports = factory(root, require('jquery'));
+} else {
+    root.Curator = factory(root, root.jQuery);
+}
+}(this, function(root, jQuery) {
 
 // Simple JavaScript Templating
 // John Resig - http://ejohn.org/ - MIT Licensed
@@ -59,7 +74,7 @@
             helpers.data = data;
             return func.call(helpers, data);
         } catch (e) {
-            global.console.log ('Template parse error: ' +e.message);
+            root.console.log ('Template parse error: ' +e.message);
             err = e.message;
         }
         return " # ERROR: " + err + " # ";
@@ -71,10 +86,10 @@
 // https://github.com/MoonScript/jQuery-ajaxTransport-XDomainRequest/blob/master/jQuery.XDomainRequest.js
 
 
-if (!jQuery.support.cors && jQuery.ajaxTransport && window.XDomainRequest) {
+if (!jQuery.support.cors && jQuery.ajaxTransport && root.XDomainRequest) {
     var httpRegEx = /^https?:\/\//i;
     var getOrPostRegEx = /^get|post$/i;
-    var sameSchemeRegEx = new RegExp('^'+global.location.protocol, 'i');
+    var sameSchemeRegEx = new RegExp('^'+root.location.protocol, 'i');
     var htmlRegEx = /text\/html/i;
     var jsonRegEx = /\/json/i;
     var xmlRegEx = /\/xml/i;
@@ -88,7 +103,7 @@ if (!jQuery.support.cors && jQuery.ajaxTransport && window.XDomainRequest) {
             var userType = (userOptions.dataType||'').toLowerCase();
             return {
                 send: function(headers, complete){
-                    xdr = new window.XDomainRequest();
+                    xdr = new root.XDomainRequest();
                     if (/^\d+$/.test(userOptions.timeout)) {
                         xdr.timeout = userOptions.timeout;
                     }
@@ -116,7 +131,7 @@ if (!jQuery.support.cors && jQuery.ajaxTransport && window.XDomainRequest) {
                                     //throw 'Invalid JSON: ' + xdr.responseText;
                                 }
                             } else if (userType === 'xml' || (userType !== 'text' && xmlRegEx.test(xdr.contentType))) {
-                                var doc = new window.ActiveXObject('Microsoft.XMLDOM');
+                                var doc = new root.ActiveXObject('Microsoft.XMLDOM');
                                 doc.async = false;
                                 try {
                                     doc.loadXML(xdr.responseText);
@@ -161,21 +176,25 @@ if (!jQuery.support.cors && jQuery.ajaxTransport && window.XDomainRequest) {
 }
 // Test jQuery exists
 
-var global = window;
-
-if (jQuery == global.undefined) {
-    window.alert ('Curator requires jQuery. \n\nPlease include jQuery in your HTML before the Curator widget script tag.\n\nVisit http://jquery.com/download/ to get the latest version');
-}
-
 var Curator = {
     SOURCE_TYPES : ['twitter','instagram'],
 
     log:function (s) {
-        if (global.console) {
-            global.console.log(s);
+        if (root.console) {
+            root.console.log(s);
+        }
+    },
+
+    alert:function (s) {
+        if (root.alert) {
+            root.alert(s);
         }
     }
 };
+
+if (jQuery === undefined) {
+    Curator.alert ('Curator requires jQuery. \n\nPlease include jQuery in your HTML before the Curator widget script tag.\n\nVisit http://jquery.com/download/ to get the latest version');
+}
 
 
 
@@ -467,7 +486,7 @@ jQuery.extend(Curator.prototype, {
     loadMainImage: function (source, $wrapper, classes, removeWrapperClass) {
         $wrapper.show(); //show the wrapper in case it has a pre-loader image
 
-        var img = new global.Image();
+        var img = new root.Image();
 
         source = source.replace(/http:/, 'https:');
 
@@ -550,7 +569,6 @@ jQuery.extend(Curator.Post.prototype,{
 });
 /* global FB */
 
-
 Curator.SocialFacebook = {
     share: function (post) {
         var obj = post;
@@ -566,6 +584,7 @@ Curator.SocialFacebook = {
         }, cb);
     }
 };
+
 
 Curator.SocialPinterest = {
     share: function (post) {
@@ -612,7 +631,7 @@ Curator.Template = {
             throw new Error ('could not find template '+templateId+'('+cam+')');
         }
 
-        var tmpl = global.parseTemplate(source, data);
+        var tmpl = root.parseTemplate(source, data);
         tmpl = jQuery.parseHTML(tmpl);
         return jQuery(tmpl).filter('div');
     }
@@ -692,7 +711,7 @@ Curator.Utils = {
     },
 
     center : function (elementWidth, elementHeight, bound) {
-        var s = global.screen,
+        var s = root.screen,
             b = bound || {},
             bH = b.height || s.height,
             bW = b.width || s.height,
@@ -713,7 +732,7 @@ Curator.Utils = {
                 ',left=' + position.left + ',scrollbars=' + scroll +
                 ',resizable';
 
-        global.window.open(mypage, myname, settings);
+        root.open(mypage, myname, settings);
     },
 
     tinyparser : function (string, obj) {
@@ -764,3 +783,6 @@ Curator.StringUtils = {
     }
 };
 
+
+    return Curator;
+}));

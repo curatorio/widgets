@@ -1,6 +1,5 @@
 /* global FB */
 
-
 Curator.SocialFacebook = {
     share: function (post) {
         var obj = post;

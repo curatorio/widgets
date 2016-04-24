@@ -1,3 +1,18 @@
+;(function(root, factory) {
+if (typeof define === 'function' && define.amd) {
+    // Cheeky wrapper to add root to the factory call
+    var factoryWrap = function () { 
+        var argsCopy = [].slice.call(arguments); 
+        argsCopy.unshift(root);
+        return factory.apply(this, argsCopy); 
+    };
+    define(['jquery', 'curator', 'slick'], factoryWrap);
+} else if (typeof exports === 'object') {
+    module.exports = factory(root, require('jquery'), require('curator'), require('slick'));
+} else {
+    root.Curator.Carousel = factory(root, root.jQuery, root.Curator, root.slick);
+}
+}(this, function(root, jQuery, Curator, slick) {
 
 var feedDefaults = {
     feedId:'',
@@ -170,3 +185,6 @@ jQuery.extend(Client.prototype,{
 });
 
 Curator.Carousel = Client;
+
+    return Client;
+}));

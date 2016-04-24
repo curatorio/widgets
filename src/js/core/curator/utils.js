@@ -71,7 +71,7 @@ Curator.Utils = {
     },
 
     center : function (elementWidth, elementHeight, bound) {
-        var s = global.screen,
+        var s = root.screen,
             b = bound || {},
             bH = b.height || s.height,
             bW = b.width || s.height,
@@ -92,7 +92,7 @@ Curator.Utils = {
                 ',left=' + position.left + ',scrollbars=' + scroll +
                 ',resizable';
 
-        global.window.open(mypage, myname, settings);
+        root.open(mypage, myname, settings);
     },
 
     tinyparser : function (string, obj) {
