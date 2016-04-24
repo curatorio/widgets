@@ -1,0 +1,173 @@
+
+/**
+* ==================================================================
+* POST
+* ==================================================================
+ */
+
+.crt-post-c
+{
+    width: 368px;
+    float: left;
+}
+
+.crt-post 
+{
+    //max-height: 370px;
+    //min-height: 200px;
+    overflow: hidden;
+    position: relative;
+    z-index: 1;
+    margin:5px;
+    border: 1px solid $color-post-border;
+    background-color: $color-post-bg;
+    //box-shadow: 0px 0px 3px $color-post-shadow;
+    border-radius: $post-border-radius;
+
+    a {
+        transition:color 0.2s linear;
+    }
+
+    .crt-post-header
+    {
+        @extend .crt-clearfix;
+        background-color: $color-post-header-bg;
+        color: $color-post-header-text;
+        //padding-top: 9px;
+        /*[empty]margin-left:;*/
+        //padding-left: 13px;
+        padding-bottom: 3px;
+
+        .social-icon
+        {
+            float: left;
+            display: block;
+            width: 43px;
+            height: 57px;
+            margin-right: 10px;
+            margin-left: 3px;
+            background-color: $color-post-icon-bg;
+            border-radius: 50%;
+            line-height: 57px;
+            text-align: center;
+            padding-top: 2px;
+
+            i {
+                margin-top:0;
+                font-size: 35px;
+                color: $color-post-icon-text;
+
+                &.crt-icon-twitter-bird {
+                    font-size: 32px;
+                    margin-right: 6px;
+                }
+            }
+        }
+
+        IMG
+        {
+            float: left;
+            width: 40px;
+            margin-right: 9px;
+            margin-top: 10px;
+        }
+
+        .crt-post-name
+        {
+            float: left;
+            margin-top: 3px;
+            position: absolute;
+            left:105px;
+            top:8px;
+            right: 3px;
+            font-size: 14px;
+
+            white-space: nowrap;
+            text-overflow: ellipsis;
+
+            a {
+                text-overflow: ellipsis;
+                text-decoration: none;
+                color: $color-post-header-text;
+
+                &:hover {
+                    color:darken($color-post-header-text,25);
+                }
+            }
+        }
+    }
+
+    .crt-post-content-text
+    {
+        padding-left: 17px;
+        padding-right: 17px;
+        padding-top: 16px;
+        padding-bottom: 16px;
+        color: $color-post-text;
+        font-size: 18px;
+        line-height: 1.1em;
+        //height: 100px;
+
+        a {
+            color: $color-post-text-link;
+
+            &:hover {
+                color:darken($color-post-header-text,25);
+            }
+        }
+
+        .image
+        {
+            display: none;
+        }
+    }
+
+    .crt-post-content-image
+    {
+
+        .text
+        {
+             display: none;
+        }
+        IMG
+        {
+            width: 100%;
+        }
+    }
+
+    &:hover {
+
+        .crt-post-share
+        {
+            bottom: 0;
+        }
+    }
+
+    .crt-post-share
+    {
+        position: absolute;
+        bottom: -50px;
+        padding: 10px;
+        line-height: 20px;
+        font-size: .8em;
+        color: $color-post-share-text;
+        background-color: $color-post-share-bg;
+        width: 120px;
+        right: auto;
+        left: 50%;
+        margin-left: -60px;
+        text-align: center;
+        box-shadow: none;
+        
+        transition:bottom .2s ease-in-out;
+
+        A {
+            display: inline-block;
+            color: $color-post-share-text;
+
+            &:hover {
+                color:darken($color-post-header-text,25);
+            }
+        }
+    }
+}

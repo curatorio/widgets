@@ -1,0 +1,10 @@
+{
+  "undef": true,
+  "unused": true,
+  "multistr": true,
+  "predef": [
+    "require",
+    "define",
+    "module"
+  ]
+}

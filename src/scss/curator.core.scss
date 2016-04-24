@@ -1,0 +1,27 @@
+
+$post-border-radius:0px;
+
+$color-primary:#efefef;
+$color-secondary:#2B2B2B;
+$color-tertiary:#707070;
+
+$color-feed-bg:             #ffffff;
+
+$color-post-bg:             $color-primary;
+$color-post-shadow:         #CCCCCC;
+$color-post-border:         $color-primary;
+
+$color-post-header-bg:      $color-primary;
+$color-post-header-text:    $color-secondary;
+$color-post-icon-bg:        $color-primary;
+$color-post-icon-text:      $color-secondary;
+$color-post-text:           $color-tertiary;
+$color-post-text-link:      $color-secondary;
+$color-post-share-bg:       opacify($color-post-header-bg, 1);
+$color-post-share-text:     $color-secondary;
+
+@import "_common/mixins";
+@import "_common/fontello";
+
+@import "_partials/post";
+@import "_partials/tag";
