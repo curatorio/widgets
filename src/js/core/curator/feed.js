@@ -4,7 +4,7 @@ var defaults = {
     postsToFetch:24,
     feedId:'xxx',
     debug:false,
-    apiEndpoint:'http://api.curator.io/v1'
+    apiEndpoint:'https://api.curator.io/v1'
 };
 
 Curator.Feed = function (options) {

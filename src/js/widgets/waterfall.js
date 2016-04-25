@@ -3,7 +3,7 @@ var widgetDefaults = {
     feedId:'',
     postsPerPage:12,
     maxPosts:0,
-    apiEndpoint:'http://api.curator.io/v1',
+    apiEndpoint:'https://api.curator.io/v1',
     scroll:'more',
     gridWith:250
 };
