@@ -30,7 +30,7 @@ In your ```<body>``` where you want the feed to appear:
 Then, before your closing ```<body>``` tag add:
 
 ```html
-<script type="text/javascript" src="//cdn.curator.io/1.0/js/curator.waterfall.js"></script>
+<script type="text/javascript" src="//cdn.curator.io/1.0/js/curator.widget.waterfall.js"></script>
 <script type="text/javascript">
 	// While you're testing
     Curator.debug = true;
