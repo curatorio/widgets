@@ -430,6 +430,437 @@
     color: #efefef;
     text-decoration: none; }
 
+/* Slider */
+.slick-slider {
+  position: relative;
+  display: block;
+  box-sizing: border-box;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -khtml-user-select: none;
+  -ms-touch-action: pan-y;
+  touch-action: pan-y;
+  -webkit-tap-highlight-color: transparent; }
+
+.slick-list {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  margin: 0;
+  padding: 0; }
+
+.slick-list:focus {
+  outline: none; }
+
+.slick-list.dragging {
+  cursor: pointer;
+  cursor: hand; }
+
+.slick-slider .slick-track,
+.slick-slider .slick-list {
+  -webkit-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0); }
+
+.slick-track {
+  position: relative;
+  top: 0;
+  left: 0;
+  display: block; }
+
+.slick-track:before,
+.slick-track:after {
+  display: table;
+  content: ''; }
+
+.slick-track:after {
+  clear: both; }
+
+.slick-loading .slick-track {
+  visibility: hidden; }
+
+.slick-slide {
+  display: none;
+  float: left;
+  height: 100%;
+  min-height: 1px; }
+
+[dir='rtl'] .slick-slide {
+  float: right; }
+
+.slick-slide img {
+  display: block; }
+
+.slick-slide.slick-loading img {
+  display: none; }
+
+.slick-slide.dragging img {
+  pointer-events: none; }
+
+.slick-initialized .slick-slide {
+  display: block; }
+
+.slick-loading .slick-slide {
+  visibility: hidden; }
+
+.slick-vertical .slick-slide {
+  display: block;
+  height: auto;
+  border: 1px solid transparent; }
+
+.slick-arrow.slick-hidden {
+  display: none; }
+
+/* Slider */
+.slick-loading .slick-list {
+  background: #fff url("../images/ajax-loader.gif") center center no-repeat; }
+
+/* Icons */
+@font-face {
+  font-family: 'slick';
+  font-weight: normal;
+  font-style: normal;
+  src: url("../fonts/slick.eot");
+  src: url("../fonts/slick.eot?#iefix") format("embedded-opentype"), url("../fonts/slick.woff") format("woff"), url("../fonts/slick.ttf") format("truetype"), url("../fonts/slick.svg#slick") format("svg"); }
+
+/* Arrows */
+.slick-prev,
+.slick-next {
+  font-size: 0;
+  line-height: 0;
+  position: absolute;
+  top: 50%;
+  display: block;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  margin-top: -10px\9;
+  /*lte IE 8*/
+  -webkit-transform: translate(0, -50%);
+  transform: translate(0, -50%);
+  cursor: pointer;
+  color: transparent;
+  border: none;
+  outline: none;
+  background: transparent; }
+
+.slick-prev:hover,
+.slick-prev:focus,
+.slick-next:hover,
+.slick-next:focus {
+  color: transparent;
+  outline: none;
+  background: transparent; }
+
+.slick-prev:hover:before,
+.slick-prev:focus:before,
+.slick-next:hover:before,
+.slick-next:focus:before {
+  opacity: 1; }
+
+.slick-prev.slick-disabled:before,
+.slick-next.slick-disabled:before {
+  opacity: .25; }
+
+.slick-prev:before,
+.slick-next:before {
+  font-family: 'slick';
+  font-size: 20px;
+  line-height: 1;
+  opacity: .75;
+  color: white;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale; }
+
+.slick-prev {
+  left: -25px; }
+
+[dir='rtl'] .slick-prev {
+  right: -25px;
+  left: auto; }
+
+.slick-prev:before {
+  content: '←'; }
+
+[dir='rtl'] .slick-prev:before {
+  content: '→'; }
+
+.slick-next {
+  right: -25px; }
+
+[dir='rtl'] .slick-next {
+  right: auto;
+  left: -25px; }
+
+.slick-next:before {
+  content: '→'; }
+
+[dir='rtl'] .slick-next:before {
+  content: '←'; }
+
+/* Dots */
+.slick-slider {
+  margin-bottom: 30px; }
+
+.slick-dots {
+  position: absolute;
+  bottom: -45px;
+  display: block;
+  width: 100%;
+  padding: 0;
+  list-style: none;
+  text-align: center; }
+
+.slick-dots li {
+  position: relative;
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  margin: 0 5px;
+  padding: 0;
+  cursor: pointer; }
+
+.slick-dots li button {
+  font-size: 0;
+  line-height: 0;
+  display: block;
+  width: 20px;
+  height: 20px;
+  padding: 5px;
+  cursor: pointer;
+  color: transparent;
+  border: 0;
+  outline: none;
+  background: transparent; }
+
+.slick-dots li button:hover,
+.slick-dots li button:focus {
+  outline: none; }
+
+.slick-dots li button:hover:before,
+.slick-dots li button:focus:before {
+  opacity: 1; }
+
+.slick-dots li button:before {
+  font-family: 'slick';
+  font-size: 6px;
+  line-height: 20px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 20px;
+  height: 20px;
+  content: '•';
+  text-align: center;
+  opacity: .25;
+  color: black;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale; }
+
+.slick-dots li.slick-active button:before {
+  opacity: .75;
+  color: black; }
+
+.slick-prev, .slick-next {
+  z-index: 100; }
+
+.slick-prev:before, .slick-next:before {
+  color: #000000;
+  font-size: 40px; }
+
+.slick-prev {
+  width: 50px;
+  left: 10px; }
+
+.slick-next {
+  width: 50px;
+  right: 10px; }
+
+.crt-clearfix, .crt-post .crt-post-header {
+  zoom: 1; }
+  .crt-clearfix:before, .crt-post .crt-post-header:before, .crt-clearfix:after, .crt-post .crt-post-header:after {
+    content: "\0020";
+    display: block;
+    height: 0;
+    overflow: hidden; }
+  .crt-clearfix:after, .crt-post .crt-post-header:after {
+    clear: both; }
+
+@font-face {
+  font-family: 'crt-fontello';
+  src: url("../fonts/fontello.eot?72242355");
+  src: url("../fonts/fontello.eot?72242355#iefix") format("embedded-opentype"), url("../fonts/fontello.woff?72242355") format("woff"), url("../fonts/fontello.ttf?72242355") format("truetype"), url("../fonts/fontello.svg?72242355#fontello") format("svg");
+  font-weight: normal;
+  font-style: normal; }
+
+/* Chrome hack: SVG is rendered more smooth in Windozze. 100% magic, uncomment if you need it. */
+/* Note, that will break hinting! In other OS-es font will be not as sharp as it could be */
+/*
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+  @font-face {
+    font-family: '../fonts/fontello';
+    src: url('../fonts/fontello.svg?72242355#fontello') format('svg');
+  }
+}
+*/
+[class^="crt-icon-"]:before, [class*=" crt-icon-"]:before {
+  font-family: "crt-fontello";
+  font-style: normal;
+  font-weight: normal;
+  speak: none;
+  display: inline-block;
+  text-decoration: inherit;
+  width: 1em;
+  margin-right: .2em;
+  text-align: center;
+  /* opacity: .8; */
+  /* For safety - reset parent styles, that can break glyph codes*/
+  font-variant: normal;
+  text-transform: none;
+  /* fix buttons height, for twitter bootstrap */
+  line-height: 1em;
+  /* Animation center compensation - margins should be symmetric */
+  /* remove if not needed */
+  margin-left: .2em;
+  /* you can be more comfortable with increased icons size */
+  /* font-size: 120%; */
+  /* Uncomment for 3D effect */
+  /* text-shadow: 1px 1px 1px rgba(127, 127, 127, 0.3); */ }
+
+.crt-icon-facebook:before {
+  content: '\e800'; }
+
+/* '' */
+.crt-icon-twitter-bird:before {
+  content: '\e804'; }
+
+/* '' */
+.crt-icon-instagram:before {
+  content: '\e803'; }
+
+/* '' */
+.crt-icon-instagram-filled:before {
+  content: '\e802'; }
+
+/* '' */
+/**
+* ==================================================================
+* POST
+* ==================================================================
+ */
+.crt-post-c {
+  width: 368px;
+  float: left; }
+
+.crt-post {
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+  margin: 5px;
+  border: 1px solid #efefef;
+  background-color: #efefef;
+  border-radius: 0px; }
+  .crt-post a {
+    transition: color 0.2s linear; }
+  .crt-post .crt-post-header {
+    background-color: #efefef;
+    color: #2B2B2B;
+    /*[empty]margin-left:;*/
+    padding-bottom: 3px; }
+    .crt-post .crt-post-header .social-icon {
+      float: left;
+      display: block;
+      width: 43px;
+      height: 57px;
+      margin-right: 10px;
+      margin-left: 3px;
+      background-color: #efefef;
+      border-radius: 50%;
+      line-height: 57px;
+      text-align: center;
+      padding-top: 2px; }
+      .crt-post .crt-post-header .social-icon i {
+        margin-top: 0;
+        font-size: 35px;
+        color: #2B2B2B; }
+        .crt-post .crt-post-header .social-icon i.crt-icon-twitter-bird {
+          font-size: 32px;
+          margin-right: 6px; }
+    .crt-post .crt-post-header IMG {
+      float: left;
+      width: 40px;
+      margin-right: 9px;
+      margin-top: 10px; }
+    .crt-post .crt-post-header .crt-post-name {
+      float: left;
+      margin-top: 3px;
+      position: absolute;
+      left: 105px;
+      top: 8px;
+      right: 3px;
+      font-size: 14px;
+      white-space: nowrap;
+      text-overflow: ellipsis; }
+      .crt-post .crt-post-header .crt-post-name a {
+        text-overflow: ellipsis;
+        text-decoration: none;
+        color: #2B2B2B; }
+        .crt-post .crt-post-header .crt-post-name a:hover {
+          color: black; }
+  .crt-post .crt-post-content-text {
+    padding-left: 17px;
+    padding-right: 17px;
+    padding-top: 16px;
+    padding-bottom: 16px;
+    color: #707070;
+    font-size: 18px;
+    line-height: 1.1em; }
+    .crt-post .crt-post-content-text a {
+      color: #2B2B2B; }
+      .crt-post .crt-post-content-text a:hover {
+        color: black; }
+    .crt-post .crt-post-content-text .image {
+      display: none; }
+  .crt-post .crt-post-content-image .text {
+    display: none; }
+  .crt-post .crt-post-content-image IMG {
+    width: 100%; }
+  .crt-post:hover .crt-post-share {
+    bottom: 0; }
+  .crt-post .crt-post-share {
+    position: absolute;
+    bottom: -50px;
+    padding: 10px;
+    line-height: 20px;
+    font-size: .8em;
+    color: #2B2B2B;
+    background-color: #efefef;
+    width: 120px;
+    right: auto;
+    left: 50%;
+    margin-left: -60px;
+    text-align: center;
+    box-shadow: none;
+    transition: bottom .2s ease-in-out; }
+    .crt-post .crt-post-share A {
+      display: inline-block;
+      color: #2B2B2B; }
+      .crt-post .crt-post-share A:hover {
+        color: black; }
+
+.crt-tag {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  z-index: 999;
+  text-shadow: 0px 0px 2px #000000;
+  color: #ffffff; }
+  .crt-tag a {
+    color: #efefef;
+    text-decoration: none; }
+
 .crt-panel {
   max-width: 320px;
   min-height: 400px;

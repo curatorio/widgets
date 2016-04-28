@@ -2,28 +2,4 @@
 
 @import "_vendor/slick";
 @import "curator.core";
-
-.crt-carousel {
-    min-width: 320px;
-    min-height: 400px;
-    position: relative;
-    font-family: 'Arial';
-
-    .crt-feed-scroll {
-        width:100%;
-    }
-
-    .crt-feed {
-        width:100%;
-        @extend .crt-clearfix;
-
-        background-color: $color-feed-bg;
-        -webkit-font-smoothing:antialiased;
-        font-family: 'Helvetica',Arial,sans-serif;
-    }
-
-    .crt-post-c {
-        float: left;
-    }
-}
-
+@import "widgets/carousel";
