@@ -1,13 +1,11 @@
 
 
 
-@import "curator.core";
 
 .crt-feed-container {
     min-width: 320px;
     min-height: 400px;
     position: relative;
-    font-family: 'Arial';
 
     .crt-feed-scroll {
         width:100%;
@@ -19,11 +17,10 @@
 
         background-color: $color-feed-bg;
         -webkit-font-smoothing:antialiased;
-        font-family: 'Helvetica',Arial,sans-serif;
     }
 
     .crt-post-c {
-        width: auto;
+        width: 100%;
         float: none;
         display: inline-block;
 

@@ -54,7 +54,8 @@
   content: '\e800'; }
 
 /* '' */
-.crt-icon-twitter-bird:before {
+.crt-icon-twitter-bird:before,
+.crt-icon-twitter:before {
   content: '\e804'; }
 
 /* '' */
@@ -106,7 +107,7 @@
         margin-top: 0;
         font-size: 35px;
         color: #2B2B2B; }
-        .crt-post .crt-post-header .social-icon i.crt-icon-twitter-bird {
+        .crt-post .crt-post-header .social-icon i.crt-icon-twitter {
           font-size: 32px;
           margin-right: 6px; }
     .crt-post .crt-post-header IMG {
@@ -119,9 +120,10 @@
       margin-top: 3px;
       position: absolute;
       left: 105px;
-      top: 8px;
+      top: 11px;
       right: 3px;
-      font-size: 14px;
+      font-size: 0.9em;
+      line-height: 1.1em;
       white-space: nowrap;
       text-overflow: ellipsis; }
       .crt-post .crt-post-header .crt-post-name a {
@@ -136,18 +138,20 @@
     padding-top: 16px;
     padding-bottom: 16px;
     color: #707070;
-    font-size: 18px;
-    line-height: 1.1em; }
+    font-size: 1em;
+    line-height: 1.2em; }
     .crt-post .crt-post-content-text a {
       color: #2B2B2B; }
       .crt-post .crt-post-content-text a:hover {
         color: black; }
     .crt-post .crt-post-content-text .image {
       display: none; }
-  .crt-post .crt-post-content-image .text {
-    display: none; }
-  .crt-post .crt-post-content-image IMG {
-    width: 100%; }
+  .crt-post .crt-post-content-image {
+    max-height: 400px; }
+    .crt-post .crt-post-content-image .text {
+      display: none; }
+    .crt-post .crt-post-content-image IMG {
+      width: 100%; }
   .crt-post:hover .crt-post-share {
     bottom: 0; }
   .crt-post .crt-post-share {
@@ -176,8 +180,7 @@
   bottom: 10px;
   right: 10px;
   z-index: 999;
-  text-shadow: 0px 0px 2px #000000;
-  color: #ffffff; }
+  color: #efefef;
+  text-decoration: none; }
   .crt-tag a {
-    color: #efefef;
-    text-decoration: none; }
+    color: #efefef; }

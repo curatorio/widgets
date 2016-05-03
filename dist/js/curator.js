@@ -1,3 +1,382 @@
+/**
+ * jQuery Grid-A-Licious(tm) v3.01
+ *
+ * Terms of Use - jQuery Grid-A-Licious(tm)
+ * under the MIT (http://www.opensource.org/licenses/mit-license.php) License.
+ *
+ * Copyright 2008-2012 Andreas Pihlström (Suprb). All rights reserved.
+ * (http://suprb.com/apps/gridalicious/)
+ *
+ */
+
+// Debouncing function from John Hann
+// http://unscriptable.com/index.php/2009/03/20/debouncing-javascript-methods/
+// Copy pasted from http://paulirish.com/2009/throttled-smartresize-jquery-event-handler/
+
+(function ($, sr) {
+    var debounce = function (func, threshold, execAsap) {
+        var timeout;
+        return function debounced() {
+            var obj = this,
+                args = arguments;
+
+            function delayed() {
+                if (!execAsap) func.apply(obj, args);
+                timeout = null;
+            };
+            if (timeout) clearTimeout(timeout);
+            else if (execAsap) func.apply(obj, args);
+
+            timeout = setTimeout(delayed, threshold || 150);
+        };
+    };
+    jQuery.fn[sr] = function (fn) {
+        return fn ? this.bind('resize', debounce(fn)) : this.trigger(sr);
+    };
+})(jQuery, 'smartresize');
+
+// The Grid-A-Licious magic
+
+(function ($) {
+
+    $.Gal = function (options, element) {
+        this.element = jQuery(element);
+        this._init(options);
+    };
+
+    $.Gal.settings = {
+        selector: '.item',
+        width: 225,
+        gutter: 20,
+        animate: false,
+        animationOptions: {
+            speed: 200,
+            duration: 300,
+            effect: 'fadeInOnAppear',
+            queue: true,
+            complete: function () {}
+        },
+    };
+
+    $.Gal.prototype = {
+
+        _init: function (options) {
+            var container = this;
+            this.name = this._setName(5);
+            this.gridArr = [];
+            this.gridArrAppend = [];
+            this.gridArrPrepend = [];
+            this.setArr = false;
+            this.setGrid = false;
+            this.setOptions;
+            this.cols = 0;
+            this.itemCount = 0;
+            this.prependCount = 0;
+            this.isPrepending = false;
+            this.appendCount = 0;
+            this.resetCount = true;
+            this.ifCallback = true;
+            this.box = this.element;
+            this.boxWidth = this.box.width();
+            this.options = $.extend(true, {}, $.Gal.settings, options);
+            this.gridArr = $.makeArray(this.box.find(this.options.selector));
+            this.isResizing = false;
+            this.w = 0;
+            this.boxArr = [];
+
+            // build columns
+            this._setCols();
+            // build grid
+            this._renderGrid('append');
+            // add class 'gridalicious' to container
+            jQuery(this.box).addClass('gridalicious');
+            // add smartresize
+            jQuery(window).smartresize(function () {
+                container.resize();
+            });
+        },
+
+        _setName: function (length, current) {
+            current = current ? current : '';
+            return length ? this._setName(--length, "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz".charAt(Math.floor(Math.random() * 60)) + current) : current;
+        },
+
+        _setCols: function () {
+            // calculate columns
+            this.cols = Math.floor(this.box.width() / this.options.width);
+            //If Cols lower than 1, the grid disappears
+            if (this.cols < 1) { this.cols = 1; }
+            diff = (this.box.width() - (this.cols * this.options.width) - this.options.gutter) / this.cols;
+            w = (this.options.width + diff) / this.box.width() * 100;
+            this.w = w;
+            // add columns to box
+            for (var i = 0; i < this.cols; i++) {
+                var div = jQuery('<div></div>').addClass('galcolumn').attr('id', 'item' + i + this.name).css({
+                    'width': w + '%',
+                    'paddingLeft': this.options.gutter,
+                    'paddingBottom': this.options.gutter,
+                    'float': 'left',
+                    '-webkit-box-sizing': 'border-box',
+                    '-moz-box-sizing': 'border-box',
+                    '-o-box-sizing': 'border-box',
+                    'box-sizing': 'border-box'
+                });
+                this.box.append(div);
+            }
+            
+            
+            this.box.find(jQuery('#clear' + this.name)).remove();
+            // add clear float
+            var clear = jQuery('<div></div>').css({
+                'clear': 'both',
+                'height': '0',
+                'width': '0',
+                'display': 'block'
+            }).attr('id', 'clear' + this.name);
+            this.box.append(clear);
+        },
+
+        _renderGrid: function (method, arr, count, prepArray) {
+            var items = [];
+            var boxes = [];
+            var prependArray = [];
+            var itemCount = 0;
+            var prependCount = this.prependCount;
+            var appendCount = this.appendCount;
+            var gutter = this.options.gutter;
+            var cols = this.cols;
+            var name = this.name;
+            var i = 0;
+            var w = jQuery('.galcolumn').width();
+
+            // if arr
+            if (arr) {
+                boxes = arr;
+                // if append
+                if (method == "append") {
+                    // get total of items to append
+                    appendCount += count;
+                    // set itemCount to last count of appened items
+                    itemCount = this.appendCount;
+                }               
+                // if prepend
+                if (method == "prepend") {
+                    // set itemCount
+                    this.isPrepending = true;
+                    itemCount = Math.round(count % cols);
+                    if (itemCount <= 0) itemCount = cols; 
+                }
+                // called by _updateAfterPrepend()
+                if (method == "renderAfterPrepend") {
+                    // get total of items that was previously prepended
+                    appendCount += count;
+                    // set itemCount by counting previous prepended items
+                    itemCount = count;
+                }
+            }
+            else {
+                boxes = this.gridArr;
+                appendCount = jQuery(this.gridArr).size();
+            }
+
+            // push out the items to the columns
+            $.each(boxes, function (index, value) {
+                var item = jQuery(value);
+                var width = '100%';
+            
+                // if you want something not to be "responsive", add the class "not-responsive" to the selector container            
+                if (item.hasClass('not-responsive')) {
+                  width = 'auto';
+                }
+                
+                item.css({
+                    'marginBottom': gutter,
+                    'zoom': '1',
+                    'filter': 'alpha(opacity=0)',
+                    'opacity': '0'
+                });
+                //.find('img, object, embed, iframe').css({
+                //    'width': width,
+                //    'height': 'auto',
+                //    'display': 'block',
+                //    'margin-left': 'auto',
+                //    'margin-right': 'auto'
+                //});
+                
+                // prepend on append to column
+                if (method == 'prepend') {
+                    itemCount--;
+                    jQuery("#item" + itemCount + name).prepend(item);
+                    items.push(item);
+                    if(itemCount == 0) itemCount = cols;
+                    
+                } else {
+                    jQuery("#item" + itemCount + name).append(item);
+                    items.push(item);
+                    itemCount++;
+                    if (itemCount >= cols) itemCount = 0;
+                    if (appendCount >= cols) appendCount = (appendCount - cols);
+                }
+            });
+
+            this.appendCount = appendCount;
+            this.itemCount = itemCount;
+
+            if (method == "append" || method == "prepend") {
+                if (method == "prepend") { 
+                  // render old items and reverse the new items
+                  this._updateAfterPrepend(this.gridArr, boxes);
+                }
+                this._renderItem(items);
+                this.isPrepending = false;
+            } else {
+                this._renderItem(this.gridArr);
+            }
+        },
+
+        _collectItems: function () {
+            var collection = [];
+            jQuery(this.box).find(this.options.selector).each(function (i) {
+                collection.push(jQuery(this));
+            });
+            return collection;
+        },
+
+        _renderItem: function (items) {
+
+            var speed = this.options.animationOptions.speed;
+            var effect = this.options.animationOptions.effect;
+            var duration = this.options.animationOptions.duration;
+            var queue = this.options.animationOptions.queue;
+            var animate = this.options.animate;
+            var complete = this.options.animationOptions.complete;
+
+            var i = 0;
+            var t = 0;
+
+            // animate
+            if (animate === true && !this.isResizing) {
+
+                // fadeInOnAppear
+                if (queue === true && effect == "fadeInOnAppear") {
+                    if (this.isPrepending) items.reverse();
+                    $.each(items, function (index, value) {
+                        setTimeout(function () {
+                            jQuery(value).animate({
+                                opacity: '1.0'
+                            }, duration);
+                            t++;
+                            if (t == items.length) {
+                                complete.call(undefined, items)
+                            }
+                        }, i * speed);
+                        i++;
+                    });
+                } else if (queue === false && effect == "fadeInOnAppear") {
+                    if (this.isPrepending) items.reverse();
+                    $.each(items, function (index, value) {
+                        jQuery(value).animate({
+                            opacity: '1.0'
+                        }, duration);
+                        t++;
+                        if (t == items.length) {
+                            if (this.ifCallback) {
+                                complete.call(undefined, items);
+                            }
+                        }
+                    });
+                }
+
+                // no effect but queued
+                if (queue === true && !effect) {
+                    $.each(items, function (index, value) {
+                        jQuery(value).css({
+                            'opacity': '1',
+                            'filter': 'alpha(opacity=100)'
+                        });
+                        t++;
+                        if (t == items.length) {
+                            if (this.ifCallback) {
+                                complete.call(undefined, items);
+                            }
+                        }
+                    });
+                }
+
+            // don not animate & no queue
+            } else {
+                $.each(items, function (index, value) {
+                    jQuery(value).css({
+                        'opacity': '1',
+                        'filter': 'alpha(opacity=100)'
+                    });
+                });
+                if (this.ifCallback) {
+                    complete.call(items);
+                }
+            }
+        },
+
+        _updateAfterPrepend: function (prevItems, newItems) {            
+            var gridArr = this.gridArr;
+            // add new items to gridArr
+            $.each(newItems, function (index, value) {
+                gridArr.unshift(value);
+            });
+            this.gridArr = gridArr;
+        },
+
+        resize: function () {
+            if (this.box.width() === this.boxWidth) {
+                return;
+            }
+
+            // delete columns in box
+            this.box.find(jQuery('.galcolumn')).remove();
+            // build columns
+            this._setCols();
+            // build grid
+            this.ifCallback = false;
+            this.isResizing = true;
+            this._renderGrid('append');
+            this.ifCallback = true;
+            this.isResizing = false;
+            this.boxWidth = this.box.width();
+        },
+
+        append: function (items) {
+            var gridArr = this.gridArr;
+            var gridArrAppend = this.gridArrPrepend;
+            $.each(items, function (index, value) {
+                gridArr.push(value);
+                gridArrAppend.push(value);
+            });
+            this._renderGrid('append', items, jQuery(items).size());
+        },
+
+        prepend: function (items) {
+            this.ifCallback = false;
+            this._renderGrid('prepend', items, jQuery(items).size());
+            this.ifCallback = true;
+        },
+    };
+
+    $.fn.gridalicious = function (options, e) {
+        if (typeof options === 'string') {
+            this.each(function () {
+                var container = $.data(this, 'gridalicious');
+                container[options].apply(container, [e]);
+            });
+        } else {
+            this.each(function () {
+                $.data(this, 'gridalicious', new $.Gal(options, this));
+            });
+        }
+        return this;
+    }
+
+})(jQuery);
+
 /*
  _ _      _       _
  ___| (_) ___| | __  (_)___
@@ -816,6 +1195,172 @@ if (typeof define === 'function' && define.amd) {
         argsCopy.unshift(root);
         return factory.apply(this, argsCopy); 
     };
+    define(['jquery', 'curator'], factoryWrap);
+} else if (typeof exports === 'object') {
+    module.exports = factory(root, require('jquery'), require('curator'));
+} else {
+    root.Curator.Waterfall = factory(root, root.jQuery, root.Curator);
+}
+}(this, function(root, jQuery, Curator) {
+
+var widgetDefaults = {
+    feedId:'',
+    postsPerPage:12,
+    maxPosts:0,
+    apiEndpoint:'https://api.curator.io/v1',
+    scroll:'more',
+    gridWith:250
+};
+
+
+var Client = function (options) {
+    this.init(options);
+};
+
+Curator.Templates.postTemplate = ' \
+<div class="crt-post-c">\
+    <div class="crt-post post<%=id%>"> \
+        <div class="crt-post-header"> \
+            <span class="social-icon"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \
+            <img src="<%=user_image%>"  /> \
+            <div class="crt-post-name"><span><%=user_full_name%></span><br/><a href="<%=this.userUrl()%>" target="_blank">@<%=user_screen_name%></a></div> \
+        </div> \
+        <div class="crt-post-content <%=image?\'crt-post-content-image\':\'crt-post-content-text\'%>"> \
+            <div class="image"> \
+                <img src="<%=image%>" /> \
+            </div> \
+            <div class="text"> \
+                <%=this.parseText(text)%> \
+            </div> \
+        </div> \
+        <div class="crt-post-share">Share <a href="#" class="shareFacebook"><i class="crt-icon-facebook"></i></a>  <a href="#" class="shareTwitter"><i class="crt-icon-twitter-bird"></i></a> </div> \
+    </div>\
+</div>';
+
+jQuery.extend(Client.prototype,{
+    containerHeight: 0,
+    loading: false,
+    feed: null,
+    $container: null,
+    $feed: null,
+    posts:[],
+
+    init: function (options) {
+        Curator.log("Waterfall->init with options:");
+
+        this.options = jQuery.extend({},widgetDefaults,options);
+
+        Curator.log(this.options);
+
+        var that = this;
+
+        this.feed = new Curator.Feed ({
+            debug:this.options.debug,
+            feedId:this.options.feedId,
+            postsToFetch:this.options.postsPerPage,
+            apiEndpoint:this.options.apiEndpoint
+        });
+        this.$container = jQuery(this.options.container);
+        this.$scroll = jQuery('<div class="crt-feed-scroll"></div>').appendTo(this.$container);
+        this.$feed = jQuery('<div class="crt-feed"></div>').appendTo(this.$scroll);
+        this.$container.addClass('crt-feed-container');
+
+        if (!this.feed.checkPowered(this.$container)){
+            Curator.alert ('Container is missing Powered by Curator');
+        } else {
+            //this.$feed.waterfall();
+
+            this.feed.loadPosts(jQuery.proxy(this.onLoadPosts, this),jQuery.proxy(this.onLoadPostsFail, this));
+
+            if (this.scroll=='continuous') {
+                jQuery(this.$scroll).scroll(function () {
+                    var height = that.$scroll.height();
+                    var cHeight = that.$feed.height();
+                    var scrollTop = that.$scroll.scrollTop();
+                    if (scrollTop >= cHeight - height) {
+                        that.feed.loadMorePosts(jQuery.proxy(that.onLoadPosts, that), jQuery.proxy(that.onLoadPostsFail, that));
+                    }
+                });
+            } else {
+                this.$more = jQuery('<div class="crt-feed-more"><a href="#"><span>Load more</span></a></div>').appendTo(this.$scroll);
+                this.$more.find('a').on('click',function(ev){
+                    ev.preventDefault();
+                    that.feed.loadMorePosts(jQuery.proxy(that.onLoadPosts, that), jQuery.proxy(that.onLoadPostsFail, that));
+                });
+            }
+
+            this.$feed.gridalicious({
+                selector:'.crt-post-c',
+                gutter:0,
+                width:this.options.gridWith
+            });
+        }
+    },
+
+    onLoadPosts: function (posts) {
+        Curator.log("loadPosts");
+        var that = this;
+        var postElements = [];
+        jQuery(posts).each(function(){
+            var p = that.loadPost(this);
+            postElements.push(p.el);
+        });
+
+        //this.$feed.append(postElements);
+        that.$feed.gridalicious('append',postElements);
+
+        that.loading = false;
+    },
+
+    onLoadPostsFail: function (data) {
+        this.loading = false;
+        this.$feed.html('<p style="text-align: center">'+data.message+'</p>');
+    },
+
+    onPostClick: function (ev,postJson) {
+        var popup = new Curator.Popup(postJson, this.feed);
+        popup.show();
+    },
+
+    loadPost: function (postJson) {
+        var post = new Curator.Post(postJson);
+        jQuery(post).bind('postClick',jQuery.proxy(this.onPostClick, this));
+        return post;
+    },
+
+    destroy : function () {
+        //this.$feed.slick('unslick');
+        this.$feed.remove();
+        this.$scroll.remove();
+        this.$more.remove();
+        this.$container.removeClass('crt-feed-container');
+
+        delete this.$feed;
+        delete this.$scroll;
+        delete this.$container;
+        delete this.options ;
+        delete this.totalPostsLoaded;
+        delete this.loading;
+        delete this.allLoaded;
+
+        // TODO add code to cascade destroy down to Feed & Posts
+        // unregistering events etc
+        delete this.feed;
+        }
+});
+
+
+    return Client;
+}));
+
+;(function(root, factory) {
+if (typeof define === 'function' && define.amd) {
+    // Cheeky wrapper to add root to the factory call
+    var factoryWrap = function () { 
+        var argsCopy = [].slice.call(arguments); 
+        argsCopy.unshift(root);
+        return factory.apply(this, argsCopy); 
+    };
     define(['jquery', 'curator', 'slick'], factoryWrap);
 } else if (typeof exports === 'object') {
     module.exports = factory(root, require('jquery'), require('curator'), require('slick'));
@@ -995,6 +1540,315 @@ jQuery.extend(Client.prototype,{
 });
 
 Curator.Carousel = Client;
+
+    return Client;
+}));
+
+;(function(root, factory) {
+if (typeof define === 'function' && define.amd) {
+    // Cheeky wrapper to add root to the factory call
+    var factoryWrap = function () { 
+        var argsCopy = [].slice.call(arguments); 
+        argsCopy.unshift(root);
+        return factory.apply(this, argsCopy); 
+    };
+    define(['jquery', 'curator', 'slick'], factoryWrap);
+} else if (typeof exports === 'object') {
+    module.exports = factory(root, require('jquery'), require('curator'), require('slick'));
+} else {
+    root.Curator.Panel = factory(root, root.jQuery, root.Curator, root.slick);
+}
+}(this, function(root, jQuery, Curator, slick) {
+
+var clientDefaults = {
+    feedId:'',
+    postsPerPage:12,
+    maxPosts:0,
+    apiEndpoint:'https://api.curator.io/v1',
+    scroll:'more',
+    slick:{
+        dots: false,
+        speed: 500,
+        fade:true,
+        cssEase: 'ease-in-out',
+        infinite: false,
+        autoplay: true,
+        slidesToShow: 1,
+        slidesToScroll: 1
+    }
+};
+
+var Client = function (options) {
+    this.init(options);
+    this.totalPostsLoaded = 0;
+    this.allLoaded = false;
+};
+
+Curator.Templates.postTemplate = ' \
+<div class="crt-post-c">\
+    <div class="crt-post post<%=id%>"> \
+        <div class="crt-post-header"> \
+            <span class="social-icon"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \
+            <img src="<%=user_image%>"  /> \
+            <div class="crt-post-name"><%=user_full_name%><br/><a href="<%=this.userUrl()%>" target="_blank">@<%=user_screen_name%></a></div> \
+        </div> \
+        <div class="crt-post-content <%=image?\'crt-post-content-image\':\'crt-post-content-text\'%>"> \
+            <div class="image"> \
+                <img src="<%=image%>" /> \
+            </div> \
+            <div class="text"> \
+                <%=this.parseText(text)%> \
+            </div> \
+        </div> \
+        <div class="crt-post-share">Share <a href="#" class="shareFacebook"><i class="crt-icon-facebook"></i></a>  <a href="#" class="shareTwitter"><i class="crt-icon-twitter-bird"></i></a> </div> \
+    </div>\
+</div>';
+
+jQuery.extend(Client.prototype,{
+    containerHeight: 0,
+    loading: false,
+    feed: null,
+    $container: null,
+    $feed: null,
+    posts:[],
+
+    init: function (options) {
+        Curator.log("Carousel->init with options:");
+
+        this.options = jQuery.extend({},clientDefaults,options);
+
+        Curator.log(this.options);
+
+        var that = this;
+
+        this.feed = new Curator.Feed ({
+            debug:this.options.debug,
+            feedId:this.options.feedId,
+            postsToFetch:this.options.postsPerPage,
+            apiEndpoint:this.options.apiEndpoint
+        });
+        this.$container = jQuery(this.options.container);
+        //this.$scroll = jQuery('<div class="crt-feed-scroll"></div>').appendTo(this.$container);
+        this.$feed = jQuery('<div class="crt-feed"></div>').appendTo(this.$container);
+        this.$container.addClass('crt-panel');
+
+        if (!this.feed.checkPowered(this.$container)){
+            Curator.alert ('Container is missing Powered by Curator');
+        } else {
+            this.feed.loadPosts(jQuery.proxy(this.onLoadPosts, this),jQuery.proxy(this.onLoadPostsFail, this));
+
+            that.$feed.slick(this.options.slick).on('afterChange', function(event, slick, currentSlide) {
+
+                if (!that.allLoaded) {
+                    //console.log(currentSlide + '>' + (that.totalPostsLoaded - 4));
+
+                    if (currentSlide >= that.totalPostsLoaded - 4) {
+                        that.feed.loadMorePosts(jQuery.proxy(that.onLoadPosts, that), jQuery.proxy(that.onLoadPostsFail, that));
+                    }
+                }
+            });
+        }
+    },
+
+    onLoadPosts: function (posts) {
+        Curator.log("loadPosts");
+
+        this.loading = false;
+
+        if (posts.length === 0) {
+            this.allLoaded = true;
+        } else {
+            this.totalPostsLoaded += posts.length;
+
+            var that = this;
+            //var postElements = [];
+            jQuery(posts).each(function(){
+                var p = that.loadPost(this);
+                //postElements.push(p.el);
+                that.$feed.slick('slickAdd',p.el);
+            });
+        }
+    },
+
+    onLoadPostsFail: function (data) {
+        this.loading = false;
+        this.$feed.html('<p style="text-align: center">'+data.message+'</p>');
+    },
+
+    onPostClick: function (ev,postJson) {
+        var popup = new Curator.Popup(postJson, this.feed);
+        popup.show();
+    },
+
+    loadPost: function (postJson) {
+        var post = new Curator.Post(postJson);
+        jQuery(post).bind('postClick',jQuery.proxy(this.onPostClick, this));
+        return post;
+    },
+
+    destroy : function () {
+        this.$feed.slick('unslick');
+        this.$feed.remove();
+        this.$container.removeClass('crt-carousel');
+
+        delete this.$feed;
+        delete this.$container;
+        delete this.options ;
+        delete this.totalPostsLoaded;
+        delete this.loading;
+        delete this.allLoaded;
+
+        // TODO add code to cascade destroy down to Feed & Posts
+        // unregistering events etc
+        delete this.feed;
+    }
+});
+
+Curator.Panel = Client;
+
+
+    return Client;
+}));
+
+;(function(root, factory) {
+if (typeof define === 'function' && define.amd) {
+    // Cheeky wrapper to add root to the factory call
+    var factoryWrap = function () { 
+        var argsCopy = [].slice.call(arguments); 
+        argsCopy.unshift(root);
+        return factory.apply(this, argsCopy); 
+    };
+    define(['jquery', 'curator'], factoryWrap);
+} else if (typeof exports === 'object') {
+    module.exports = factory(root, require('jquery'), require('curator'));
+} else {
+    root.Curator.Custom = factory(root, root.jQuery, root.Curator);
+}
+}(this, function(root, jQuery, Curator) {
+var clientDefaults = {
+    feedId:'',
+    postsPerPage:12,
+    maxPosts:0,
+    apiEndpoint:'https://api.curator.io/v1'
+};
+
+var Client = function (options) {
+    this.init(options);
+    this.totalPostsLoaded = 0;
+    this.allLoaded = false;
+};
+
+Curator.Templates.postTemplate = ' \
+<div class="crt-post-c">\
+    <div class="crt-post post<%=id%>"> \
+        <div class="crt-post-header"> \
+            <span class="social-icon"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \
+            <img src="<%=user_image%>"  /> \
+            <div class="crt-post-name"><%=user_full_name%><br/><a href="<%=this.userUrl()%>" target="_blank">@<%=user_screen_name%></a></div> \
+        </div> \
+        <div class="crt-post-content <%=image?\'crt-post-content-image\':\'crt-post-content-text\'%>"> \
+            <div class="image"> \
+                <img src="<%=image%>" /> \
+            </div> \
+            <div class="text"> \
+                <%=this.parseText(text)%> \
+            </div> \
+        </div> \
+        <div class="crt-post-share">Share <a href="#" class="shareFacebook"><i class="crt-icon-facebook"></i></a>  <a href="#" class="shareTwitter"><i class="crt-icon-twitter-bird"></i></a> </div> \
+    </div>\
+</div>';
+
+jQuery.extend(Client.prototype,{
+    containerHeight: 0,
+    loading: false,
+    feed: null,
+    $container: null,
+    $feed: null,
+    posts:[],
+
+    init: function (options) {
+        Curator.debug = options.debug;
+
+        Curator.log("Custom->init with options:");
+
+        this.options = jQuery.extend({},clientDefaults,options);
+
+        Curator.log(this.options);
+
+        this.feed = new Curator.Feed ({
+            debug:this.options.debug,
+            feedId:this.options.feedId,
+            postsToFetch:this.options.postsPerPage,
+            apiEndpoint:this.options.apiEndpoint
+        });
+        this.$container = jQuery(this.options.container);
+        this.$feed = jQuery('<div class="crt-feed"></div>').appendTo(this.$container);
+        this.$container.addClass('crt-custom');
+
+        if (!this.feed.checkPowered(this.$container)){
+            root.alert ('Container is missing Powered by Curator');
+        } else {
+            this.loadPosts();
+        }
+    },
+
+    onLoadPosts: function (posts) {
+        Curator.log("loadPosts");
+
+        this.loading = false;
+
+        if (posts.length === 0) {
+            this.allLoaded = true;
+        } else {
+            this.totalPostsLoaded += posts.length;
+
+            var that = this;
+            var postElements = [];
+            jQuery(posts).each(function(){
+                var p = that.loadPost(this);
+                postElements.push(p.el);
+            });
+            that.$feed.append(postElements);
+        }
+    },
+
+    onLoadPostsFail: function (data) {
+        this.loading = false;
+        this.$feed.html('<p style="text-align: center">'+data.message+'</p>');
+    },
+
+    onPostClick: function (ev,postJson) {
+        var popup = new Curator.Popup(postJson, this.feed);
+        popup.show();
+    },
+
+    loadPost: function (postJson) {
+        var post = new Curator.Post(postJson);
+        jQuery(post).bind('postClick',jQuery.proxy(this.onPostClick, this));
+        return post;
+    },
+
+    loadPosts : function () {
+        this.feed.loadMorePosts(this.onLoadPosts.bind(this), this.onLoadPostsFail.bind(this));
+    },
+
+    destroy : function () {
+        this.$feed.remove();
+        this.$container.removeClass('crt-custom');
+
+        delete this.$feed;
+        delete this.$container;
+        delete this.options ;
+        delete this.totalPostsLoaded;
+        delete this.loading;
+        delete this.allLoaded;
+
+        // TODO add code to cascade destroy down to Feed & Posts
+        // unregistering events etc
+        delete this.feed;
+    }
+
+});
 
     return Client;
 }));

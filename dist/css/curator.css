@@ -247,14 +247,14 @@
   width: 50px;
   right: 10px; }
 
-.crt-clearfix, .crt-post .crt-post-header {
+.crt-clearfix, .crt-post .crt-post-header, .crt-feed-container .crt-feed, .crt-carousel .crt-feed {
   zoom: 1; }
-  .crt-clearfix:before, .crt-post .crt-post-header:before, .crt-clearfix:after, .crt-post .crt-post-header:after {
+  .crt-clearfix:before, .crt-post .crt-post-header:before, .crt-feed-container .crt-feed:before, .crt-carousel .crt-feed:before, .crt-clearfix:after, .crt-post .crt-post-header:after, .crt-feed-container .crt-feed:after, .crt-carousel .crt-feed:after {
     content: "\0020";
     display: block;
     height: 0;
     overflow: hidden; }
-  .crt-clearfix:after, .crt-post .crt-post-header:after {
+  .crt-clearfix:after, .crt-post .crt-post-header:after, .crt-feed-container .crt-feed:after, .crt-carousel .crt-feed:after {
     clear: both; }
 
 @font-face {
@@ -432,6 +432,50 @@
   text-decoration: none; }
   .crt-tag a {
     color: #efefef; }
+
+.crt-feed-container {
+  min-width: 320px;
+  min-height: 400px;
+  position: relative; }
+  .crt-feed-container .crt-feed-scroll {
+    width: 100%; }
+  .crt-feed-container .crt-feed {
+    width: 100%;
+    background-color: #ffffff;
+    -webkit-font-smoothing: antialiased; }
+  .crt-feed-container .crt-post-c {
+    width: 100%;
+    float: none;
+    display: inline-block; }
+  .crt-feed-container .crt-feed-more {
+    background-color: #ffffff;
+    padding: 4px; }
+    .crt-feed-container .crt-feed-more a {
+      width: 100px;
+      margin: 0 auto;
+      background-color: #efefef;
+      color: #2B2B2B;
+      display: block;
+      text-align: center;
+      padding: 20px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      text-decoration: none; }
+
+.crt-carousel {
+  min-width: 320px;
+  min-height: 400px;
+  position: relative;
+  font-family: 'Arial'; }
+  .crt-carousel .crt-feed-scroll {
+    width: 100%; }
+  .crt-carousel .crt-feed {
+    width: 100%;
+    background-color: #ffffff;
+    -webkit-font-smoothing: antialiased;
+    font-family: 'Helvetica',Arial,sans-serif; }
+  .crt-carousel .crt-post-c {
+    float: left; }
 
 .crt-panel {
   max-width: 320px;

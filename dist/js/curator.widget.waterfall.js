@@ -400,6 +400,9 @@ if (typeof define === 'function' && define.amd) {
     var _tmplCache = {};
 
     var helpers = {
+        networkIcon:function () {
+            return this.data.network_name.toLowerCase();
+        },
         userUrl:function () {
             return this.data.network_id==='1'?'http://twitter.com/'+this.data.user_screen_name:'http://instagram.com/'+this.data.user_screen_name;
         },
@@ -1200,7 +1203,7 @@ Curator.Templates.postTemplate = ' \
 <div class="crt-post-c">\
     <div class="crt-post post<%=id%>"> \
         <div class="crt-post-header"> \
-            <span class="social-icon"><i class="<%=network_id==1?\'crt-icon-twitter-bird\':\'crt-icon-instagram\'%>"></i></span> \
+            <span class="social-icon"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \
             <img src="<%=user_image%>"  /> \
             <div class="crt-post-name"><span><%=user_full_name%></span><br/><a href="<%=this.userUrl()%>" target="_blank">@<%=user_screen_name%></a></div> \
         </div> \

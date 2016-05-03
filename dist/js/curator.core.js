@@ -21,6 +21,9 @@ if (typeof define === 'function' && define.amd) {
     var _tmplCache = {};
 
     var helpers = {
+        networkIcon:function () {
+            return this.data.network_name.toLowerCase();
+        },
         userUrl:function () {
             return this.data.network_id==='1'?'http://twitter.com/'+this.data.user_screen_name:'http://instagram.com/'+this.data.user_screen_name;
         },

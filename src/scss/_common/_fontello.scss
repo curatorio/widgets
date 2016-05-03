@@ -51,7 +51,15 @@
 }
 
 
-.crt-icon-facebook:before { content: '\e800'; } /* '' */
-.crt-icon-twitter:before { content: '\e804'; } /* '' */
-.crt-icon-instagram:before { content: '\e803'; } /* '' */
-.crt-icon-instagram-filled:before { content: '\e802'; } /* '' */
+.crt-icon-facebook:before
+{ content: '\e800'; } /* '' */
+
+.crt-icon-twitter-bird:before,
+.crt-icon-twitter:before
+{ content: '\e804'; } /* '' */
+
+.crt-icon-instagram:before
+{ content: '\e803'; } /* '' */
+
+.crt-icon-instagram-filled:before
+{ content: '\e802'; } /* '' */

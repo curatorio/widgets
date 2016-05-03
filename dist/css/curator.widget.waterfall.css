@@ -54,7 +54,8 @@
   content: '\e800'; }
 
 /* '' */
-.crt-icon-twitter-bird:before {
+.crt-icon-twitter-bird:before,
+.crt-icon-twitter:before {
   content: '\e804'; }
 
 /* '' */
@@ -106,7 +107,7 @@
         margin-top: 0;
         font-size: 35px;
         color: #2B2B2B; }
-        .crt-post .crt-post-header .social-icon i.crt-icon-twitter-bird {
+        .crt-post .crt-post-header .social-icon i.crt-icon-twitter {
           font-size: 32px;
           margin-right: 6px; }
     .crt-post .crt-post-header IMG {
@@ -119,9 +120,10 @@
       margin-top: 3px;
       position: absolute;
       left: 105px;
-      top: 8px;
+      top: 11px;
       right: 3px;
-      font-size: 14px;
+      font-size: 0.9em;
+      line-height: 1.1em;
       white-space: nowrap;
       text-overflow: ellipsis; }
       .crt-post .crt-post-header .crt-post-name a {
@@ -136,18 +138,20 @@
     padding-top: 16px;
     padding-bottom: 16px;
     color: #707070;
-    font-size: 18px;
-    line-height: 1.1em; }
+    font-size: 1em;
+    line-height: 1.2em; }
     .crt-post .crt-post-content-text a {
       color: #2B2B2B; }
       .crt-post .crt-post-content-text a:hover {
         color: black; }
     .crt-post .crt-post-content-text .image {
       display: none; }
-  .crt-post .crt-post-content-image .text {
-    display: none; }
-  .crt-post .crt-post-content-image IMG {
-    width: 100%; }
+  .crt-post .crt-post-content-image {
+    max-height: 400px; }
+    .crt-post .crt-post-content-image .text {
+      display: none; }
+    .crt-post .crt-post-content-image IMG {
+      width: 100%; }
   .crt-post:hover .crt-post-share {
     bottom: 0; }
   .crt-post .crt-post-share {
@@ -176,209 +180,23 @@
   bottom: 10px;
   right: 10px;
   z-index: 999;
-  text-shadow: 0px 0px 2px #000000;
-  color: #ffffff; }
+  color: #efefef;
+  text-decoration: none; }
   .crt-tag a {
-    color: #efefef;
-    text-decoration: none; }
-
-.crt-clearfix, .crt-post .crt-post-header, .crt-feed-container .crt-feed {
-  zoom: 1; }
-  .crt-clearfix:before, .crt-post .crt-post-header:before, .crt-feed-container .crt-feed:before, .crt-clearfix:after, .crt-post .crt-post-header:after, .crt-feed-container .crt-feed:after {
-    content: "\0020";
-    display: block;
-    height: 0;
-    overflow: hidden; }
-  .crt-clearfix:after, .crt-post .crt-post-header:after, .crt-feed-container .crt-feed:after {
-    clear: both; }
-
-@font-face {
-  font-family: 'crt-fontello';
-  src: url("../fonts/fontello.eot?72242355");
-  src: url("../fonts/fontello.eot?72242355#iefix") format("embedded-opentype"), url("../fonts/fontello.woff?72242355") format("woff"), url("../fonts/fontello.ttf?72242355") format("truetype"), url("../fonts/fontello.svg?72242355#fontello") format("svg");
-  font-weight: normal;
-  font-style: normal; }
-
-/* Chrome hack: SVG is rendered more smooth in Windozze. 100% magic, uncomment if you need it. */
-/* Note, that will break hinting! In other OS-es font will be not as sharp as it could be */
-/*
-@media screen and (-webkit-min-device-pixel-ratio:0) {
-  @font-face {
-    font-family: '../fonts/fontello';
-    src: url('../fonts/fontello.svg?72242355#fontello') format('svg');
-  }
-}
-*/
-[class^="crt-icon-"]:before, [class*=" crt-icon-"]:before {
-  font-family: "crt-fontello";
-  font-style: normal;
-  font-weight: normal;
-  speak: none;
-  display: inline-block;
-  text-decoration: inherit;
-  width: 1em;
-  margin-right: .2em;
-  text-align: center;
-  /* opacity: .8; */
-  /* For safety - reset parent styles, that can break glyph codes*/
-  font-variant: normal;
-  text-transform: none;
-  /* fix buttons height, for twitter bootstrap */
-  line-height: 1em;
-  /* Animation center compensation - margins should be symmetric */
-  /* remove if not needed */
-  margin-left: .2em;
-  /* you can be more comfortable with increased icons size */
-  /* font-size: 120%; */
-  /* Uncomment for 3D effect */
-  /* text-shadow: 1px 1px 1px rgba(127, 127, 127, 0.3); */ }
-
-.crt-icon-facebook:before {
-  content: '\e800'; }
-
-/* '' */
-.crt-icon-twitter-bird:before {
-  content: '\e804'; }
-
-/* '' */
-.crt-icon-instagram:before {
-  content: '\e803'; }
-
-/* '' */
-.crt-icon-instagram-filled:before {
-  content: '\e802'; }
-
-/* '' */
-/**
-* ==================================================================
-* POST
-* ==================================================================
- */
-.crt-post-c {
-  width: 368px;
-  float: left; }
-
-.crt-post {
-  overflow: hidden;
-  position: relative;
-  z-index: 1;
-  margin: 5px;
-  border: 1px solid #efefef;
-  background-color: #efefef;
-  border-radius: 0px; }
-  .crt-post a {
-    transition: color 0.2s linear; }
-  .crt-post .crt-post-header {
-    background-color: #efefef;
-    color: #2B2B2B;
-    /*[empty]margin-left:;*/
-    padding-bottom: 3px; }
-    .crt-post .crt-post-header .social-icon {
-      float: left;
-      display: block;
-      width: 43px;
-      height: 57px;
-      margin-right: 10px;
-      margin-left: 3px;
-      background-color: #efefef;
-      border-radius: 50%;
-      line-height: 57px;
-      text-align: center;
-      padding-top: 2px; }
-      .crt-post .crt-post-header .social-icon i {
-        margin-top: 0;
-        font-size: 35px;
-        color: #2B2B2B; }
-        .crt-post .crt-post-header .social-icon i.crt-icon-twitter-bird {
-          font-size: 32px;
-          margin-right: 6px; }
-    .crt-post .crt-post-header IMG {
-      float: left;
-      width: 40px;
-      margin-right: 9px;
-      margin-top: 10px; }
-    .crt-post .crt-post-header .crt-post-name {
-      float: left;
-      margin-top: 3px;
-      position: absolute;
-      left: 105px;
-      top: 8px;
-      right: 3px;
-      font-size: 14px;
-      white-space: nowrap;
-      text-overflow: ellipsis; }
-      .crt-post .crt-post-header .crt-post-name a {
-        text-overflow: ellipsis;
-        text-decoration: none;
-        color: #2B2B2B; }
-        .crt-post .crt-post-header .crt-post-name a:hover {
-          color: black; }
-  .crt-post .crt-post-content-text {
-    padding-left: 17px;
-    padding-right: 17px;
-    padding-top: 16px;
-    padding-bottom: 16px;
-    color: #707070;
-    font-size: 18px;
-    line-height: 1.1em; }
-    .crt-post .crt-post-content-text a {
-      color: #2B2B2B; }
-      .crt-post .crt-post-content-text a:hover {
-        color: black; }
-    .crt-post .crt-post-content-text .image {
-      display: none; }
-  .crt-post .crt-post-content-image .text {
-    display: none; }
-  .crt-post .crt-post-content-image IMG {
-    width: 100%; }
-  .crt-post:hover .crt-post-share {
-    bottom: 0; }
-  .crt-post .crt-post-share {
-    position: absolute;
-    bottom: -50px;
-    padding: 10px;
-    line-height: 20px;
-    font-size: .8em;
-    color: #2B2B2B;
-    background-color: #efefef;
-    width: 120px;
-    right: auto;
-    left: 50%;
-    margin-left: -60px;
-    text-align: center;
-    box-shadow: none;
-    transition: bottom .2s ease-in-out; }
-    .crt-post .crt-post-share A {
-      display: inline-block;
-      color: #2B2B2B; }
-      .crt-post .crt-post-share A:hover {
-        color: black; }
-
-.crt-tag {
-  position: absolute;
-  bottom: 10px;
-  right: 10px;
-  z-index: 999;
-  text-shadow: 0px 0px 2px #000000;
-  color: #ffffff; }
-  .crt-tag a {
-    color: #efefef;
-    text-decoration: none; }
+    color: #efefef; }
 
 .crt-feed-container {
   min-width: 320px;
   min-height: 400px;
-  position: relative;
-  font-family: 'Arial'; }
+  position: relative; }
   .crt-feed-container .crt-feed-scroll {
     width: 100%; }
   .crt-feed-container .crt-feed {
     width: 100%;
     background-color: #ffffff;
-    -webkit-font-smoothing: antialiased;
-    font-family: 'Helvetica',Arial,sans-serif; }
+    -webkit-font-smoothing: antialiased; }
   .crt-feed-container .crt-post-c {
-    width: auto;
+    width: 100%;
     float: none;
     display: inline-block; }
   .crt-feed-container .crt-feed-more {
