@@ -10,7 +10,17 @@
             return this.data.network_name.toLowerCase();
         },
         userUrl:function () {
-            return this.data.network_id==='1'?'http://twitter.com/'+this.data.user_screen_name:'http://instagram.com/'+this.data.user_screen_name;
+            var netId = this.data.network_id+'';
+            if (netId === '1') {
+                return 'http://twitter.com/' + this.data.user_screen_name;
+            } else if (netId === '2') {
+                return 'http://instagram.com/'+this.data.user_screen_name;
+            } else if (netId === '3') {
+                return 'http://facebook.com/'+this.data.user_screen_name;
+            }
+
+            return this.data.network_id;
+
         },
         parseText:function(s) {
             if (this.data.network_id===1 || this.data.network_id==='1') {
