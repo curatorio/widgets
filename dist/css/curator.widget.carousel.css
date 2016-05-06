@@ -400,6 +400,10 @@
       display: none; }
     .crt-post .crt-post-content-image IMG {
       width: 100%; }
+  .crt-post .crt-post-content-image-hidden {
+    display: none; }
+  .crt-post .crt-post-content-text-hidden {
+    display: none; }
   .crt-post:hover .crt-post-share {
     bottom: 0; }
   .crt-post .crt-post-share {

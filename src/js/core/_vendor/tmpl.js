@@ -34,6 +34,13 @@
             }
 
             return s;
+        },
+        contentImageClasses : function () {
+            return this.data.image ? '' : 'crt-post-content-image-hidden';
+        },
+        contentTextClasses : function () {
+            return this.data.text ? '' : 'crt-post-content-text-hidden';
+
         }
     };
 

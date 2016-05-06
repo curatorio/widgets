@@ -446,6 +446,13 @@ if (typeof define === 'function' && define.amd) {
             }
 
             return s;
+        },
+        contentImageClasses : function () {
+            return this.data.image ? '' : 'crt-post-content-image-hidden';
+        },
+        contentTextClasses : function () {
+            return this.data.text ? '' : 'crt-post-content-text-hidden';
+
         }
     };
 
@@ -1235,11 +1242,11 @@ Curator.Templates.postTemplate = ' \
             <img src="<%=user_image%>"  /> \
             <div class="crt-post-name"><span><%=user_full_name%></span><br/><a href="<%=this.userUrl()%>" target="_blank">@<%=user_screen_name%></a></div> \
         </div> \
-        <div class="crt-post-content <%=image?\'crt-post-content-image\':\'crt-post-content-text\'%>"> \
-            <div class="image"> \
+        <div class="crt-post-content"> \
+            <div class="image crt-post-content-image <%=this.contentImageClasses()%>" > \
                 <img src="<%=image%>" /> \
             </div> \
-            <div class="text"> \
+            <div class="text crt-post-content-text <%=this.contentTextClasses()%>"> \
                 <%=this.parseText(text)%> \
             </div> \
         </div> \
@@ -1428,22 +1435,22 @@ var Client = function (options) {
 
 Curator.Templates.postTemplate = ' \
 <div class="crt-post-c">\
-<div class="crt-post post<%=id%>"> \
-    <div class="crt-post-header"> \
-        <span class="social-icon"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \
-        <img src="<%=user_image%>"  /> \
-        <div class="crt-post-name"><%=user_full_name%><br/><a href="<%=this.userUrl()%>" target="_blank">@<%=user_screen_name%></a></div> \
-    </div> \
-    <div class="crt-post-content <%=image?\'crt-post-content-image\':\'crt-post-content-text\'%>"> \
-        <div class="image"> \
-            <img src="<%=image%>" /> \
+    <div class="crt-post post<%=id%>"> \
+        <div class="crt-post-header"> \
+            <span class="social-icon"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \
+            <img src="<%=user_image%>"  /> \
+            <div class="crt-post-name"><span><%=user_full_name%></span><br/><a href="<%=this.userUrl()%>" target="_blank">@<%=user_screen_name%></a></div> \
         </div> \
-        <div class="text"> \
-            <%=this.parseText(text)%> \
+        <div class="crt-post-content"> \
+            <div class="image crt-post-content-image <%=this.contentImageClasses()%>" > \
+                <img src="<%=image%>" /> \
+            </div> \
+            <div class="text crt-post-content-text <%=this.contentTextClasses()%>"> \
+                <%=this.parseText(text)%> \
+            </div> \
         </div> \
-    </div> \
-    <div class="crt-post-share">Share <a href="#" class="shareFacebook"><i class="crt-icon-facebook"></i></a>  <a href="#" class="shareTwitter"><i class="crt-icon-twitter-bird"></i></a> </div> \
-</div>\
+        <div class="crt-post-share">Share <a href="#" class="shareFacebook"><i class="crt-icon-facebook"></i></a>  <a href="#" class="shareTwitter"><i class="crt-icon-twitter-bird"></i></a> </div> \
+    </div>\
 </div>';
 
 jQuery.extend(Client.prototype,{
@@ -1600,13 +1607,13 @@ Curator.Templates.postTemplate = ' \
         <div class="crt-post-header"> \
             <span class="social-icon"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \
             <img src="<%=user_image%>"  /> \
-            <div class="crt-post-name"><%=user_full_name%><br/><a href="<%=this.userUrl()%>" target="_blank">@<%=user_screen_name%></a></div> \
+            <div class="crt-post-name"><span><%=user_full_name%></span><br/><a href="<%=this.userUrl()%>" target="_blank">@<%=user_screen_name%></a></div> \
         </div> \
-        <div class="crt-post-content <%=image?\'crt-post-content-image\':\'crt-post-content-text\'%>"> \
-            <div class="image"> \
+        <div class="crt-post-content"> \
+            <div class="image crt-post-content-image <%=this.contentImageClasses()%>" > \
                 <img src="<%=image%>" /> \
             </div> \
-            <div class="text"> \
+            <div class="text crt-post-content-text <%=this.contentTextClasses()%>"> \
                 <%=this.parseText(text)%> \
             </div> \
         </div> \
@@ -1754,13 +1761,13 @@ Curator.Templates.postTemplate = ' \
         <div class="crt-post-header"> \
             <span class="social-icon"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \
             <img src="<%=user_image%>"  /> \
-            <div class="crt-post-name"><%=user_full_name%><br/><a href="<%=this.userUrl()%>" target="_blank">@<%=user_screen_name%></a></div> \
+            <div class="crt-post-name"><span><%=user_full_name%></span><br/><a href="<%=this.userUrl()%>" target="_blank">@<%=user_screen_name%></a></div> \
         </div> \
-        <div class="crt-post-content <%=image?\'crt-post-content-image\':\'crt-post-content-text\'%>"> \
-            <div class="image"> \
+        <div class="crt-post-content"> \
+            <div class="image crt-post-content-image <%=this.contentImageClasses()%>" > \
                 <img src="<%=image%>" /> \
             </div> \
-            <div class="text"> \
+            <div class="text crt-post-content-text <%=this.contentTextClasses()%>"> \
                 <%=this.parseText(text)%> \
             </div> \
         </div> \

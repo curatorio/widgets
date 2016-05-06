@@ -428,6 +428,13 @@ if (typeof define === 'function' && define.amd) {
             }
 
             return s;
+        },
+        contentImageClasses : function () {
+            return this.data.image ? '' : 'crt-post-content-image-hidden';
+        },
+        contentTextClasses : function () {
+            return this.data.text ? '' : 'crt-post-content-text-hidden';
+
         }
     };
 
@@ -1217,11 +1224,11 @@ Curator.Templates.postTemplate = ' \
             <img src="<%=user_image%>"  /> \
             <div class="crt-post-name"><span><%=user_full_name%></span><br/><a href="<%=this.userUrl()%>" target="_blank">@<%=user_screen_name%></a></div> \
         </div> \
-        <div class="crt-post-content <%=image?\'crt-post-content-image\':\'crt-post-content-text\'%>"> \
-            <div class="image"> \
+        <div class="crt-post-content"> \
+            <div class="image crt-post-content-image <%=this.contentImageClasses()%>" > \
                 <img src="<%=image%>" /> \
             </div> \
-            <div class="text"> \
+            <div class="text crt-post-content-text <%=this.contentTextClasses()%>"> \
                 <%=this.parseText(text)%> \
             </div> \
         </div> \
