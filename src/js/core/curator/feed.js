@@ -89,7 +89,7 @@ jQuery.extend(Curator.Feed.prototype,{
             limit : this.options.postsToFetch
         };
 
-        this._loadPosts (params,successCallback, failCallback);
+        this._loadPosts (params, successCallback, failCallback);
     },
 
     loadMorePosts : function (successCallback, failCallback) {
@@ -104,7 +104,7 @@ jQuery.extend(Curator.Feed.prototype,{
         this._loadPosts (params,successCallback, failCallback);
     },
 
-    _loadPosts : function (params,successCallback, failCallback) {
+    _loadPosts : function (params, successCallback, failCallback) {
         Curator.log ('Feed->_loadPosts');
         var that = this;
 
@@ -116,8 +116,8 @@ jQuery.extend(Curator.Feed.prototype,{
             data: {params:params}
         })
         .success(function (data) {
-
             Curator.log ('Feed->_loadPosts success');
+            
             if (data.success) {
                 that.postsLoaded += data.posts.length;
                 successCallback (data.posts);
@@ -132,10 +132,5 @@ jQuery.extend(Curator.Feed.prototype,{
             Curator.log(errorThrown);
 
         });
-    },
-
-    checkPowered : function (jQuerytag) {
-        var h = jQuerytag.html ();
-        return h.indexOf('Curator') > 0;
     }
 });

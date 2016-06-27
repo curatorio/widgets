@@ -15,6 +15,27 @@ var Curator = {
         if (root.alert) {
             root.alert(s);
         }
+    },
+
+    checkContainer:function (container) {
+        Curator.log("Curator->checkContainer: "+container);
+        if (jQuery(container).length === 0) {
+            Curator.alert ('Curator could not find the element '+container+'. Please ensure this element existings in your HTML code. Exiting.');
+            return false;
+        }
+        return true;
+    },
+
+    checkPowered : function (jQuerytag) {
+        Curator.log("Curator->checkPowered");
+        var h = jQuerytag.html ();
+        console.log (h);
+        if (h.indexOf('Curator') > 0) {
+            return true
+        } else {
+            Curator.alert ('Container is missing Powered by Curator');
+            return false;
+        }
     }
 };
 

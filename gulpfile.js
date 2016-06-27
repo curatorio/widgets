@@ -115,7 +115,7 @@ gulp.task('scripts:core', function() {
 
         .pipe(jshint())
         .pipe(jshint.reporter('jshint-stylish', { verbose: true }))
-        .pipe(jshint.reporter('fail'))
+        //.pipe(jshint.reporter('fail')) 
 
         .pipe(gulp.dest(destJs))
 

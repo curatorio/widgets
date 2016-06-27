@@ -11,7 +11,7 @@ var Client = function (options) {
         Curator.debug = options.debug;
     }
     Curator.log ('Client->init');
-    
+
     this.init(options);
     this.totalPostsLoaded = 0;
     this.allLoaded = false;
@@ -54,6 +54,10 @@ jQuery.extend(Client.prototype,{
 
         Curator.log(this.options);
 
+        if (!Curator.checkContainer(this.options.container)) {
+            return;
+        }
+
         this.feed = new Curator.Feed ({
             debug:this.options.debug,
             feedId:this.options.feedId,
@@ -64,9 +68,7 @@ jQuery.extend(Client.prototype,{
         this.$feed = jQuery('<div class="crt-feed"></div>').appendTo(this.$container);
         this.$container.addClass('crt-custom');
 
-        if (!this.feed.checkPowered(this.$container)){
-            root.alert ('Container is missing Powered by Curator');
-        } else {
+        if (Curator.checkPowered(this.$container)) {
             this.loadPosts();
         }
     },

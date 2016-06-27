@@ -88,6 +88,10 @@ jQuery.extend(Client.prototype,{
 
         Curator.log(this.options);
 
+        if (!Curator.checkContainer(this.options.container)) {
+            return;
+        }
+
         var that = this;
 
         this.feed = new Curator.Feed ({
@@ -101,9 +105,7 @@ jQuery.extend(Client.prototype,{
         this.$feed = jQuery('<div class="crt-feed"></div>').appendTo(this.$container);
         this.$container.addClass('crt-carousel');
 
-        if (!this.feed.checkPowered(this.$container)){
-            root.alert ('Container is missing Powered by Curator');
-        } else {
+        if (Curator.checkPowered(this.$container)) {
             this.feed.loadPosts(jQuery.proxy(this.onLoadPosts, this),jQuery.proxy(this.onLoadPostsFail, this));
 
             that.$feed.slick(this.options.slick).on('afterChange', function(event, slick, currentSlide) {
