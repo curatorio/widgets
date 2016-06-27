@@ -6,6 +6,12 @@ var clientDefaults = {
 };
 
 var Client = function (options) {
+    if (options.debug)
+    {
+        Curator.debug = options.debug;
+    }
+    Curator.log ('Client->init');
+    
     this.init(options);
     this.totalPostsLoaded = 0;
     this.allLoaded = false;

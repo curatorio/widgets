@@ -10,6 +10,12 @@ var widgetDefaults = {
 
 
 var Client = function (options) {
+    if (options.debug)
+    {
+        Curator.debug = options.debug;
+    }
+    Curator.log ('Client->init');
+
     this.init(options);
 };
 

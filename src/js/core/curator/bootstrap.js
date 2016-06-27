@@ -1,10 +1,12 @@
 // Test jQuery exists
 
 var Curator = {
+    debug:false,
     SOURCE_TYPES : ['twitter','instagram'],
 
     log:function (s) {
-        if (root.console) {
+
+        if (root.console && Curator.debug) {
             root.console.log(s);
         }
     },

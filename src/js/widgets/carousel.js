@@ -41,6 +41,12 @@ var feedDefaults = {
 };
 
 var Client = function (options) {
+    if (options.debug)
+    {
+        Curator.debug = options.debug;
+    }
+    Curator.log ('Client->init');
+    
     this.init(options);
     this.totalPostsLoaded = 0;
     this.allLoaded = false;
@@ -76,7 +82,6 @@ jQuery.extend(Client.prototype,{
 
     init: function (options) {
         Curator.log("Carousel->init with options:");
-
 
         this.options = jQuery.extend({}, feedDefaults, options);
         this.options.slick = jQuery.extend({}, feedDefaults.slick, options.slick);
