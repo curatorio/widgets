@@ -63,8 +63,10 @@ jQuery.extend(Client.prototype,{
         this.feed = new Curator.Feed ({
             debug:this.options.debug,
             feedId:this.options.feedId,
-            postsToFetch:this.options.postsPerPage,
-            apiEndpoint:this.options.apiEndpoint
+            postsPerPage:this.options.postsPerPage,
+            apiEndpoint:this.options.apiEndpoint,
+            onLoad:this.onLoadPosts.bind(this),
+            onFail:this.onLoadPostsFail.bind(this)
         });
         this.$container = jQuery(this.options.container);
         this.$scroll = jQuery('<div class="crt-feed-scroll"></div>').appendTo(this.$container);
@@ -72,8 +74,7 @@ jQuery.extend(Client.prototype,{
         this.$container.addClass('crt-feed-container');
 
         if (Curator.checkPowered(this.$container)) {
-
-            this.feed.loadPosts(jQuery.proxy(this.onLoadPosts, this),jQuery.proxy(this.onLoadPostsFail, this));
+            this.feed.loadPosts();
 
             if (this.scroll=='continuous') {
                 jQuery(this.$scroll).scroll(function () {
@@ -81,14 +82,14 @@ jQuery.extend(Client.prototype,{
                     var cHeight = that.$feed.height();
                     var scrollTop = that.$scroll.scrollTop();
                     if (scrollTop >= cHeight - height) {
-                        that.feed.loadMorePosts(jQuery.proxy(that.onLoadPosts, that), jQuery.proxy(that.onLoadPostsFail, that));
+                        that.feed.loadMorePosts();
                     }
                 });
             } else {
                 this.$more = jQuery('<div class="crt-feed-more"><a href="#"><span>Load more</span></a></div>').appendTo(this.$scroll);
                 this.$more.find('a').on('click',function(ev){
                     ev.preventDefault();
-                    that.feed.loadMorePosts(jQuery.proxy(that.onLoadPosts, that), jQuery.proxy(that.onLoadPostsFail, that));
+                    that.feed.loadMorePosts();
                 });
             }
 
@@ -129,6 +130,11 @@ jQuery.extend(Client.prototype,{
         var post = new Curator.Post(postJson);
         jQuery(post).bind('postClick',jQuery.proxy(this.onPostClick, this));
         return post;
+    },
+    
+    loadPage : function (page) {
+        this.$feed.find('.crt-post-c').remove();
+        this.feed.loadPage(page);
     },
 
     destroy : function () {

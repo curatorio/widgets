@@ -1,7 +1,7 @@
 jQuery.support.cors = true;
 
 var defaults = {
-    postsToFetch:24,
+    postsPerPage:24,
     feedId:'xxx',
     debug:false,
     apiEndpoint:'https://api.curator.io/v1'
@@ -14,6 +14,7 @@ Curator.Feed = function (options) {
 jQuery.extend(Curator.Feed.prototype,{
     loading: false,
     postsLoaded:0,
+    postCount:0,
     feedBase:'',
 
     init: function (options) {
@@ -86,7 +87,7 @@ jQuery.extend(Curator.Feed.prototype,{
             return false;
         }
         var params = {
-            limit : this.options.postsToFetch
+            limit : this.options.postsPerPage
         };
 
         this._loadPosts (params, successCallback, failCallback);
@@ -97,11 +98,23 @@ jQuery.extend(Curator.Feed.prototype,{
             return false;
         }
         var params = {
-            limit : this.options.postsToFetch,
+            limit : this.options.postsPerPage,
             offset : this.postsLoaded
         };
 
         this._loadPosts (params,successCallback, failCallback);
+    },
+
+    loadPage : function (page) {
+        if (this.loading) {
+            return false;
+        }
+        var params = {
+            limit : this.options.postsPerPage,
+            offset : page * this.options.postsPerPage
+        };
+
+        this._loadPosts (params);
     },
 
     _loadPosts : function (params, successCallback, failCallback) {
@@ -119,10 +132,23 @@ jQuery.extend(Curator.Feed.prototype,{
             Curator.log ('Feed->_loadPosts success');
             
             if (data.success) {
+                that.postCount = data.postCount;
                 that.postsLoaded += data.posts.length;
-                successCallback (data.posts);
+                if (successCallback) {
+                    successCallback(data.posts);
+                }
+                if (that.options.onLoad)
+                {
+                    that.options.onLoad(data.posts);
+                }
             } else {
-                failCallback(data);
+                if (failCallback) {
+                    failCallback(data);
+                }
+                if (that.options.onFail)
+                {
+                    that.options.onFail(data);
+                }
             }
             that.loading = false;
         })
@@ -130,7 +156,6 @@ jQuery.extend(Curator.Feed.prototype,{
             Curator.log ('Feed->_loadPosts fail');
             Curator.log(textStatus);
             Curator.log(errorThrown);
-
         });
     }
 });

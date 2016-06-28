@@ -61,7 +61,7 @@ jQuery.extend(Client.prototype,{
         this.feed = new Curator.Feed ({
             debug:this.options.debug,
             feedId:this.options.feedId,
-            postsToFetch:this.options.postsPerPage,
+            postsPerPage:this.options.postsPerPage,
             apiEndpoint:this.options.apiEndpoint
         });
         this.$container = jQuery(this.options.container);
