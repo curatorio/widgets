@@ -56,6 +56,12 @@ var feedDefaults = {
 };
 
 var Client = function (options) {
+    if (options.debug)
+    {
+        Curator.debug = options.debug;
+    }
+    Curator.log ('Client->init');
+    
     this.init(options);
     this.totalPostsLoaded = 0;
     this.allLoaded = false;
@@ -92,18 +98,21 @@ jQuery.extend(Client.prototype,{
     init: function (options) {
         Curator.log("Carousel->init with options:");
 
-
         this.options = jQuery.extend({}, feedDefaults, options);
         this.options.slick = jQuery.extend({}, feedDefaults.slick, options.slick);
 
         Curator.log(this.options);
+
+        if (!Curator.checkContainer(this.options.container)) {
+            return;
+        }
 
         var that = this;
 
         this.feed = new Curator.Feed ({
             debug:this.options.debug,
             feedId:this.options.feedId,
-            postsToFetch:this.options.postsPerPage,
+            postsPerPage:this.options.postsPerPage,
             apiEndpoint:this.options.apiEndpoint
         });
         this.$container = jQuery(this.options.container);
@@ -111,9 +120,7 @@ jQuery.extend(Client.prototype,{
         this.$feed = jQuery('<div class="crt-feed"></div>').appendTo(this.$container);
         this.$container.addClass('crt-carousel');
 
-        if (!this.feed.checkPowered(this.$container)){
-            root.alert ('Container is missing Powered by Curator');
-        } else {
+        if (Curator.checkPowered(this.$container)) {
             this.feed.loadPosts(jQuery.proxy(this.onLoadPosts, this),jQuery.proxy(this.onLoadPostsFail, this));
 
             that.$feed.slick(this.options.slick).on('afterChange', function(event, slick, currentSlide) {

@@ -215,10 +215,12 @@ if (!jQuery.support.cors && jQuery.ajaxTransport && root.XDomainRequest) {
 // Test jQuery exists
 
 var Curator = {
+    debug:false,
     SOURCE_TYPES : ['twitter','instagram'],
 
     log:function (s) {
-        if (root.console) {
+
+        if (root.console && Curator.debug) {
             root.console.log(s);
         }
     },
@@ -226,6 +228,27 @@ var Curator = {
     alert:function (s) {
         if (root.alert) {
             root.alert(s);
+        }
+    },
+
+    checkContainer:function (container) {
+        Curator.log("Curator->checkContainer: "+container);
+        if (jQuery(container).length === 0) {
+            Curator.alert ('Curator could not find the element '+container+'. Please ensure this element existings in your HTML code. Exiting.');
+            return false;
+        }
+        return true;
+    },
+
+    checkPowered : function (jQuerytag) {
+        Curator.log("Curator->checkPowered");
+        var h = jQuerytag.html ();
+        console.log (h);
+        if (h.indexOf('Curator') > 0) {
+            return true
+        } else {
+            Curator.alert ('Container is missing Powered by Curator');
+            return false;
         }
     }
 };
@@ -239,7 +262,7 @@ if (jQuery === undefined) {
 jQuery.support.cors = true;
 
 var defaults = {
-    postsToFetch:24,
+    postsPerPage:24,
     feedId:'xxx',
     debug:false,
     apiEndpoint:'https://api.curator.io/v1'
@@ -252,6 +275,7 @@ Curator.Feed = function (options) {
 jQuery.extend(Curator.Feed.prototype,{
     loading: false,
     postsLoaded:0,
+    postCount:0,
     feedBase:'',
 
     init: function (options) {
@@ -324,10 +348,10 @@ jQuery.extend(Curator.Feed.prototype,{
             return false;
         }
         var params = {
-            limit : this.options.postsToFetch
+            limit : this.options.postsPerPage
         };
 
-        this._loadPosts (params,successCallback, failCallback);
+        this._loadPosts (params, successCallback, failCallback);
     },
 
     loadMorePosts : function (successCallback, failCallback) {
@@ -335,14 +359,26 @@ jQuery.extend(Curator.Feed.prototype,{
             return false;
         }
         var params = {
-            limit : this.options.postsToFetch,
+            limit : this.options.postsPerPage,
             offset : this.postsLoaded
         };
 
         this._loadPosts (params,successCallback, failCallback);
     },
 
-    _loadPosts : function (params,successCallback, failCallback) {
+    loadPage : function (page) {
+        if (this.loading) {
+            return false;
+        }
+        var params = {
+            limit : this.options.postsPerPage,
+            offset : page * this.options.postsPerPage
+        };
+
+        this._loadPosts (params);
+    },
+
+    _loadPosts : function (params, successCallback, failCallback) {
         Curator.log ('Feed->_loadPosts');
         var that = this;
 
@@ -354,13 +390,26 @@ jQuery.extend(Curator.Feed.prototype,{
             data: {params:params}
         })
         .success(function (data) {
-
             Curator.log ('Feed->_loadPosts success');
+            
             if (data.success) {
+                that.postCount = data.postCount;
                 that.postsLoaded += data.posts.length;
-                successCallback (data.posts);
+                if (successCallback) {
+                    successCallback(data.posts);
+                }
+                if (that.options.onLoad)
+                {
+                    that.options.onLoad(data.posts);
+                }
             } else {
-                failCallback(data);
+                if (failCallback) {
+                    failCallback(data);
+                }
+                if (that.options.onFail)
+                {
+                    that.options.onFail(data);
+                }
             }
             that.loading = false;
         })
@@ -368,13 +417,7 @@ jQuery.extend(Curator.Feed.prototype,{
             Curator.log ('Feed->_loadPosts fail');
             Curator.log(textStatus);
             Curator.log(errorThrown);
-
         });
-    },
-
-    checkPowered : function (jQuerytag) {
-        var h = jQuerytag.html ();
-        return h.indexOf('Curator') > 0;
     }
 });
 /**
@@ -445,77 +488,95 @@ jQuery.extend(Curator.PopupInappropriate.prototype, {
 * ==================================================================
 */
 
+
 Curator.Popup = function (json,feed) {
     this.init(json,feed);
 };
 
-jQuery.extend(Curator.prototype, {
+
+
+jQuery.extend(Curator.Popup.prototype, {
     underlay: '',
     bigPost: null,
-    templateId:'#popup',
+    popupTemplateId:'#popup-template',
+    underlayTemplateId:'#popup-underlay-template',
 
     init: function (post, feed) {
+        Curator.log("Popup->init ");
         var that = this;
 
-        this.json = post;
+        this.post = post.json;
         this.feed = feed;
 
-        this.underlay = jQuery('#popup-underlay');
-        this.$el = jQuery('.popup');
-        this.wrapper = jQuery('#popup-wrapper');
+        console.log(this.post);
 
-        jQuery('#popup-underlay, .popup .close').click(function (e) {
-            e.preventDefault();
-            that.hide();
-        });
+        //
+        // this.underlay = jQuery('#popup-underlay');
+        // this.$el = jQuery('.popup');
+        // this.wrapper = jQuery('#popup-wrapper');
+        // /**
+        //  * Mark as inappropriate - icon hover
+        //  */
+        // jQuery('.mark-icon a').hover(function () {
+        //     jQuery('img', this).stop().animate({top: '-35px'}, {queue: false, duration: 200});
+        // },function () {
+        //     jQuery('img', this).stop().animate({top: '0px'}, {queue: false, duration: 200});
+        // }).click(function (e) {
+        //     e.preventDefault();
+        //     that.inappropriatePopup = new Curator.PopupInappropriate(this.json,this.feed);
+        // });
+        // this.$underlay = Curator.Template.render(this.underlayTemplateId, this.post);
+        this.$popup = Curator.Template.render(this.popupTemplateId, this.post);
 
-        /**
-         * Mark as inappropriate - icon hover
-         */
-        jQuery('.mark-icon a').hover(function () {
-            jQuery('img', this).stop().animate({top: '-35px'}, {queue: false, duration: 200});
-        },function () {
-            jQuery('img', this).stop().animate({top: '0px'}, {queue: false, duration: 200});
-        }).click(function (e) {
-            e.preventDefault();
-            that.inappropriatePopup = new Curator.PopupInappropriate(this.json,this.feed);
-        });
+        // jQuery('body').append(this.$underlay);
+        jQuery('body').append(this.$popup);
+
+        // this.$popup.on('click',' .close', function (e) {
+        //     e.preventDefault();
+        //     that.hide();
+        // });
+
+        this.$underlay = this.$popup.find('.crt-popup-underlay');
+
+
+        this.$popup.on('click',' .close', jQuery.proxy(this.hide,this));
+        this.$underlay.click(jQuery.proxy(this.hide,this));
+
     },
 
     show: function () {
         var that = this;
-
-        var post = this.json;
-        var mediaUrl = post.image,
-            text = post.text;
-
-        if (mediaUrl) {
-            var $imageWrapper = that.$el.find('div.main-image-wrapper');
-            this.loadMainImage(mediaUrl, $imageWrapper, ['main-image']);
-        }
-
-        var $socialIcon = this.$el.find('.social-icon');
-        $socialIcon.attr('class', 'social-icon');
-        $socialIcon.addClass(Curator.SOURCE_TYPES[post.sourceType]);
-
-        //format the date
-        var date = Curator.Utils.dateAsDayMonthYear(post.sourceCreateAt);
-
-        this.$el.find('input.discovery-id').val(post.id);
-        this.$el.find('div.full-name span').html(post.user_full_name);
-        this.$el.find('div.username span').html('@' + post.user_screen_name);
-        this.$el.find('div.date span').html(date);
-        this.$el.find('div.love-indicator span').html(post.loves);
-        this.$el.find('div.side-text span').html(text);
-
-        this.wrapper.show();
-        this.underlay.fadeIn();
-        this.$el.fadeIn(function () {
-            that.$el.animate({width: '624px',height: '424px'}, function () {
-                jQuery('.popup .content').fadeIn('slow');
-            });
+        //
+        // var post = this.json;
+        // var mediaUrl = post.image,
+        //     text = post.text;
+        //
+        // if (mediaUrl) {
+        //     var $imageWrapper = that.$el.find('div.main-image-wrapper');
+        //     this.loadMainImage(mediaUrl, $imageWrapper, ['main-image']);
+        // }
+        //
+        // var $socialIcon = this.$el.find('.social-icon');
+        // $socialIcon.attr('class', 'social-icon');
+        // $socialIcon.addClass(Curator.SOURCE_TYPES[post.sourceType]);
+        //
+        // //format the date
+        // var date = Curator.Utils.dateAsDayMonthYear(post.sourceCreateAt);
+        //
+        // this.$el.find('input.discovery-id').val(post.id);
+        // this.$el.find('div.full-name span').html(post.user_full_name);
+        // this.$el.find('div.username span').html('@' + post.user_screen_name);
+        // this.$el.find('div.date span').html(date);
+        // this.$el.find('div.love-indicator span').html(post.loves);
+        // this.$el.find('div.side-text span').html(text);
+        //
+        // this.wrapper.show();
+        this.$underlay.fadeIn();
+        this.$popup.fadeIn(function () {
+            // that.$popup.find('.crt-popup').animate({width:950}, function () {
+            //     jQuery('.popup .content').fadeIn('slow');
+            // });
         });
-
     },
     
     /**
@@ -555,10 +616,25 @@ jQuery.extend(Curator.prototype, {
         };
         img.src = source;
     },
+    
+    hide: function (e) {
+        e.preventDefault();
 
+        var that = this;
+        this.$popup.fadeOut(function(){
+        });
+        that.$underlay.delay(200).fadeOut(function(){
+            that.destroy();
+        });
+    },
+    
+    destroy: function () {
 
-    hide: function () {
+        this.$underlay.remove();
+        this.$popup.remove();
 
+        delete this.$popup;
+        delete this.$underlay;
     }
 });
 
@@ -645,7 +721,52 @@ Curator.SocialTwitter = {
 };
 
 
-Curator.Templates = {};
+Curator.Templates = {
+
+    postTemplate : ' \
+<div class="crt-post-c">\
+    <div class="crt-post post<%=id%>"> \
+        <div class="crt-post-header"> \
+            <span class="social-icon"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \
+            <img src="<%=user_image%>"  /> \
+            <div class="crt-post-name"><span><%=user_full_name%></span><br/><a href="<%=this.userUrl()%>" target="_blank">@<%=user_screen_name%></a></div> \
+        </div> \
+        <div class="crt-post-content"> \
+            <div class="image hitarea crt-post-content-image <%=this.contentImageClasses()%>" > \
+                <img src="<%=image%>" /> \
+            </div> \
+            <div class="text crt-post-content-text <%=this.contentTextClasses()%>"> \
+                <%=this.parseText(text)%> \
+            </div> \
+        </div> \
+        <div class="crt-post-share">Share <a href="#" class="shareFacebook"><i class="crt-icon-facebook"></i></a>  <a href="#" class="shareTwitter"><i class="crt-icon-twitter-bird"></i></a> </div> \
+    </div>\
+</div>',
+
+
+    popupTemplate : ' <div class="crt-popup-wrapper"> \
+<div class="crt-popup-underlay"></div> \
+<div class="crt-popup"> \
+    <a href="#" class="close">Close</a> \
+    <div class="crt-popup-left">  \
+        <img src="<%=image%>" /> \
+    </div> \
+    <div class="crt-popup-right"> \
+        <div class="crt-popup-header"> \
+            <span class="social-icon"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \
+            <img src="<%=user_image%>"  /> \
+            <div class="crt-post-name"><span><%=user_full_name%></span><br/><a href="<%=this.userUrl()%>" target="_blank">@<%=user_screen_name%></a></div> \
+        </div> \
+        <div class="crt-popup-text <%=this.contentTextClasses()%>"> \
+            <%=this.parseText(text)%> \
+        </div> \
+    </div> \
+</div> \
+</div>',
+
+
+    popupUnderlayTemplate : ''
+};
 
 Curator.Template = {
     camelize: function (s) {
@@ -657,11 +778,12 @@ Curator.Template = {
         var cam = this.camelize(templateId).substring(1);
         var source = '';
 
-        if (Curator.Templates[cam] !== undefined)
+        if (jQuery(templateId).length===1)
+        {
+            source = jQuery(templateId).html();
+        } else if (Curator.Templates[cam] !== undefined)
         {
             source = Curator.Templates[cam];
-        } else if (jQuery(templateId).length===1) {
-            source = jQuery(templateId).html();
         }
 
         if (source === '')
@@ -673,6 +795,7 @@ Curator.Template = {
         tmpl = jQuery.parseHTML(tmpl);
         return jQuery(tmpl).filter('div');
     }
+
 };
 
 
@@ -883,6 +1006,12 @@ var feedDefaults = {
 };
 
 var Client = function (options) {
+    if (options.debug)
+    {
+        Curator.debug = options.debug;
+    }
+    Curator.log ('Client->init');
+    
     this.init(options);
     this.totalPostsLoaded = 0;
     this.allLoaded = false;
@@ -919,18 +1048,21 @@ jQuery.extend(Client.prototype,{
     init: function (options) {
         Curator.log("Carousel->init with options:");
 
-
         this.options = jQuery.extend({}, feedDefaults, options);
         this.options.slick = jQuery.extend({}, feedDefaults.slick, options.slick);
 
         Curator.log(this.options);
+
+        if (!Curator.checkContainer(this.options.container)) {
+            return;
+        }
 
         var that = this;
 
         this.feed = new Curator.Feed ({
             debug:this.options.debug,
             feedId:this.options.feedId,
-            postsToFetch:this.options.postsPerPage,
+            postsPerPage:this.options.postsPerPage,
             apiEndpoint:this.options.apiEndpoint
         });
         this.$container = jQuery(this.options.container);
@@ -938,9 +1070,7 @@ jQuery.extend(Client.prototype,{
         this.$feed = jQuery('<div class="crt-feed"></div>').appendTo(this.$container);
         this.$container.addClass('crt-carousel');
 
-        if (!this.feed.checkPowered(this.$container)){
-            root.alert ('Container is missing Powered by Curator');
-        } else {
+        if (Curator.checkPowered(this.$container)) {
             this.feed.loadPosts(jQuery.proxy(this.onLoadPosts, this),jQuery.proxy(this.onLoadPostsFail, this));
 
             that.$feed.slick(this.options.slick).on('afterChange', function(event, slick, currentSlide) {

@@ -1,12 +1,12 @@
 @charset "UTF-8";
-.crt-clearfix, .crt-post .crt-post-header, .crt-feed-container .crt-feed {
+.crt-clearfix, .crt-post .crt-post-header, .crt-popup-wrapper .crt-popup .crt-popup-header, .crt-feed-container .crt-feed {
   zoom: 1; }
-  .crt-clearfix:before, .crt-post .crt-post-header:before, .crt-feed-container .crt-feed:before, .crt-clearfix:after, .crt-post .crt-post-header:after, .crt-feed-container .crt-feed:after {
+  .crt-clearfix:before, .crt-post .crt-post-header:before, .crt-popup-wrapper .crt-popup .crt-popup-header:before, .crt-feed-container .crt-feed:before, .crt-clearfix:after, .crt-post .crt-post-header:after, .crt-popup-wrapper .crt-popup .crt-popup-header:after, .crt-feed-container .crt-feed:after {
     content: "\0020";
     display: block;
     height: 0;
     overflow: hidden; }
-  .crt-clearfix:after, .crt-post .crt-post-header:after, .crt-feed-container .crt-feed:after {
+  .crt-clearfix:after, .crt-post .crt-post-header:after, .crt-popup-wrapper .crt-popup .crt-popup-header:after, .crt-feed-container .crt-feed:after {
     clear: both; }
 
 @font-face {
@@ -188,6 +188,406 @@
   text-decoration: none; }
   .crt-tag a {
     color: #efefef; }
+
+/**
+* ==================================================================
+* Popup
+* =====
+*/
+.flex, .crt-popup-wrapper .crt-popup .crt-popup-left {
+  -webkit-align-items: stretch;
+  -ms-flex-align: stretch;
+  align-items: stretch;
+  border: 0 solid #000;
+  box-sizing: border-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -ms-flex-negative: 0;
+  -webkit-flex-shrink: 0;
+          flex-shrink: 0;
+  margin: 0;
+  padding: 0;
+  position: relative; }
+
+.crt-popup-underlay {
+  background-color: rgba(0, 0, 0, 0.5);
+  bottom: 0;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  left: 0;
+  position: fixed;
+  right: 0;
+  top: 0;
+  z-index: 1;
+  display: none;
+  z-index: 100; }
+
+.crt-popup-wrapper {
+  width: 100%;
+  height: 100%;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  position: fixed;
+  display: none;
+  z-index: 100;
+  /*[empty]background-color:;*/ }
+  .crt-popup-wrapper .crt-popup {
+    position: relative;
+    margin: 20px auto 0;
+    max-width: 950px;
+    /*[disabled]background-color:#000000;*/
+    z-index: 101;
+    background-color: #ffffff; }
+    .crt-popup-wrapper .crt-popup .crt-popup-left {
+      background-color: #ffffff;
+      padding-right: 335px; }
+      .crt-popup-wrapper .crt-popup .crt-popup-left img {
+        max-width: 600px; }
+    .crt-popup-wrapper .crt-popup .crt-popup-right {
+      position: absolute;
+      width: 315px;
+      height: 100%;
+      padding: 15px;
+      font-family: Arial, san-serif;
+      font-weight: normal !important;
+      font-size: 15px;
+      color: #0b0b0b;
+      top: 0;
+      right: 0;
+      text-align: left; }
+      .crt-popup-wrapper .crt-popup .crt-popup-right a {
+        color: #626262; }
+    .crt-popup-wrapper .crt-popup .crt-popup-header {
+      border-bottom: 1px solid #efefef;
+      color: #2B2B2B;
+      /*[empty]margin-left:;*/
+      padding-bottom: 5px;
+      position: relative;
+      margin-bottom: 15px; }
+      .crt-popup-wrapper .crt-popup .crt-popup-header .social-icon {
+        float: left;
+        display: block;
+        width: 43px;
+        height: 57px;
+        margin-right: 10px;
+        margin-left: 3px;
+        border-radius: 50%;
+        line-height: 57px;
+        text-align: center;
+        padding-top: 2px; }
+        .crt-popup-wrapper .crt-popup .crt-popup-header .social-icon i {
+          margin-top: 0;
+          font-size: 35px;
+          color: #2B2B2B; }
+          .crt-popup-wrapper .crt-popup .crt-popup-header .social-icon i.crt-icon-twitter {
+            font-size: 32px;
+            margin-right: 6px; }
+      .crt-popup-wrapper .crt-popup .crt-popup-header IMG {
+        float: left;
+        width: 40px;
+        margin-right: 9px;
+        margin-top: 10px; }
+      .crt-popup-wrapper .crt-popup .crt-popup-header .crt-post-name {
+        float: left;
+        margin-top: 3px;
+        position: absolute;
+        left: 105px;
+        top: 11px;
+        right: 3px;
+        font-size: 0.9em;
+        line-height: 1.1em;
+        white-space: nowrap;
+        text-overflow: ellipsis; }
+        .crt-popup-wrapper .crt-popup .crt-popup-header .crt-post-name a {
+          text-overflow: ellipsis;
+          text-decoration: none;
+          color: #2B2B2B; }
+          .crt-popup-wrapper .crt-popup .crt-popup-header .crt-post-name a:hover {
+            color: black; }
+    .crt-popup-wrapper .crt-popup .close {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 1;
+      background-image: url(contiki/images/discovery/mark_close.png);
+      background: url("contiki/images/sprites.png") no-repeat -100px 0px;
+      width: 50px;
+      height: 40px; }
+
+.popup .content {
+  display: none;
+  width: 424px;
+  height: 424px;
+  background-color: #000000; }
+
+.popup .discovery-id {
+  display: none; }
+
+.popup .main-image-wrapper {
+  position: absolute;
+  width: 424px;
+  height: 424px;
+  top: 0;
+  left: 0;
+  /*display: none;*/
+  overflow: hidden; }
+
+.popup .main-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  /*display: none;*/ }
+
+/**
+* Love
+ */
+.popup .love-indicator {
+  position: absolute;
+  left: 18px;
+  bottom: 18px;
+  width: 75px;
+  height: 35px;
+  overflow: hidden;
+  display: none;
+  /*display: none;*/
+  background-color: #FFFFFF; }
+
+.popup .love-indicator IMG {
+  position: absolute; }
+
+.popup .love-indicator SPAN {
+  position: absolute;
+  right: 7px;
+  top: 0;
+  margin-top: 3px;
+  font-family: Arial;
+  font-weight: normal !important;
+  font-size: 20px;
+  color: #000000;
+  z-index: 1; }
+
+.popup .love-indicator A {
+  text-decoration: none; }
+
+/**
+* Mark as innapropriate
+ */
+.popup .mark-icon {
+  position: absolute;
+  left: 18px;
+  bottom: 18px;
+  width: 36px;
+  height: 35px;
+  overflow: hidden;
+  /*display: none;*/ }
+
+.popup .mark-icon IMG {
+  position: absolute; }
+
+.popup .mark-bubble {
+  position: absolute;
+  left: 18px;
+  bottom: 18px;
+  width: 252px;
+  height: 118px;
+  display: none;
+  background-color: #000000;
+  border: 1px solid #000000; }
+
+.popup .mark-bubble .title {
+  position: absolute;
+  left: 7px;
+  top: 4px;
+  font-family: Arial, san-serif;
+  font-weight: normal !important;
+  font-size: 16.8px;
+  color: #FFFFFF;
+  text-transform: uppercase; }
+
+.popup .mark-close {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 22px;
+  height: 22px; }
+
+.popup .mark-close IMG {
+  position: absolute; }
+
+.mark-bubble INPUT.text {
+  position: absolute;
+  left: 7px;
+  top: 28px;
+  width: 229px;
+  height: 52px;
+  padding-left: 6px;
+  font-family: Arial;
+  font-size: 14px;
+  color: #FFFFFF;
+  border: 1px solid #FFFFFF;
+  background-color: #000000; }
+
+.mark-bubble .submit {
+  position: absolute;
+  right: 6px;
+  bottom: 9px;
+  width: 62px;
+  height: 22px; }
+
+.waiting {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  display: none;
+  background: url("contiki/images/discovery/icon_loader.gif"); }
+
+.love-waiting {
+  left: 29px;
+  bottom: 9px; }
+
+.mark-waiting {
+  left: 51px;
+  bottom: 9px; }
+
+.mark-bubble .success-message {
+  position: absolute;
+  left: 8px;
+  top: 25px;
+  width: 145px;
+  font-family: Arial, san-serif;
+  font-weight: normal !important;
+  font-size: 14px;
+  color: #000000;
+  text-transform: uppercase;
+  display: none; }
+
+/**
+* Sidebar
+ */
+.popup #sidebar {
+  position: absolute;
+  background-color: #000000;
+  width: 200px;
+  height: 408px;
+  right: 0;
+  top: 0;
+  padding-left: 0;
+  padding-right: 0;
+  padding-top: 4px;
+  /*padding-bottom: 48px;*/
+  overflow: hidden;
+  /*display: none;*/
+  z-index: -1;
+  margin-top: 12px;
+  font-size: 14px; }
+
+/*[clearfix]*/
+.popup .bottom {
+  background-color: #161515;
+  height: 369px;
+  border-top: 1px solid #323232; }
+
+.popup .location {
+  position: relative;
+  width: 119px;
+  height: 21px;
+  clear: both;
+  text-align: left !important;
+  top: 5px;
+  /*left: 17px;*/ }
+
+.popup .date {
+  position: relative;
+  margin-top: 12px;
+  margin-bottom: 11px;
+  font-weight: normal !important;
+  font-size: 18px;
+  color: #FFFFFF;
+  text-align: left !important;
+  text-transform: uppercase;
+  margin-left: 17px; }
+
+.popup .hr {
+  position: relative;
+  /*left: 17px;
+margin-top: 5px;*/
+  height: 1px;
+  width: 166px;
+  background-color: #454545;
+  /*background: url('contiki/images/discovery/sidebar_hr.png') no-repeat;*/
+  text-align: left !important;
+  display: none; }
+
+.popup .full-name {
+  position: relative;
+  margin-top: 10px;
+  font-family: Arial, san-serif;
+  font-weight: normal !important;
+  font-size: 17px;
+  color: #757575;
+  text-align: left !important;
+  text-transform: uppercase;
+  margin-left: 15px;
+  display: none; }
+
+.popup .username {
+  position: relative;
+  margin-top: 16px;
+  margin-bottom: 10px;
+  color: #FFFFFF;
+  text-align: left !important;
+  text-transform: uppercase;
+  margin-left: 20px;
+  color: #757575; }
+
+.popup .profile-picture {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  margin-top: 7px;
+  text-align: left !important; }
+
+.popup .tags {
+  position: relative;
+  margin-top: 5px;
+  font-family: Melbourne;
+  font-weight: normal !important;
+  font-size: 14px;
+  color: #FFEFCF;
+  text-align: left !important; }
+
+.popup .side-text {
+  position: relative;
+  margin-top: 10px;
+  font-weight: normal !important;
+  font-size: 14px;
+  color: #FFFFFF;
+  text-align: left !important;
+  max-height: 178px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  /*margin-bottom: 10px;*/
+  padding-bottom: 10px;
+  word-wrap: break-word;
+  margin-left: 20px;
+  margin-right: 10px; }
+
+.popup .side-text SPAN {
+  margin-left: 0; }
+
+.popup .social-icon {
+  position: absolute;
+  width: 50px;
+  height: 40px;
+  bottom: 18px;
+  right: 18px; }
 
 .crt-feed-container {
   min-width: 320px;

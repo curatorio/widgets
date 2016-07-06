@@ -25,28 +25,14 @@ var widgetDefaults = {
 
 
 var Client = function (options) {
+    if (options.debug)
+    {
+        Curator.debug = options.debug;
+    }
+    Curator.log ('Client->init');
+
     this.init(options);
 };
-
-Curator.Templates.postTemplate = ' \
-<div class="crt-post-c">\
-    <div class="crt-post post<%=id%>"> \
-        <div class="crt-post-header"> \
-            <span class="social-icon"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \
-            <img src="<%=user_image%>"  /> \
-            <div class="crt-post-name"><span><%=user_full_name%></span><br/><a href="<%=this.userUrl()%>" target="_blank">@<%=user_screen_name%></a></div> \
-        </div> \
-        <div class="crt-post-content"> \
-            <div class="image crt-post-content-image <%=this.contentImageClasses()%>" > \
-                <img src="<%=image%>" /> \
-            </div> \
-            <div class="text crt-post-content-text <%=this.contentTextClasses()%>"> \
-                <%=this.parseText(text)%> \
-            </div> \
-        </div> \
-        <div class="crt-post-share">Share <a href="#" class="shareFacebook"><i class="crt-icon-facebook"></i></a>  <a href="#" class="shareTwitter"><i class="crt-icon-twitter-bird"></i></a> </div> \
-    </div>\
-</div>';
 
 jQuery.extend(Client.prototype,{
     containerHeight: 0,
@@ -63,25 +49,27 @@ jQuery.extend(Client.prototype,{
 
         Curator.log(this.options);
 
+        if (!Curator.checkContainer(this.options.container)) {
+            return;
+        }
+
         var that = this;
 
         this.feed = new Curator.Feed ({
             debug:this.options.debug,
             feedId:this.options.feedId,
-            postsToFetch:this.options.postsPerPage,
-            apiEndpoint:this.options.apiEndpoint
+            postsPerPage:this.options.postsPerPage,
+            apiEndpoint:this.options.apiEndpoint,
+            onLoad:this.onLoadPosts.bind(this),
+            onFail:this.onLoadPostsFail.bind(this)
         });
         this.$container = jQuery(this.options.container);
         this.$scroll = jQuery('<div class="crt-feed-scroll"></div>').appendTo(this.$container);
         this.$feed = jQuery('<div class="crt-feed"></div>').appendTo(this.$scroll);
         this.$container.addClass('crt-feed-container');
 
-        if (!this.feed.checkPowered(this.$container)){
-            Curator.alert ('Container is missing Powered by Curator');
-        } else {
-            //this.$feed.waterfall();
-
-            this.feed.loadPosts(jQuery.proxy(this.onLoadPosts, this),jQuery.proxy(this.onLoadPostsFail, this));
+        if (Curator.checkPowered(this.$container)) {
+            this.feed.loadPosts();
 
             if (this.scroll=='continuous') {
                 jQuery(this.$scroll).scroll(function () {
@@ -89,14 +77,14 @@ jQuery.extend(Client.prototype,{
                     var cHeight = that.$feed.height();
                     var scrollTop = that.$scroll.scrollTop();
                     if (scrollTop >= cHeight - height) {
-                        that.feed.loadMorePosts(jQuery.proxy(that.onLoadPosts, that), jQuery.proxy(that.onLoadPostsFail, that));
+                        that.feed.loadMorePosts();
                     }
                 });
             } else {
                 this.$more = jQuery('<div class="crt-feed-more"><a href="#"><span>Load more</span></a></div>').appendTo(this.$scroll);
                 this.$more.find('a').on('click',function(ev){
                     ev.preventDefault();
-                    that.feed.loadMorePosts(jQuery.proxy(that.onLoadPosts, that), jQuery.proxy(that.onLoadPostsFail, that));
+                    that.feed.loadMorePosts();
                 });
             }
 
@@ -138,6 +126,11 @@ jQuery.extend(Client.prototype,{
         jQuery(post).bind('postClick',jQuery.proxy(this.onPostClick, this));
         return post;
     },
+    
+    loadPage : function (page) {
+        this.$feed.find('.crt-post-c').remove();
+        this.feed.loadPage(page);
+    },
 
     destroy : function () {
         //this.$feed.slick('unslick');
@@ -157,7 +150,7 @@ jQuery.extend(Client.prototype,{
         // TODO add code to cascade destroy down to Feed & Posts
         // unregistering events etc
         delete this.feed;
-        }
+    }
 });
 
 

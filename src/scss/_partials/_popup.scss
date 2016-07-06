@@ -4,7 +4,55 @@
 * Popup
 * =====
 */
-#popup-wrapper
+
+.flex
+{
+    -webkit-box-align: stretch;
+    -webkit-align-items: stretch;
+    -ms-flex-align: stretch;
+    align-items: stretch;
+    border: 0 solid #000;
+    box-sizing: border-box;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -webkit-flex-direction: column;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    -webkit-flex-shrink: 0;
+    -ms-flex-negative: 0;
+    flex-shrink: 0;
+    margin: 0;
+    padding: 0;
+    position: relative;
+}
+
+
+body {
+    //background-color: #ff0000;
+}
+
+.crt-popup-underlay
+{
+    background-color: rgba(0,0,0,.5);
+    bottom: 0;
+    -webkit-box-pack: justify;
+    -webkit-justify-content: space-between;
+    -ms-flex-pack: justify;
+    justify-content: space-between;
+    left: 0;
+    position: fixed;
+    right: 0;
+    top: 0;
+    z-index: 1;
+    display: none;
+    z-index: 100;
+}
+
+.crt-popup-wrapper
 {
     width: 100%;
     height: 100%;
@@ -16,49 +64,140 @@
     display: none;
     z-index: 100;
     /*[empty]background-color:;*/
+
+
+    .crt-popup
+    {
+        position: relative;
+        margin: 20px auto 0;
+        //margin-bottom: -255px;
+        max-width: 950px;
+        //height: 475px;
+        /*[disabled]background-color:#000000;*/
+        z-index: 101;
+        //display: none;
+        background-color: #ffffff;
+
+        .crt-popup-left
+        {
+            @extend .flex;
+            background-color: #ffffff;
+
+            padding-right: 335px;
+
+            img {
+                max-width: 600px;
+            }
+        }
+
+        .crt-popup-right
+        {
+            position: absolute;
+            width: 315px;
+            height: 100%;
+            padding: 15px;
+            font-family: Arial, san-serif;
+            font-weight: normal !important;
+            font-size: 15px;
+            color: #0b0b0b;
+            top: 0;
+            right: 0;
+            text-align: left;
+            //display: none;
+
+            a {
+                color: #626262;
+            }
+        }
+
+        .crt-popup-header
+        {
+            @extend .crt-clearfix;
+            border-bottom: 1px solid $color-post-header-bg;
+            color: $color-post-header-text;
+            //padding-top: 9px;
+            /*[empty]margin-left:;*/
+            //padding-left: 13px;
+            padding-bottom: 5px;
+            position: relative;
+            margin-bottom: 15px;
+
+            .social-icon
+            {
+                float: left;
+                display: block;
+                width: 43px;
+                height: 57px;
+                margin-right: 10px;
+                margin-left: 3px;
+                //background-color: $color-post-icon-bg;
+                border-radius: 50%;
+                line-height: 57px;
+                text-align: center;
+                padding-top: 2px;
+
+                i {
+                    margin-top:0;
+                    font-size: 35px;
+                    color: $color-post-icon-text;
+
+                    &.crt-icon-twitter {
+                        font-size: 32px;
+                        margin-right: 6px;
+                    }
+                }
+            }
+
+            IMG
+            {
+                float: left;
+                width: 40px;
+                margin-right: 9px;
+                margin-top: 10px;
+            }
+
+            .crt-post-name
+            {
+                float: left;
+                margin-top: 3px;
+                position: absolute;
+                left: 105px;
+                top: 11px;
+                right: 3px;
+                font-size:  $font-size-post-header-text;
+                line-height:  $line-height-post-header-text;
+
+                white-space: nowrap;
+                text-overflow: ellipsis;
+
+                a {
+                    text-overflow: ellipsis;
+                    text-decoration: none;
+                    color: $color-post-header-text;
+
+                    &:hover {
+                        color:darken($color-post-header-text,25);
+                    }
+                }
+            }
+        }
+
+        .close
+        {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1;
+            background-image: url(contiki/images/discovery/mark_close.png);
+            background: url('contiki/images/sprites.png') no-repeat -100px 0px;
+            width: 50px;
+            height: 40px;
+            //overflow: hidden;
+            //text-indent: -999px;
+        }
+    }
 }
-#popup-underlay
-{
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 99;
-    background-color: #000000;
-    opactiy:82%;
-    display: none;
-}
-.popup
-{
-    position: relative;
-    margin: 0px auto 255px;
-    margin-bottom: -255px;
-    width: 424px;
-    height: 424px;
-    /*[disabled]background-color:#000000;*/
-    z-index: 101;
-    display: none;
-}
-.popup .close
-{
-    position: absolute;
-    top: 0px;
-    right: -9px;
-    z-index: 1;
-    background-image: url(contiki/images/discovery/mark_close.png);
-    background: url('contiki/images/sprites.png') no-repeat -100px 0px;
-    width: 50px;
-    height: 40px;
-    overflow: hidden;
-    text-indent: -999px;
-}
-.popup #main-panel
-{
-    width: 424px;
-    height: 424px;
-    background-color: #000000;
-}
+
 .popup .content
 {
     display: none;
@@ -87,24 +226,9 @@
     left: 0;
     /*display: none;*/
 }
-.popup .main-text
-{
-    position: absolute;
-    width: 389px;
-    height: 369px;
-    padding-left: 18px;
-    padding-top: 28px;
-    padding-right: 18px;
-    padding-bottom: 28px;
-    font-family: Arial, san-serif;
-    font-weight: normal !important;
-    font-size: 39.4px;
-    color: #FFEFCF;
-    top: 0;
-    left: 0;
-    text-align: left;
-    display: none;
-}
+
+
+
 /**
 * Love
  */
@@ -376,11 +500,11 @@ margin-top: 5px;*/
     bottom: 18px;
     right: 18px;
 }
-.popup .social-icon.twitter
-{
-    background: url($sprite) no-repeat -50px 0px;
-}
-.popup .social-icon.instagram
-{
-    background: url('contiki/img/sprites.png') no-repeat;
-}
+//.popup .social-icon.twitter
+//{
+//    background: url($sprite) no-repeat -50px 0px;
+//}
+//.popup .social-icon.instagram
+//{
+//    background: url('contiki/img/sprites.png') no-repeat;
+//}
