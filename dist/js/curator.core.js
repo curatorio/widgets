@@ -13,6 +13,41 @@ if (typeof define === 'function' && define.amd) {
     root.Curator = factory(root, root.jQuery);
 }
 }(this, function(root, jQuery) {
+(function (global, factory) {
+    if (typeof define === "function" && define.amd) define(factory);
+    else if (typeof module === "object") module.exports = factory();
+    else global.augment = factory();
+}(this, function () {
+    "use strict";
+
+    var Factory = function () {};
+    var slice = Array.prototype.slice;
+
+    var augment = function (base, body) {
+        var uber = Factory.prototype = typeof base === "function" ? base.prototype : base;
+        var prototype = new Factory, properties = body.apply(prototype, slice.call(arguments, 2).concat(uber));
+        if (typeof properties === "object") for (var key in properties) prototype[key] = properties[key];
+        if (!prototype.hasOwnProperty("constructor")) return prototype;
+        var constructor = prototype.constructor;
+        constructor.prototype = prototype;
+        return constructor;
+    };
+
+    augment.defclass = function (prototype) {
+        var constructor = prototype.constructor;
+        constructor.prototype = prototype;
+        return constructor;
+    };
+
+    augment.extend = function (base, body) {
+        return augment(base, function (uber) {
+            this.uber = uber;
+            return body;
+        });
+    };
+
+    return augment;
+}));
 
 // Simple JavaScript Templating
 // John Resig - http://ejohn.org/ - MIT Licensed
@@ -241,6 +276,86 @@ if (jQuery === undefined) {
 
 
 
+
+Curator.Client = augment.extend(Object, {
+    constructor : function () {
+        console.log('Client->construct');
+
+    },
+    init : function (options, defaults) {
+        
+        this.options = jQuery.extend({}, defaults,options);
+
+        Curator.log(this.options);
+
+        if (!Curator.checkContainer(this.options.container)) {
+            return false;
+        }
+
+        this.$container = jQuery(this.options.container);
+
+        if (!Curator.checkPowered(this.$container)) {
+            return false;
+        }
+
+        this.createFeed();
+
+        return true;
+    },
+
+    createFeed : function () {
+        this.feed = new Curator.Feed ({
+            debug:this.options.debug,
+            feedId:this.options.feedId,
+            postsPerPage:this.options.postsPerPage,
+            apiEndpoint:this.options.apiEndpoint,
+            onLoad:this.onLoadPosts.bind(this),
+            onFail:this.onLoadPostsFail.bind(this)
+        });
+    },
+
+    loadPost: function (postJson) {
+        var post = new Curator.Post(postJson);
+        jQuery(post).bind('postClick',jQuery.proxy(this.onPostClick, this));
+        return post;
+    },
+
+    onLoadPosts: function (posts) {
+        console.log('Client->onLoadPosts');
+    },
+
+    onLoadPostsFail: function (data) {
+        console.log('Client->onLoadPostsFail');
+    },
+
+    onPostClick: function (ev,post) {
+        this.popupManager.showPopup(post);
+    }
+});
+//
+// Curator.Waterfall = augment.extend(Curator.Client, {
+//     constructor : function () {
+//         console.log('Waterfall->construct');
+//         console.log(this.uber);
+//     }
+// });
+
+//
+//
+//
+// var client = new Curator.Client(1);
+// console.log(client.name());
+//
+//
+// console.log(Curator.Waterfall);
+//
+// var client2 = new Curator.Waterfall(1);
+// console.log(client2.name());
+//
+
+
+
+console.log('-=-=-=-=-=-=-=-=-');
 jQuery.support.cors = true;
 
 var defaults = {

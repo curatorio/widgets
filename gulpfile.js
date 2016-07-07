@@ -284,7 +284,7 @@ gulp.task('scripts:custom', ['scripts:core'], function() {
 });
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-// Widget Custom
+// Widgets Combined
 
 gulp.task('scripts:combined', ['scripts:core','scripts:waterfall','scripts:carousel','scripts:panel','scripts:custom'], function() {
     return gulp.src([

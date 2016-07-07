@@ -10,17 +10,7 @@ var widgetDefaults = {
 };
 
 
-var Client = function (options) {
-    if (options.debug)
-    {
-        Curator.debug = options.debug;
-    }
-    Curator.log ('Client->init');
-
-    this.init(options);
-};
-
-jQuery.extend(Client.prototype,{
+var Client = augment.extend(Curator.Client, {
     containerHeight: 0,
     loading: false,
     feed: null,
@@ -28,35 +18,18 @@ jQuery.extend(Client.prototype,{
     $feed: null,
     posts:[],
     popupManager:null,
+    name:'Waterfall',
 
-    init: function (options) {
+    constructor: function (options) {
         Curator.log("Waterfall->init with options:");
 
-        this.options = jQuery.extend({},widgetDefaults,options);
-
-        Curator.log(this.options);
-
-        if (!Curator.checkContainer(this.options.container)) {
-            return;
-        }
-
-        var that = this;
-
-        this.feed = new Curator.Feed ({
-            debug:this.options.debug,
-            feedId:this.options.feedId,
-            postsPerPage:this.options.postsPerPage,
-            apiEndpoint:this.options.apiEndpoint,
-            onLoad:this.onLoadPosts.bind(this),
-            onFail:this.onLoadPostsFail.bind(this)
-        });
-        this.$container = jQuery(this.options.container);
-        this.$scroll = jQuery('<div class="crt-feed-scroll"></div>').appendTo(this.$container);
-        this.$feed = jQuery('<div class="crt-feed"></div>').appendTo(this.$scroll);
-        this.$container.addClass('crt-feed-container');
-
-        if (Curator.checkPowered(this.$container)) {
-            this.feed.loadPosts();
+        var inited = this.uber.init.call (this, options,  widgetDefaults);
+        // console.log(v);
+        if (inited) {
+            this.$scroll = jQuery('<div class="crt-feed-scroll"></div>').appendTo(this.$container);
+            this.$feed = jQuery('<div class="crt-feed"></div>').appendTo(this.$scroll);
+            this.$container.addClass('crt-feed-container');
+            this.feed.loadPosts(0);
 
             if (this.options.scroll=='continuous') {
                 jQuery(this.$scroll).scroll(function () {
@@ -108,16 +81,6 @@ jQuery.extend(Client.prototype,{
     onLoadPostsFail: function (data) {
         this.loading = false;
         this.$feed.html('<p style="text-align: center">'+data.message+'</p>');
-    },
-
-    onPostClick: function (ev,post) {
-        this.popupManager.showPopup(post);
-    },
-
-    loadPost: function (postJson) {
-        var post = new Curator.Post(postJson);
-        jQuery(post).bind('postClick',jQuery.proxy(this.onPostClick, this));
-        return post;
     },
     
     loadPage : function (page) {
