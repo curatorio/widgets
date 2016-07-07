@@ -1,0 +1,50 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <link href="../dist/css/curator.widget.waterfall.css" rel="stylesheet" />
+    <link href="css/example.css" rel="stylesheet" />
+</head>
+<body>
+<h1>Curator.io Examples</h1>
+<h2>Waterfall Widget</h2>
+<p class="center"><a href="index.html">Examples</a></p>
+<div class="pagination">
+
+</div>
+<div id="curator-feed">
+    <a href="http://curator.io" target="_blank" class="crt-logo crt-tag">Powered by Curator.io</a>
+</div>
+
+<script type="text/javascript" src="js/vendor/jquery.min.js"></script>
+<script type="text/javascript" src="../dist/js/curator.widget.waterfall.js"></script>
+<script type="text/javascript">
+    // While you're testing
+    Curator.debug = true;
+
+    // Change FEED_ID to your unique FEED_ID
+    var widget = new Curator.Waterfall({
+        container:'#curator-feed',
+        feedId:"f4b84efe-78b3-4f08-98c8-b19e3b46",
+        scroll:'',
+        postsPerPage:12,
+        apiEndpoint:"http://curator-api.dev/v1",
+        onPostsLoaded:function (curator, posts) {
+            console.log (curator.feed.postCount);
+            var pages = curator.feed.postCount/12;
+            for (var i=0;i<pages;i ++ ) {
+                $('.pagination').append('<a href="#" data-page="'+i+'">'+(i+1)+'</a> ');
+            }
+
+            $('.pagination a').click(function (ev) {
+                ev.preventDefault();
+
+                widget.loadPosts($(this).data('page'));
+            });
+        }
+    });
+</script>
+</body>
+</html>
+
