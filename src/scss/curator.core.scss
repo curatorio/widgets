@@ -27,7 +27,9 @@ $color-post-share-bg:       opacify($color-post-header-bg, 1);
 $color-post-share-text:     $color-secondary;
 
 @import "_common/mixins";
-@import "_common/fontello";
+@import "_vendor/fontello/css/crt";
+
+@import "_common/general";
 
 @import "_partials/post";
 @import "_partials/tag";

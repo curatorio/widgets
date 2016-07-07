@@ -20,7 +20,8 @@ var widgetDefaults = {
     maxPosts:0,
     apiEndpoint:'https://api.curator.io/v1',
     scroll:'more',
-    gridWith:250
+    gridWith:250,
+    onPostsLoaded:function(){}
 };
 
 
@@ -41,6 +42,7 @@ jQuery.extend(Client.prototype,{
     $container: null,
     $feed: null,
     posts:[],
+    popupManager:null,
 
     init: function (options) {
         Curator.log("Waterfall->init with options:");
@@ -71,7 +73,7 @@ jQuery.extend(Client.prototype,{
         if (Curator.checkPowered(this.$container)) {
             this.feed.loadPosts();
 
-            if (this.scroll=='continuous') {
+            if (this.options.scroll=='continuous') {
                 jQuery(this.$scroll).scroll(function () {
                     var height = that.$scroll.height();
                     var cHeight = that.$feed.height();
@@ -80,12 +82,14 @@ jQuery.extend(Client.prototype,{
                         that.feed.loadMorePosts();
                     }
                 });
-            } else {
+            } else if (this.options.scroll=='more') {
                 this.$more = jQuery('<div class="crt-feed-more"><a href="#"><span>Load more</span></a></div>').appendTo(this.$scroll);
                 this.$more.find('a').on('click',function(ev){
                     ev.preventDefault();
                     that.feed.loadMorePosts();
                 });
+            } else {
+                // no scroll - use javascript to trigger loading
             }
 
             this.$feed.gridalicious({
@@ -93,6 +97,8 @@ jQuery.extend(Client.prototype,{
                 gutter:0,
                 width:this.options.gridWith
             });
+
+            this.popupManager = new Curator.PopupManager(this);
         }
     },
 
@@ -108,7 +114,10 @@ jQuery.extend(Client.prototype,{
         //this.$feed.append(postElements);
         that.$feed.gridalicious('append',postElements);
 
-        that.loading = false;
+        this.popupManager.setPosts(posts);
+
+        this.loading = false;
+        this.options.onPostsLoaded (this, posts);
     },
 
     onLoadPostsFail: function (data) {
@@ -116,9 +125,8 @@ jQuery.extend(Client.prototype,{
         this.$feed.html('<p style="text-align: center">'+data.message+'</p>');
     },
 
-    onPostClick: function (ev,postJson) {
-        var popup = new Curator.Popup(postJson, this.feed);
-        popup.show();
+    onPostClick: function (ev,post) {
+        this.popupManager.showPopup(post);
     },
 
     loadPost: function (postJson) {

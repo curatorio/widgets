@@ -11,7 +11,7 @@ Curator.Templates = {
             <div class="crt-post-name"><span><%=user_full_name%></span><br/><a href="<%=this.userUrl()%>" target="_blank">@<%=user_screen_name%></a></div> \
         </div> \
         <div class="crt-post-content"> \
-            <div class="image hitarea crt-post-content-image <%=this.contentImageClasses()%>" > \
+            <div class="image crt-hitarea crt-post-content-image <%=this.contentImageClasses()%>" > \
                 <img src="<%=image%>" /> \
             </div> \
             <div class="text crt-post-content-text <%=this.contentTextClasses()%>"> \
@@ -22,11 +22,18 @@ Curator.Templates = {
     </div>\
 </div>',
 
-
-    popupTemplate : ' <div class="crt-popup-wrapper"> \
+    popupWrapperTemplate : ' <div class="crt-popup-wrapper"> \
+<div class="crt-popup-wrapper-c"> \
 <div class="crt-popup-underlay"></div> \
+<div class="crt-popup-container"></div> \
+</div> \
+</div>',
+
+    popupTemplate : ' \
 <div class="crt-popup"> \
-    <a href="#" class="close">Close</a> \
+    <a href="#" class="crt-close crt-icon-cancel"></a> \
+    <a href="#" class="crt-next crt-icon-right-open"></a> \
+    <a href="#" class="crt-previous crt-icon-left-open"></a> \
     <div class="crt-popup-left">  \
         <img src="<%=image%>" /> \
     </div> \
@@ -40,7 +47,6 @@ Curator.Templates = {
             <%=this.parseText(text)%> \
         </div> \
     </div> \
-</div> \
 </div>',
 
 

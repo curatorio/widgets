@@ -604,7 +604,7 @@ var Curator = {
     checkPowered : function (jQuerytag) {
         Curator.log("Curator->checkPowered");
         var h = jQuerytag.html ();
-        console.log (h);
+        // Curator.log (h);
         if (h.indexOf('Curator') > 0) {
             return true
         } else {
@@ -845,6 +845,124 @@ jQuery.extend(Curator.PopupInappropriate.prototype, {
 });
 /**
 * ==================================================================
+* Popup Manager
+* ==================================================================
+*/
+
+
+Curator.PopupManager = function (curator) {
+    // console.log (this);
+    this.init(curator);
+};
+
+
+jQuery.extend(Curator.PopupManager.prototype, {
+    templateId:'#popup-wrapper-template',
+
+    init: function (curator) {
+        Curator.log("PopupManager->init ");
+
+        this.$wrapper = Curator.Template.render(this.templateId, {});
+        this.$popupContainer = this.$wrapper.find('.crt-popup-container');
+        this.$underlay = this.$wrapper.find('.crt-popup-underlay');
+
+        console.log (this.$wrapper);
+
+        jQuery('body').append(this.$wrapper);
+        this.$underlay.click(jQuery.proxy(this.onUnderlayClick,this));
+        this.$popupContainer.click(jQuery.proxy(this.onUnderlayClick,this));
+
+    },
+
+    showPopup: function (post) {
+        if (this.popup) {
+            this.popup.hide(function(){
+                this.popup.destroy();
+                this.showPopup2(post);
+            }.bind(this));
+        } else {
+            this.showPopup2(post);
+        }
+
+    },
+
+    showPopup2: function (post) {
+        this.popup = new Curator.Popup(this, post, this.feed);
+        this.$popupContainer.append(this.popup.$popup);
+
+        this.$wrapper.show();
+        if (!this.$underlay.is(':visible')) {
+            this.$underlay.fadeIn();
+        }
+        this.popup.show();
+
+        jQuery('body').addClass('crt-popup-visible');
+
+        this.currentPostNum = 0;
+        for(var i=0;i < this.posts.length;i++)
+        {
+            // console.log (post.json.id +":"+this.posts[i].id);
+            if (post.json.id == this.posts[i].id) {
+                this.currentPostNum = i;
+                Curator.log('Found post '+i);
+                break;
+            }
+        }
+    },
+
+    setPosts: function (posts) {
+        this.posts = posts;
+    },
+
+    onClose : function () {
+        this.hide();
+    },
+
+    onPrevious: function () {
+        this.currentPostNum-=1;
+        this.currentPostNum = this.currentPostNum>=0?this.currentPostNum:this.posts.length-1; // loop back to start
+
+        this.showPopup({json:this.posts[this.currentPostNum]});
+    },
+
+    onNext: function () {
+        this.currentPostNum+=1;
+        this.currentPostNum = this.currentPostNum<this.posts.length?this.currentPostNum:0; // loop back to start
+
+        this.showPopup({json:this.posts[this.currentPostNum]});
+    },
+
+    onUnderlayClick: function (e) {
+        Curator.log('PopupManager->onUnderlayClick');
+        e.preventDefault();
+
+        this.popup.hide(function(){
+            this.hide();
+        }.bind(this));
+
+    },
+
+    hide: function (e) {
+
+        Curator.log('PopupManager->hide');
+        jQuery('body').removeClass('crt-popup-visible');
+        this.currentPostNum = 0;
+        this.popup = null;
+        this.$underlay.fadeOut(function(){
+            this.$wrapper.hide();
+        }.bind(this));
+    },
+    
+    destroy: function () {
+
+        this.$underlay.remove();
+
+        delete this.$popup;
+        delete this.$underlay;
+    }
+});
+/**
+* ==================================================================
 * Popup
 * ==================================================================
 */
@@ -857,19 +975,15 @@ Curator.Popup = function (json,feed) {
 
 
 jQuery.extend(Curator.Popup.prototype, {
-    underlay: '',
-    bigPost: null,
-    popupTemplateId:'#popup-template',
-    underlayTemplateId:'#popup-underlay-template',
+    templateId:'#popup-template',
 
-    init: function (post, feed) {
+    init: function (popupManager, post, feed) {
         Curator.log("Popup->init ");
         var that = this;
-
+ 
+        this.popupManager = popupManager;
         this.post = post.json;
         this.feed = feed;
-
-        console.log(this.post);
 
         //
         // this.underlay = jQuery('#popup-underlay');
@@ -887,22 +1001,45 @@ jQuery.extend(Curator.Popup.prototype, {
         //     that.inappropriatePopup = new Curator.PopupInappropriate(this.json,this.feed);
         // });
         // this.$underlay = Curator.Template.render(this.underlayTemplateId, this.post);
-        this.$popup = Curator.Template.render(this.popupTemplateId, this.post);
+        this.$popup = Curator.Template.render(this.templateId, this.post);
 
         // jQuery('body').append(this.$underlay);
-        jQuery('body').append(this.$popup);
 
         // this.$popup.on('click',' .close', function (e) {
         //     e.preventDefault();
         //     that.hide();
         // });
 
-        this.$underlay = this.$popup.find('.crt-popup-underlay');
 
+        if (!this.post.image) {
+            this.$popup.addClass('no-image');
+        }
 
-        this.$popup.on('click',' .close', jQuery.proxy(this.hide,this));
-        this.$underlay.click(jQuery.proxy(this.hide,this));
+        this.$popup.on('click',' .crt-close', jQuery.proxy(this.onClose,this));
+        this.$popup.on('click',' .crt-previous', jQuery.proxy(this.onPrevious,this));
+        this.$popup.on('click',' .crt-next', jQuery.proxy(this.onNext,this));
 
+    },
+
+    onClose: function (e) {
+        e.preventDefault();
+        var that = this;
+        this.hide(function(){
+            that.destroy();
+            that.popupManager.onClose();
+        });
+    },
+
+    onPrevious: function (e) {
+        e.preventDefault();
+
+        this.popupManager.onPrevious();
+    },
+
+    onNext: function (e) {
+        e.preventDefault();
+
+        this.popupManager.onNext();
     },
 
     show: function () {
@@ -932,7 +1069,6 @@ jQuery.extend(Curator.Popup.prototype, {
         // this.$el.find('div.side-text span').html(text);
         //
         // this.wrapper.show();
-        this.$underlay.fadeIn();
         this.$popup.fadeIn(function () {
             // that.$popup.find('.crt-popup').animate({width:950}, function () {
             //     jQuery('.popup .content').fadeIn('slow');
@@ -940,62 +1076,15 @@ jQuery.extend(Curator.Popup.prototype, {
         });
     },
     
-    /**
-     * Load the main image in the Big Post
-     */
-    loadMainImage: function (source, $wrapper, classes, removeWrapperClass) {
-        $wrapper.show(); //show the wrapper in case it has a pre-loader image
-
-        var img = new root.Image();
-
-        source = source.replace(/http:/, 'https:');
-
-        for (var i in classes) {
-            if (classes.hasOwnProperty(i)) {
-                jQuery(img).addClass(classes[i]); //console.log(classes[i]);
-            }
-        }
-
-        img.onload = function () {
-
-            if (removeWrapperClass) {
-                $wrapper.removeClass(removeWrapperClass);
-            }
-
-            $wrapper.append(this);
-
-            jQuery(this).imgscale({
-                fade: 1000,
-                width: img.width,
-                height: img.height
-            });
-        };
-        img.onerror = function () {
-            if (removeWrapperClass) {
-                $wrapper.removeClass(removeWrapperClass);
-            }
-        };
-        img.src = source;
-    },
-    
-    hide: function (e) {
-        e.preventDefault();
-
-        var that = this;
-        this.$popup.fadeOut(function(){
-        });
-        that.$underlay.delay(200).fadeOut(function(){
-            that.destroy();
-        });
+    hide: function (callback) {
+        Curator.log('Popup->hide');
+        this.$popup.fadeOut(callback);
     },
     
     destroy: function () {
-
-        this.$underlay.remove();
         this.$popup.remove();
 
         delete this.$popup;
-        delete this.$underlay;
     }
 });
 
@@ -1022,7 +1111,7 @@ jQuery.extend(Curator.Post.prototype,{
 
         this.el.find('.shareFacebook').click(jQuery.proxy(this.onShareFacebookClick,this));
         this.el.find('.shareTwitter').click(jQuery.proxy(this.onShareTwitterClick,this));
-        this.el.find('.hitarea').click(jQuery.proxy(this.onPostClick,this));
+        this.el.find('.crt-hitarea').click(jQuery.proxy(this.onPostClick,this));
     },
 
     onShareFacebookClick : function (ev) {
@@ -1093,7 +1182,7 @@ Curator.Templates = {
             <div class="crt-post-name"><span><%=user_full_name%></span><br/><a href="<%=this.userUrl()%>" target="_blank">@<%=user_screen_name%></a></div> \
         </div> \
         <div class="crt-post-content"> \
-            <div class="image hitarea crt-post-content-image <%=this.contentImageClasses()%>" > \
+            <div class="image crt-hitarea crt-post-content-image <%=this.contentImageClasses()%>" > \
                 <img src="<%=image%>" /> \
             </div> \
             <div class="text crt-post-content-text <%=this.contentTextClasses()%>"> \
@@ -1104,11 +1193,18 @@ Curator.Templates = {
     </div>\
 </div>',
 
-
-    popupTemplate : ' <div class="crt-popup-wrapper"> \
+    popupWrapperTemplate : ' <div class="crt-popup-wrapper"> \
+<div class="crt-popup-wrapper-c"> \
 <div class="crt-popup-underlay"></div> \
+<div class="crt-popup-container"></div> \
+</div> \
+</div>',
+
+    popupTemplate : ' \
 <div class="crt-popup"> \
-    <a href="#" class="close">Close</a> \
+    <a href="#" class="crt-close crt-icon-cancel"></a> \
+    <a href="#" class="crt-next crt-icon-right-open"></a> \
+    <a href="#" class="crt-previous crt-icon-left-open"></a> \
     <div class="crt-popup-left">  \
         <img src="<%=image%>" /> \
     </div> \
@@ -1122,7 +1218,6 @@ Curator.Templates = {
             <%=this.parseText(text)%> \
         </div> \
     </div> \
-</div> \
 </div>',
 
 
@@ -1331,7 +1426,8 @@ var widgetDefaults = {
     maxPosts:0,
     apiEndpoint:'https://api.curator.io/v1',
     scroll:'more',
-    gridWith:250
+    gridWith:250,
+    onPostsLoaded:function(){}
 };
 
 
@@ -1352,6 +1448,7 @@ jQuery.extend(Client.prototype,{
     $container: null,
     $feed: null,
     posts:[],
+    popupManager:null,
 
     init: function (options) {
         Curator.log("Waterfall->init with options:");
@@ -1382,7 +1479,7 @@ jQuery.extend(Client.prototype,{
         if (Curator.checkPowered(this.$container)) {
             this.feed.loadPosts();
 
-            if (this.scroll=='continuous') {
+            if (this.options.scroll=='continuous') {
                 jQuery(this.$scroll).scroll(function () {
                     var height = that.$scroll.height();
                     var cHeight = that.$feed.height();
@@ -1391,12 +1488,14 @@ jQuery.extend(Client.prototype,{
                         that.feed.loadMorePosts();
                     }
                 });
-            } else {
+            } else if (this.options.scroll=='more') {
                 this.$more = jQuery('<div class="crt-feed-more"><a href="#"><span>Load more</span></a></div>').appendTo(this.$scroll);
                 this.$more.find('a').on('click',function(ev){
                     ev.preventDefault();
                     that.feed.loadMorePosts();
                 });
+            } else {
+                // no scroll - use javascript to trigger loading
             }
 
             this.$feed.gridalicious({
@@ -1404,6 +1503,8 @@ jQuery.extend(Client.prototype,{
                 gutter:0,
                 width:this.options.gridWith
             });
+
+            this.popupManager = new Curator.PopupManager(this);
         }
     },
 
@@ -1419,7 +1520,10 @@ jQuery.extend(Client.prototype,{
         //this.$feed.append(postElements);
         that.$feed.gridalicious('append',postElements);
 
-        that.loading = false;
+        this.popupManager.setPosts(posts);
+
+        this.loading = false;
+        this.options.onPostsLoaded (this, posts);
     },
 
     onLoadPostsFail: function (data) {
@@ -1427,9 +1531,8 @@ jQuery.extend(Client.prototype,{
         this.$feed.html('<p style="text-align: center">'+data.message+'</p>');
     },
 
-    onPostClick: function (ev,postJson) {
-        var popup = new Curator.Popup(postJson, this.feed);
-        popup.show();
+    onPostClick: function (ev,post) {
+        this.popupManager.showPopup(post);
     },
 
     loadPost: function (postJson) {

@@ -12,19 +12,15 @@ Curator.Popup = function (json,feed) {
 
 
 jQuery.extend(Curator.Popup.prototype, {
-    underlay: '',
-    bigPost: null,
-    popupTemplateId:'#popup-template',
-    underlayTemplateId:'#popup-underlay-template',
+    templateId:'#popup-template',
 
-    init: function (post, feed) {
+    init: function (popupManager, post, feed) {
         Curator.log("Popup->init ");
         var that = this;
-
+ 
+        this.popupManager = popupManager;
         this.post = post.json;
         this.feed = feed;
-
-        console.log(this.post);
 
         //
         // this.underlay = jQuery('#popup-underlay');
@@ -42,22 +38,45 @@ jQuery.extend(Curator.Popup.prototype, {
         //     that.inappropriatePopup = new Curator.PopupInappropriate(this.json,this.feed);
         // });
         // this.$underlay = Curator.Template.render(this.underlayTemplateId, this.post);
-        this.$popup = Curator.Template.render(this.popupTemplateId, this.post);
+        this.$popup = Curator.Template.render(this.templateId, this.post);
 
         // jQuery('body').append(this.$underlay);
-        jQuery('body').append(this.$popup);
 
         // this.$popup.on('click',' .close', function (e) {
         //     e.preventDefault();
         //     that.hide();
         // });
 
-        this.$underlay = this.$popup.find('.crt-popup-underlay');
 
+        if (!this.post.image) {
+            this.$popup.addClass('no-image');
+        }
 
-        this.$popup.on('click',' .close', jQuery.proxy(this.hide,this));
-        this.$underlay.click(jQuery.proxy(this.hide,this));
+        this.$popup.on('click',' .crt-close', jQuery.proxy(this.onClose,this));
+        this.$popup.on('click',' .crt-previous', jQuery.proxy(this.onPrevious,this));
+        this.$popup.on('click',' .crt-next', jQuery.proxy(this.onNext,this));
 
+    },
+
+    onClose: function (e) {
+        e.preventDefault();
+        var that = this;
+        this.hide(function(){
+            that.destroy();
+            that.popupManager.onClose();
+        });
+    },
+
+    onPrevious: function (e) {
+        e.preventDefault();
+
+        this.popupManager.onPrevious();
+    },
+
+    onNext: function (e) {
+        e.preventDefault();
+
+        this.popupManager.onNext();
     },
 
     show: function () {
@@ -87,7 +106,6 @@ jQuery.extend(Curator.Popup.prototype, {
         // this.$el.find('div.side-text span').html(text);
         //
         // this.wrapper.show();
-        this.$underlay.fadeIn();
         this.$popup.fadeIn(function () {
             // that.$popup.find('.crt-popup').animate({width:950}, function () {
             //     jQuery('.popup .content').fadeIn('slow');
@@ -95,61 +113,14 @@ jQuery.extend(Curator.Popup.prototype, {
         });
     },
     
-    /**
-     * Load the main image in the Big Post
-     */
-    loadMainImage: function (source, $wrapper, classes, removeWrapperClass) {
-        $wrapper.show(); //show the wrapper in case it has a pre-loader image
-
-        var img = new root.Image();
-
-        source = source.replace(/http:/, 'https:');
-
-        for (var i in classes) {
-            if (classes.hasOwnProperty(i)) {
-                jQuery(img).addClass(classes[i]); //console.log(classes[i]);
-            }
-        }
-
-        img.onload = function () {
-
-            if (removeWrapperClass) {
-                $wrapper.removeClass(removeWrapperClass);
-            }
-
-            $wrapper.append(this);
-
-            jQuery(this).imgscale({
-                fade: 1000,
-                width: img.width,
-                height: img.height
-            });
-        };
-        img.onerror = function () {
-            if (removeWrapperClass) {
-                $wrapper.removeClass(removeWrapperClass);
-            }
-        };
-        img.src = source;
-    },
-    
-    hide: function (e) {
-        e.preventDefault();
-
-        var that = this;
-        this.$popup.fadeOut(function(){
-        });
-        that.$underlay.delay(200).fadeOut(function(){
-            that.destroy();
-        });
+    hide: function (callback) {
+        Curator.log('Popup->hide');
+        this.$popup.fadeOut(callback);
     },
     
     destroy: function () {
-
-        this.$underlay.remove();
         this.$popup.remove();
 
         delete this.$popup;
-        delete this.$underlay;
     }
 });

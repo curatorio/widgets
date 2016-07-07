@@ -29,7 +29,7 @@ var Curator = {
     checkPowered : function (jQuerytag) {
         Curator.log("Curator->checkPowered");
         var h = jQuerytag.html ();
-        console.log (h);
+        // Curator.log (h);
         if (h.indexOf('Curator') > 0) {
             return true
         } else {

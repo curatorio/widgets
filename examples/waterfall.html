@@ -4,26 +4,7 @@
 <head>
     <title></title>
     <link href="../dist/css/curator.widget.waterfall.css" rel="stylesheet" />
-    <style type="text/css">
-        body {
-            font-family: 'Tahoma',Arial,sans-serif;
-            font-size: 100%;
-        }
-        h1,h2 {
-            text-align: center;
-        }
-        .crt-logo {
-            //display: none;
-        }
-        .center {
-            text-align: center;
-        }
-        #curator-feed {
-            max-width:1200px;
-            margin:0 auto;
-            width: 100%;
-        }
-    </style>
+    <link href="css/example.css" rel="stylesheet" />
 </head>
 <body>
 <h1>Curator.io Examples</h1>
@@ -43,6 +24,9 @@
     var widget = new Curator.Waterfall({
         container:'#curator-feed',
         feedId:"6dab8d1e-abe9-4fb7-8475-99ab8d5e"
+//        ,onPostsLoaded:function (curator, posts) {
+//            curator.popupManager.showPopup({json:posts[0]});
+//        }
     });
 </script>
 </body>

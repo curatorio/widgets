@@ -5,31 +5,26 @@
 * =====
 */
 
-.flex
-{
-    -webkit-box-align: stretch;
-    -webkit-align-items: stretch;
-    -ms-flex-align: stretch;
-    align-items: stretch;
-    border: 0 solid #000;
-    box-sizing: border-box;
-    display: -webkit-box;
-    display: -webkit-flex;
-    display: -ms-flexbox;
-    display: flex;
-    -webkit-box-orient: vertical;
-    -webkit-box-direction: normal;
-    -webkit-flex-direction: column;
-    -ms-flex-direction: column;
-    flex-direction: column;
-    -webkit-flex-shrink: 0;
-    -ms-flex-negative: 0;
-    flex-shrink: 0;
-    margin: 0;
-    padding: 0;
-    position: relative;
+
+body {
+    &.crt-popup-visible {
+        overflow: hidden;
+    }
 }
 
+.flex-container
+{
+    //border: 1px solid #000;
+    //box-sizing: border-box;
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    //flex-shrink: 0;
+    //margin: 0;
+    //padding: 0;
+    //position: relative;
+}
 
 body {
     //background-color: #ff0000;
@@ -47,9 +42,16 @@ body {
     position: fixed;
     right: 0;
     top: 0;
-    z-index: 1;
     display: none;
     z-index: 100;
+}
+
+.crt-popup-wrapper-c
+{
+    @extend .flex-container;
+    min-height: 100%;
+    width: 100%;
+    position: relative;
 }
 
 .crt-popup-wrapper
@@ -62,38 +64,70 @@ body {
     left: 0;
     position: fixed;
     display: none;
-    z-index: 100;
+    z-index: 100000;
+    overflow-x: hidden;
+    overflow-y: auto;
     /*[empty]background-color:;*/
 
+
+    .crt-popup-container
+    {
+        padding: 60px;
+        position: relative;
+        z-index: 101;
+
+    }
+    .crt-popup-padding
+    {
+        padding: 60px 0;
+        margin: 0px auto;
+    }
 
     .crt-popup
     {
         position: relative;
-        margin: 20px auto 0;
         //margin-bottom: -255px;
         max-width: 950px;
+        width: 100%;
         //height: 475px;
         /*[disabled]background-color:#000000;*/
         z-index: 101;
         //display: none;
         background-color: #ffffff;
+        float: left;
+
+
+
+        a {
+            text-overflow: ellipsis;
+            text-decoration: none;
+            color: $color-post-header-text;
+
+            &:hover {
+                color:darken($color-post-header-text,25);
+            }
+        }
+
 
         .crt-popup-left
         {
-            @extend .flex;
+            //@extend .flex-container;
             background-color: #ffffff;
 
             padding-right: 335px;
 
             img {
+                width:100%;
                 max-width: 600px;
+                height: auto;
+                display: block;
             }
         }
 
         .crt-popup-right
         {
             position: absolute;
-            width: 315px;
+            width: 305px;
             height: 100%;
             padding: 15px;
             font-family: Arial, san-serif;
@@ -169,31 +203,54 @@ body {
 
                 white-space: nowrap;
                 text-overflow: ellipsis;
-
-                a {
-                    text-overflow: ellipsis;
-                    text-decoration: none;
-                    color: $color-post-header-text;
-
-                    &:hover {
-                        color:darken($color-post-header-text,25);
-                    }
-                }
             }
         }
 
-        .close
+        .crt-close
         {
             position: absolute;
             top: 10px;
             right: 10px;
             z-index: 1;
-            background-image: url(contiki/images/discovery/mark_close.png);
-            background: url('contiki/images/sprites.png') no-repeat -100px 0px;
-            width: 50px;
-            height: 40px;
-            //overflow: hidden;
-            //text-indent: -999px;
+        }
+
+        .crt-close
+        {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1;
+        }
+
+        .crt-previous,
+        .crt-next
+        {
+            position: absolute;
+            top: 50%;
+            margin-top: -25px;
+            right: -51px;
+            z-index: 1;
+            color: #ffffff;
+            height: 50px;
+            width:50px;
+            text-align: center;
+            //border: 1px solid red;
+            line-height: 50px;
+            font-size: 20px;
+        }
+
+        .crt-previous {
+            right: auto;
+            left: -51px;
+        }
+
+        &.no-image {
+            .crt-popup-left {
+                display: none;
+            }
+            .crt-popup-right {
+                position: relative;
+            }
         }
     }
 }
