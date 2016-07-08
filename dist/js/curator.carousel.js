@@ -14,7 +14,7 @@ if (typeof define === 'function' && define.amd) {
 }
 }(this, function(root, jQuery, Curator, slick) {
 
-var feedDefaults = {
+var widgetDefaults = {
     feedId:'',
     postsPerPage:12,
     maxPosts:0,
@@ -56,19 +56,8 @@ var feedDefaults = {
     onPostsLoaded:function(){}
 };
 
-var Client = function (options) {
-    if (options.debug)
-    {
-        Curator.debug = options.debug;
-    }
-    Curator.log ('Client->init');
-    
-    this.init(options);
-    this.totalPostsLoaded = 0;
-    this.allLoaded = false;
-};
 
-jQuery.extend(Client.prototype,{
+var Client = Curator.augment.extend(Curator.Client, {
     containerHeight: 0,
     loading: false,
     feed: null,
@@ -76,86 +65,66 @@ jQuery.extend(Client.prototype,{
     $feed: null,
     posts:[],
 
-    init: function (options) {
+    constructor: function (options) {
         Curator.log("Carousel->init with options:");
-
-        this.options = jQuery.extend({}, feedDefaults, options);
-        this.options.slick = jQuery.extend({}, feedDefaults.slick, options.slick);
-
         Curator.log(this.options);
 
-        if (!Curator.checkContainer(this.options.container)) {
-            return;
-        }
+        var inited = this.uber.init.call(this, options, widgetDefaults);
+        if (inited) {
+            this.options.slick = jQuery.extend({}, widgetDefaults.slick, options.slick);
 
-        var that = this;
+            this.allLoaded = false;
 
-        this.feed = new Curator.Feed ({
-            debug:this.options.debug,
-            feedId:this.options.feedId,
-            postsPerPage:this.options.postsPerPage,
-            apiEndpoint:this.options.apiEndpoint
-        });
-        this.$container = jQuery(this.options.container);
-        //this.$scroll = jQuery('<div class="crt-feed-scroll"></div>').appendTo(this.$container);
-        this.$feed = jQuery('<div class="crt-feed"></div>').appendTo(this.$container);
-        this.$container.addClass('crt-carousel');
+            var that = this;
 
-        if (Curator.checkPowered(this.$container)) {
-            this.feed.loadPosts(jQuery.proxy(this.onLoadPosts, this),jQuery.proxy(this.onLoadPostsFail, this));
+            this.$feed = jQuery('<div class="crt-feed"></div>').appendTo(this.$container);
+            this.$container.addClass('crt-carousel');
 
-            that.$feed.slick(this.options.slick).on('afterChange', function(event, slick, currentSlide) {
-
+            this.$feed.slick(this.options.slick).on('afterChange', function (event, slick, currentSlide) {
                 if (!that.allLoaded) {
-                    //console.log(currentSlide + '>' + (that.totalPostsLoaded - 4));
+                    //console.log(currentSlide + '>' + (that.feed.postsLoaded - 4));
 
-                    if (currentSlide >= that.totalPostsLoaded - 4) {
-                        that.feed.loadMorePosts(jQuery.proxy(that.onLoadPosts, that), jQuery.proxy(that.onLoadPostsFail, that));
+                    if (currentSlide >= that.feed.postsLoaded - 4) {
+                        that.loadMorePosts();
                     }
                 }
             });
 
-            this.popupManager = new Curator.PopupManager(this);
+            // load first set of posts
+            this.loadPosts(0);
+
         }
     },
 
-    onLoadPosts: function (posts) {
-        Curator.log("loadPosts");
+    loadMorePosts : function () {
+        Curator.log('Carousel->loadMorePosts');
+
+        this.feed.loadPosts(this.feed.currentPage+1);
+    },
+
+    onPostsLoaded: function (posts) {
+        Curator.log("Carousel->onPostsLoaded");
 
         this.loading = false;
 
         if (posts.length === 0) {
             this.allLoaded = true;
         } else {
-            this.totalPostsLoaded += posts.length;
-
             var that = this;
-            //var postElements = [];
             jQuery(posts).each(function(){
-                var p = that.loadPost(this);
-                //postElements.push(p.el);
+                var p = that.createPostElement(this);
                 that.$feed.slick('slickAdd',p.el);
             });
-
             this.popupManager.setPosts(posts);
 
             this.options.onPostsLoaded (this, posts);
         }
     },
 
-    onLoadPostsFail: function (data) {
+    onPostsFail: function (data) {
+        Curator.log("Carousel->onPostsFail");
         this.loading = false;
         this.$feed.html('<p style="text-align: center">'+data.message+'</p>');
-    },
-
-    onPostClick: function (ev,post) {
-        this.popupManager.showPopup(post);
-    },
-
-    loadPost: function (postJson) {
-        var post = new Curator.Post(postJson);
-        jQuery(post).bind('postClick',jQuery.proxy(this.onPostClick, this));
-        return post;
     },
 
     destroy : function () {
@@ -166,7 +135,7 @@ jQuery.extend(Client.prototype,{
         delete this.$feed;
         delete this.$container;
         delete this.options ;
-        delete this.totalPostsLoaded;
+        delete this.feed.postsLoaded;
         delete this.loading;
         delete this.allLoaded;
 

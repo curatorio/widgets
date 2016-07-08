@@ -3,8 +3,17 @@ jQuery.support.cors = true;
 var defaults = {
     postsPerPage:24,
     feedId:'xxx',
+    feedParams:{},
     debug:false,
-    apiEndpoint:'https://api.curator.io/v1'
+    apiEndpoint:'https://api.curator.io/v1',
+    onPostsLoaded:function(data){
+        Curator.log('Feed->onPostsLoaded');
+        Curator.log(data);
+    },
+    onPostsFail:function(data) {
+        Curator.log('Feed->onPostsFail failed with message');
+        Curator.log(data.message);
+    }
 };
 
 Curator.Feed = function (options) {
@@ -16,6 +25,7 @@ jQuery.extend(Curator.Feed.prototype,{
     postsLoaded:0,
     postCount:0,
     feedBase:'',
+    currentPage:0,
 
     init: function (options) {
         Curator.log ('Feed->init with options');
@@ -27,9 +37,63 @@ jQuery.extend(Curator.Feed.prototype,{
         this.feedBase = this.options.apiEndpoint+'/feed';
     },
 
-    getUrl : function (trail) {
-        return this.feedBase+'/'+this.options.feedId+trail;
+    loadPosts: function (page, paramsIn) {
+        page = page || 0;
+        Curator.log ('Feed->loadPosts '+this.loading);
+        if (this.loading) {
+            return false;
+        }
+        this.currentPage = page;
+
+        var params = jQuery.extend({},this.options.feedParams,paramsIn);
+
+        params.limit = this.options.postsPerPage;
+        params.offset = page * this.options.postsPerPage;
+
+        this._loadPosts (params);
     },
+
+    _loadPosts : function (params) {
+        Curator.log ('Feed->_loadPosts');
+        var that = this;
+
+        this.loading = true;
+
+        jQuery.ajax({
+            url: this.getUrl('/posts'),
+            dataType: 'json',
+            data: {params:params}
+        })
+        .success(function (data) {
+            Curator.log ('Feed->_loadPosts success');
+            
+            if (data.success) {
+                that.postCount = data.postCount;
+                that.postsLoaded += data.posts.length;
+                if (that.options.onPostsLoaded)
+                {
+                    that.options.onPostsLoaded(data.posts);
+                }
+            } else {
+                if (that.options.onPostsFail)
+                {
+                    that.options.onPostsFail(data);
+                }
+            }
+            that.loading = false;
+        })
+        .fail(function(jqXHR, textStatus, errorThrown){
+            Curator.log ('Feed->_loadPosts fail');
+            Curator.log(textStatus);
+            Curator.log(errorThrown);
+
+            if (that.options.onPostsFail)
+            {
+                that.options.onPostsFail();
+            }
+            that.loading = false;
+        });
+    },  
 
     loadPost : function (id, successCallback, failCallback) {
         failCallback = failCallback || function(){};
@@ -77,85 +141,7 @@ jQuery.extend(Curator.Feed.prototype,{
         });
     },
 
-    loadPosts: function (successCallback, failCallback) {
-        failCallback = failCallback || function(data) {
-            Curator.log('Feed->loadPosts failed with message');
-            Curator.log(data.message);
-        };
-        Curator.log ('Feed->loadPosts '+this.loading);
-        if (this.loading) {
-            return false;
-        }
-        var params = {
-            limit : this.options.postsPerPage
-        };
-
-        this._loadPosts (params, successCallback, failCallback);
-    },
-
-    loadMorePosts : function (successCallback, failCallback) {
-        if (this.loading) {
-            return false;
-        }
-        var params = {
-            limit : this.options.postsPerPage,
-            offset : this.postsLoaded
-        };
-
-        this._loadPosts (params,successCallback, failCallback);
-    },
-
-    loadPage : function (page) {
-        if (this.loading) {
-            return false;
-        }
-        var params = {
-            limit : this.options.postsPerPage,
-            offset : page * this.options.postsPerPage
-        };
-
-        this._loadPosts (params);
-    },
-
-    _loadPosts : function (params, successCallback, failCallback) {
-        Curator.log ('Feed->_loadPosts');
-        var that = this;
-
-        this.loading = true;
-
-        jQuery.ajax({
-            url: this.getUrl('/posts'),
-            dataType: 'json',
-            data: {params:params}
-        })
-        .success(function (data) {
-            Curator.log ('Feed->_loadPosts success');
-            
-            if (data.success) {
-                that.postCount = data.postCount;
-                that.postsLoaded += data.posts.length;
-                if (successCallback) {
-                    successCallback(data.posts);
-                }
-                if (that.options.onLoad)
-                {
-                    that.options.onLoad(data.posts);
-                }
-            } else {
-                if (failCallback) {
-                    failCallback(data);
-                }
-                if (that.options.onFail)
-                {
-                    that.options.onFail(data);
-                }
-            }
-            that.loading = false;
-        })
-        .fail(function(jqXHR, textStatus, errorThrown){
-            Curator.log ('Feed->_loadPosts fail');
-            Curator.log(textStatus);
-            Curator.log(errorThrown);
-        });
+    getUrl : function (trail) {
+        return this.feedBase+'/'+this.options.feedId+trail;
     }
 });

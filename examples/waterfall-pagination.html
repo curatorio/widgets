@@ -20,8 +20,9 @@
 <script type="text/javascript" src="js/vendor/jquery.min.js"></script>
 <script type="text/javascript" src="../dist/js/curator.widget.waterfall.js"></script>
 <script type="text/javascript">
+    var paginationLoaded = false;
     // While you're testing
-    Curator.debug = true;
+    Curator.debug = false;
 
     // Change FEED_ID to your unique FEED_ID
     var widget = new Curator.Waterfall({
@@ -32,17 +33,22 @@
         postsPerPage:12,
 //        apiEndpoint:"http://curator-api.dev/v1",
         onPostsLoaded:function (curator, posts) {
-            console.log (curator.feed.postCount);
-            var pages = curator.feed.postCount/12;
-            for (var i=0;i<pages;i ++ ) {
-                $('.pagination').append('<a href="#" data-page="'+i+'">'+(i+1)+'</a> ');
+            console.log('Custom->onPostsLoaded');
+            if (!paginationLoaded) {
+                var pages = curator.feed.postCount / 12;
+                for (var i = 0; i < pages; i++) {
+                    $('.pagination').append('<a href="#" data-page="' + i + '">' + (i + 1) + '</a> ');
+                }
+
+                $('.pagination a').click(function (ev) {
+                    ev.preventDefault();
+
+                    curator.loadPosts($(this).data('page'), true);
+                });
+                paginationLoaded = true;
             }
-
-            $('.pagination a').click(function (ev) {
-                ev.preventDefault();
-
-                widget.loadPosts($(this).data('page'));
-            });
+            $('.pagination a').removeClass('selected');
+            $('.pagination a:eq('+curator.feed.currentPage+')').addClass('selected');
         }
     });
 </script>

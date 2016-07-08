@@ -95,6 +95,7 @@ gulp.task('styles', function() {
 
 gulp.task('scripts:core', function() {
     return gulp.src([
+            srcJs+'core/_vendor/*.js',
             srcJs+'core/**/*.js'
         ])
         .pipe(concat('curator.core.js'))

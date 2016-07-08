@@ -16,10 +16,9 @@ jQuery.extend(Curator.Popup.prototype, {
 
     init: function (popupManager, post, feed) {
         Curator.log("Popup->init ");
-        var that = this;
  
         this.popupManager = popupManager;
-        this.post = post.json;
+        this.json = post.json;
         this.feed = feed;
 
         //
@@ -80,7 +79,6 @@ jQuery.extend(Curator.Popup.prototype, {
     },
 
     show: function () {
-        var that = this;
         //
         // var post = this.json;
         // var mediaUrl = post.image,

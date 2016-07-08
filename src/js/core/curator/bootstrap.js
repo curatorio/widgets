@@ -31,12 +31,14 @@ var Curator = {
         var h = jQuerytag.html ();
         // Curator.log (h);
         if (h.indexOf('Curator') > 0) {
-            return true
+            return true;
         } else {
             Curator.alert ('Container is missing Powered by Curator');
             return false;
         }
-    }
+    },
+
+    augment:augment
 };
 
 if (jQuery === undefined) {

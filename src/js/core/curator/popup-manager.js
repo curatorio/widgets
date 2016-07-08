@@ -13,15 +13,16 @@ Curator.PopupManager = function (curator) {
 
 jQuery.extend(Curator.PopupManager.prototype, {
     templateId:'#popup-wrapper-template',
+    client:null,
 
-    init: function (curator) {
+    init: function (client) {
         Curator.log("PopupManager->init ");
+
+        this.client = client;
 
         this.$wrapper = Curator.Template.render(this.templateId, {});
         this.$popupContainer = this.$wrapper.find('.crt-popup-container');
         this.$underlay = this.$wrapper.find('.crt-popup-underlay');
-
-        console.log (this.$wrapper);
 
         jQuery('body').append(this.$wrapper);
         this.$underlay.click(jQuery.proxy(this.onUnderlayClick,this));
@@ -39,7 +40,7 @@ jQuery.extend(Curator.PopupManager.prototype, {
             this.showPopup2(post);
         }
 
-    },
+    },  
 
     showPopup2: function (post) {
         this.popup = new Curator.Popup(this, post, this.feed);
@@ -97,7 +98,7 @@ jQuery.extend(Curator.PopupManager.prototype, {
 
     },
 
-    hide: function (e) {
+    hide: function () {
 
         Curator.log('PopupManager->hide');
         jQuery('body').removeClass('crt-popup-visible');

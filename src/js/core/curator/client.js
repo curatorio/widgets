@@ -1,7 +1,7 @@
 
 Curator.Client = augment.extend(Object, {
     constructor : function () {
-        console.log('Client->construct');
+        Curator.log('Client->construct');
 
     },
     init : function (options, defaults) {
@@ -21,6 +21,7 @@ Curator.Client = augment.extend(Object, {
         }
 
         this.createFeed();
+        this.createPopupManager();
 
         return true;
     },
@@ -29,52 +30,55 @@ Curator.Client = augment.extend(Object, {
         this.feed = new Curator.Feed ({
             debug:this.options.debug,
             feedId:this.options.feedId,
+            feedParams:this.options.feedParams,
             postsPerPage:this.options.postsPerPage,
             apiEndpoint:this.options.apiEndpoint,
-            onLoad:this.onLoadPosts.bind(this),
-            onFail:this.onLoadPostsFail.bind(this)
+            onPostsLoaded:this.onPostsLoaded.bind(this),
+            onPostsFail:this.onPostsFail.bind(this)
         });
     },
+    
+    createPopupManager : function () {
+        this.popupManager = new Curator.PopupManager(this);
+    },
 
-    loadPost: function (postJson) {
+    loadPosts: function (page) {
+        this.feed.loadPosts(page);
+    },
+
+    createPostElements : function (posts)
+    {
+        var that = this;
+        var postElements = [];
+        jQuery(posts).each(function(){
+            var p = that.createPostElement(this);
+            postElements.push(p.$el);
+        });
+        return postElements;
+    },
+
+    createPostElement: function (postJson) {
         var post = new Curator.Post(postJson);
         jQuery(post).bind('postClick',jQuery.proxy(this.onPostClick, this));
+
+        if (this.options.onPostCreated) {
+            this.options.onPostCreated (post);
+        }
+
         return post;
     },
 
-    onLoadPosts: function (posts) {
-        console.log('Client->onLoadPosts');
+    onPostsLoaded: function (posts) {
+        Curator.log('Client->onPostsLoaded');
+        Curator.log(posts);
     },
 
-    onLoadPostsFail: function (data) {
-        console.log('Client->onLoadPostsFail');
+    onPostsFail: function (data) {
+        Curator.log('Client->onPostsLoadedFail');
+        Curator.log(data);
     },
 
     onPostClick: function (ev,post) {
         this.popupManager.showPopup(post);
     }
 });
-//
-// Curator.Waterfall = augment.extend(Curator.Client, {
-//     constructor : function () {
-//         console.log('Waterfall->construct');
-//         console.log(this.uber);
-//     }
-// });
-
-//
-//
-//
-// var client = new Curator.Client(1);
-// console.log(client.name());
-//
-//
-// console.log(Curator.Waterfall);
-//
-// var client2 = new Curator.Waterfall(1);
-// console.log(client2.name());
-//
-
-
-
-console.log('-=-=-=-=-=-=-=-=-');

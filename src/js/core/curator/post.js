@@ -17,12 +17,11 @@ jQuery.extend(Curator.Post.prototype,{
 
     init:function (postJson) {
         this.json = postJson;
-        var $post = Curator.Template.render(this.templateId, postJson);
-        this.el = $post;
+        this.$el = Curator.Template.render(this.templateId, postJson);
 
-        this.el.find('.shareFacebook').click(jQuery.proxy(this.onShareFacebookClick,this));
-        this.el.find('.shareTwitter').click(jQuery.proxy(this.onShareTwitterClick,this));
-        this.el.find('.crt-hitarea').click(jQuery.proxy(this.onPostClick,this));
+        this.$el.find('.shareFacebook').click(jQuery.proxy(this.onShareFacebookClick,this));
+        this.$el.find('.shareTwitter').click(jQuery.proxy(this.onShareTwitterClick,this));
+        this.$el.find('.crt-hitarea').click(jQuery.proxy(this.onPostClick,this));
     },
 
     onShareFacebookClick : function (ev) {

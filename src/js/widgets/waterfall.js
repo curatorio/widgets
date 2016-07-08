@@ -7,10 +7,10 @@ var widgetDefaults = {
     scroll:'more',
     gridWith:250,
     onPostsLoaded:function(){}
-};
+}; 
 
 
-var Client = augment.extend(Curator.Client, {
+var Client = Curator.augment.extend(Curator.Client, {
     containerHeight: 0,
     loading: false,
     feed: null,
@@ -24,30 +24,29 @@ var Client = augment.extend(Curator.Client, {
         Curator.log("Waterfall->init with options:");
 
         var inited = this.uber.init.call (this, options,  widgetDefaults);
-        // console.log(v);
         if (inited) {
             this.$scroll = jQuery('<div class="crt-feed-scroll"></div>').appendTo(this.$container);
             this.$feed = jQuery('<div class="crt-feed"></div>').appendTo(this.$scroll);
             this.$container.addClass('crt-feed-container');
-            this.feed.loadPosts(0);
 
             if (this.options.scroll=='continuous') {
                 jQuery(this.$scroll).scroll(function () {
-                    var height = that.$scroll.height();
-                    var cHeight = that.$feed.height();
-                    var scrollTop = that.$scroll.scrollTop();
+                    var height = this.$scroll.height();
+                    var cHeight = this.$feed.height();
+                    var scrollTop = this.$scroll.scrollTop();
                     if (scrollTop >= cHeight - height) {
-                        that.feed.loadMorePosts();
+                        this.loadMorePosts();
                     }
-                });
-            } else if (this.options.scroll=='more') {
+                }.bind(this));
+            } else if (this.options.scroll=='none') {
+                // no scroll - use javascript to trigger loading
+            } else {
+                // default to more
                 this.$more = jQuery('<div class="crt-feed-more"><a href="#"><span>Load more</span></a></div>').appendTo(this.$scroll);
                 this.$more.find('a').on('click',function(ev){
                     ev.preventDefault();
-                    that.feed.loadMorePosts();
-                });
-            } else {
-                // no scroll - use javascript to trigger loading
+                    this.loadMorePosts();
+                }.bind(this));
             }
 
             this.$feed.gridalicious({
@@ -56,21 +55,32 @@ var Client = augment.extend(Curator.Client, {
                 width:this.options.gridWith
             });
 
-            this.popupManager = new Curator.PopupManager(this);
+            // Load first set of posts
+            this.loadPosts(0);
         }
     },
+    
+    loadPosts : function (page, clear) {
+        Curator.log('Waterfall->loadPage');
+        if (clear) {
+            this.$feed.find('.crt-post-c').remove();
+        }
+        this.feed.loadPosts(page);
+    },
 
-    onLoadPosts: function (posts) {
-        Curator.log("loadPosts");
-        var that = this;
-        var postElements = [];
-        jQuery(posts).each(function(){
-            var p = that.loadPost(this);
-            postElements.push(p.el);
-        });
+    loadMorePosts : function () {
+        Curator.log('Waterfall->loadMorePosts');
+
+        this.feed.loadPosts(this.feed.currentPage+1);
+    },
+
+    onPostsLoaded: function (posts) {
+        Curator.log("Waterfall->onPostsLoaded");
+        
+        var postElements = this.createPostElements (posts);
 
         //this.$feed.append(postElements);
-        that.$feed.gridalicious('append',postElements);
+        this.$feed.gridalicious('append', postElements);
 
         this.popupManager.setPosts(posts);
 
@@ -78,21 +88,18 @@ var Client = augment.extend(Curator.Client, {
         this.options.onPostsLoaded (this, posts);
     },
 
-    onLoadPostsFail: function (data) {
+    onPostsFailed: function (data) {
         this.loading = false;
         this.$feed.html('<p style="text-align: center">'+data.message+'</p>');
-    },
-    
-    loadPage : function (page) {
-        this.$feed.find('.crt-post-c').remove();
-        this.feed.loadPage(page);
     },
 
     destroy : function () {
         //this.$feed.slick('unslick');
         this.$feed.remove();
         this.$scroll.remove();
-        this.$more.remove();
+        if (this.$more) {
+            this.$more.remove();
+        }
         this.$container.removeClass('crt-feed-container');
 
         delete this.$feed;

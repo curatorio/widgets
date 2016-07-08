@@ -31,41 +31,34 @@ if (typeof define === 'function' && define.amd) {
     root.Curator = factory(root, root.jQuery);
 }
 }(this, function(root, jQuery) {
-(function (global, factory) {
-    if (typeof define === "function" && define.amd) define(factory);
-    else if (typeof module === "object") module.exports = factory();
-    else global.augment = factory();
-}(this, function () {
-    "use strict";
 
-    var Factory = function () {};
-    var slice = Array.prototype.slice;
 
-    var augment = function (base, body) {
-        var uber = Factory.prototype = typeof base === "function" ? base.prototype : base;
-        var prototype = new Factory, properties = body.apply(prototype, slice.call(arguments, 2).concat(uber));
-        if (typeof properties === "object") for (var key in properties) prototype[key] = properties[key];
-        if (!prototype.hasOwnProperty("constructor")) return prototype;
-        var constructor = prototype.constructor;
-        constructor.prototype = prototype;
-        return constructor;
-    };
+var Factory = function () {};
+var slice = Array.prototype.slice;
 
-    augment.defclass = function (prototype) {
-        var constructor = prototype.constructor;
-        constructor.prototype = prototype;
-        return constructor;
-    };
+var augment = function (base, body) {
+    var uber = Factory.prototype = typeof base === "function" ? base.prototype : base;
+    var prototype = new Factory(), properties = body.apply(prototype, slice.call(arguments, 2).concat(uber));
+    if (typeof properties === "object") for (var key in properties) prototype[key] = properties[key];
+    if (!prototype.hasOwnProperty("constructor")) return prototype;
+    var constructor = prototype.constructor;
+    constructor.prototype = prototype;
+    return constructor;
+};
 
-    augment.extend = function (base, body) {
-        return augment(base, function (uber) {
-            this.uber = uber;
-            return body;
-        });
-    };
+augment.defclass = function (prototype) {
+    var constructor = prototype.constructor;
+    constructor.prototype = prototype;
+    return constructor;
+};
 
-    return augment;
-}));
+augment.extend = function (base, body) {
+    return augment(base, function (uber) {
+        this.uber = uber;
+        return body;
+    });
+};
+
 
 // Simple JavaScript Templating
 // John Resig - http://ejohn.org/ - MIT Licensed
@@ -280,12 +273,14 @@ var Curator = {
         var h = jQuerytag.html ();
         // Curator.log (h);
         if (h.indexOf('Curator') > 0) {
-            return true
+            return true;
         } else {
             Curator.alert ('Container is missing Powered by Curator');
             return false;
         }
-    }
+    },
+
+    augment:augment
 };
 
 if (jQuery === undefined) {
@@ -297,7 +292,7 @@ if (jQuery === undefined) {
 
 Curator.Client = augment.extend(Object, {
     constructor : function () {
-        console.log('Client->construct');
+        Curator.log('Client->construct');
 
     },
     init : function (options, defaults) {
@@ -317,6 +312,7 @@ Curator.Client = augment.extend(Object, {
         }
 
         this.createFeed();
+        this.createPopupManager();
 
         return true;
     },
@@ -325,62 +321,74 @@ Curator.Client = augment.extend(Object, {
         this.feed = new Curator.Feed ({
             debug:this.options.debug,
             feedId:this.options.feedId,
+            feedParams:this.options.feedParams,
             postsPerPage:this.options.postsPerPage,
             apiEndpoint:this.options.apiEndpoint,
-            onLoad:this.onLoadPosts.bind(this),
-            onFail:this.onLoadPostsFail.bind(this)
+            onPostsLoaded:this.onPostsLoaded.bind(this),
+            onPostsFail:this.onPostsFail.bind(this)
         });
     },
+    
+    createPopupManager : function () {
+        this.popupManager = new Curator.PopupManager(this);
+    },
 
-    loadPost: function (postJson) {
+    loadPosts: function (page) {
+        this.feed.loadPosts(page);
+    },
+
+    createPostElements : function (posts)
+    {
+        var that = this;
+        var postElements = [];
+        jQuery(posts).each(function(){
+            var p = that.createPostElement(this);
+            postElements.push(p.$el);
+        });
+        return postElements;
+    },
+
+    createPostElement: function (postJson) {
         var post = new Curator.Post(postJson);
         jQuery(post).bind('postClick',jQuery.proxy(this.onPostClick, this));
+
+        if (this.options.onPostCreated) {
+            this.options.onPostCreated (post);
+        }
+
         return post;
     },
 
-    onLoadPosts: function (posts) {
-        console.log('Client->onLoadPosts');
+    onPostsLoaded: function (posts) {
+        Curator.log('Client->onPostsLoaded');
+        Curator.log(posts);
     },
 
-    onLoadPostsFail: function (data) {
-        console.log('Client->onLoadPostsFail');
+    onPostsFail: function (data) {
+        Curator.log('Client->onPostsLoadedFail');
+        Curator.log(data);
     },
 
     onPostClick: function (ev,post) {
         this.popupManager.showPopup(post);
     }
 });
-//
-// Curator.Waterfall = augment.extend(Curator.Client, {
-//     constructor : function () {
-//         console.log('Waterfall->construct');
-//         console.log(this.uber);
-//     }
-// });
-
-//
-//
-//
-// var client = new Curator.Client(1);
-// console.log(client.name());
-//
-//
-// console.log(Curator.Waterfall);
-//
-// var client2 = new Curator.Waterfall(1);
-// console.log(client2.name());
-//
-
-
-
-console.log('-=-=-=-=-=-=-=-=-');
 jQuery.support.cors = true;
 
 var defaults = {
     postsPerPage:24,
     feedId:'xxx',
+    feedParams:{},
     debug:false,
-    apiEndpoint:'https://api.curator.io/v1'
+    apiEndpoint:'https://api.curator.io/v1',
+    onPostsLoaded:function(data){
+        Curator.log('Feed->onPostsLoaded');
+        Curator.log(data);
+    },
+    onPostsFail:function(data) {
+        Curator.log('Feed->onPostsFail failed with message');
+        Curator.log(data.message);
+    }
 };
 
 Curator.Feed = function (options) {
@@ -392,6 +400,7 @@ jQuery.extend(Curator.Feed.prototype,{
     postsLoaded:0,
     postCount:0,
     feedBase:'',
+    currentPage:0,
 
     init: function (options) {
         Curator.log ('Feed->init with options');
@@ -403,9 +412,63 @@ jQuery.extend(Curator.Feed.prototype,{
         this.feedBase = this.options.apiEndpoint+'/feed';
     },
 
-    getUrl : function (trail) {
-        return this.feedBase+'/'+this.options.feedId+trail;
+    loadPosts: function (page, paramsIn) {
+        page = page || 0;
+        Curator.log ('Feed->loadPosts '+this.loading);
+        if (this.loading) {
+            return false;
+        }
+        this.currentPage = page;
+
+        var params = jQuery.extend({},this.options.feedParams,paramsIn);
+
+        params.limit = this.options.postsPerPage;
+        params.offset = page * this.options.postsPerPage;
+
+        this._loadPosts (params);
     },
+
+    _loadPosts : function (params) {
+        Curator.log ('Feed->_loadPosts');
+        var that = this;
+
+        this.loading = true;
+
+        jQuery.ajax({
+            url: this.getUrl('/posts'),
+            dataType: 'json',
+            data: {params:params}
+        })
+        .success(function (data) {
+            Curator.log ('Feed->_loadPosts success');
+            
+            if (data.success) {
+                that.postCount = data.postCount;
+                that.postsLoaded += data.posts.length;
+                if (that.options.onPostsLoaded)
+                {
+                    that.options.onPostsLoaded(data.posts);
+                }
+            } else {
+                if (that.options.onPostsFail)
+                {
+                    that.options.onPostsFail(data);
+                }
+            }
+            that.loading = false;
+        })
+        .fail(function(jqXHR, textStatus, errorThrown){
+            Curator.log ('Feed->_loadPosts fail');
+            Curator.log(textStatus);
+            Curator.log(errorThrown);
+
+            if (that.options.onPostsFail)
+            {
+                that.options.onPostsFail();
+            }
+            that.loading = false;
+        });
+    },  
 
     loadPost : function (id, successCallback, failCallback) {
         failCallback = failCallback || function(){};
@@ -453,86 +516,8 @@ jQuery.extend(Curator.Feed.prototype,{
         });
     },
 
-    loadPosts: function (successCallback, failCallback) {
-        failCallback = failCallback || function(data) {
-            Curator.log('Feed->loadPosts failed with message');
-            Curator.log(data.message);
-        };
-        Curator.log ('Feed->loadPosts '+this.loading);
-        if (this.loading) {
-            return false;
-        }
-        var params = {
-            limit : this.options.postsPerPage
-        };
-
-        this._loadPosts (params, successCallback, failCallback);
-    },
-
-    loadMorePosts : function (successCallback, failCallback) {
-        if (this.loading) {
-            return false;
-        }
-        var params = {
-            limit : this.options.postsPerPage,
-            offset : this.postsLoaded
-        };
-
-        this._loadPosts (params,successCallback, failCallback);
-    },
-
-    loadPage : function (page) {
-        if (this.loading) {
-            return false;
-        }
-        var params = {
-            limit : this.options.postsPerPage,
-            offset : page * this.options.postsPerPage
-        };
-
-        this._loadPosts (params);
-    },
-
-    _loadPosts : function (params, successCallback, failCallback) {
-        Curator.log ('Feed->_loadPosts');
-        var that = this;
-
-        this.loading = true;
-
-        jQuery.ajax({
-            url: this.getUrl('/posts'),
-            dataType: 'json',
-            data: {params:params}
-        })
-        .success(function (data) {
-            Curator.log ('Feed->_loadPosts success');
-            
-            if (data.success) {
-                that.postCount = data.postCount;
-                that.postsLoaded += data.posts.length;
-                if (successCallback) {
-                    successCallback(data.posts);
-                }
-                if (that.options.onLoad)
-                {
-                    that.options.onLoad(data.posts);
-                }
-            } else {
-                if (failCallback) {
-                    failCallback(data);
-                }
-                if (that.options.onFail)
-                {
-                    that.options.onFail(data);
-                }
-            }
-            that.loading = false;
-        })
-        .fail(function(jqXHR, textStatus, errorThrown){
-            Curator.log ('Feed->_loadPosts fail');
-            Curator.log(textStatus);
-            Curator.log(errorThrown);
-        });
+    getUrl : function (trail) {
+        return this.feedBase+'/'+this.options.feedId+trail;
     }
 });
 /**
@@ -612,15 +597,16 @@ Curator.PopupManager = function (curator) {
 
 jQuery.extend(Curator.PopupManager.prototype, {
     templateId:'#popup-wrapper-template',
+    client:null,
 
-    init: function (curator) {
+    init: function (client) {
         Curator.log("PopupManager->init ");
+
+        this.client = client;
 
         this.$wrapper = Curator.Template.render(this.templateId, {});
         this.$popupContainer = this.$wrapper.find('.crt-popup-container');
         this.$underlay = this.$wrapper.find('.crt-popup-underlay');
-
-        console.log (this.$wrapper);
 
         jQuery('body').append(this.$wrapper);
         this.$underlay.click(jQuery.proxy(this.onUnderlayClick,this));
@@ -638,7 +624,7 @@ jQuery.extend(Curator.PopupManager.prototype, {
             this.showPopup2(post);
         }
 
-    },
+    },  
 
     showPopup2: function (post) {
         this.popup = new Curator.Popup(this, post, this.feed);
@@ -696,7 +682,7 @@ jQuery.extend(Curator.PopupManager.prototype, {
 
     },
 
-    hide: function (e) {
+    hide: function () {
 
         Curator.log('PopupManager->hide');
         jQuery('body').removeClass('crt-popup-visible');
@@ -733,10 +719,9 @@ jQuery.extend(Curator.Popup.prototype, {
 
     init: function (popupManager, post, feed) {
         Curator.log("Popup->init ");
-        var that = this;
  
         this.popupManager = popupManager;
-        this.post = post.json;
+        this.json = post.json;
         this.feed = feed;
 
         //
@@ -797,7 +782,6 @@ jQuery.extend(Curator.Popup.prototype, {
     },
 
     show: function () {
-        var that = this;
         //
         // var post = this.json;
         // var mediaUrl = post.image,
@@ -860,12 +844,11 @@ jQuery.extend(Curator.Post.prototype,{
 
     init:function (postJson) {
         this.json = postJson;
-        var $post = Curator.Template.render(this.templateId, postJson);
-        this.el = $post;
+        this.$el = Curator.Template.render(this.templateId, postJson);
 
-        this.el.find('.shareFacebook').click(jQuery.proxy(this.onShareFacebookClick,this));
-        this.el.find('.shareTwitter').click(jQuery.proxy(this.onShareTwitterClick,this));
-        this.el.find('.crt-hitarea').click(jQuery.proxy(this.onPostClick,this));
+        this.$el.find('.shareFacebook').click(jQuery.proxy(this.onShareFacebookClick,this));
+        this.$el.find('.shareTwitter').click(jQuery.proxy(this.onShareTwitterClick,this));
+        this.$el.find('.crt-hitarea').click(jQuery.proxy(this.onPostClick,this));
     },
 
     onShareFacebookClick : function (ev) {
