@@ -26,9 +26,9 @@ Curator.Client = augment.extend(Object, {
 
         this.$container = jQuery(this.options.container);
 
-        if (!Curator.checkPowered(this.$container)) {
-            return false;
-        }
+        // if (!Curator.checkPowered(this.$container)) {
+        //     return false;
+        // }
 
         this.createFeed();
         this.createPopupManager();
