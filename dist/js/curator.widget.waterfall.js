@@ -623,7 +623,9 @@ var Curator = {
     checkContainer:function (container) {
         Curator.log("Curator->checkContainer: "+container);
         if (jQuery(container).length === 0) {
-            Curator.alert ('Curator could not find the element '+container+'. Please ensure this element existings in your HTML code. Exiting.');
+            if (window.console) {
+                window.console.log('Curator could not find the element ' + container + '. Please ensure this element existings in your HTML code. Exiting.');
+            }
             return false;
         }
         return true;
