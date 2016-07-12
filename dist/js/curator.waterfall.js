@@ -36,10 +36,12 @@ var Client = Curator.augment.extend(Curator.Client, {
     name:'Waterfall',
 
     constructor: function (options) {
-        Curator.log("Waterfall->init with options:");
+        this.uber.setOptions.call (this, options,  widgetDefaults);
 
-        var inited = this.uber.init.call (this, options,  widgetDefaults);
-        if (inited) {
+        Curator.log("Waterfall->init with options:");
+        Curator.log(this.options);
+
+        if (this.uber.init.call (this)) {
             this.$scroll = jQuery('<div class="crt-feed-scroll"></div>').appendTo(this.$container);
             this.$feed = jQuery('<div class="crt-feed"></div>').appendTo(this.$scroll);
             this.$container.addClass('crt-feed-container');

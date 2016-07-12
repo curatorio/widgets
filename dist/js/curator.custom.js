@@ -13,7 +13,7 @@ if (typeof define === 'function' && define.amd) {
     root.Curator.Custom = factory(root, root.jQuery, root.Curator);
 }
 }(this, function(root, jQuery, Curator) {
-var clientDefaults = {
+var widgetDefaults = {
     feedId:'',
     postsPerPage:12,
     maxPosts:0,
@@ -21,71 +21,44 @@ var clientDefaults = {
     onPostsLoaded:function(){}
 };
 
-var Client = function (options) {
-    if (options.debug)
-    {
-        Curator.debug = options.debug;
-    }
-    Curator.log ('Client->init');
 
-    this.init(options);
-    this.totalPostsLoaded = 0;
-    this.allLoaded = false;
-};
-
-jQuery.extend(Client.prototype,{
+var Client = Curator.augment.extend(Curator.Client, {
     containerHeight: 0,
     loading: false,
     feed: null,
     $container: null,
     $feed: null,
     posts:[],
+    totalPostsLoaded:0,
+    allLoaded:false,
 
-    init: function (options) {
-        Curator.debug = options.debug;
+    constructor: function (options) {
+        this.uber.setOptions.call (this, options,  widgetDefaults);
 
-        Curator.log("Custom->init with options:");
-
-        this.options = jQuery.extend({},clientDefaults,options);
-
+        Curator.log("Panel->init with options:");
         Curator.log(this.options);
 
-        if (!Curator.checkContainer(this.options.container)) {
-            return;
-        }
+        if (this.uber.init.call (this)) {
+            this.$feed = jQuery('<div class="crt-feed"></div>').appendTo(this.$container);
+            this.$container.addClass('crt-custom');
 
-        this.feed = new Curator.Feed ({
-            debug:this.options.debug,
-            feedId:this.options.feedId,
-            postsPerPage:this.options.postsPerPage,
-            apiEndpoint:this.options.apiEndpoint
-        });
-        this.$container = jQuery(this.options.container);
-        this.$feed = jQuery('<div class="crt-feed"></div>').appendTo(this.$container);
-        this.$container.addClass('crt-custom');
-
-        if (Curator.checkPowered(this.$container)) {
-            this.loadPosts();
-
-            this.popupManager = new Curator.PopupManager(this);
+            this.loadPosts(0);
         }
     },
 
-    onLoadPosts: function (posts) {
-        Curator.log("loadPosts");
+    onPostsLoaded: function (posts) {
+        Curator.log("Custom->onPostsLoaded");
 
         this.loading = false;
 
         if (posts.length === 0) {
             this.allLoaded = true;
         } else {
-            this.totalPostsLoaded += posts.length;
-
             var that = this;
             var postElements = [];
             jQuery(posts).each(function(){
-                var p = that.loadPost(this);
-                postElements.push(p.el);
+                var p = that.createPostElement(this);
+                postElements.push(p.$el);
             });
             that.$feed.append(postElements);
 
@@ -95,23 +68,14 @@ jQuery.extend(Client.prototype,{
         }
     },
 
-    onLoadPostsFail: function (data) {
+    onPostsFailed: function (data) {
+        Curator.log("Custom->onPostsFailed");
         this.loading = false;
         this.$feed.html('<p style="text-align: center">'+data.message+'</p>');
     },
 
     onPostClick: function (ev,post) {
         this.popupManager.showPopup(post);
-    },
-
-    loadPost: function (postJson) {
-        var post = new Curator.Post(postJson);
-        jQuery(post).bind('postClick',jQuery.proxy(this.onPostClick, this));
-        return post;
-    },
-
-    loadPosts : function () {
-        this.feed.loadMorePosts(this.onLoadPosts.bind(this), this.onLoadPostsFail.bind(this));
     },
 
     destroy : function () {

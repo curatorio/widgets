@@ -10,9 +10,19 @@
 .slick-prev {
     width: 50px;
     left: 10px;
+
+    &:before {
+        font-family: 'crt';
+        content: '\e804';
+    }
 }
 
 .slick-next {
     width: 50px;
     right: 10px;
+
+    &:before {
+        font-family: 'crt';
+        content: '\e803'; // right-arrow
+    }
 }

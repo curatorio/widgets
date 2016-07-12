@@ -37,7 +37,7 @@ jQuery.extend(Curator.Popup.prototype, {
         //     that.inappropriatePopup = new Curator.PopupInappropriate(this.json,this.feed);
         // });
         // this.$underlay = Curator.Template.render(this.underlayTemplateId, this.post);
-        this.$popup = Curator.Template.render(this.templateId, this.post);
+        this.$popup = Curator.Template.render(this.templateId, this.json);
 
         // jQuery('body').append(this.$underlay);
 
@@ -47,7 +47,7 @@ jQuery.extend(Curator.Popup.prototype, {
         // });
 
 
-        if (!this.post.image) {
+        if (!this.json.image) {
             this.$popup.addClass('no-image');
         }
 

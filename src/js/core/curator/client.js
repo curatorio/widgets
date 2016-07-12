@@ -4,11 +4,21 @@ Curator.Client = augment.extend(Object, {
         Curator.log('Client->construct');
 
     },
-    init : function (options, defaults) {
-        
+
+    setOptions : function (options, defaults) {
+
         this.options = jQuery.extend({}, defaults,options);
 
-        Curator.log(this.options);
+        if (options.debug) {
+            Curator.debug = true;
+        }
+
+        // Curator.log(this.options);
+
+        return true;
+    },
+
+    init : function () {
 
         if (!Curator.checkContainer(this.options.container)) {
             return false;

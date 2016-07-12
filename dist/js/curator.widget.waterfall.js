@@ -656,11 +656,21 @@ Curator.Client = augment.extend(Object, {
         Curator.log('Client->construct');
 
     },
-    init : function (options, defaults) {
-        
+
+    setOptions : function (options, defaults) {
+
         this.options = jQuery.extend({}, defaults,options);
 
-        Curator.log(this.options);
+        if (options.debug) {
+            Curator.debug = true;
+        }
+
+        // Curator.log(this.options);
+
+        return true;
+    },
+
+    init : function () {
 
         if (!Curator.checkContainer(this.options.container)) {
             return false;
@@ -1101,7 +1111,7 @@ jQuery.extend(Curator.Popup.prototype, {
         //     that.inappropriatePopup = new Curator.PopupInappropriate(this.json,this.feed);
         // });
         // this.$underlay = Curator.Template.render(this.underlayTemplateId, this.post);
-        this.$popup = Curator.Template.render(this.templateId, this.post);
+        this.$popup = Curator.Template.render(this.templateId, this.json);
 
         // jQuery('body').append(this.$underlay);
 
@@ -1111,7 +1121,7 @@ jQuery.extend(Curator.Popup.prototype, {
         // });
 
 
-        if (!this.post.image) {
+        if (!this.json.image) {
             this.$popup.addClass('no-image');
         }
 
@@ -1540,10 +1550,12 @@ var Client = Curator.augment.extend(Curator.Client, {
     name:'Waterfall',
 
     constructor: function (options) {
-        Curator.log("Waterfall->init with options:");
+        this.uber.setOptions.call (this, options,  widgetDefaults);
 
-        var inited = this.uber.init.call (this, options,  widgetDefaults);
-        if (inited) {
+        Curator.log("Waterfall->init with options:");
+        Curator.log(this.options);
+
+        if (this.uber.init.call (this)) {
             this.$scroll = jQuery('<div class="crt-feed-scroll"></div>').appendTo(this.$container);
             this.$feed = jQuery('<div class="crt-feed"></div>').appendTo(this.$scroll);
             this.$container.addClass('crt-feed-container');

@@ -51,11 +51,12 @@ var Client = Curator.augment.extend(Curator.Client, {
     posts:[],
 
     constructor: function (options) {
+        this.uber.setOptions.call (this, options,  widgetDefaults);
+
         Curator.log("Carousel->init with options:");
         Curator.log(this.options);
 
-        var inited = this.uber.init.call(this, options, widgetDefaults);
-        if (inited) {
+        if (this.uber.init.call (this)) {
             this.options.slick = jQuery.extend({}, widgetDefaults.slick, options.slick);
 
             this.allLoaded = false;
@@ -98,7 +99,7 @@ var Client = Curator.augment.extend(Curator.Client, {
             var that = this;
             jQuery(posts).each(function(){
                 var p = that.createPostElement(this);
-                that.$feed.slick('slickAdd',p.el);
+                that.$feed.slick('slickAdd',p.$el);
             });
             this.popupManager.setPosts(posts);
 
