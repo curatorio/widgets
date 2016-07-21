@@ -1,28 +1,32 @@
+
+$width:30px;
 .slick-prev, .slick-next {
     z-index: 100;
 }
 
-.slick-prev:before, .slick-next:before {
-    color: #000000;
-    font-size: 40px;
+.slick-prev,
+.slick-next {
+    width: $width;
+    &:before,
+    &:before {
+        color: #000000;
+        font-size: 20px;
+        font-family: 'crt';
+    }
 }
 
 .slick-prev {
-    width: 50px;
-    left: 10px;
+    left: 0-$width;
 
     &:before {
-        font-family: 'crt';
         content: '\e804';
     }
 }
 
 .slick-next {
-    width: 50px;
-    right: 10px;
+    right: 0-$width;
 
     &:before {
-        font-family: 'crt';
         content: '\e803'; // right-arrow
     }
 }

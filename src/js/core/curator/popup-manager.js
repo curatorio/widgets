@@ -26,7 +26,7 @@ jQuery.extend(Curator.PopupManager.prototype, {
 
         jQuery('body').append(this.$wrapper);
         this.$underlay.click(jQuery.proxy(this.onUnderlayClick,this));
-        this.$popupContainer.click(jQuery.proxy(this.onUnderlayClick,this));
+        //this.$popupContainer.click(jQuery.proxy(this.onUnderlayClick,this));
 
     },
 

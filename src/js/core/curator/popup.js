@@ -13,6 +13,7 @@ Curator.Popup = function (json,feed) {
 
 jQuery.extend(Curator.Popup.prototype, {
     templateId:'#popup-template',
+    videoPlaying:false,
 
     init: function (popupManager, post, feed) {
         Curator.log("Popup->init ");
@@ -47,13 +48,32 @@ jQuery.extend(Curator.Popup.prototype, {
         // });
 
 
-        if (!this.json.image) {
+
+        if (this.json.network_id === 8)
+        {
+            // youtube
+            this.$popup.find('video').remove();
+
+            var src = '<iframe id="ytplayer" type="text/html" width="615" height="615" \
+            src="https://www.youtube.com/embed/'+this.json.source_identifier+'?autoplay=0&rel=0&showinfo" \
+            frameborder="0"></iframe>';
+
+            this.$popup.find('.crt-video-container img').remove();
+            this.$popup.find('.crt-video-container a').remove();
+            this.$popup.find('.crt-video-container').append(src);
+
+        } else if (!this.json.image) {
             this.$popup.addClass('no-image');
+        }
+
+        if (this.json.video) {
+            this.$popup.addClass('has-video');
         }
 
         this.$popup.on('click',' .crt-close', jQuery.proxy(this.onClose,this));
         this.$popup.on('click',' .crt-previous', jQuery.proxy(this.onPrevious,this));
         this.$popup.on('click',' .crt-next', jQuery.proxy(this.onNext,this));
+        this.$popup.on('click',' .crt-play', jQuery.proxy(this.onPlay,this));
 
     },
 
@@ -61,7 +81,6 @@ jQuery.extend(Curator.Popup.prototype, {
         e.preventDefault();
         var that = this;
         this.hide(function(){
-            that.destroy();
             that.popupManager.onClose();
         });
     },
@@ -76,6 +95,23 @@ jQuery.extend(Curator.Popup.prototype, {
         e.preventDefault();
 
         this.popupManager.onNext();
+    },
+
+    onPlay: function (e) {
+        Curator.log('Popup->onPlay');
+        e.preventDefault();
+
+        this.videoPlaying = !this.videoPlaying;
+
+        if (this.videoPlaying) {
+            this.$popup.find('video')[0].play();
+        } else {
+            this.$popup.find('video')[0].pause();
+        }
+
+        Curator.log(this.videoPlaying);
+
+        this.$popup.toggleClass('video-playing',this.videoPlaying );
     },
 
     show: function () {
@@ -113,11 +149,23 @@ jQuery.extend(Curator.Popup.prototype, {
     
     hide: function (callback) {
         Curator.log('Popup->hide');
-        this.$popup.fadeOut(callback);
+        var that = this;
+        this.$popup.fadeOut(function(){
+
+            that.destroy();
+            callback ();
+        });
     },
     
     destroy: function () {
-        this.$popup.remove();
+        if (this.$popup.length) {
+            this.$popup.remove();
+
+            if (this.$popup.find('video').length) {
+                this.$popup.find('video')[0].pause();
+
+            }
+        }
 
         delete this.$popup;
     }

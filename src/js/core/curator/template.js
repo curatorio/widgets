@@ -35,7 +35,16 @@ Curator.Templates = {
     <a href="#" class="crt-next crt-icon-right-open"></a> \
     <a href="#" class="crt-previous crt-icon-left-open"></a> \
     <div class="crt-popup-left">  \
-        <img src="<%=image%>" /> \
+        <div class="crt-video"> \
+            <div class="crt-video-container">\
+                <video src="<%=video%>" type="video/mp3" preload="none"></video>\
+                <img src="<%=image%>" />\
+                <a href="javascript:;" class="crt-play"><i class="play"></i></a> \
+            </div> \
+        </div> \
+        <div class="crt-image"> \
+            <img src="<%=image%>" /> \
+        </div> \
     </div> \
     <div class="crt-popup-right"> \
         <div class="crt-popup-header"> \
