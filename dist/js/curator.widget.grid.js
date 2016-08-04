@@ -1,382 +1,3 @@
-/**
- * jQuery Grid-A-Licious(tm) v3.01
- *
- * Terms of Use - jQuery Grid-A-Licious(tm)
- * under the MIT (http://www.opensource.org/licenses/mit-license.php) License.
- *
- * Copyright 2008-2012 Andreas Pihlström (Suprb). All rights reserved.
- * (http://suprb.com/apps/gridalicious/)
- *
- */
-
-// Debouncing function from John Hann
-// http://unscriptable.com/index.php/2009/03/20/debouncing-javascript-methods/
-// Copy pasted from http://paulirish.com/2009/throttled-smartresize-jquery-event-handler/
-
-(function ($, sr) {
-    var debounce = function (func, threshold, execAsap) {
-        var timeout;
-        return function debounced() {
-            var obj = this,
-                args = arguments;
-
-            function delayed() {
-                if (!execAsap) func.apply(obj, args);
-                timeout = null;
-            };
-            if (timeout) clearTimeout(timeout);
-            else if (execAsap) func.apply(obj, args);
-
-            timeout = setTimeout(delayed, threshold || 150);
-        };
-    };
-    jQuery.fn[sr] = function (fn) {
-        return fn ? this.bind('resize', debounce(fn)) : this.trigger(sr);
-    };
-})(jQuery, 'smartresize');
-
-// The Grid-A-Licious magic
-
-(function ($) {
-
-    $.Gal = function (options, element) {
-        this.element = jQuery(element);
-        this._init(options);
-    };
-
-    $.Gal.settings = {
-        selector: '.item',
-        width: 225,
-        gutter: 20,
-        animate: false,
-        animationOptions: {
-            speed: 200,
-            duration: 300,
-            effect: 'fadeInOnAppear',
-            queue: true,
-            complete: function () {}
-        },
-    };
-
-    $.Gal.prototype = {
-
-        _init: function (options) {
-            var container = this;
-            this.name = this._setName(5);
-            this.gridArr = [];
-            this.gridArrAppend = [];
-            this.gridArrPrepend = [];
-            this.setArr = false;
-            this.setGrid = false;
-            this.setOptions;
-            this.cols = 0;
-            this.itemCount = 0;
-            this.prependCount = 0;
-            this.isPrepending = false;
-            this.appendCount = 0;
-            this.resetCount = true;
-            this.ifCallback = true;
-            this.box = this.element;
-            this.boxWidth = this.box.width();
-            this.options = $.extend(true, {}, $.Gal.settings, options);
-            this.gridArr = $.makeArray(this.box.find(this.options.selector));
-            this.isResizing = false;
-            this.w = 0;
-            this.boxArr = [];
-
-            // build columns
-            this._setCols();
-            // build grid
-            this._renderGrid('append');
-            // add class 'gridalicious' to container
-            jQuery(this.box).addClass('gridalicious');
-            // add smartresize
-            jQuery(window).smartresize(function () {
-                container.resize();
-            });
-        },
-
-        _setName: function (length, current) {
-            current = current ? current : '';
-            return length ? this._setName(--length, "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz".charAt(Math.floor(Math.random() * 60)) + current) : current;
-        },
-
-        _setCols: function () {
-            // calculate columns
-            this.cols = Math.floor(this.box.width() / this.options.width);
-            //If Cols lower than 1, the grid disappears
-            if (this.cols < 1) { this.cols = 1; }
-            diff = (this.box.width() - (this.cols * this.options.width) - this.options.gutter) / this.cols;
-            w = (this.options.width + diff) / this.box.width() * 100;
-            this.w = w;
-            // add columns to box
-            for (var i = 0; i < this.cols; i++) {
-                var div = jQuery('<div></div>').addClass('galcolumn').attr('id', 'item' + i + this.name).css({
-                    'width': w + '%',
-                    'paddingLeft': this.options.gutter,
-                    'paddingBottom': this.options.gutter,
-                    'float': 'left',
-                    '-webkit-box-sizing': 'border-box',
-                    '-moz-box-sizing': 'border-box',
-                    '-o-box-sizing': 'border-box',
-                    'box-sizing': 'border-box'
-                });
-                this.box.append(div);
-            }
-            
-            
-            this.box.find(jQuery('#clear' + this.name)).remove();
-            // add clear float
-            var clear = jQuery('<div></div>').css({
-                'clear': 'both',
-                'height': '0',
-                'width': '0',
-                'display': 'block'
-            }).attr('id', 'clear' + this.name);
-            this.box.append(clear);
-        },
-
-        _renderGrid: function (method, arr, count, prepArray) {
-            var items = [];
-            var boxes = [];
-            var prependArray = [];
-            var itemCount = 0;
-            var prependCount = this.prependCount;
-            var appendCount = this.appendCount;
-            var gutter = this.options.gutter;
-            var cols = this.cols;
-            var name = this.name;
-            var i = 0;
-            var w = jQuery('.galcolumn').width();
-
-            // if arr
-            if (arr) {
-                boxes = arr;
-                // if append
-                if (method == "append") {
-                    // get total of items to append
-                    appendCount += count;
-                    // set itemCount to last count of appened items
-                    itemCount = this.appendCount;
-                }               
-                // if prepend
-                if (method == "prepend") {
-                    // set itemCount
-                    this.isPrepending = true;
-                    itemCount = Math.round(count % cols);
-                    if (itemCount <= 0) itemCount = cols; 
-                }
-                // called by _updateAfterPrepend()
-                if (method == "renderAfterPrepend") {
-                    // get total of items that was previously prepended
-                    appendCount += count;
-                    // set itemCount by counting previous prepended items
-                    itemCount = count;
-                }
-            }
-            else {
-                boxes = this.gridArr;
-                appendCount = jQuery(this.gridArr).size();
-            }
-
-            // push out the items to the columns
-            $.each(boxes, function (index, value) {
-                var item = jQuery(value);
-                var width = '100%';
-            
-                // if you want something not to be "responsive", add the class "not-responsive" to the selector container            
-                if (item.hasClass('not-responsive')) {
-                  width = 'auto';
-                }
-                
-                item.css({
-                    'marginBottom': gutter,
-                    'zoom': '1',
-                    'filter': 'alpha(opacity=0)',
-                    'opacity': '0'
-                });
-                //.find('img, object, embed, iframe').css({
-                //    'width': width,
-                //    'height': 'auto',
-                //    'display': 'block',
-                //    'margin-left': 'auto',
-                //    'margin-right': 'auto'
-                //});
-                
-                // prepend on append to column
-                if (method == 'prepend') {
-                    itemCount--;
-                    jQuery("#item" + itemCount + name).prepend(item);
-                    items.push(item);
-                    if(itemCount == 0) itemCount = cols;
-                    
-                } else {
-                    jQuery("#item" + itemCount + name).append(item);
-                    items.push(item);
-                    itemCount++;
-                    if (itemCount >= cols) itemCount = 0;
-                    if (appendCount >= cols) appendCount = (appendCount - cols);
-                }
-            });
-
-            this.appendCount = appendCount;
-            this.itemCount = itemCount;
-
-            if (method == "append" || method == "prepend") {
-                if (method == "prepend") { 
-                  // render old items and reverse the new items
-                  this._updateAfterPrepend(this.gridArr, boxes);
-                }
-                this._renderItem(items);
-                this.isPrepending = false;
-            } else {
-                this._renderItem(this.gridArr);
-            }
-        },
-
-        _collectItems: function () {
-            var collection = [];
-            jQuery(this.box).find(this.options.selector).each(function (i) {
-                collection.push(jQuery(this));
-            });
-            return collection;
-        },
-
-        _renderItem: function (items) {
-
-            var speed = this.options.animationOptions.speed;
-            var effect = this.options.animationOptions.effect;
-            var duration = this.options.animationOptions.duration;
-            var queue = this.options.animationOptions.queue;
-            var animate = this.options.animate;
-            var complete = this.options.animationOptions.complete;
-
-            var i = 0;
-            var t = 0;
-
-            // animate
-            if (animate === true && !this.isResizing) {
-
-                // fadeInOnAppear
-                if (queue === true && effect == "fadeInOnAppear") {
-                    if (this.isPrepending) items.reverse();
-                    $.each(items, function (index, value) {
-                        setTimeout(function () {
-                            jQuery(value).animate({
-                                opacity: '1.0'
-                            }, duration);
-                            t++;
-                            if (t == items.length) {
-                                complete.call(undefined, items)
-                            }
-                        }, i * speed);
-                        i++;
-                    });
-                } else if (queue === false && effect == "fadeInOnAppear") {
-                    if (this.isPrepending) items.reverse();
-                    $.each(items, function (index, value) {
-                        jQuery(value).animate({
-                            opacity: '1.0'
-                        }, duration);
-                        t++;
-                        if (t == items.length) {
-                            if (this.ifCallback) {
-                                complete.call(undefined, items);
-                            }
-                        }
-                    });
-                }
-
-                // no effect but queued
-                if (queue === true && !effect) {
-                    $.each(items, function (index, value) {
-                        jQuery(value).css({
-                            'opacity': '1',
-                            'filter': 'alpha(opacity=100)'
-                        });
-                        t++;
-                        if (t == items.length) {
-                            if (this.ifCallback) {
-                                complete.call(undefined, items);
-                            }
-                        }
-                    });
-                }
-
-            // don not animate & no queue
-            } else {
-                $.each(items, function (index, value) {
-                    jQuery(value).css({
-                        'opacity': '1',
-                        'filter': 'alpha(opacity=100)'
-                    });
-                });
-                if (this.ifCallback) {
-                    complete.call(items);
-                }
-            }
-        },
-
-        _updateAfterPrepend: function (prevItems, newItems) {            
-            var gridArr = this.gridArr;
-            // add new items to gridArr
-            $.each(newItems, function (index, value) {
-                gridArr.unshift(value);
-            });
-            this.gridArr = gridArr;
-        },
-
-        resize: function () {
-            if (this.box.width() === this.boxWidth) {
-                return;
-            }
-
-            // delete columns in box
-            this.box.find(jQuery('.galcolumn')).remove();
-            // build columns
-            this._setCols();
-            // build grid
-            this.ifCallback = false;
-            this.isResizing = true;
-            this._renderGrid('append');
-            this.ifCallback = true;
-            this.isResizing = false;
-            this.boxWidth = this.box.width();
-        },
-
-        append: function (items) {
-            var gridArr = this.gridArr;
-            var gridArrAppend = this.gridArrPrepend;
-            $.each(items, function (index, value) {
-                gridArr.push(value);
-                gridArrAppend.push(value);
-            });
-            this._renderGrid('append', items, jQuery(items).size());
-        },
-
-        prepend: function (items) {
-            this.ifCallback = false;
-            this._renderGrid('prepend', items, jQuery(items).size());
-            this.ifCallback = true;
-        },
-    };
-
-    $.fn.gridalicious = function (options, e) {
-        if (typeof options === 'string') {
-            this.each(function () {
-                var container = $.data(this, 'gridalicious');
-                container[options].apply(container, [e]);
-            });
-        } else {
-            this.each(function () {
-                $.data(this, 'gridalicious', new $.Gal(options, this));
-            });
-        }
-        return this;
-    }
-
-})(jQuery);
-
 ;(function(root, factory) {
 if (typeof define === 'function' && define.amd) {
     // Cheeky wrapper to add root to the factory call
@@ -1583,19 +1204,45 @@ if (typeof define === 'function' && define.amd) {
 } else if (typeof exports === 'object') {
     module.exports = factory(root, require('jquery'), require('curator'));
 } else {
-    root.Curator.Waterfall = factory(root, root.jQuery, root.Curator);
+    root.Curator.Grid = factory(root, root.jQuery, root.Curator);
 }
 }(this, function(root, jQuery, Curator) {
-
 var widgetDefaults = {
     feedId:'',
     postsPerPage:12,
     maxPosts:0,
     apiEndpoint:'https://api.curator.io/v1',
-    scroll:'more',
-    gridWith:250,
-    onPostsLoaded:function(){}
-}; 
+    onPostsLoaded:function(){},
+    minWidth:200
+};
+
+Curator.Templates.gridPostTemplate = ' \
+<div class="crt-post-c">\
+    <div class="crt-post post<%=id%> <%=this.contentImageClasses()%> <%=this.contentTextClasses()%>"> \
+        <div class="crt-post-content"> \
+            <div class="crt-hitarea" > \
+                <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer" /> \
+                <div class="crt-post-content-image" style="background-image: url(<%=image%>);"> </div> \
+                <div class="crt-post-content-text-c"> \
+                    <div class="crt-post-content-text"> \
+                        <%=this.parseText(text)%> \
+                    </div> \
+                </div> \
+                <span class="social-icon social-icon-normal"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \
+                <div class="crt-post-hover">\
+                    <div class="crt-post-header"> \
+                        <img src="<%=user_image%>"  /> \
+                        <div class="crt-post-name"><span><%=user_full_name%></span><br/><a href="<%=this.userUrl()%>" target="_blank">@<%=user_screen_name%></a></div> \
+                    </div> \
+                    <div class="crt-post-hover-text"> \
+                        <%=this.parseText(text)%> \
+                    </div> \
+                    <span class="social-icon social-icon-hover"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \
+                </div> \
+            </div> \
+        </div> \
+    </div>\
+</div>';
 
 
 var Client = Curator.augment.extend(Curator.Client, {
@@ -1605,95 +1252,91 @@ var Client = Curator.augment.extend(Curator.Client, {
     $container: null,
     $feed: null,
     posts:[],
-    popupManager:null,
-    name:'Waterfall',
+    totalPostsLoaded:0,
+    allLoaded:false,
+    previousCol:0,
 
     constructor: function (options) {
         this.uber.setOptions.call (this, options,  widgetDefaults);
 
-        Curator.log("Waterfall->init with options:");
+        Curator.log("Panel->init with options:");
         Curator.log(this.options);
 
         if (this.uber.init.call (this)) {
-            this.$scroll = jQuery('<div class="crt-feed-scroll"></div>').appendTo(this.$container);
-            this.$feed = jQuery('<div class="crt-feed"></div>').appendTo(this.$scroll);
-            this.$container.addClass('crt-feed-container');
+            this.$feed = jQuery('<div class="crt-feed"></div>').appendTo(this.$container);
+            this.$container.addClass('crt-grid');
 
-            if (this.options.scroll=='continuous') {
-                jQuery(this.$scroll).scroll(function () {
-                    var height = this.$scroll.height();
-                    var cHeight = this.$feed.height();
-                    var scrollTop = this.$scroll.scrollTop();
-                    if (scrollTop >= cHeight - height) {
-                        this.loadMorePosts();
-                    }
-                }.bind(this));
-            } else if (this.options.scroll=='none') {
-                // no scroll - use javascript to trigger loading
-            } else {
-                // default to more
-                this.$more = jQuery('<div class="crt-feed-more"><a href="#"><span>Load more</span></a></div>').appendTo(this.$scroll);
-                this.$more.find('a').on('click',function(ev){
-                    ev.preventDefault();
-                    this.loadMorePosts();
-                }.bind(this));
-            }
-
-            this.$feed.gridalicious({
-                selector:'.crt-post-c',
-                gutter:0,
-                width:this.options.gridWith
-            });
-
-            // Load first set of posts
             this.loadPosts(0);
         }
-    },
-    
-    loadPosts : function (page, clear) {
-        Curator.log('Waterfall->loadPage');
-        if (clear) {
-            this.$feed.find('.crt-post-c').remove();
-        }
-        this.feed.loadPosts(page);
-    },
 
-    loadMorePosts : function () {
-        Curator.log('Waterfall->loadMorePosts');
-
-        this.feed.loadPosts(this.feed.currentPage+1);
+        var to = null;
+        var that = this;
+        jQuery(window).resize(function(){
+            clearTimeout(to);
+            to = setTimeout(function(){
+                that.updateLayout();
+            },100);
+        });
+        this.updateLayout ();
     },
 
     onPostsLoaded: function (posts) {
-        Curator.log("Waterfall->onPostsLoaded");
-        
-        var postElements = this.createPostElements (posts);
-
-        //this.$feed.append(postElements);
-        this.$feed.gridalicious('append', postElements);
-
-        this.popupManager.setPosts(posts);
+        Curator.log("Grid->onPostsLoaded");
 
         this.loading = false;
-        this.options.onPostsLoaded (this, posts);
+
+        if (posts.length === 0) {
+            this.allLoaded = true;
+        } else {
+            var that = this;
+            var postElements = [];
+            jQuery(posts).each(function(){
+                var p = that.createPostElement(this);
+                postElements.push(p.$el);
+            });
+            that.$feed.append(postElements);
+
+            this.popupManager.setPosts(posts);
+
+            this.options.onPostsLoaded (this, posts);
+        }
+    },
+
+    createPostElement: function (postJson) {
+        var post = new Curator.Post(postJson, '#gridPostTemplate');
+        jQuery(post).bind('postClick',jQuery.proxy(this.onPostClick, this));
+
+        if (this.options.onPostCreated) {
+            this.options.onPostCreated (post);
+        }
+
+        return post;
     },
 
     onPostsFailed: function (data) {
+        Curator.log("Grid->onPostsFailed");
         this.loading = false;
         this.$feed.html('<p style="text-align: center">'+data.message+'</p>');
     },
 
+    onPostClick: function (ev,post) {
+        this.popupManager.showPopup(post);
+    },
+
+    updateLayout : function ( ) {
+        var m = Math.floor(this.$container.width()/this.options.minWidth);
+
+        this.$container.removeClass('crt-grid-col'+this.previousCol);
+        this.previousCol = m;
+        this.$container.addClass('crt-grid-col'+this.previousCol);
+
+    },
+
     destroy : function () {
-        //this.$feed.slick('unslick');
         this.$feed.remove();
-        this.$scroll.remove();
-        if (this.$more) {
-            this.$more.remove();
-        }
-        this.$container.removeClass('crt-feed-container');
+        this.$container.removeClass('crt-custom');
 
         delete this.$feed;
-        delete this.$scroll;
         delete this.$container;
         delete this.options ;
         delete this.totalPostsLoaded;
@@ -1704,8 +1347,8 @@ var Client = Curator.augment.extend(Curator.Client, {
         // unregistering events etc
         delete this.feed;
     }
-});
 
+});
 
     return Client;
 }));

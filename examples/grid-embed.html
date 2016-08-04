@@ -1,0 +1,39 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <script type="text/javascript" src="js/vendor/jquery.min.js"></script>
+    <link href="css/example.css" rel="stylesheet" />
+    <style type="text/css">
+        #curator-feed {
+            max-width: 450px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Curator.io Examples</h1>
+    <h2>Waterfall Widget</h2>
+
+    <p class="center"><a href="index.html">Examples</a></p>
+
+    <div id="curator-feed">
+        <a href="http://curator.io" target="_blank" class="crt-logo crt-tag">Powered by Curator.io</a>
+    </div>
+
+
+    <script type="text/javascript">
+        var curatorConfig = {
+            container:'#curator-feed'
+        };
+        (function(){
+            var i, e, d = document, s = "script";i = d.createElement("script");i.async = 1;
+            i.src = "js/embed.js";
+            e = d.getElementsByTagName(s)[0];e.parentNode.insertBefore(i, e)
+        })();
+    </script>
+
+</body>
+</html>
+

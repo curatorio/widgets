@@ -1,0 +1,155 @@
+.crt-grid {
+	@include crt-clearfix();
+
+	.crt-post-c {
+		width: 33%;
+	}
+
+	&.crt-grid-col7 {
+
+		.crt-post-c {
+			width: (100% / 7);
+		}
+	}
+
+	&.crt-grid-col6 {
+
+		.crt-post-c {
+			width: (100% / 6);
+		}
+	}
+
+	&.crt-grid-col5 {
+
+		.crt-post-c {
+			width: (100% / 5);
+		}
+	}
+
+	&.crt-grid-col4 {
+
+		.crt-post-c {
+			width: (100% / 4);
+		}
+	}
+
+	&.crt-grid-col3 {
+
+		.crt-post-c {
+			width: (100% / 3);
+		}
+	}
+
+	&.crt-grid-col2 {
+
+		.crt-post-c {
+			width: (100% / 2);
+		}
+	}
+
+	&.crt-grid-col1 {
+
+		.crt-post-c {
+			width: 100%;
+		}
+	}
+
+	.crt-feed {
+		@include crt-clearfix();
+	}
+
+	.crt-post {
+		border: 0;
+		margin: 0;
+		img.spacer {
+			width: 100%;
+		}
+
+		.crt-post-content-text-c,
+		.crt-post-content-image {
+			position: absolute;
+			top:0;
+			left:0;
+			width: 100%;
+			height: 100%;
+		}
+
+		.social-icon-normal {
+			color: #ffffff;
+		}
+
+		.social-icon {
+			position: absolute;
+			right: 3px;
+			bottom: 5px;
+			z-index: 3;
+			font-size: 1.3em;
+			transition: opacity .4s linear;
+		}
+
+		.crt-post-content-image {
+			background-size: cover;
+			background-position: center center;
+			z-index: 1;
+		}
+
+		.crt-post-content-text-c {
+
+			.crt-post-content-text {
+				font-size: 20px;
+			}
+			z-index: 2;
+		}
+
+		.crt-post-hover {
+			position: absolute;
+			top:3px;
+			left:3px;
+			right: 3px;
+			bottom: 3px;
+			background-color: rgba(255, 255, 255, 0.80);
+			z-index: 3;
+			opacity: 0;
+			transition: opacity .4s linear;
+
+			.crt-post-header .social-icon,
+			.crt-post-header {
+				background-color: transparent;
+
+				IMG {
+					margin-left: 6px;
+					margin-top: 6px;
+				}
+
+				.crt-post-name {
+					left: 53px;
+					margin-top: 0;
+					font-size: 0.8em;
+				}
+			}
+
+			.crt-post-hover-text {
+				padding: 6px;
+				font-size: 0.85em;
+			}
+		}
+
+		.crt-hitarea:hover {
+			.social-icon-normal {
+				opacity: 0;
+
+			}
+			.crt-post-hover {
+				display: block;
+				opacity: 1;
+			}
+		}
+
+		&.crt-post-has-image {
+			.crt-post-content-text-c {
+				display: none;
+			}
+		}
+	}
+}
+

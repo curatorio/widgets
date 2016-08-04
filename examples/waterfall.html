@@ -15,7 +15,7 @@
 </div>
 
 <script type="text/javascript" src="js/vendor/jquery.min.js"></script>
-<script type="text/javascript" src="../dist/js/curator.widget.waterfall.js"></script>
+<script type="text/javascript" src="../dist/js/curator.js"></script>
 <script type="text/javascript">
     // While you're testing
     Curator.debug = true;
@@ -23,11 +23,7 @@
     // Change FEED_ID to your unique FEED_ID
     var widget = new Curator.Waterfall({
         container:'#curator-feed',
-        feedId:"125c3395-8d2c-49e2-b2fd-9b6671a8",
-        apiEndpoint:"http://curator-api.dev/v1"
-        ,onPostsLoaded:function (curator, posts) {
-            curator.popupManager.showPopup({json:posts[0]});
-        }
+        feedId:"6dab8d1e-abe9-4fb7-8475-99ab8d5e"
     });
 </script>
 </body>

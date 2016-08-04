@@ -36,10 +36,10 @@
             return s;
         },
         contentImageClasses : function () {
-            return this.data.image ? '' : 'crt-post-content-image-hidden';
+            return this.data.image ? 'crt-post-has-image' : 'crt-post-content-image-hidden';
         },
         contentTextClasses : function () {
-            return this.data.text ? '' : 'crt-post-content-text-hidden';
+            return this.data.text ? 'crt-post-has-text' : 'crt-post-content-text-hidden';
 
         }
     };

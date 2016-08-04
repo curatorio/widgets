@@ -7,15 +7,15 @@
 */
 
 
-Curator.Post = function (json) {
 
-    this.init(json);
-};
 
-jQuery.extend(Curator.Post.prototype,{
+Curator.Post = augment.extend(Object, {
     templateId:'#post-template',
+    defaultTemplateId:'#post-template',
 
-    init:function (postJson) {
+    constructor:function (postJson, templateId) {
+        this.templateId = templateId || this.defaultTemplateId;
+
         this.json = postJson;
         this.$el = Curator.Template.render(this.templateId, postJson);
 

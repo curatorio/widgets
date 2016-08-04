@@ -389,7 +389,8 @@
     background-color: #efefef;
     color: #2B2B2B;
     /*[empty]margin-left:;*/
-    padding-bottom: 3px; }
+    padding-bottom: 3px;
+    position: relative; }
     .crt-post .crt-post-header .social-icon {
       float: left;
       display: block;
@@ -1051,3 +1052,99 @@ margin-top: 5px;*/
   max-width: 320px;
   min-height: 400px;
   position: relative; }
+
+.crt-grid {
+  zoom: 1; }
+  .crt-grid:before, .crt-grid:after {
+    content: "\0020";
+    display: block;
+    height: 0;
+    overflow: hidden; }
+  .crt-grid:after {
+    clear: both; }
+  .crt-grid .crt-post-c {
+    width: 33%; }
+  .crt-grid.crt-grid-col7 .crt-post-c {
+    width: 14.28571%; }
+  .crt-grid.crt-grid-col6 .crt-post-c {
+    width: 16.66667%; }
+  .crt-grid.crt-grid-col5 .crt-post-c {
+    width: 20%; }
+  .crt-grid.crt-grid-col4 .crt-post-c {
+    width: 25%; }
+  .crt-grid.crt-grid-col3 .crt-post-c {
+    width: 33.33333%; }
+  .crt-grid.crt-grid-col2 .crt-post-c {
+    width: 50%; }
+  .crt-grid.crt-grid-col1 .crt-post-c {
+    width: 100%; }
+  .crt-grid .crt-feed {
+    zoom: 1; }
+    .crt-grid .crt-feed:before, .crt-grid .crt-feed:after {
+      content: "\0020";
+      display: block;
+      height: 0;
+      overflow: hidden; }
+    .crt-grid .crt-feed:after {
+      clear: both; }
+  .crt-grid .crt-post {
+    border: 0;
+    margin: 0; }
+    .crt-grid .crt-post img.spacer {
+      width: 100%; }
+    .crt-grid .crt-post .crt-post-content-text-c,
+    .crt-grid .crt-post .crt-post-content-image {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%; }
+    .crt-grid .crt-post .social-icon-normal {
+      color: #ffffff; }
+    .crt-grid .crt-post .social-icon {
+      position: absolute;
+      right: 3px;
+      bottom: 5px;
+      z-index: 3;
+      font-size: 1.3em;
+      transition: opacity .4s linear; }
+    .crt-grid .crt-post .crt-post-content-image {
+      background-size: cover;
+      background-position: center center;
+      z-index: 1; }
+    .crt-grid .crt-post .crt-post-content-text-c {
+      z-index: 2; }
+      .crt-grid .crt-post .crt-post-content-text-c .crt-post-content-text {
+        font-size: 20px; }
+    .crt-grid .crt-post .crt-post-hover {
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      right: 3px;
+      bottom: 3px;
+      background-color: rgba(255, 255, 255, 0.8);
+      z-index: 3;
+      opacity: 0;
+      transition: opacity .4s linear; }
+      .crt-grid .crt-post .crt-post-hover .crt-post-header .social-icon,
+      .crt-grid .crt-post .crt-post-hover .crt-post-header {
+        background-color: transparent; }
+        .crt-grid .crt-post .crt-post-hover .crt-post-header .social-icon IMG,
+        .crt-grid .crt-post .crt-post-hover .crt-post-header IMG {
+          margin-left: 6px;
+          margin-top: 6px; }
+        .crt-grid .crt-post .crt-post-hover .crt-post-header .social-icon .crt-post-name,
+        .crt-grid .crt-post .crt-post-hover .crt-post-header .crt-post-name {
+          left: 53px;
+          margin-top: 0;
+          font-size: 0.8em; }
+      .crt-grid .crt-post .crt-post-hover .crt-post-hover-text {
+        padding: 6px;
+        font-size: 0.85em; }
+    .crt-grid .crt-post .crt-hitarea:hover .social-icon-normal {
+      opacity: 0; }
+    .crt-grid .crt-post .crt-hitarea:hover .crt-post-hover {
+      display: block;
+      opacity: 1; }
+    .crt-grid .crt-post.crt-post-has-image .crt-post-content-text-c {
+      display: none; }

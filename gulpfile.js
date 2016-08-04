@@ -246,6 +246,45 @@ gulp.task('scripts:panel', ['scripts:core'], function() {
 });
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// Widget Grid
+
+gulp.task('scripts:grid', ['scripts:core'], function() {
+    return gulp.src([
+        srcJs+'widgets/grid.js'
+    ])
+        .pipe(concat('curator.grid.js'))
+        .pipe(umd({
+            dependencies: function(file) {
+                return [
+                    umdRequireJQuery,
+                    umdRequireCurator
+                ];
+            },
+            exports: function(file) {
+                return 'Client';
+            },
+            namespace: function(file) {
+                return 'Curator.Grid';
+            },
+            templateSource:umdTemplate
+        }))
+        .pipe(jshint())
+        .pipe(jshint.reporter('jshint-stylish', { verbose: true }))
+
+        // Save Curator.Waterfall
+        .pipe(gulp.dest(destJs))
+
+        // Save our widget - combines Curator, Curator.Waterfall and Grid-a-licious
+        .pipe(addsrc.prepend([
+            destJs+'curator.core.js'
+        ]))
+        .pipe(concat('curator.widget.grid.js'))
+        .pipe(gulp.dest(destJs))
+
+        .pipe(notify({ message: 'scripts:widget:grid task complete' }));
+});
+
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 // Widget Custom
 
 gulp.task('scripts:custom', ['scripts:core'], function() {
@@ -287,7 +326,7 @@ gulp.task('scripts:custom', ['scripts:core'], function() {
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 // Widgets Combined
 
-gulp.task('scripts:combined', ['scripts:core','scripts:waterfall','scripts:carousel','scripts:panel','scripts:custom'], function() {
+gulp.task('scripts:combined', ['scripts:core','scripts:waterfall','scripts:carousel','scripts:panel','scripts:grid','scripts:custom'], function() {
     return gulp.src([
             srcJs+'widgets/_vendor/jquery.grid-a-licious.js',
             srcJs+'widgets/_vendor/slick.js',
@@ -295,6 +334,7 @@ gulp.task('scripts:combined', ['scripts:core','scripts:waterfall','scripts:carou
             destJs+'curator.waterfall.js',
             destJs+'curator.carousel.js',
             destJs+'curator.panel.js',
+            destJs+'curator.grid.js',
             destJs+'curator.custom.js'
         ])
         .pipe(concat('curator.js'))

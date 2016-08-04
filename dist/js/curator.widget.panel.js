@@ -97,10 +97,10 @@ augment.extend = function (base, body) {
             return s;
         },
         contentImageClasses : function () {
-            return this.data.image ? '' : 'crt-post-content-image-hidden';
+            return this.data.image ? 'crt-post-has-image' : 'crt-post-content-image-hidden';
         },
         contentTextClasses : function () {
-            return this.data.text ? '' : 'crt-post-content-text-hidden';
+            return this.data.text ? 'crt-post-has-text' : 'crt-post-content-text-hidden';
 
         }
     };
@@ -873,7 +873,7 @@ jQuery.extend(Curator.Popup.prototype, {
     },
     
     destroy: function () {
-        if (this.$popup.length) {
+        if (this.$popup && this.$popup.length) {
             this.$popup.remove();
 
             if (this.$popup.find('video').length) {
@@ -894,15 +894,15 @@ jQuery.extend(Curator.Popup.prototype, {
 */
 
 
-Curator.Post = function (json) {
 
-    this.init(json);
-};
 
-jQuery.extend(Curator.Post.prototype,{
+Curator.Post = augment.extend(Object, {
     templateId:'#post-template',
+    defaultTemplateId:'#post-template',
 
-    init:function (postJson) {
+    constructor:function (postJson, templateId) {
+        this.templateId = templateId || this.defaultTemplateId;
+
         this.json = postJson;
         this.$el = Curator.Template.render(this.templateId, postJson);
 

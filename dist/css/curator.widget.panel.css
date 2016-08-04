@@ -389,7 +389,8 @@
     background-color: #efefef;
     color: #2B2B2B;
     /*[empty]margin-left:;*/
-    padding-bottom: 3px; }
+    padding-bottom: 3px;
+    position: relative; }
     .crt-post .crt-post-header .social-icon {
       float: left;
       display: block;

@@ -1,4 +1,5 @@
-.crt-clearfix {
+@mixin crt-clearfix()
+{
     zoom:1;
     &:before, &:after {
         content: "\0020";
@@ -9,4 +10,9 @@
     &:after {
         clear: both;
     }
+}
+
+
+.crt-clearfix {
+    @include crt-clearfix();
 }

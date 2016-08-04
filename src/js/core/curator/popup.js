@@ -158,7 +158,7 @@ jQuery.extend(Curator.Popup.prototype, {
     },
     
     destroy: function () {
-        if (this.$popup.length) {
+        if (this.$popup && this.$popup.length) {
             this.$popup.remove();
 
             if (this.$popup.find('video').length) {

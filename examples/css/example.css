@@ -13,7 +13,7 @@ h1,h2 {
     text-align: center;
 }
 #curator-feed {
-    max-width:1200px;
+   // max-width:1200px;
     margin:0 auto;
     width: 100%;
 }
