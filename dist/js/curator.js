@@ -1433,7 +1433,10 @@ Curator.Template = {
         }
 
         var tmpl = root.parseTemplate(source, data);
-        tmpl = jQuery.parseHTML(tmpl);
+        if (jQuery.parseHTML) {
+            // breaks with jquery < 1.8
+            tmpl = jQuery.parseHTML(tmpl);
+        }
         return jQuery(tmpl).filter('div');
     }
 
@@ -2033,7 +2036,8 @@ var widgetDefaults = {
     maxPosts:0,
     apiEndpoint:'https://api.curator.io/v1',
     onPostsLoaded:function(){},
-    minWidth:200
+    minWidth:200,
+    rows:3
 };
 
 Curator.Templates.gridPostTemplate = ' \
@@ -2082,10 +2086,16 @@ var Client = Curator.augment.extend(Curator.Client, {
         Curator.log("Panel->init with options:");
         Curator.log(this.options);
 
+
         if (this.uber.init.call (this)) {
+
             this.$feed = jQuery('<div class="crt-feed"></div>').appendTo(this.$container);
             this.$container.addClass('crt-grid');
 
+
+            var cols = Math.floor(this.$container.width()/this.options.minWidth);
+            var postsNeeded = cols *  (this.options.rows + 1); // get 1 extra row just in case
+            this.feed.options.postsPerPage = postsNeeded;
             this.loadPosts(0);
         }
 
@@ -2119,6 +2129,8 @@ var Client = Curator.augment.extend(Curator.Client, {
             this.popupManager.setPosts(posts);
 
             this.options.onPostsLoaded (this, posts);
+
+            this.updateHeight();
         }
     },
 
@@ -2144,12 +2156,26 @@ var Client = Curator.augment.extend(Curator.Client, {
     },
 
     updateLayout : function ( ) {
-        var m = Math.floor(this.$container.width()/this.options.minWidth);
+        var cols = Math.floor(this.$container.width()/this.options.minWidth);
+        var postsNeeded = cols *  this.options.rows;
 
         this.$container.removeClass('crt-grid-col'+this.previousCol);
-        this.previousCol = m;
+        this.previousCol = cols;
         this.$container.addClass('crt-grid-col'+this.previousCol);
 
+        if (postsNeeded > this.feed.postsLoaded) {
+            this.loadPosts(this.feed.currentPage+1);
+        }
+
+        this.updateHeight();
+
+    },
+
+    updateHeight : function () {
+        var postHeight = this.$container.find('.crt-post-c').height();
+
+        this.$container.css({'overflow':'hidden'});
+        this.$container.height(this.options.rows * postHeight);
     },
 
     destroy : function () {

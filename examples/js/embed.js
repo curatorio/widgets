@@ -1,9 +1,10 @@
 
 (function () {
 	var feedId      = "6dab8d1e-abe9-4fb7-8475-99ab8d5e";
-	var scriptSrc   = '../dist/js/curator.js';
-	// var scriptSrc   = 'https://cdn.curator.io/1.0/js/curator.js';
-	var cssSrc      = '../dist/css/curator.css';
+	// var scriptSrc   = '../dist/js/curator.js';
+	// var cssSrc      = '../dist/css/curator.css';
+	var scriptSrc   = 'https://cdn.curator.io/1.1/js/curator.js';
+	var cssSrc      = 'https://cdn.curator.io/1.1/css/curator.css';
 	var widgetClass = 'Grid';
 	var customCss   = '';
 

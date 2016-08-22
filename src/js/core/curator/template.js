@@ -86,7 +86,10 @@ Curator.Template = {
         }
 
         var tmpl = root.parseTemplate(source, data);
-        tmpl = jQuery.parseHTML(tmpl);
+        if (jQuery.parseHTML) {
+            // breaks with jquery < 1.8
+            tmpl = jQuery.parseHTML(tmpl);
+        }
         return jQuery(tmpl).filter('div');
     }
 
