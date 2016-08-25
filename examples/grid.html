@@ -19,7 +19,8 @@
     <a href="http://curator.io" target="_blank" class="crt-logo crt-tag">Powered by Curator.io</a>
 </div>
 
-<script type="text/javascript" src="js/vendor/jquery.min.js"></script>
+<!--<script type="text/javascript" src="js/vendor/jquery.min.js"></script>-->
+<script type="text/javascript" src="js/vendor/jquery-1.7.2.min.js"></script>
 <script type="text/javascript" src="../dist/js/curator.js"></script>
 <script type="text/javascript">
     // While you're testing
@@ -29,7 +30,8 @@
     var widget = new Curator.Grid({
         container:'#curator-feed',
         feedId:"6dab8d1e-abe9-4fb7-8475-99ab8d5e",
-        postsPerPage:6
+        postsPerPage:6,
+        rows:1
     });
 </script>
 </body>

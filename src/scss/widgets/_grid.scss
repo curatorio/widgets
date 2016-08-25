@@ -1,4 +1,10 @@
 .crt-grid {
+	position: relative;
+
+	.crt-logo {
+		display: none;
+	}
+
 	@include crt-clearfix();
 
 	.crt-post-c {

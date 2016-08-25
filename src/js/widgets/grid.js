@@ -5,7 +5,12 @@ var widgetDefaults = {
     apiEndpoint:'https://api.curator.io/v1',
     onPostsLoaded:function(){},
     minWidth:200,
-    rows:3
+    rows:3,
+    grid: {
+        minWidth:200,
+        rows:3
+    },
+    animate:true
 };
 
 Curator.Templates.gridPostTemplate = ' \
@@ -60,7 +65,6 @@ var Client = Curator.augment.extend(Curator.Client, {
             this.$feed = jQuery('<div class="crt-feed"></div>').appendTo(this.$container);
             this.$container.addClass('crt-grid');
 
-
             var cols = Math.floor(this.$container.width()/this.options.minWidth);
             var postsNeeded = cols *  (this.options.rows + 1); // get 1 extra row just in case
             this.feed.options.postsPerPage = postsNeeded;
@@ -88,11 +92,18 @@ var Client = Curator.augment.extend(Curator.Client, {
         } else {
             var that = this;
             var postElements = [];
-            jQuery(posts).each(function(){
+            jQuery(posts).each(function(i){
                 var p = that.createPostElement(this);
                 postElements.push(p.$el);
+                that.$feed.append(p.$el);
+
+                if (that.options.animate) {
+                    p.$el.css({opacity: 0});
+                    setTimeout(function () {
+                        p.$el.css({opacity: 0}).animate({opacity: 1});
+                    }, i * 100);
+                }
             });
-            that.$feed.append(postElements);
 
             this.popupManager.setPosts(posts);
 
@@ -148,7 +159,7 @@ var Client = Curator.augment.extend(Curator.Client, {
 
     destroy : function () {
         this.$feed.remove();
-        this.$container.removeClass('crt-custom');
+        this.$container.removeClass('crd-grid').css({'height':'','overflow':''});
 
         delete this.$feed;
         delete this.$container;

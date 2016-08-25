@@ -4,6 +4,10 @@
     position: relative;
     font-family: 'Arial';
 
+    .crt-logo {
+        display: none;
+    }
+
     .crt-feed-scroll {
         width:100%;
     }
@@ -19,6 +23,15 @@
 
     .crt-post-c {
         float: left;
+    }
+
+    .slick-track {
+        display: flex !important;
+    }
+    .slick-track .slick-slide {
+        display: flex !important;
+        height: auto;
+        justify-content: center;
     }
 }
 

@@ -22,6 +22,12 @@ Curator.Post = augment.extend(Object, {
         this.$el.find('.shareFacebook').click(jQuery.proxy(this.onShareFacebookClick,this));
         this.$el.find('.shareTwitter').click(jQuery.proxy(this.onShareTwitterClick,this));
         this.$el.find('.crt-hitarea').click(jQuery.proxy(this.onPostClick,this));
+
+        this.$post = this.$el.find('.crt-post');
+
+        if (this.json.video) {
+            this.$post.addClass('has-video');
+        }
     },
 
     onShareFacebookClick : function (ev) {

@@ -6,7 +6,9 @@ var widgetDefaults = {
     apiEndpoint:'https://api.curator.io/v1',
     scroll:'more',
     gridWith:250,
-    onPostsLoaded:function(){}
+    onPostsLoaded:function(){},
+    animate:true,
+    animateSpeed:400
 }; 
 
 
@@ -54,7 +56,12 @@ var Client = Curator.augment.extend(Curator.Client, {
             this.$feed.gridalicious({
                 selector:'.crt-post-c',
                 gutter:0,
-                width:this.options.gridWith
+                width:this.options.gridWith,
+                animate:this.options.animate,
+                animationOptions: {
+                    speed: (this.options.animateSpeed/2),
+                    duration: this.options.animateSpeed,
+                }
             });
 
             // Load first set of posts

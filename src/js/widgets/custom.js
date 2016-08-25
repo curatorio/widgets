@@ -44,8 +44,8 @@ var Client = Curator.augment.extend(Curator.Client, {
             jQuery(posts).each(function(){
                 var p = that.createPostElement(this);
                 postElements.push(p.$el);
+                that.$feed.append(p.$el);
             });
-            that.$feed.append(postElements);
 
             this.popupManager.setPosts(posts);
 

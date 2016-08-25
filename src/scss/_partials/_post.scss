@@ -128,6 +128,7 @@
     {
         max-height: 400px;
         overflow: hidden;
+        position: relative;
 
         .text
         {
@@ -137,6 +138,11 @@
         {
             width: 100%;
         }
+
+        .play {
+            display: none;
+        }
+
     }
 
     .crt-post-content-image-hidden {
@@ -179,6 +185,35 @@
 
             &:hover {
                 color:darken($color-post-header-text,25);
+            }
+        }
+    }
+
+    .crt-date {
+        margin-top: 0;
+        opacity: 0.5;
+    }
+
+    &.has-video {
+
+        .play {
+            display: block;
+            position: absolute;
+            top:50%;
+            left:50%;
+            margin-top: -30px;
+            margin-left: -20px;
+        }
+
+        .crt-hitarea {
+            &:hover, &:focus {
+                i {
+                    &:before {
+                        transform: scale(1.1);
+                        -webkit-transform: scale(1.1);
+                        -moz-transform: scale(1.1);
+                    }
+                }
             }
         }
     }

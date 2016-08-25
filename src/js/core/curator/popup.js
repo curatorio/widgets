@@ -22,32 +22,7 @@ jQuery.extend(Curator.Popup.prototype, {
         this.json = post.json;
         this.feed = feed;
 
-        //
-        // this.underlay = jQuery('#popup-underlay');
-        // this.$el = jQuery('.popup');
-        // this.wrapper = jQuery('#popup-wrapper');
-        // /**
-        //  * Mark as inappropriate - icon hover
-        //  */
-        // jQuery('.mark-icon a').hover(function () {
-        //     jQuery('img', this).stop().animate({top: '-35px'}, {queue: false, duration: 200});
-        // },function () {
-        //     jQuery('img', this).stop().animate({top: '0px'}, {queue: false, duration: 200});
-        // }).click(function (e) {
-        //     e.preventDefault();
-        //     that.inappropriatePopup = new Curator.PopupInappropriate(this.json,this.feed);
-        // });
-        // this.$underlay = Curator.Template.render(this.underlayTemplateId, this.post);
         this.$popup = Curator.Template.render(this.templateId, this.json);
-
-        // jQuery('body').append(this.$underlay);
-
-        // this.$popup.on('click',' .close', function (e) {
-        //     e.preventDefault();
-        //     that.hide();
-        // });
-
-
 
         if (this.json.network_id === 8)
         {

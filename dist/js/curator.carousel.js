@@ -20,6 +20,7 @@ var widgetDefaults = {
     maxPosts:0,
     apiEndpoint:'https://api.curator.io/v1',
     scroll:'more',
+    animate:true,
     slick:{
         dots: false,
         speed: 700,
@@ -112,9 +113,16 @@ var Client = Curator.augment.extend(Curator.Client, {
             this.allLoaded = true;
         } else {
             var that = this;
-            jQuery(posts).each(function(){
+            jQuery(posts).each(function(i){
                 var p = that.createPostElement(this);
                 that.$feed.slick('slickAdd',p.$el);
+
+                if (that.options.animate) {
+                    p.$el.css({opacity: 0});
+                    setTimeout(function () {
+                        p.$el.css({opacity: 0}).animate({opacity: 1});
+                    }, i * 100);
+                }
             });
             this.popupManager.setPosts(posts);
 

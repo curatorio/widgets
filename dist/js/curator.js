@@ -481,6 +481,73 @@ augment.extend = function (base, body) {
         contentTextClasses : function () {
             return this.data.text ? 'crt-post-has-text' : 'crt-post-content-text-hidden';
 
+        },
+        fuzzyDate : function (dateString)
+        {
+            var date = Date.parse(dateString+' UTC');
+            var delta = Math.round((new Date () - date) / 1000);
+
+            var minute = 60,
+                hour = minute * 60,
+                day = hour * 24,
+                week = day * 7;
+
+            var fuzzy;
+
+            if (delta < 30) {
+                fuzzy = 'Just then';
+            } else if (delta < minute) {
+                fuzzy = delta + ' seconds ago';
+            } else if (delta < 2 * minute) {
+                fuzzy = 'a minute ago.'
+            } else if (delta < hour) {
+                fuzzy = Math.floor(delta / minute) + ' minutes ago';
+            } else if (Math.floor(delta / hour) == 1) {
+                fuzzy = '1 hour ago.'
+            } else if (delta < day) {
+                fuzzy = Math.floor(delta / hour) + ' hours ago';
+            } else if (delta < day * 2) {
+                fuzzy = 'Yesterday';
+            } else {
+                fuzzy = date;
+            }
+
+            return fuzzy;
+        },
+        prettyDate : function(time) {
+            // time = time ? time + " UTC" : "";
+            var date = new Date(time+' UTC');
+
+            var diff = (((new Date()).getTime() - date.getTime()) / 1000);
+            var day_diff = Math.floor(diff / 86400);
+            var year = date.getFullYear(),
+                month = date.getMonth()+1,
+                day = date.getDate();
+
+            if (isNaN(day_diff) || day_diff < 0 || day_diff >= 31)
+                return (
+                    year.toString()+'-'
+                    +((month<10) ? '0'+month.toString() : month.toString())+'-'
+                    +((day<10) ? '0'+day.toString() : day.toString())
+                );
+
+            var r =
+                (
+                    (
+                        day_diff == 0 &&
+                        (
+                            (diff < 60 && "just now")
+                            || (diff < 120 && "1 minute ago")
+                            || (diff < 3600 && Math.floor(diff / 60) + " minutes ago")
+                            || (diff < 7200 && "1 hour ago")
+                            || (diff < 86400 && Math.floor(diff / 3600) + " hours ago")
+                        )
+                    )
+                    || (day_diff == 1 && "Yesterday")
+                    || (day_diff < 7 && day_diff + " days ago")
+                    || (day_diff < 31 && Math.ceil(day_diff / 7) + " weeks ago")
+                );
+            return r;
         }
     };
 
@@ -1116,32 +1183,7 @@ jQuery.extend(Curator.Popup.prototype, {
         this.json = post.json;
         this.feed = feed;
 
-        //
-        // this.underlay = jQuery('#popup-underlay');
-        // this.$el = jQuery('.popup');
-        // this.wrapper = jQuery('#popup-wrapper');
-        // /**
-        //  * Mark as inappropriate - icon hover
-        //  */
-        // jQuery('.mark-icon a').hover(function () {
-        //     jQuery('img', this).stop().animate({top: '-35px'}, {queue: false, duration: 200});
-        // },function () {
-        //     jQuery('img', this).stop().animate({top: '0px'}, {queue: false, duration: 200});
-        // }).click(function (e) {
-        //     e.preventDefault();
-        //     that.inappropriatePopup = new Curator.PopupInappropriate(this.json,this.feed);
-        // });
-        // this.$underlay = Curator.Template.render(this.underlayTemplateId, this.post);
         this.$popup = Curator.Template.render(this.templateId, this.json);
-
-        // jQuery('body').append(this.$underlay);
-
-        // this.$popup.on('click',' .close', function (e) {
-        //     e.preventDefault();
-        //     that.hide();
-        // });
-
-
 
         if (this.json.network_id === 8)
         {
@@ -1288,6 +1330,12 @@ Curator.Post = augment.extend(Object, {
         this.$el.find('.shareFacebook').click(jQuery.proxy(this.onShareFacebookClick,this));
         this.$el.find('.shareTwitter').click(jQuery.proxy(this.onShareTwitterClick,this));
         this.$el.find('.crt-hitarea').click(jQuery.proxy(this.onPostClick,this));
+
+        this.$post = this.$el.find('.crt-post');
+
+        if (this.json.video) {
+            this.$post.addClass('has-video');
+        }
     },
 
     onShareFacebookClick : function (ev) {
@@ -1360,8 +1408,10 @@ Curator.Templates = {
         <div class="crt-post-content"> \
             <div class="image crt-hitarea crt-post-content-image <%=this.contentImageClasses()%>" > \
                 <img src="<%=image%>" /> \
+                <a href="javascript:;" class="crt-play"><i class="play"></i></a> \
             </div> \
             <div class="text crt-post-content-text <%=this.contentTextClasses()%>"> \
+                <p class="crt-date"><%=this.prettyDate(source_created_at)%></p> \
                 <%=this.parseText(text)%> \
             </div> \
         </div> \
@@ -1400,6 +1450,7 @@ Curator.Templates = {
             <div class="crt-post-name"><span><%=user_full_name%></span><br/><a href="<%=this.userUrl()%>" target="_blank">@<%=user_screen_name%></a></div> \
         </div> \
         <div class="crt-popup-text <%=this.contentTextClasses()%>"> \
+            <p class="crt-date"><%=this.prettyDate(source_created_at)%></p> \
             <%=this.parseText(text)%> \
         </div> \
     </div> \
@@ -1554,7 +1605,7 @@ Curator.StringUtils = {
     {
         s = s.replace(/[@]+[A-Za-z0-9-_]+/g, function(u) {
             var username = u.replace("@","");
-            return Curator.StringUtils.url("http://twitter.com/"+username,u);
+            return Curator.StringUtils.url("https://twitter.com/"+username,u);
         });
         s = s.replace(/[#]+[A-Za-z0-9-_]+/g, function(t) {
             var tag = t.replace("#","%23");
@@ -1566,8 +1617,13 @@ Curator.StringUtils = {
 
     instagramLinks : function (s)
     {
-        s = s.replace(/[A-Za-z]+:\/\/[A-Za-z0-9-_]+\.[A-Za-z0-9-_:%&~\?\/.=]+/g, function(url) {
-            return Curator.StringUtils.url(url);
+        s = s.replace(/[@]+[A-Za-z0-9-_]+/g, function(u) {
+            var username = u.replace("@","");
+            return Curator.StringUtils.url("https://www.instagram.com/"+username+'/',u);
+        });
+        s = s.replace(/[#]+[A-Za-z0-9-_]+/g, function(t) {
+            var tag = t.replace("#","");
+            return Curator.StringUtils.url("https://www.instagram.com/explore/tags/"+tag+'/',t);
         });
 
         return s;
@@ -1615,7 +1671,9 @@ var widgetDefaults = {
     apiEndpoint:'https://api.curator.io/v1',
     scroll:'more',
     gridWith:250,
-    onPostsLoaded:function(){}
+    onPostsLoaded:function(){},
+    animate:true,
+    animateSpeed:400
 }; 
 
 
@@ -1663,7 +1721,12 @@ var Client = Curator.augment.extend(Curator.Client, {
             this.$feed.gridalicious({
                 selector:'.crt-post-c',
                 gutter:0,
-                width:this.options.gridWith
+                width:this.options.gridWith,
+                animate:this.options.animate,
+                animationOptions: {
+                    speed: (this.options.animateSpeed/2),
+                    duration: this.options.animateSpeed,
+                }
             });
 
             // Load first set of posts
@@ -1753,6 +1816,7 @@ var widgetDefaults = {
     maxPosts:0,
     apiEndpoint:'https://api.curator.io/v1',
     scroll:'more',
+    animate:true,
     slick:{
         dots: false,
         speed: 700,
@@ -1845,9 +1909,16 @@ var Client = Curator.augment.extend(Curator.Client, {
             this.allLoaded = true;
         } else {
             var that = this;
-            jQuery(posts).each(function(){
+            jQuery(posts).each(function(i){
                 var p = that.createPostElement(this);
                 that.$feed.slick('slickAdd',p.$el);
+
+                if (that.options.animate) {
+                    p.$el.css({opacity: 0});
+                    setTimeout(function () {
+                        p.$el.css({opacity: 0}).animate({opacity: 1});
+                    }, i * 100);
+                }
             });
             this.popupManager.setPosts(posts);
 
@@ -2037,7 +2108,12 @@ var widgetDefaults = {
     apiEndpoint:'https://api.curator.io/v1',
     onPostsLoaded:function(){},
     minWidth:200,
-    rows:3
+    rows:3,
+    grid: {
+        minWidth:200,
+        rows:3
+    },
+    animate:true
 };
 
 Curator.Templates.gridPostTemplate = ' \
@@ -2092,7 +2168,6 @@ var Client = Curator.augment.extend(Curator.Client, {
             this.$feed = jQuery('<div class="crt-feed"></div>').appendTo(this.$container);
             this.$container.addClass('crt-grid');
 
-
             var cols = Math.floor(this.$container.width()/this.options.minWidth);
             var postsNeeded = cols *  (this.options.rows + 1); // get 1 extra row just in case
             this.feed.options.postsPerPage = postsNeeded;
@@ -2120,11 +2195,18 @@ var Client = Curator.augment.extend(Curator.Client, {
         } else {
             var that = this;
             var postElements = [];
-            jQuery(posts).each(function(){
+            jQuery(posts).each(function(i){
                 var p = that.createPostElement(this);
                 postElements.push(p.$el);
+                that.$feed.append(p.$el);
+
+                if (that.options.animate) {
+                    p.$el.css({opacity: 0});
+                    setTimeout(function () {
+                        p.$el.css({opacity: 0}).animate({opacity: 1});
+                    }, i * 100);
+                }
             });
-            that.$feed.append(postElements);
 
             this.popupManager.setPosts(posts);
 
@@ -2180,7 +2262,7 @@ var Client = Curator.augment.extend(Curator.Client, {
 
     destroy : function () {
         this.$feed.remove();
-        this.$container.removeClass('crt-custom');
+        this.$container.removeClass('crd-grid').css({'height':'','overflow':''});
 
         delete this.$feed;
         delete this.$container;
@@ -2260,8 +2342,8 @@ var Client = Curator.augment.extend(Curator.Client, {
             jQuery(posts).each(function(){
                 var p = that.createPostElement(this);
                 postElements.push(p.$el);
+                that.$feed.append(p.$el);
             });
-            that.$feed.append(postElements);
 
             this.popupManager.setPosts(posts);
 

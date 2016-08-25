@@ -109,7 +109,7 @@ Curator.StringUtils = {
     {
         s = s.replace(/[@]+[A-Za-z0-9-_]+/g, function(u) {
             var username = u.replace("@","");
-            return Curator.StringUtils.url("http://twitter.com/"+username,u);
+            return Curator.StringUtils.url("https://twitter.com/"+username,u);
         });
         s = s.replace(/[#]+[A-Za-z0-9-_]+/g, function(t) {
             var tag = t.replace("#","%23");
@@ -121,8 +121,13 @@ Curator.StringUtils = {
 
     instagramLinks : function (s)
     {
-        s = s.replace(/[A-Za-z]+:\/\/[A-Za-z0-9-_]+\.[A-Za-z0-9-_:%&~\?\/.=]+/g, function(url) {
-            return Curator.StringUtils.url(url);
+        s = s.replace(/[@]+[A-Za-z0-9-_]+/g, function(u) {
+            var username = u.replace("@","");
+            return Curator.StringUtils.url("https://www.instagram.com/"+username+'/',u);
+        });
+        s = s.replace(/[#]+[A-Za-z0-9-_]+/g, function(t) {
+            var tag = t.replace("#","");
+            return Curator.StringUtils.url("https://www.instagram.com/explore/tags/"+tag+'/',t);
         });
 
         return s;
