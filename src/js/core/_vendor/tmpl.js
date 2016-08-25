@@ -75,8 +75,7 @@
             return fuzzy;
         },
         prettyDate : function(time) {
-            // time = time ? time + " UTC" : "";
-            var date = new Date(time+' UTC');
+            var date = Curator.DateUtils.dateFromString(time);
 
             var diff = (((new Date()).getTime() - date.getTime()) / 1000);
             var day_diff = Math.floor(diff / 86400);

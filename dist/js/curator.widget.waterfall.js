@@ -497,8 +497,7 @@ augment.extend = function (base, body) {
             return fuzzy;
         },
         prettyDate : function(time) {
-            // time = time ? time + " UTC" : "";
-            var date = new Date(time+' UTC');
+            var date = Curator.DateUtils.dateFromString(time);
 
             var diff = (((new Date()).getTime() - date.getTime()) / 1000);
             var day_diff = Math.floor(diff / 86400);
@@ -1478,6 +1477,74 @@ Curator.Template = {
 
 
 Curator.Utils = {
+
+    postUrl : function (post)
+    {
+        if (post.url && post.url !== "")
+        {
+            // instagram
+            return post.url;
+        }
+
+        if (post.network_id==="1")
+        {
+            // twitter
+            return 'https://twitter.com/'+post.user_screen_name+'/status/'+post.sourceIdentifier;
+        }
+
+        return '';
+    },
+
+    center : function (elementWidth, elementHeight, bound) {
+        var s = root.screen,
+            b = bound || {},
+            bH = b.height || s.height,
+            bW = b.width || s.height,
+            w = elementWidth,
+            h = elementHeight;
+
+        return {
+            top: (bH) ? (bH - h) / 2 : 0,
+            left: (bW) ? (bW - w) / 2 : 0
+        };
+    },
+
+    popup :  function (mypage, myname, w, h, scroll) {
+
+        var
+            position = this.center(w, h),
+            settings = 'height=' + h + ',width=' + w + ',top=' + position.top +
+                ',left=' + position.left + ',scrollbars=' + scroll +
+                ',resizable';
+
+        root.open(mypage, myname, settings);
+    },
+
+    tinyparser : function (string, obj) {
+
+        return string.replace(/\{\{(.*?)\}\}/g, function (a, b) {
+            return obj && typeof obj[b] !== "undefined" ? obj[b] : "";
+        });
+    }
+};
+
+
+Curator.DateUtils = {
+    /**
+     * Parse a date string in form DD/MM/YYYY HH:MM::SS - returns as UTC
+     */
+    dateFromString: function (time) {
+        dtstr = time.replace(/\D/g," ");
+        var dtcomps = dtstr.split(" ");
+
+        // modify month between 1 based ISO 8601 and zero based Date
+        dtcomps[1]--;
+
+        var date = new Date(Date.UTC(dtcomps[0],dtcomps[1],dtcomps[2],dtcomps[3],dtcomps[4],dtcomps[5]));
+
+        return date;
+    },
+
     /**
      * Format the date as DD/MM/YYYY
      */
@@ -1529,55 +1596,6 @@ Curator.Utils = {
         ];
 
         return array;
-    },
-
-    postUrl : function (post)
-    {
-        if (post.url && post.url !== "")
-        {
-            // instagram
-            return post.url;
-        }
-
-        if (post.network_id==="1")
-        {
-            // twitter
-            return 'https://twitter.com/'+post.user_screen_name+'/status/'+post.sourceIdentifier;
-        }
-
-        return '';
-    },
-
-    center : function (elementWidth, elementHeight, bound) {
-        var s = root.screen,
-            b = bound || {},
-            bH = b.height || s.height,
-            bW = b.width || s.height,
-            w = elementWidth,
-            h = elementHeight;
-
-        return {
-            top: (bH) ? (bH - h) / 2 : 0,
-            left: (bW) ? (bW - w) / 2 : 0
-        };
-    },
-
-    popup :  function (mypage, myname, w, h, scroll) {
-
-        var
-            position = this.center(w, h),
-            settings = 'height=' + h + ',width=' + w + ',top=' + position.top +
-                ',left=' + position.left + ',scrollbars=' + scroll +
-                ',resizable';
-
-        root.open(mypage, myname, settings);
-    },
-
-    tinyparser : function (string, obj) {
-
-        return string.replace(/\{\{(.*?)\}\}/g, function (a, b) {
-            return obj && typeof obj[b] !== "undefined" ? obj[b] : "";
-        });
     }
 };
 
