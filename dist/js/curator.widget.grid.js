@@ -1427,7 +1427,7 @@ var Client = Curator.augment.extend(Curator.Client, {
 
     destroy : function () {
         this.$feed.remove();
-        this.$container.removeClass('crd-grid').css({'height':'','overflow':''});
+        this.$container.removeClass('crt-grid').css({'height':'','overflow':''});
 
         delete this.$feed;
         delete this.$container;
