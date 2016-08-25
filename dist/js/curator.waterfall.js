@@ -20,7 +20,7 @@ var widgetDefaults = {
     maxPosts:0,
     apiEndpoint:'https://api.curator.io/v1',
     scroll:'more',
-    gridWith:250,
+    gridWidth:250,
     onPostsLoaded:function(){},
     animate:true,
     animateSpeed:400
@@ -71,11 +71,11 @@ var Client = Curator.augment.extend(Curator.Client, {
             this.$feed.gridalicious({
                 selector:'.crt-post-c',
                 gutter:0,
-                width:this.options.gridWith,
+                width:this.options.gridWidth,
                 animate:this.options.animate,
                 animationOptions: {
                     speed: (this.options.animateSpeed/2),
-                    duration: this.options.animateSpeed,
+                    duration: this.options.animateSpeed
                 }
             });
 
