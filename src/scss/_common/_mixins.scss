@@ -16,3 +16,65 @@
 .crt-clearfix {
     @include crt-clearfix();
 }
+
+@mixin play ($size:25px, $border:3px) {
+    $background:#f9f9f9;
+    $foreground:#efefef;
+    $foreground-light:#34495e;
+
+    $ratio:1.2;
+
+    $transition-time:0.3s;
+
+    display:none;
+    width: 0;
+    height: 0;
+    border-top: $size solid transparent;
+    border-bottom: $size solid transparent;
+    border-left: ($size*$ratio) solid $foreground;
+    //margin: ($size * 2) auto $size auto;
+    position:relative;
+    z-index:1;
+    transition: all $transition-time;
+    -webkit-transition: all $transition-time;
+    -moz-transition: all $transition-time;
+    opacity: 0.50;
+
+    &:before {
+        content:'';
+        position:absolute;
+        top:($size*-1.5);
+        left:($size*-2.3);
+        bottom:($size*-1.5);
+        right:($size*-0.7);
+        border-radius:50%;
+        border: $border solid $foreground;
+        z-index:2;
+        transition: all $transition-time;
+        -webkit-transition: all $transition-time;
+        -moz-transition: all $transition-time;
+    }
+    &:after {
+        content:'';
+        opacity:0;
+        transition: opacity ($transition-time * 2);
+        -webkit-transition: opacity ($transition-time * 2);
+        -moz-transition: opacity ($transition-time * 2);
+    }
+
+    &.active {
+        border-color:transparent;
+        &:after {
+            content:'';
+            opacity:1;
+            width:($size);
+            height:($size*1.6);
+            background:$foreground;
+            position:absolute;
+            right: ($size*0.1);
+            top: ($size*-0.8);
+            border-left:($size*0.4) solid $foreground;
+            box-shadow:inset ($size*0.6) 0 0 0 $background;
+        }
+    }
+}

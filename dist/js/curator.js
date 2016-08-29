@@ -2146,6 +2146,7 @@ Curator.Templates.gridPostTemplate = ' \
                         <%=this.parseText(text)%> \
                     </div> \
                 </div> \
+                <a href="javascript:;" class="crt-play"><i class="play"></i></a> \
                 <span class="social-icon social-icon-normal"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \
                 <div class="crt-post-hover">\
                     <div class="crt-post-header"> \
@@ -2201,6 +2202,14 @@ var Client = Curator.augment.extend(Curator.Client, {
             },100);
         });
         this.updateLayout ();
+
+
+        jQuery(window).on('curatorCssLoaded',function(){
+            clearTimeout(to);
+            to = setTimeout(function(){
+                that.updateLayout();
+            },100);
+        });
     },
 
     onPostsLoaded: function (posts) {
