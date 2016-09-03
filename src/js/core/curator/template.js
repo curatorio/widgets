@@ -88,7 +88,7 @@ Curator.Template = {
             throw new Error ('could not find template '+templateId+'('+cam+')');
         }
 
-        var tmpl = root.parseTemplate(source, data);
+        var tmpl = window.parseTemplate(source, data);
         if (jQuery.parseHTML) {
             // breaks with jquery < 1.8
             tmpl = jQuery.parseHTML(tmpl);

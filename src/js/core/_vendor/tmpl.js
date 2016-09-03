@@ -145,7 +145,7 @@
             helpers.data = data;
             return func.call(helpers, data);
         } catch (e) {
-            root.console.log ('Template parse error: ' +e.message);
+            window.console.log ('Template parse error: ' +e.message);
             err = e.message;
         }
         return " # ERROR: " + err + " # ";

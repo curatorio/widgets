@@ -4,10 +4,10 @@
 // https://github.com/MoonScript/jQuery-ajaxTransport-XDomainRequest/blob/master/jQuery.XDomainRequest.js
 
 
-if (!jQuery.support.cors && jQuery.ajaxTransport && root.XDomainRequest) {
+if (!jQuery.support.cors && jQuery.ajaxTransport && window.XDomainRequest) {
     var httpRegEx = /^https?:\/\//i;
     var getOrPostRegEx = /^get|post$/i;
-    var sameSchemeRegEx = new RegExp('^'+root.location.protocol, 'i');
+    var sameSchemeRegEx = new RegExp('^'+window.location.protocol, 'i');
     var htmlRegEx = /text\/html/i;
     var jsonRegEx = /\/json/i;
     var xmlRegEx = /\/xml/i;
@@ -21,7 +21,7 @@ if (!jQuery.support.cors && jQuery.ajaxTransport && root.XDomainRequest) {
             var userType = (userOptions.dataType||'').toLowerCase();
             return {
                 send: function(headers, complete){
-                    xdr = new root.XDomainRequest();
+                    xdr = new window.XDomainRequest();
                     if (/^\d+$/.test(userOptions.timeout)) {
                         xdr.timeout = userOptions.timeout;
                     }
@@ -49,7 +49,7 @@ if (!jQuery.support.cors && jQuery.ajaxTransport && root.XDomainRequest) {
                                     //throw 'Invalid JSON: ' + xdr.responseText;
                                 }
                             } else if (userType === 'xml' || (userType !== 'text' && xmlRegEx.test(xdr.contentType))) {
-                                var doc = new root.ActiveXObject('Microsoft.XMLDOM');
+                                var doc = new window.ActiveXObject('Microsoft.XMLDOM');
                                 doc.async = false;
                                 try {
                                     doc.loadXML(xdr.responseText);

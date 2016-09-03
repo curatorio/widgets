@@ -126,7 +126,6 @@ jQuery.extend(Curator.Popup.prototype, {
         Curator.log('Popup->hide');
         var that = this;
         this.$popup.fadeOut(function(){
-
             that.destroy();
             callback ();
         });

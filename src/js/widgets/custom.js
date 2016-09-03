@@ -7,7 +7,7 @@ var widgetDefaults = {
 };
 
 
-var Client = Curator.augment.extend(Curator.Client, {
+Curator.Custom = Curator.augment.extend(Curator.Client, {
     containerHeight: 0,
     loading: false,
     feed: null,

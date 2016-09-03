@@ -43,7 +43,7 @@ Curator.Templates.gridPostTemplate = ' \
 </div>';
 
 
-var Client = Curator.augment.extend(Curator.Client, {
+Curator.Grid = Curator.augment.extend(Curator.Client, {
     containerHeight: 0,
     loading: false,
     feed: null,

@@ -32,6 +32,7 @@ var gulp = require('gulp'),
     concat = require('gulp-concat'),
     uglify = require('gulp-uglify'),
     livereload = require('gulp-livereload'),
+    wrap = require('gulp-wrap'),
     umd = require('gulp-umd'),
     addsrc = require('gulp-add-src'),
     notify = require('gulp-notify');
@@ -326,20 +327,24 @@ gulp.task('scripts:custom', ['scripts:core'], function() {
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 // Widgets Combined
 
-gulp.task('scripts:combined', ['scripts:core','scripts:waterfall','scripts:carousel','scripts:panel','scripts:grid','scripts:custom'], function() {
+gulp.task('scripts:combined', function() {
     return gulp.src([
-            srcJs+'widgets/_vendor/jquery.grid-a-licious.js',
-            srcJs+'widgets/_vendor/slick.js',
-            destJs+'curator.core.js',
-            destJs+'curator.waterfall.js',
-            destJs+'curator.carousel.js',
-            destJs+'curator.panel.js',
-            destJs+'curator.grid.js',
-            destJs+'curator.custom.js'
-        ])
-        .pipe(concat('curator.js'))
-        .pipe(gulp.dest(destJs))
-        .pipe(notify({ message: 'scripts:combined task complete' }));
+        srcJs+'widgets/_vendor/jquery.grid-a-licious.js',
+        srcJs+'widgets/_vendor/carousel.js',
+        // srcJs+'widgets/_vendor/owl.carousel.js',
+        // srcJs+'widgets/_vendor/slick.js',
+        srcJs+'core/_vendor/*.js',
+        srcJs+'core/**/*.js',
+        srcJs+'widgets/waterfall.js',
+        srcJs+'widgets/carousel.js',
+        srcJs+'widgets/panel.js',
+        srcJs+'widgets/grid.js',
+        srcJs+'widgets/custom.js'
+    ])
+    .pipe(concat('curator.js'))
+    .pipe(wrap({ src: srcJs+'templates/default.js'}))
+    .pipe(gulp.dest(destJs))
+    .pipe(notify({ message: 'scripts:combined task complete' }));
 });
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -377,10 +382,10 @@ gulp.task('watch', function() {
 
 gulp.task('dev', ['watch']);
 gulp.task('scripts', [
-    'scripts:waterfall',
-    'scripts:carousel',
-    'scripts:panel',
-    'scripts:custom',
+    // 'scripts:waterfall',
+    // 'scripts:carousel',
+    // 'scripts:panel',
+    // 'scripts:custom',
     'scripts:combined'
 ]);
 gulp.task('prod', ['styles:prod','scripts:prod']);

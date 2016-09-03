@@ -47,7 +47,8 @@ jQuery.extend(Curator.PopupManager.prototype, {
         this.$popupContainer.append(this.popup.$popup);
 
         this.$wrapper.show();
-        if (!this.$underlay.is(':visible')) {
+        // var visible = this.$underlay.css('display');
+        if (this.$underlay.css('display') !== 'block') {
             this.$underlay.fadeIn();
         }
         this.popup.show();

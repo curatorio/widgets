@@ -62,36 +62,33 @@ jQuery.extend(Curator.Feed.prototype,{
         jQuery.ajax({
             url: this.getUrl('/posts'),
             dataType: 'json',
-            data: {params:params}
-        })
-        .success(function (data) {
-            Curator.log ('Feed->_loadPosts success');
-            
-            if (data.success) {
-                that.postCount = data.postCount;
-                that.postsLoaded += data.posts.length;
-                if (that.options.onPostsLoaded)
-                {
-                    that.options.onPostsLoaded(data.posts);
-                }
-            } else {
-                if (that.options.onPostsFail)
-                {
-                    that.options.onPostsFail(data);
-                }
-            }
-            that.loading = false;
-        })
-        .fail(function(jqXHR, textStatus, errorThrown){
-            Curator.log ('Feed->_loadPosts fail');
-            Curator.log(textStatus);
-            Curator.log(errorThrown);
+            data: {params: params},
+            success: function (data) {
+                Curator.log('Feed->_loadPosts success');
 
-            if (that.options.onPostsFail)
-            {
-                that.options.onPostsFail();
+                if (data.success) {
+                    that.postCount = data.postCount;
+                    that.postsLoaded += data.posts.length;
+                    if (that.options.onPostsLoaded) {
+                        that.options.onPostsLoaded(data.posts);
+                    }
+                } else {
+                    if (that.options.onPostsFail) {
+                        that.options.onPostsFail(data);
+                    }
+                }
+                that.loading = false;
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                Curator.log('Feed->_loadPosts fail');
+                Curator.log(textStatus);
+                Curator.log(errorThrown);
+
+                if (that.options.onPostsFail) {
+                    that.options.onPostsFail();
+                }
+                that.loading = false;
             }
-            that.loading = false;
         });
     },  
 

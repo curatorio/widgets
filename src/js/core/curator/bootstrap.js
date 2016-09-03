@@ -6,14 +6,14 @@ var Curator = {
 
     log:function (s) {
 
-        if (root.console && Curator.debug) {
-            root.console.log(s);
+        if (window.console && Curator.debug) {
+            window.console.log(s);
         }
     },
 
     alert:function (s) {
-        if (root.alert) {
-            root.alert(s);
+        if (window.alert) {
+            window.alert(s);
         }
     },
 

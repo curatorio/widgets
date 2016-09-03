@@ -19,7 +19,7 @@ var widgetDefaults = {
 };
 
 
-var Client = Curator.augment.extend(Curator.Client, {
+Curator.Panel = Curator.augment.extend(Curator.Client, {
     containerHeight: 0,
     loading: false,
     feed: null,
@@ -106,6 +106,3 @@ var Client = Curator.augment.extend(Curator.Client, {
         delete this.feed;
     }
 });
-
-Curator.Panel = Client;
-

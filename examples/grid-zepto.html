@@ -8,7 +8,7 @@
     <link href="css/example.css" rel="stylesheet" />
     <style type="text/css">
         #curator-feed {
-            max-width: 1500px;
+            max-width: 900px;
         }
     </style>
 </head>
@@ -21,7 +21,10 @@
 </div>
 
 <!--<script type="text/javascript" src="js/vendor/jquery.min.js"></script>-->
-<script type="text/javascript" src="js/vendor/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="js/vendor/zepto.js"></script>
+<script type="text/javascript" src="js/vendor/zepto.animate.js"></script>
+<script type="text/javascript" src="js/vendor/zepto.extend.js"></script>
+<script type="text/javascript" src="js/vendor/zepto.fxmethods.js"></script>
 <script type="text/javascript" src="../dist/js/curator.js"></script>
 <script type="text/javascript">
     // While you're testing
@@ -31,8 +34,7 @@
     var widget = new Curator.Grid({
         container:'#curator-feed',
         feedId:"c70e66e4-6932-487d-8174-00fae1fc",
-        postsPerPage:6,
-        rows:1,
+        rows:3,
         apiEndpoint:'http://api.curator.io/v1'
     });
 </script>
