@@ -329,6 +329,7 @@ gulp.task('scripts:custom', ['scripts:core'], function() {
 
 gulp.task('scripts:combined', function() {
     return gulp.src([
+        srcJs+'widgets/_vendor/smartresize.js',
         srcJs+'widgets/_vendor/jquery.grid-a-licious.js',
         srcJs+'widgets/_vendor/carousel.js',
         // srcJs+'widgets/_vendor/owl.carousel.js',
@@ -345,6 +346,34 @@ gulp.task('scripts:combined', function() {
     .pipe(wrap({ src: srcJs+'templates/default.js'}))
     .pipe(gulp.dest(destJs))
     .pipe(notify({ message: 'scripts:combined task complete' }));
+});
+
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// Widgets Combined
+
+gulp.task('scripts:nodep', function() {
+    return gulp.src([
+            srcJs+'widgets/_vendor/zepto.js',
+            srcJs+'widgets/_vendor/zepto.animate.js',
+            srcJs+'widgets/_vendor/zepto.extend.js',
+            srcJs+'widgets/_vendor/zepto.fxmethods.js',
+            srcJs+'widgets/_vendor/smartresize.js',
+            srcJs+'widgets/_vendor/jquery.grid-a-licious.js',
+            srcJs+'widgets/_vendor/carousel.js',
+            // srcJs+'widgets/_vendor/owl.carousel.js',
+            // srcJs+'widgets/_vendor/slick.js',
+            srcJs+'core/_vendor/*.js',
+            srcJs+'core/**/*.js',
+            srcJs+'widgets/waterfall.js',
+            srcJs+'widgets/carousel.js',
+            srcJs+'widgets/panel.js',
+            srcJs+'widgets/grid.js',
+            srcJs+'widgets/custom.js'
+        ])
+        .pipe(concat('curator.nodep.js'))
+        .pipe(wrap({ src: srcJs+'templates/nodep.js'}))
+        .pipe(gulp.dest(destJs))
+        .pipe(notify({ message: 'scripts:combined task complete' }));
 });
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -386,6 +415,7 @@ gulp.task('scripts', [
     // 'scripts:carousel',
     // 'scripts:panel',
     // 'scripts:custom',
+    'scripts:nodep',
     'scripts:combined'
 ]);
 gulp.task('prod', ['styles:prod','scripts:prod']);
