@@ -29,12 +29,12 @@ Curator.Waterfall = Curator.augment.extend(Curator.Client, {
         Curator.log(this.options);
 
         if (this.uber.init.call (this)) {
-            this.$scroll = jQuery('<div class="crt-feed-scroll"></div>').appendTo(this.$container);
-            this.$feed = jQuery('<div class="crt-feed"></div>').appendTo(this.$scroll);
+            this.$scroll = $('<div class="crt-feed-scroll"></div>').appendTo(this.$container);
+            this.$feed = $('<div class="crt-feed"></div>').appendTo(this.$scroll);
             this.$container.addClass('crt-feed-container');
 
             if (this.options.scroll=='continuous') {
-                jQuery(this.$scroll).scroll(function () {
+                $(this.$scroll).scroll(function () {
                     var height = this.$scroll.height();
                     var cHeight = this.$feed.height();
                     var scrollTop = this.$scroll.scrollTop();
@@ -46,13 +46,13 @@ Curator.Waterfall = Curator.augment.extend(Curator.Client, {
                 // no scroll - use javascript to trigger loading
             } else {
                 // default to more
-                this.$more = jQuery('<div class="crt-feed-more"><a href="#"><span>Load more</span></a></div>').appendTo(this.$scroll);
+                this.$more = $('<div class="crt-feed-more"><a href="#"><span>Load more</span></a></div>').appendTo(this.$scroll);
                 this.$more.find('a').on('click',function(ev){
                     ev.preventDefault();
                     this.loadMorePosts();
                 }.bind(this));
             }
-
+ 
             this.$feed.gridalicious({
                 selector:'.crt-post-c',
                 gutter:0,

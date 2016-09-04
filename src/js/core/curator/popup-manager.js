@@ -11,7 +11,7 @@ Curator.PopupManager = function (curator) {
 };
 
 
-jQuery.extend(Curator.PopupManager.prototype, {
+$.extend(Curator.PopupManager.prototype, {
     templateId:'#popup-wrapper-template',
     client:null,
 
@@ -24,9 +24,9 @@ jQuery.extend(Curator.PopupManager.prototype, {
         this.$popupContainer = this.$wrapper.find('.crt-popup-container');
         this.$underlay = this.$wrapper.find('.crt-popup-underlay');
 
-        jQuery('body').append(this.$wrapper);
-        this.$underlay.click(jQuery.proxy(this.onUnderlayClick,this));
-        //this.$popupContainer.click(jQuery.proxy(this.onUnderlayClick,this));
+        $('body').append(this.$wrapper);
+        this.$underlay.click($.proxy(this.onUnderlayClick,this));
+        //this.$popupContainer.click($.proxy(this.onUnderlayClick,this));
 
     },
 
@@ -53,7 +53,7 @@ jQuery.extend(Curator.PopupManager.prototype, {
         }
         this.popup.show();
 
-        jQuery('body').addClass('crt-popup-visible');
+        $('body').addClass('crt-popup-visible');
 
         this.currentPostNum = 0;
         for(var i=0;i < this.posts.length;i++)
@@ -102,7 +102,7 @@ jQuery.extend(Curator.PopupManager.prototype, {
     hide: function () {
 
         Curator.log('PopupManager->hide');
-        jQuery('body').removeClass('crt-popup-visible');
+        $('body').removeClass('crt-popup-visible');
         this.currentPostNum = 0;
         this.popup = null;
         this.$underlay.fadeOut(function(){

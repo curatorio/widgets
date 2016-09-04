@@ -9,38 +9,13 @@
  *
  */
 
-// Debouncing function from John Hann
-// http://unscriptable.com/index.php/2009/03/20/debouncing-javascript-methods/
-// Copy pasted from http://paulirish.com/2009/throttled-smartresize-jquery-event-handler/
-
-(function ($, sr) {
-    var debounce = function (func, threshold, execAsap) {
-        var timeout;
-        return function debounced() {
-            var obj = this,
-                args = arguments;
-
-            function delayed() {
-                if (!execAsap) func.apply(obj, args);
-                timeout = null;
-            };
-            if (timeout) clearTimeout(timeout);
-            else if (execAsap) func.apply(obj, args);
-
-            timeout = setTimeout(delayed, threshold || 150);
-        };
-    };
-    jQuery.fn[sr] = function (fn) {
-        return fn ? this.bind('resize', debounce(fn)) : this.trigger(sr);
-    };
-})(jQuery, 'smartresize');
 
 // The Grid-A-Licious magic
 
 (function ($) {
 
     $.Gal = function (options, element) {
-        this.element = jQuery(element);
+        this.element = $(element);
         this._init(options);
     };
 
@@ -89,9 +64,9 @@
             // build grid
             this._renderGrid('append');
             // add class 'gridalicious' to container
-            jQuery(this.box).addClass('gridalicious');
+            $(this.box).addClass('gridalicious');
             // add smartresize
-            jQuery(window).smartresize(function () {
+            $(window).smartresize(function () {
                 container.resize();
             });
         },
@@ -111,7 +86,7 @@
             this.w = w;
             // add columns to box
             for (var i = 0; i < this.cols; i++) {
-                var div = jQuery('<div></div>').addClass('galcolumn').attr('id', 'item' + i + this.name).css({
+                var div = $('<div></div>').addClass('galcolumn').attr('id', 'item' + i + this.name).css({
                     'width': w + '%',
                     'paddingLeft': this.options.gutter,
                     'paddingBottom': this.options.gutter,
@@ -125,9 +100,9 @@
             }
             
             
-            this.box.find(jQuery('#clear' + this.name)).remove();
+            this.box.find($('#clear' + this.name)).remove();
             // add clear float
-            var clear = jQuery('<div></div>').css({
+            var clear = $('<div></div>').css({
                 'clear': 'both',
                 'height': '0',
                 'width': '0',
@@ -147,7 +122,7 @@
             var cols = this.cols;
             var name = this.name;
             var i = 0;
-            var w = jQuery('.galcolumn').width();
+            var w = $('.galcolumn').width();
 
             // if arr
             if (arr) {
@@ -176,12 +151,12 @@
             }
             else {
                 boxes = this.gridArr;
-                appendCount = jQuery(this.gridArr).size();
+                appendCount = $(this.gridArr).size();
             }
 
             // push out the items to the columns
             $.each(boxes, function (index, value) {
-                var item = jQuery(value);
+                var item = $(value);
                 var width = '100%';
             
                 // if you want something not to be "responsive", add the class "not-responsive" to the selector container            
@@ -206,12 +181,12 @@
                 // prepend on append to column
                 if (method == 'prepend') {
                     itemCount--;
-                    jQuery("#item" + itemCount + name).prepend(item);
+                    $("#item" + itemCount + name).prepend(item);
                     items.push(item);
                     if(itemCount == 0) itemCount = cols;
                     
                 } else {
-                    jQuery("#item" + itemCount + name).append(item);
+                    $("#item" + itemCount + name).append(item);
                     items.push(item);
                     itemCount++;
                     if (itemCount >= cols) itemCount = 0;
@@ -236,8 +211,8 @@
 
         _collectItems: function () {
             var collection = [];
-            jQuery(this.box).find(this.options.selector).each(function (i) {
-                collection.push(jQuery(this));
+            $(this.box).find(this.options.selector).each(function (i) {
+                collection.push($(this));
             });
             return collection;
         },
@@ -262,7 +237,7 @@
                     if (this.isPrepending) items.reverse();
                     $.each(items, function (index, value) {
                         setTimeout(function () {
-                            jQuery(value).animate({
+                            $(value).animate({
                                 opacity: '1.0'
                             }, duration);
                             t++;
@@ -275,7 +250,7 @@
                 } else if (queue === false && effect == "fadeInOnAppear") {
                     if (this.isPrepending) items.reverse();
                     $.each(items, function (index, value) {
-                        jQuery(value).animate({
+                        $(value).animate({
                             opacity: '1.0'
                         }, duration);
                         t++;
@@ -290,7 +265,7 @@
                 // no effect but queued
                 if (queue === true && !effect) {
                     $.each(items, function (index, value) {
-                        jQuery(value).css({
+                        $(value).css({
                             'opacity': '1',
                             'filter': 'alpha(opacity=100)'
                         });
@@ -306,7 +281,7 @@
             // don not animate & no queue
             } else {
                 $.each(items, function (index, value) {
-                    jQuery(value).css({
+                    $(value).css({
                         'opacity': '1',
                         'filter': 'alpha(opacity=100)'
                     });
@@ -332,7 +307,7 @@
             }
 
             // delete columns in box
-            this.box.find(jQuery('.galcolumn')).remove();
+            this.box.find($('.galcolumn')).remove();
             // build columns
             this._setCols();
             // build grid
@@ -351,12 +326,12 @@
                 gridArr.push(value);
                 gridArrAppend.push(value);
             });
-            this._renderGrid('append', items, jQuery(items).size());
+            this._renderGrid('append', items, $(items).size());
         },
 
         prepend: function (items) {
             this.ifCallback = false;
-            this._renderGrid('prepend', items, jQuery(items).size());
+            this._renderGrid('prepend', items, $(items).size());
             this.ifCallback = true;
         },
     };
@@ -375,4 +350,4 @@
         return this;
     }
 
-})(jQuery);
+})($);

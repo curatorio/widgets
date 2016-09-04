@@ -34,13 +34,13 @@ Curator.Panel = Curator.augment.extend(Curator.Client, {
         Curator.log(this.options);
 
         if (this.uber.init.call (this)) {
-            this.options.slick = jQuery.extend({}, widgetDefaults.slick, options.slick);
+            this.options.slick = $.extend({}, widgetDefaults.slick, options.slick);
 
             this.allLoaded = false;
 
             var that = this;
 
-            this.$feed = jQuery('<div class="crt-feed"></div>').appendTo(this.$container);
+            this.$feed = $('<div class="crt-feed"></div>').appendTo(this.$container);
             this.$container.addClass('crt-panel');
 
             this.$feed.slick(this.options.slick).on('afterChange', function (event, slick, currentSlide) {
@@ -73,7 +73,7 @@ Curator.Panel = Curator.augment.extend(Curator.Client, {
             this.allLoaded = true;
         } else {
             var that = this;
-            jQuery(posts).each(function(){
+            $(posts).each(function(){
                 var p = that.createPostElement(this);
                 that.$feed.slick('slickAdd',p.$el);
             });

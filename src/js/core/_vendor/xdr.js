@@ -4,7 +4,7 @@
 // https://github.com/MoonScript/jQuery-ajaxTransport-XDomainRequest/blob/master/jQuery.XDomainRequest.js
 
 
-if (!jQuery.support.cors && jQuery.ajaxTransport && window.XDomainRequest) {
+if (!$.support.cors && $.ajaxTransport && window.XDomainRequest) {
     var httpRegEx = /^https?:\/\//i;
     var getOrPostRegEx = /^get|post$/i;
     var sameSchemeRegEx = new RegExp('^'+window.location.protocol, 'i');
@@ -13,7 +13,7 @@ if (!jQuery.support.cors && jQuery.ajaxTransport && window.XDomainRequest) {
     var xmlRegEx = /\/xml/i;
 
     // ajaxTransport exists in jQuery 1.5+
-    jQuery.ajaxTransport('text html xml json', function(options, userOptions, jqXHR){
+    $.ajaxTransport('text html xml json', function(options, userOptions, jqXHR){
         jqXHR = jqXHR;
         // XDomainRequests must be: asynchronous, GET or POST methods, HTTP or HTTPS protocol, and same scheme as calling page
         if (options.crossDomain && options.async && getOrPostRegEx.test(options.type) && httpRegEx.test(options.url) && sameSchemeRegEx.test(options.url)) {
@@ -42,7 +42,7 @@ if (!jQuery.support.cors && jQuery.ajaxTransport && window.XDomainRequest) {
                                 responses.html = xdr.responseText;
                             } else if (userType === 'json' || (userType !== 'text' && jsonRegEx.test(xdr.contentType))) {
                                 try {
-                                    responses.json = jQuery.parseJSON(xdr.responseText);
+                                    responses.json = $.parseJSON(xdr.responseText);
                                 } catch(e) {
                                     status.code = 500;
                                     status.message = 'parseerror';
@@ -77,8 +77,8 @@ if (!jQuery.support.cors && jQuery.ajaxTransport && window.XDomainRequest) {
                         });
                     };
                     var postData = '';
-                    if (userOptions.data) {
-                        postData = (jQuery.type(userOptions.data) === 'string') ? userOptions.data : jQuery.param(userOptions.data);
+                    if (userOptions.data) { 
+                        postData = ($.type(userOptions.data) === 'string') ? userOptions.data : $.param(userOptions.data);
                     }
                     xdr.open(options.type, options.url);
                     xdr.send(postData);

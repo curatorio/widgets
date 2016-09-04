@@ -19,9 +19,9 @@ Curator.Post = augment.extend(Object, {
         this.json = postJson;
         this.$el = Curator.Template.render(this.templateId, postJson);
 
-        this.$el.find('.shareFacebook').click(jQuery.proxy(this.onShareFacebookClick,this));
-        this.$el.find('.shareTwitter').click(jQuery.proxy(this.onShareTwitterClick,this));
-        this.$el.find('.crt-hitarea').click(jQuery.proxy(this.onPostClick,this));
+        this.$el.find('.shareFacebook').click($.proxy(this.onShareFacebookClick,this));
+        this.$el.find('.shareTwitter').click($.proxy(this.onShareTwitterClick,this));
+        this.$el.find('.crt-hitarea').click($.proxy(this.onPostClick,this));
 
         this.$post = this.$el.find('.crt-post');
 
@@ -44,6 +44,6 @@ Curator.Post = augment.extend(Object, {
 
     onPostClick : function (ev) {
         ev.preventDefault();
-        jQuery(this).trigger('postClick',this, this.json, ev);
+        $(this).trigger('postClick',this, this.json, ev);
     }
 });

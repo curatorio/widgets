@@ -9,7 +9,7 @@ Curator.PopupInappropriate = function (post,feed) {
     this.init(post,feed);
 };
 
-jQuery.extend(Curator.PopupInappropriate.prototype, {
+$.extend(Curator.PopupInappropriate.prototype, {
     feed: null,
     post:null,
 
@@ -19,21 +19,21 @@ jQuery.extend(Curator.PopupInappropriate.prototype, {
         this.feed = feed;
         this.post = post;
         
-        this.jQueryel = jQuery('.mark-bubble');
+        this.jQueryel = $('.mark-bubble');
 
-        jQuery('.mark-close').click(function (e) {
+        $('.mark-close').click(function (e) {
             e.preventDefault();
-            jQuery(this).parent().fadeOut('slow');
+            $(this).parent().fadeOut('slow');
         });
 
-        jQuery('.mark-bubble .submit').click(function () {
+        $('.mark-bubble .submit').click(function () {
             var $input = that.$el.find('input.text');
 
-            var reason = jQuery.trim($input.val());
+            var reason = $.trim($input.val());
 
             if (reason) {
                 $input.disabled = true;
-                jQuery(this).hide();
+                $(this).hide();
 
                 that.$el.find('.waiting').show();
 

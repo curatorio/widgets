@@ -24,7 +24,7 @@ Curator.Custom = Curator.augment.extend(Curator.Client, {
         Curator.log(this.options);
 
         if (this.uber.init.call (this)) {
-            this.$feed = jQuery('<div class="crt-feed"></div>').appendTo(this.$container);
+            this.$feed = $('<div class="crt-feed"></div>').appendTo(this.$container);
             this.$container.addClass('crt-custom');
 
             this.loadPosts(0);
@@ -41,7 +41,7 @@ Curator.Custom = Curator.augment.extend(Curator.Client, {
         } else {
             var that = this;
             var postElements = [];
-            jQuery(posts).each(function(){
+            $(posts).each(function(){
                 var p = that.createPostElement(this);
                 postElements.push(p.$el);
                 that.$feed.append(p.$el);

@@ -11,7 +11,7 @@ Curator.Popup = function (json,feed) {
 
 
 
-jQuery.extend(Curator.Popup.prototype, {
+$.extend(Curator.Popup.prototype, {
     templateId:'#popup-template',
     videoPlaying:false,
 
@@ -45,10 +45,10 @@ jQuery.extend(Curator.Popup.prototype, {
             this.$popup.addClass('has-video');
         }
 
-        this.$popup.on('click',' .crt-close', jQuery.proxy(this.onClose,this));
-        this.$popup.on('click',' .crt-previous', jQuery.proxy(this.onPrevious,this));
-        this.$popup.on('click',' .crt-next', jQuery.proxy(this.onNext,this));
-        this.$popup.on('click',' .crt-play', jQuery.proxy(this.onPlay,this));
+        this.$popup.on('click',' .crt-close', $.proxy(this.onClose,this));
+        this.$popup.on('click',' .crt-previous', $.proxy(this.onPrevious,this));
+        this.$popup.on('click',' .crt-next', $.proxy(this.onNext,this));
+        this.$popup.on('click',' .crt-play', $.proxy(this.onPlay,this));
 
     },
 
@@ -117,7 +117,7 @@ jQuery.extend(Curator.Popup.prototype, {
         // this.wrapper.show();
         this.$popup.fadeIn(function () {
             // that.$popup.find('.crt-popup').animate({width:950}, function () {
-            //     jQuery('.popup .content').fadeIn('slow');
+            //     $('.popup .content').fadeIn('slow');
             // });
         });
     },

@@ -1,4 +1,4 @@
-jQuery.support.cors = true;
+$.support.cors = true;
 
 var defaults = {
     postsPerPage:24,
@@ -20,7 +20,7 @@ Curator.Feed = function (options) {
     this.init(options);
 };
 
-jQuery.extend(Curator.Feed.prototype,{
+$.extend(Curator.Feed.prototype,{
     loading: false,
     postsLoaded:0,
     postCount:0,
@@ -30,7 +30,7 @@ jQuery.extend(Curator.Feed.prototype,{
     init: function (options) {
         Curator.log ('Feed->init with options');
 
-        this.options = jQuery.extend({},defaults,options);
+        this.options = $.extend({},defaults,options);
 
         Curator.log(this.options);
 
@@ -45,7 +45,7 @@ jQuery.extend(Curator.Feed.prototype,{
         }
         this.currentPage = page;
 
-        var params = jQuery.extend({},this.options.feedParams,paramsIn);
+        var params = $.extend({},this.options.feedParams,paramsIn);
 
         params.limit = this.options.postsPerPage;
         params.offset = page * this.options.postsPerPage;
@@ -59,7 +59,7 @@ jQuery.extend(Curator.Feed.prototype,{
 
         this.loading = true;
 
-        jQuery.ajax({
+        $.ajax({
             url: this.getUrl('/posts'),
             dataType: 'json',
             data: {params: params},
@@ -94,7 +94,7 @@ jQuery.extend(Curator.Feed.prototype,{
 
     loadPost : function (id, successCallback, failCallback) {
         failCallback = failCallback || function(){};
-        jQuery.get(this.getUrl('/post/' + id), {}, function (data) {
+        $.get(this.getUrl('/post/' + id), {}, function (data) {
             if (data.success) {
                 successCallback (data.post);
             } else {
@@ -111,8 +111,8 @@ jQuery.extend(Curator.Feed.prototype,{
             // }
         };
 
-        jQuery.post(this.getUrl('/post/' + id + '/inappropriate'), params, function (data, textStatus, jqXHR) {
-            data = jQuery.parseJSON(data);
+        $.post(this.getUrl('/post/' + id + '/inappropriate'), params, function (data, textStatus, jqXHR) {
+            data = $.parseJSON(data);
 
             if (data.success === true) {
                 success();
@@ -126,8 +126,8 @@ jQuery.extend(Curator.Feed.prototype,{
     lovePost: function (id, success, failure) {
         var params = {};
 
-        jQuery.post(this.getUrl('/post/' + id + '/love'), params, function (data, textStatus, jqXHR) {
-            data = jQuery.parseJSON(data);
+        $.post(this.getUrl('/post/' + id + '/love'), params, function (data, textStatus, jqXHR) {
+            data = $.parseJSON(data);
 
             if (data.success === true) {
                 success(data.loves);

@@ -63,7 +63,7 @@ Curator.Grid = Curator.augment.extend(Curator.Client, {
 
         if (this.uber.init.call (this)) {
 
-            this.$feed = jQuery('<div class="crt-feed"></div>').appendTo(this.$container);
+            this.$feed = $('<div class="crt-feed"></div>').appendTo(this.$container);
             this.$container.addClass('crt-grid');
 
             var cols = Math.floor(this.$container.width()/this.options.minWidth);
@@ -74,7 +74,7 @@ Curator.Grid = Curator.augment.extend(Curator.Client, {
 
         var to = null;
         var that = this;
-        jQuery(window).resize(function(){
+        $(window).resize(function(){
             clearTimeout(to);
             to = setTimeout(function(){
                 that.updateLayout();
@@ -83,7 +83,7 @@ Curator.Grid = Curator.augment.extend(Curator.Client, {
         this.updateLayout ();
 
 
-        jQuery(window).on('curatorCssLoaded',function(){
+        $(window).on('curatorCssLoaded',function(){
             clearTimeout(to);
             to = setTimeout(function(){
                 that.updateLayout();
@@ -101,7 +101,7 @@ Curator.Grid = Curator.augment.extend(Curator.Client, {
         } else {
             var that = this;
             var postElements = [];
-            jQuery(posts).each(function(i){
+            $(posts).each(function(i){
                 var p = that.createPostElement(this);
                 postElements.push(p.$el);
                 that.$feed.append(p.$el);
@@ -124,7 +124,7 @@ Curator.Grid = Curator.augment.extend(Curator.Client, {
 
     createPostElement: function (postJson) {
         var post = new Curator.Post(postJson, '#gridPostTemplate');
-        jQuery(post).bind('postClick',jQuery.proxy(this.onPostClick, this));
+        $(post).bind('postClick',$.proxy(this.onPostClick, this));
 
         if (this.options.onPostCreated) {
             this.options.onPostCreated (post);

@@ -7,7 +7,7 @@ Curator.Client = augment.extend(Object, {
 
     setOptions : function (options, defaults) {
 
-        this.options = jQuery.extend({}, defaults,options);
+        this.options = $.extend({}, defaults,options);
 
         if (options.debug) {
             Curator.debug = true;
@@ -24,7 +24,7 @@ Curator.Client = augment.extend(Object, {
             return false;
         }
 
-        this.$container = jQuery(this.options.container);
+        this.$container = $(this.options.container);
 
         // if (!Curator.checkPowered(this.$container)) {
         //     return false;
@@ -60,7 +60,7 @@ Curator.Client = augment.extend(Object, {
     {
         var that = this;
         var postElements = [];
-        jQuery(posts).each(function(){
+        $(posts).each(function(){
             var p = that.createPostElement(this);
             postElements.push(p.$el);
         });
@@ -69,7 +69,7 @@ Curator.Client = augment.extend(Object, {
 
     createPostElement: function (postJson) {
         var post = new Curator.Post(postJson);
-        jQuery(post).bind('postClick',jQuery.proxy(this.onPostClick, this));
+        $(post).bind('postClick',$.proxy(this.onPostClick, this));
 
         if (this.options.onPostCreated) {
             this.options.onPostCreated (post);

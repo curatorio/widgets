@@ -1,43 +1,12 @@
 
-var widgetDefaults = {
+Curator.CarouselDefaults = {
     feedId:'',
     postsPerPage:12,
     maxPosts:0,
     apiEndpoint:'https://api.curator.io/v1',
     scroll:'more',
     animate:true,
-    slick:{
-        dots: false,
-        speed: 700,
-        cssEase: 'ease-in-out',
-        useTransfrom: true,
-        infinite: false,
-        autoplay: true,
-        slidesToShow: 4,
-        slidesToScroll: 4,
-        responsive: [
-            {
-                breakpoint: 1200,
-                settings: {
-                    slidesToShow: 3,
-                    slidesToScroll: 3
-                }
-            },
-            {
-                breakpoint: 900,
-                settings: {
-                    slidesToShow: 2,
-                    slidesToScroll: 2
-                }
-            },
-            {
-                breakpoint: 480,
-                settings: {
-                    slidesToShow: 1,
-                    slidesToScroll: 1
-                }
-            }
-        ]
+    carousel:{
     },
     onPostsLoaded:function(){}
 };
@@ -53,40 +22,35 @@ Curator.Carousel = Curator.augment.extend(Curator.Client, {
     carousel:null,
 
     constructor: function (options) {
-        this.uber.setOptions.call (this, options,  widgetDefaults);
+        this.uber.setOptions.call (this, options,  Curator.CarouselDefaults);
 
         Curator.log("Carousel->init with options:");
         Curator.log(this.options);
 
         if (this.uber.init.call (this)) {
-            this.options.slick = jQuery.extend({}, widgetDefaults.slick, options.slick);
+            this.options.carousel = $.extend({}, Curator.CarouselDefaults.carousel, options.carousel);
 
             this.allLoaded = false;
 
             var that = this;
 
-            this.$feed = jQuery('<div class="crt-feed"></div>').appendTo(this.$container);
+            // this.$wrapper = $('<div class="crt-carousel-wrapper"></div>').appendTo(this.$container);
+            this.$feed = $('<div class="crt-feed"></div>').appendTo(this.$container);
             this.$container.addClass('crt-carousel');
-            //this.$feed.addClass('owl-carousel');
 
-            // this.$feed.slick(this.options.slick).on('afterChange', function (event, slick, currentSlide) {
-            //     if (!that.allLoaded) {
-            //         //console.log(currentSlide + '>' + (that.feed.postsLoaded - 4));
-            //
-            //         if (currentSlide >= that.feed.postsLoaded - 4) {
-            //             that.loadMorePosts();
-            //         }
-            //     }
-            // });
-            // this.carousel = this.$feed.owlCarousel(this.options.slick).on('changed.owl.carousel', function (event, slick, currentSlide) {
-            //     if (!that.allLoaded) {
-            //         //console.log(currentSlide + '>' + (that.feed.postsLoaded - 4));
-            //
-            //         if (currentSlide >= that.feed.postsLoaded - 4) {
-            //             that.loadMorePosts();
-            //         }
-            //     }
-            // });
+            this.$feed.carousel(this.options.carousel);
+            this.$feed.on('carousel:changed', function (event, carousel, currentSlide) {
+                // console.log('change');
+                if (!that.allLoaded) {
+                    // console.log(carousel);
+                    // console.log(currentSlide);
+                    // console.log(currentSlide + '>' + (that.feed.postsLoaded - 4));
+
+                    if (currentSlide >= that.feed.postsLoaded - 4) {
+                        that.loadMorePosts();
+                    }
+                }
+            });
 
             // load first set of posts
             this.loadPosts(0);
@@ -109,10 +73,10 @@ Curator.Carousel = Curator.augment.extend(Curator.Client, {
             this.allLoaded = true;
         } else {
             var that = this;
-            jQuery(posts).each(function(i){
+            var $els = [];
+            $(posts).each(function(i){
                 var p = that.createPostElement(this);
-                that.$feed.append(p.$el);
-                // that.$feed.owlCarousel().trigger('add.owl.carousel',jQuery(p.$el));
+                $els.push(p.$el);
 
                 if (that.options.animate) {
                     p.$el.css({opacity: 0});
@@ -122,9 +86,10 @@ Curator.Carousel = Curator.augment.extend(Curator.Client, {
                 }
             });
 
-            that.$feed.carousel();
+            that.$feed.carousel('add',$els);
+            that.$feed.carousel('update');
 
-            // that.$feed.c().trigger('add.owl.carousel',jQuery(p.$el));
+            // that.$feed.c().trigger('add.owl.carousel',$(p.$el));
 
             this.popupManager.setPosts(posts);
 

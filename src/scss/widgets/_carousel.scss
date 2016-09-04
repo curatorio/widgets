@@ -1,5 +1,5 @@
 .crt-carousel {
-    min-width: 320px;
+    //min-width: 320px;
     min-height: 400px;
     position: relative;
     font-family: 'Arial';
@@ -14,7 +14,7 @@
 
     .crt-feed {
         width:100%;
-        @extend .crt-clearfix;
+        //@extend .crt-clearfix;
 
         background-color: $color-feed-bg;
         -webkit-font-smoothing:antialiased;
@@ -26,13 +26,13 @@
         width: 100%;
     }
 
-    .slick-track {
+    .ctr-carousel-slider {
         display: flex !important;
-    }
-    .slick-track .slick-slide {
-        display: flex !important;
-        height: auto;
-        justify-content: center;
+        .crt-post-c {
+            display: flex !important;
+            height: auto;
+            justify-content: center;
+        }
     }
 }
 

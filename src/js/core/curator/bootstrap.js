@@ -1,4 +1,4 @@
-// Test jQuery exists
+// Test $ exists
 
 var Curator = {
     debug:false,
@@ -19,7 +19,7 @@ var Curator = {
 
     checkContainer:function (container) {
         Curator.log("Curator->checkContainer: "+container);
-        if (jQuery(container).length === 0) {
+        if ($(container).length === 0) {
             if (window.console) {
                 window.console.log('Curator could not find the element ' + container + '. Please ensure this element existings in your HTML code. Exiting.');
             }
@@ -43,7 +43,7 @@ var Curator = {
     augment:augment
 };
 
-if (jQuery === undefined) {
+if ($ === undefined) {
     Curator.alert ('Curator requires jQuery. \n\nPlease include jQuery in your HTML before the Curator widget script tag.\n\nVisit http://jquery.com/download/ to get the latest version');
 }
 

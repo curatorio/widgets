@@ -62,7 +62,7 @@ Curator.Templates = {
 </div>',
 
 
-    popupUnderlayTemplate : ''
+    popupUnderlayTemplate : '' 
 };
 
 Curator.Template = {
@@ -75,9 +75,9 @@ Curator.Template = {
         var cam = this.camelize(templateId).substring(1);
         var source = '';
 
-        if (jQuery(templateId).length===1)
+        if ($(templateId).length===1)
         {
-            source = jQuery(templateId).html();
+            source = $(templateId).html();
         } else if (Curator.Templates[cam] !== undefined)
         {
             source = Curator.Templates[cam];
@@ -89,11 +89,11 @@ Curator.Template = {
         }
 
         var tmpl = window.parseTemplate(source, data);
-        if (jQuery.parseHTML) {
+        if ($.parseHTML) {
             // breaks with jquery < 1.8
-            tmpl = jQuery.parseHTML(tmpl);
+            tmpl = $.parseHTML(tmpl);
         }
-        return jQuery(tmpl).filter('div');
+        return $(tmpl).filter('div');
     }
 
 };
