@@ -235,12 +235,13 @@
 
 .slick-prev,
 .slick-next {
-  width: 30px; }
+  width: 30px;
+  height: 50px; }
   .slick-prev:before, .slick-prev:before,
   .slick-next:before,
   .slick-next:before {
     color: #000000;
-    font-size: 20px;
+    font-size: 35px;
     font-family: 'crt'; }
 
 .slick-prev {
@@ -253,14 +254,14 @@
   .slick-next:before {
     content: '\e803'; }
 
-.crt-clearfix, .crt-post .crt-post-header, .crt-popup-wrapper .crt-popup .crt-popup-header, .crt-carousel .crt-feed {
+.crt-clearfix, .crt-post .crt-post-header, .crt-popup-wrapper .crt-popup .crt-popup-header {
   zoom: 1; }
-  .crt-clearfix:before, .crt-post .crt-post-header:before, .crt-popup-wrapper .crt-popup .crt-popup-header:before, .crt-carousel .crt-feed:before, .crt-clearfix:after, .crt-post .crt-post-header:after, .crt-popup-wrapper .crt-popup .crt-popup-header:after, .crt-carousel .crt-feed:after {
+  .crt-clearfix:before, .crt-post .crt-post-header:before, .crt-popup-wrapper .crt-popup .crt-popup-header:before, .crt-clearfix:after, .crt-post .crt-post-header:after, .crt-popup-wrapper .crt-popup .crt-popup-header:after {
     content: "\0020";
     display: block;
     height: 0;
     overflow: hidden; }
-  .crt-clearfix:after, .crt-post .crt-post-header:after, .crt-popup-wrapper .crt-popup .crt-popup-header:after, .crt-carousel .crt-feed:after {
+  .crt-clearfix:after, .crt-post .crt-post-header:after, .crt-popup-wrapper .crt-popup .crt-popup-header:after {
     clear: both; }
 
 @font-face {
@@ -814,7 +815,6 @@ body.crt-popup-visible {
     padding-right: 0; } }
 
 .crt-carousel {
-  min-width: 320px;
   min-height: 400px;
   position: relative;
   font-family: 'Arial'; }
@@ -828,13 +828,14 @@ body.crt-popup-visible {
     -webkit-font-smoothing: antialiased;
     font-family: 'Helvetica',Arial,sans-serif; }
   .crt-carousel .crt-post-c {
-    float: left; }
-  .crt-carousel .slick-track {
+    float: left;
+    width: 100%; }
+  .crt-carousel .ctr-carousel-slider {
     display: -ms-flexbox !important;
     display: flex !important; }
-  .crt-carousel .slick-track .slick-slide {
-    display: -ms-flexbox !important;
-    display: flex !important;
-    height: auto;
-    -ms-flex-pack: center;
-        justify-content: center; }
+    .crt-carousel .ctr-carousel-slider .crt-post-c {
+      display: -ms-flexbox !important;
+      display: flex !important;
+      height: auto;
+      -ms-flex-pack: center;
+          justify-content: center; }

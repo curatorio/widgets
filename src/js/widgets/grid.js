@@ -1,16 +1,14 @@
-var widgetDefaults = {
+Curator.GridDefaults = {
     feedId:'',
     postsPerPage:12,
     maxPosts:0,
     apiEndpoint:'https://api.curator.io/v1',
     onPostsLoaded:function(){},
-    minWidth:200,
-    rows:3,
+    animate:true,
     grid: {
         minWidth:200,
         rows:3
-    },
-    animate:true
+    }
 };
 
 Curator.Templates.gridPostTemplate = ' \
@@ -55,19 +53,19 @@ Curator.Grid = Curator.augment.extend(Curator.Client, {
     previousCol:0,
 
     constructor: function (options) {
-        this.uber.setOptions.call (this, options,  widgetDefaults);
+        this.uber.setOptions.call (this, options,  Curator.GridDefaults);
 
         Curator.log("Panel->init with options:");
         Curator.log(this.options);
 
-
         if (this.uber.init.call (this)) {
+            this.options.grid = $.extend({}, Curator.GridDefaults.grid, options.grid);
 
             this.$feed = $('<div class="crt-feed"></div>').appendTo(this.$container);
             this.$container.addClass('crt-grid');
 
             var cols = Math.floor(this.$container.width()/this.options.minWidth);
-            var postsNeeded = cols *  (this.options.rows + 1); // get 1 extra row just in case
+            var postsNeeded = cols *  (this.options.grid.rows + 1); // get 1 extra row just in case
             this.feed.options.postsPerPage = postsNeeded;
             this.loadPosts(0);
         }
@@ -82,8 +80,15 @@ Curator.Grid = Curator.augment.extend(Curator.Client, {
         });
         this.updateLayout ();
 
-
         $(window).on('curatorCssLoaded',function(){
+            clearTimeout(to);
+            to = setTimeout(function(){
+                that.updateLayout();
+            },100);
+        });
+
+        $(document).on('ready',function(){
+            console.log ('DOCUMENT LOADED');
             clearTimeout(to);
             to = setTimeout(function(){
                 that.updateLayout();
@@ -144,8 +149,8 @@ Curator.Grid = Curator.augment.extend(Curator.Client, {
     },
 
     updateLayout : function ( ) {
-        var cols = Math.floor(this.$container.width()/this.options.minWidth);
-        var postsNeeded = cols *  this.options.rows;
+        var cols = Math.floor(this.$container.width()/this.options.grid.minWidth);
+        var postsNeeded = cols *  this.options.grid.rows;
 
         this.$container.removeClass('crt-grid-col'+this.previousCol);
         this.previousCol = cols;
@@ -156,14 +161,12 @@ Curator.Grid = Curator.augment.extend(Curator.Client, {
         }
 
         this.updateHeight();
-
     },
 
     updateHeight : function () {
-        var postHeight = this.$container.find('.crt-post-c').height();
-
+        var postHeight = this.$container.find('.crt-post-c').width();
         this.$container.css({'overflow':'hidden'});
-        this.$container.height(this.options.rows * postHeight);
+        this.$container.height(this.options.grid.rows * postHeight);
     },
 
     destroy : function () {

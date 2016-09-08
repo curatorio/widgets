@@ -12,7 +12,12 @@
 	} else {
 		root.Curator = factory(root, root.jQuery || root.Zepto);
 	}
-}(this, function(root, jQuery) {
+}(this, function(root, $) {
+
+	if ($ == undefined) {
+		window.alert ("jQuery not found\n\nThe Curator Widget is running in dependency mode - this requires jQuery of Zepto. Try disabling DEPENDENCY MODE in the Admin on the Publish page." );
+		return false;
+	}
 
 	<%= contents %>
 

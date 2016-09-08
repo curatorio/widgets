@@ -110,19 +110,15 @@
     // Users should not attempt to inspect the internal events object using $.data,
     // it is undocumented and subject to change. But does anyone listen? No.
     if (isEvents && !thisCache[name]) {
-      return privateCache.events;
-    }
+      return privateCache.events;    }
 
     // Check for both converted-to-camel and non-converted data property names
     // If a data property was specified
     if (getByName) {
-
       // First Try to find as-is property data
       ret = thisCache[name];
-
       // Test for null|undefined property data
       if (ret == null) {
-
         // Try to find the camelCased property
         ret = thisCache[$.camelCase(name)];
       }
@@ -132,84 +128,4 @@
 
     return ret;
   };
-
-
-
-
-  /**
-   * Enable special events on Zepto
-   * @license Copyright 2013 Enideo. Released under dual MIT and GPL licenses.
-   */
-
-/// Place this code before defining the Special Events, but after Zepto
-
-  $.event.special = $.event.special || {};
-
-  var bindBeforeSpecialEvents = $.fn.bind;
-
-  $.fn.bind = function(eventName, data, callback){
-
-    var el = this,
-        $this = $(el),
-        specialEvent;
-
-    if( callback == null ){
-      callback = data;
-      data = null;
-    }
-
-    if( $.zepto ){
-
-      $.each( eventName.split(/\s/), function(i, eventName){
-
-        eventName = eventName.split(/\./)[0];
-
-        if( (eventName in $.event.special) ){
-
-          specialEvent = $.event.special[eventName];
-
-          /// init enable special events on Zepto
-          if( !specialEvent._init ) {
-            specialEvent._init = true;
-
-            /// intercept and replace the special event handler to add functionality
-            specialEvent.originalHandler = specialEvent.handler;
-            specialEvent.handler = function(){
-
-              /// make event argument writeable, like on jQuery
-              var args = Array.prototype.slice.call(arguments);
-              args[0] = $.extend({},args[0]);
-
-              /// define the event handle, $.event.dispatch is only for newer versions of jQuery
-              $.event.handle = function(){
-
-                /// make context of trigger the event element
-                var args = Array.prototype.slice.call(arguments),
-                    event = args[0],
-                    $target = $(event.target);
-
-                $target.trigger.apply( $target, arguments );
-
-              }
-
-              specialEvent.originalHandler.apply(this,args);
-
-            }
-          }
-
-          /// setup special events on Zepto
-          specialEvent.setup.apply( el, [data] );
-
-        }
-
-
-      });
-    }
-
-    return bindBeforeSpecialEvents.apply(this,[eventName,callback]);
-
-  };
-
-
-
 })(Zepto);

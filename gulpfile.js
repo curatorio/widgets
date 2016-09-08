@@ -354,6 +354,7 @@ gulp.task('scripts:combined', function() {
 gulp.task('scripts:nodep', function() {
     return gulp.src([
             srcJs+'widgets/_vendor/zepto.js',
+            srcJs+'widgets/_vendor/zepto.scope.js',
             srcJs+'widgets/_vendor/zepto.animate.js',
             srcJs+'widgets/_vendor/zepto.extend.js',
             srcJs+'widgets/_vendor/zepto.fxmethods.js',
@@ -373,7 +374,7 @@ gulp.task('scripts:nodep', function() {
         .pipe(concat('curator.nodep.js'))
         .pipe(wrap({ src: srcJs+'templates/nodep.js'}))
         .pipe(gulp.dest(destJs))
-        .pipe(notify({ message: 'scripts:combined task complete' }));
+        .pipe(notify({ message: 'scripts:nodep task complete' }));
 });
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

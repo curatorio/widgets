@@ -47,7 +47,7 @@ $.extend(Curator.PopupManager.prototype, {
         this.$popupContainer.append(this.popup.$popup);
 
         this.$wrapper.show();
-        // var visible = this.$underlay.css('display');
+
         if (this.$underlay.css('display') !== 'block') {
             this.$underlay.fadeIn();
         }
@@ -106,6 +106,7 @@ $.extend(Curator.PopupManager.prototype, {
         this.currentPostNum = 0;
         this.popup = null;
         this.$underlay.fadeOut(function(){
+            this.$underlay.css({'display':'','opacity':''});
             this.$wrapper.hide();
         }.bind(this));
     },

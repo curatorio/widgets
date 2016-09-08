@@ -1,11 +1,6 @@
 /* Zepto v1.2.0 - zepto event ajax form ie - zeptojs.com/license */
-(function(global, factory) {
-  if (typeof define === 'function' && define.amd)
-    define(function() { return factory(global) })
-  else
-    factory(global)
-}(this, function(window) {
-  var Zepto = (function() {
+
+var Zepto = (function() {
   var undefined, key, $, classList, emptyArray = [], concat = emptyArray.concat, filter = emptyArray.filter, slice = emptyArray.slice,
     document = window.document,
     elementDisplay = {}, classCache = {},
@@ -936,12 +931,9 @@
   $.zepto = zepto
 
   return $
-})()
+})();
 
-window.Zepto = Zepto
-var $ = Zepto;
-
-;(function($){
+(function($){
   var _zid = 1, undefined,
       slice = Array.prototype.slice,
       isFunction = $.isFunction,
@@ -1211,9 +1203,9 @@ var $ = Zepto;
     return compatible(event)
   }
 
-})(Zepto)
+})(Zepto);
 
-;(function($){
+(function($){
   var jsonpID = +new Date(),
       document = window.document,
       key,
@@ -1591,9 +1583,9 @@ var $ = Zepto;
     serialize(params, obj, traditional)
     return params.join('&').replace(/%20/g, '+')
   }
-})(Zepto)
+})(Zepto);
 
-;(function($){
+(function($){
   $.fn.serializeArray = function() {
     var name, type, result = [],
       add = function(value) {
@@ -1628,9 +1620,9 @@ var $ = Zepto;
     return this
   }
 
-})(Zepto)
+})(Zepto);
 
-;(function(){
+(function(){
   // getComputedStyle shouldn't freak out when called
   // without a valid element as argument
   try {
@@ -1645,6 +1637,7 @@ var $ = Zepto;
       }
     }
   }
-})()
-  return Zepto
-}))
+})();
+
+window.Zepto = Zepto;
+

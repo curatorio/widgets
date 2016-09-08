@@ -1,15 +1,21 @@
 
 (function($) {
 	// Default styling
+
 	var defaults = {
 		circular: false,
 		speed: 5000,
-		easing: 'ease-in-out',
 		duration: 700,
-		minWidth: 300,
-		moveAmount: 4,
-		autoPlay:false
+		minWidth: 250,
+		moveAmount: 0,
+		autoPlay: false,
+		useCss : true
 	};
+
+	if ($.zepto) {
+		defaults.easing = 'ease-in-out';
+	}
+	// console.log (defaults);
 
 	var css = {
 		viewport: {
@@ -76,9 +82,7 @@
 			this.addControls();
 
 			$(window).smartresize(function () {
-				// console.log('resize');
 				that.resize();
-
 				that.move (that.current_position, false);
 
 				// reset animation timer
@@ -105,6 +109,7 @@
 
 		add : function ($els) {
 			this.$pane_slider.append($els);
+			this.$panes = this.$pane_slider.children();
 		},
 
 		resize: function () {
@@ -112,18 +117,21 @@
 			var PANE_WRAPPER_WIDTH = (this.NUM_PANES * 100) + '%'; // % width of slider (total panes * 100)
 
 			this.VIEWPORT_WIDTH = this.$viewport.width();
-			var mod = Math.floor(this.VIEWPORT_WIDTH/this.options.minWidth);
+			this.PANES_VISIBLE = Math.floor(this.VIEWPORT_WIDTH/this.options.minWidth);
 
 			this.$pane_slider.css({width: PANE_WRAPPER_WIDTH}); // set css on pane slider
 
-			this.PANE_WIDTH = (this.VIEWPORT_WIDTH/mod);
-			// console.log (this.VIEWPORT_WIDTH);
+			this.PANE_WIDTH = (this.VIEWPORT_WIDTH/this.PANES_VISIBLE);
 
 			var that = this;
-			this.$panes.forEach(function (item, index) { // apply css to each pane and their children (h2, img)
-				var $item = $(item);
-				$item.css( $.extend(css.pane, {width: that.PANE_WIDTH+'px'}) );
+
+			this.$panes.each(function (index) {
+				$(this).css( $.extend(css.pane, {width: that.PANE_WIDTH+'px'}) );
 			});
+		},
+
+		destroy: function () {
+
 		},
 
 		animate : function () {
@@ -136,11 +144,13 @@
 		},
 
 		next : function () {
-			this.move(this.current_position + this.options.moveAmount, false);
+			var move = this.options.moveAmount ? this.options.moveAmount : this.PANES_VISIBLE ;
+			this.move(this.current_position + move, false);
 		},
 
 		prev : function () {
-			this.move(this.current_position - this.options.moveAmount, false);
+			var move = this.options.moveAmount ? this.options.moveAmount : this.PANES_VISIBLE ;
+			this.move(this.current_position - move, false);
 		},
 
 		move : function (i, noAnimate) {
@@ -160,11 +170,6 @@
 				this.currentLeft = left;
 			}
 
-
-			// console.log(paneOffset);
-			// console.log(paneOffset.left);
-			// console.log(this.currentLeft);
-
 			if (noAnimate) {
 				this.$pane_slider.css(
 					{
@@ -172,17 +177,20 @@
 					});
 			} else {
 				var that = this;
+				var options = {
+					duration: this.options.duration,
+					complete: function () {
+						that.moveComplete();
+					}
+				};
+				if (this.options.easing) {
+					options.easing = this.options.easing;
+				}
 				this.$pane_slider.animate(
 					{
 						left: ((0 - this.currentLeft) + 'px')
 					},
-					{
-						duration: this.options.duration,
-						easing: this.options.easing,
-						complete: function () {
-							that.moveComplete();
-						}
-					}
+					options
 				);
 			}
 		},
@@ -197,7 +205,7 @@
 			// 	this.currentLeft = 0;
 			// }
 
-			this.$item.trigger('carousel:changed', [this, this.current_position]);
+			this.$item.trigger('curatorCarousel:changed', [this, this.current_position]);
 
 			this.animate ();
 		},
@@ -205,7 +213,6 @@
 		addControls : function () {
 			this.$viewport.append('<button type="button" data-role="none" class="slick-prev slick-arrow" aria-label="Previous" role="button" aria-disabled="false">Previous</button>');
 			this.$viewport.append('<button type="button" data-role="none" class="slick-next slick-arrow" aria-label="Next" role="button" aria-disabled="false">Next</button>');
-
 
 			this.$viewport.on('click','.slick-prev', this.prev.bind(this));
 			this.$viewport.on('click','.slick-next', this.next.bind(this));
@@ -218,14 +225,13 @@
 				this.update();
 			} else if (m == 'add') {
 				this.add(arguments[1]);
+			} else if (m == 'destroy') {
+				this.destroy();
 			} else {
 
 			}
-
-
 		}
 	});
-
 
 	var carousels = {};
 	function rand () {
@@ -233,19 +239,17 @@
 	}
 
 	$.extend($.fn, { 
-		carousel: function (opts) {
+		curatorCarousel: function (opts) {
 			var args = (arguments.length === 1 ? [arguments[0]] : Array.apply(null, arguments));
 			var options = $.extend([], defaults, opts);
 
 			$.each(this, function(index, item) {
 				var id = $(item).data('carousel');
-				// console.log(id);
 
 				if (carousels[id]) {
 					carousels[id].method.apply(carousels[id], args);
 				} else {
 					id = rand();
-					// console.log(id);
 					carousels[id] = new Carousel(item, options);
 					$(item).data('carousel', id);
 				}

@@ -7,10 +7,10 @@ Curator.CarouselDefaults = {
     scroll:'more',
     animate:true,
     carousel:{
+        autoPlay:true
     },
     onPostsLoaded:function(){}
 };
-
 
 Curator.Carousel = Curator.augment.extend(Curator.Client, {
     containerHeight: 0,
@@ -38,14 +38,9 @@ Curator.Carousel = Curator.augment.extend(Curator.Client, {
             this.$feed = $('<div class="crt-feed"></div>').appendTo(this.$container);
             this.$container.addClass('crt-carousel');
 
-            this.$feed.carousel(this.options.carousel);
-            this.$feed.on('carousel:changed', function (event, carousel, currentSlide) {
-                // console.log('change');
+            this.$feed.curatorCarousel(this.options.carousel);
+            this.$feed.on('curatorCarousel:changed', function (event, carousel, currentSlide) {
                 if (!that.allLoaded) {
-                    // console.log(carousel);
-                    // console.log(currentSlide);
-                    // console.log(currentSlide + '>' + (that.feed.postsLoaded - 4));
-
                     if (currentSlide >= that.feed.postsLoaded - 4) {
                         that.loadMorePosts();
                     }
@@ -54,7 +49,6 @@ Curator.Carousel = Curator.augment.extend(Curator.Client, {
 
             // load first set of posts
             this.loadPosts(0);
-
         }
     },
 
@@ -86,8 +80,8 @@ Curator.Carousel = Curator.augment.extend(Curator.Client, {
                 }
             });
 
-            that.$feed.carousel('add',$els);
-            that.$feed.carousel('update');
+            that.$feed.curatorCarousel('add',$els);
+            that.$feed.curatorCarousel('update');
 
             // that.$feed.c().trigger('add.owl.carousel',$(p.$el));
 
@@ -104,7 +98,7 @@ Curator.Carousel = Curator.augment.extend(Curator.Client, {
     },
 
     destroy : function () {
-        this.$feed.slick('unslick');
+        this.$feed.curatorCarousel('destroy');
         this.$feed.remove();
         this.$container.removeClass('crt-carousel');
 

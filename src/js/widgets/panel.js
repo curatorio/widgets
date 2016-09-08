@@ -1,19 +1,13 @@
 
-var widgetDefaults = {
+Curator.PanelDefaults = {
     feedId:'',
     postsPerPage:12,
     maxPosts:0,
     apiEndpoint:'https://api.curator.io/v1',
-    scroll:'more',
-    slick:{
-        dots: false,
-        speed: 500,
-        fade:true,
-        cssEase: 'ease-in-out',
-        infinite: false,
+    carousel:{
+        // speed: 500,
         autoplay: true,
-        slidesToShow: 1,
-        slidesToScroll: 1
+        moveAmount:1
     },
     onPostsLoaded:function(){}
 };
@@ -28,13 +22,13 @@ Curator.Panel = Curator.augment.extend(Curator.Client, {
     posts:[],
 
     constructor: function (options) {
-        this.uber.setOptions.call (this, options,  widgetDefaults);
+        this.uber.setOptions.call (this, options,  Curator.PanelDefaults);
 
         Curator.log("Panel->init with options:");
         Curator.log(this.options);
 
         if (this.uber.init.call (this)) {
-            this.options.slick = $.extend({}, widgetDefaults.slick, options.slick);
+            this.options.slick = $.extend({}, Curator.PanelDefaults.carousel, options.carousel);
 
             this.allLoaded = false;
 
@@ -43,11 +37,10 @@ Curator.Panel = Curator.augment.extend(Curator.Client, {
             this.$feed = $('<div class="crt-feed"></div>').appendTo(this.$container);
             this.$container.addClass('crt-panel');
 
-            this.$feed.slick(this.options.slick).on('afterChange', function (event, slick, currentSlide) {
+            this.$feed.curatorCarousel(this.options.carousel);
+            this.$feed.on('curatorCarousel:changed', function (event, carousel, currentSlide) {
                 if (!that.allLoaded) {
-                    //console.log(currentSlide + '>' + (that.totalPostsLoaded - 4));
-
-                    if (currentSlide >= that.totalPostsLoaded - 4) {
+                    if (currentSlide >= that.feed.postsLoaded - 4) {
                         that.loadMorePosts();
                     }
                 }
@@ -73,10 +66,15 @@ Curator.Panel = Curator.augment.extend(Curator.Client, {
             this.allLoaded = true;
         } else {
             var that = this;
+            var $els = [];
             $(posts).each(function(){
                 var p = that.createPostElement(this);
-                that.$feed.slick('slickAdd',p.$el);
+                $els.push(p.$el);
             });
+
+            that.$feed.curatorCarousel('add',$els);
+            that.$feed.curatorCarousel('update');
+
             this.popupManager.setPosts(posts);
 
             this.options.onPostsLoaded (this, posts);
@@ -90,7 +88,7 @@ Curator.Panel = Curator.augment.extend(Curator.Client, {
     },
 
     destroy : function () {
-        this.$feed.slick('unslick');
+        this.$feed.curatorCarousel('destroy');
         this.$feed.remove();
         this.$container.removeClass('crt-panel');
 
