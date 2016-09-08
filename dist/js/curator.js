@@ -1612,13 +1612,22 @@ Curator.SocialFacebook = {
         obj.url = Curator.Utils.postUrl(post);
         var cb =  function(){};
 
-        FB.ui({
-            method: 'feed',
-            link: obj.url,
-            picture: obj.image,
-            name: obj.user_screen_name,
-            description: obj.text
-        }, cb);
+        if (window.FB) {
+            window.FB.ui({
+                method: 'feed',
+                link: obj.url,
+                picture: obj.image,
+                name: obj.user_screen_name,
+                description: obj.text
+            }, cb);
+        } else {
+            var url = "https://www.facebook.com/sharer/sharer.php?u={{url}}&d={{text}}";
+            var url2 = Curator.Utils.tinyparser(url, obj);
+            console.log(obj);
+            console.log(url);
+            console.log(url2);
+            Curator.Utils.popup(url2, 'twitter', '600', '430', '0');
+        }
     }
 };
 
@@ -1639,7 +1648,11 @@ Curator.SocialTwitter = {
         obj.url = Curator.Utils.postUrl(post);
 
         var url = "http://twitter.com/share?url={{url}}&text={{text}}&hashtags={{hashtags}}";
-        Curator.Utils.popup(Curator.Utils.tinyparser(url, obj), 'twitter', '600', '430', '0');
+        var url2 = Curator.Utils.tinyparser(url, obj);
+        // console.log(obj);
+        // console.log(url);
+        // console.log(url2);
+        Curator.Utils.popup(url2, 'twitter', '600', '430', '0');
     }
 };
 
@@ -1664,7 +1677,7 @@ Curator.Templates = {
                 <%=this.parseText(text)%> \
             </div> \
         </div> \
-        <div class="crt-post-share">Share <a href="#" class="shareFacebook"><i class="crt-icon-facebook"></i></a>  <a href="#" class="shareTwitter"><i class="crt-icon-twitter-bird"></i></a> </div> \
+        <div class="crt-post-share">Share <a href="#" class="shareFacebook"><i class="crt-icon-facebook"></i></a>  <a href="#" class="shareTwitter"><i class="crt-icon-twitter"></i></a> </div> \
     </div>\
 </div>',
 
@@ -1748,16 +1761,20 @@ Curator.Utils = {
 
     postUrl : function (post)
     {
-        if (post.url && post.url !== "")
+
+        console.log(post.url);
+
+        if (post.url && post.url !== "" && post.url !== "''")
         {
             // instagram
             return post.url;
         }
 
-        if (post.network_id==="1")
+        console.log(post.url);
+        if (post.network_id+"" === "1")
         {
             // twitter
-            return 'https://twitter.com/'+post.user_screen_name+'/status/'+post.sourceIdentifier;
+            return 'https://twitter.com/'+post.user_screen_name+'/status/'+post.source_identifier;
         }
 
         return '';
@@ -1791,7 +1808,7 @@ Curator.Utils = {
     tinyparser : function (string, obj) {
 
         return string.replace(/\{\{(.*?)\}\}/g, function (a, b) {
-            return obj && typeof obj[b] !== "undefined" ? obj[b] : "";
+            return obj && typeof obj[b] !== "undefined" ? encodeURIComponent(obj[b]) : "";
         });
     }
 };

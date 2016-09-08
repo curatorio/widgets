@@ -3,16 +3,20 @@ Curator.Utils = {
 
     postUrl : function (post)
     {
-        if (post.url && post.url !== "")
+
+        console.log(post.url);
+
+        if (post.url && post.url !== "" && post.url !== "''")
         {
             // instagram
             return post.url;
         }
 
-        if (post.network_id==="1")
+        console.log(post.url);
+        if (post.network_id+"" === "1")
         {
             // twitter
-            return 'https://twitter.com/'+post.user_screen_name+'/status/'+post.sourceIdentifier;
+            return 'https://twitter.com/'+post.user_screen_name+'/status/'+post.source_identifier;
         }
 
         return '';
@@ -46,7 +50,7 @@ Curator.Utils = {
     tinyparser : function (string, obj) {
 
         return string.replace(/\{\{(.*?)\}\}/g, function (a, b) {
-            return obj && typeof obj[b] !== "undefined" ? obj[b] : "";
+            return obj && typeof obj[b] !== "undefined" ? encodeURIComponent(obj[b]) : "";
         });
     }
 };
