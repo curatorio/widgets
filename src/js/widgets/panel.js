@@ -4,10 +4,13 @@ Curator.PanelDefaults = {
     postsPerPage:12,
     maxPosts:0,
     apiEndpoint:'https://api.curator.io/v1',
-    carousel:{
+    panel: {
         // speed: 500,
-        autoplay: true,
-        moveAmount:1
+        autoPlay: true,
+        autoLoad: true,
+        moveAmount:1,
+        fixedHeight:false,
+        infinite:true
     },
     onPostsLoaded:function(){}
 };
@@ -28,7 +31,7 @@ Curator.Panel = Curator.augment.extend(Curator.Client, {
         Curator.log(this.options);
 
         if (this.uber.init.call (this)) {
-            this.options.slick = $.extend({}, Curator.PanelDefaults.carousel, options.carousel);
+            this.options.panel = $.extend({}, Curator.PanelDefaults.panel, options.panel);
 
             this.allLoaded = false;
 
@@ -37,9 +40,13 @@ Curator.Panel = Curator.augment.extend(Curator.Client, {
             this.$feed = $('<div class="crt-feed"></div>').appendTo(this.$container);
             this.$container.addClass('crt-panel');
 
-            this.$feed.curatorCarousel(this.options.carousel);
+            if (this.options.panel.fixedHeight) {
+                this.$container.addClass('crt-panel-fixed-height');
+            }
+
+            this.$feed.curatorCarousel(this.options.panel);
             this.$feed.on('curatorCarousel:changed', function (event, carousel, currentSlide) {
-                if (!that.allLoaded) {
+                if (!that.allLoaded && that.options.panel.autoLoad) {
                     if (currentSlide >= that.feed.postsLoaded - 4) {
                         that.loadMorePosts();
                     }

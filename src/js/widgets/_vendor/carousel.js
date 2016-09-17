@@ -114,7 +114,7 @@
 
 		resize: function () {
 			// total panes (+1 for circular illusion)
-			var PANE_WRAPPER_WIDTH = (this.NUM_PANES * 100) + '%'; // % width of slider (total panes * 100)
+			var PANE_WRAPPER_WIDTH = this.options.infinite ? ((this.NUM_PANES+1) * 100) + '%' : (this.NUM_PANES * 100) + '%'; // % width of slider (total panes * 100)
 
 			this.VIEWPORT_WIDTH = this.$viewport.width();
 			this.PANES_VISIBLE = Math.floor(this.VIEWPORT_WIDTH/this.options.minWidth);
@@ -124,6 +124,14 @@
 			this.PANE_WIDTH = (this.VIEWPORT_WIDTH/this.PANES_VISIBLE);
 
 			var that = this;
+
+			if (this.options.infinite)
+			{
+				var first = this.$panes.first().clone();
+
+				this.$pane_slider.append(first);
+				this.$panes = this.$pane_slider.children();
+			}
 
 			this.$panes.each(function (index) {
 				$(this).css( $.extend(css.pane, {width: that.PANE_WIDTH+'px'}) );
@@ -157,8 +165,17 @@
 
 			this.current_position = i;
 
+			var maxPos = this.options.infinite ? this.NUM_PANES + this.PANES_VISIBLE : this.NUM_PANES;
+
+			if (this.current_position < 0) {
+				this.current_position = 0;
+			} else if (this.current_position > maxPos) {
+				this.current_position = maxPos;
+			}
+
 			var left = this.PANE_WIDTH * this.current_position;
-			var max = (this.PANE_WIDTH * this.NUM_PANES) - this.VIEWPORT_WIDTH;
+			var panesInView = this.PANES_VISIBLE;
+			var max = this.options.infinite ? (this.PANE_WIDTH * this.NUM_PANES) : (this.PANE_WIDTH * this.NUM_PANES) - this.VIEWPORT_WIDTH;
 
 			// console.log(left+":"+max);
 
@@ -196,14 +213,16 @@
 		},
 
 		moveComplete : function () {
-
-			// circular illusion: reset to first slide without user noticing
-			// var max = (this.PANE_WIDTH * this.NUM_PANES) - this.VIEWPORT_WIDTH;
-			//  if (this.currentLeft >= max) {
-			// 	this.$pane_slider.css({left:0});
-			// 	this.current_position = 0;
-			// 	this.currentLeft = 0;
-			// }
+			console.log ('moveComplete');
+			console.log (this.current_position);
+			console.log (this.NUM_PANES + this.PANES_VISIBLE);
+			if (this.options.infinite && this.current_position == (this.NUM_PANES-1) + this.PANES_VISIBLE) {
+				// infinite and we're off the end!
+				// re-e-wind, the crowd says 'bo selecta!'
+				this.$pane_slider.css({left:0});
+				this.current_position = 0;
+				this.currentLeft = 0;
+			}
 
 			this.$item.trigger('curatorCarousel:changed', [this, this.current_position]);
 

@@ -515,7 +515,7 @@
 
 		resize: function () {
 			// total panes (+1 for circular illusion)
-			var PANE_WRAPPER_WIDTH = (this.NUM_PANES * 100) + '%'; // % width of slider (total panes * 100)
+			var PANE_WRAPPER_WIDTH = this.options.infinite ? ((this.NUM_PANES+1) * 100) + '%' : (this.NUM_PANES * 100) + '%'; // % width of slider (total panes * 100)
 
 			this.VIEWPORT_WIDTH = this.$viewport.width();
 			this.PANES_VISIBLE = Math.floor(this.VIEWPORT_WIDTH/this.options.minWidth);
@@ -525,6 +525,14 @@
 			this.PANE_WIDTH = (this.VIEWPORT_WIDTH/this.PANES_VISIBLE);
 
 			var that = this;
+
+			if (this.options.infinite)
+			{
+				var first = this.$panes.first().clone();
+
+				this.$pane_slider.append(first);
+				this.$panes = this.$pane_slider.children();
+			}
 
 			this.$panes.each(function (index) {
 				$(this).css( $.extend(css.pane, {width: that.PANE_WIDTH+'px'}) );
@@ -558,8 +566,17 @@
 
 			this.current_position = i;
 
+			var maxPos = this.options.infinite ? this.NUM_PANES + this.PANES_VISIBLE : this.NUM_PANES;
+
+			if (this.current_position < 0) {
+				this.current_position = 0;
+			} else if (this.current_position > maxPos) {
+				this.current_position = maxPos;
+			}
+
 			var left = this.PANE_WIDTH * this.current_position;
-			var max = (this.PANE_WIDTH * this.NUM_PANES) - this.VIEWPORT_WIDTH;
+			var panesInView = this.PANES_VISIBLE;
+			var max = this.options.infinite ? (this.PANE_WIDTH * this.NUM_PANES) : (this.PANE_WIDTH * this.NUM_PANES) - this.VIEWPORT_WIDTH;
 
 			// console.log(left+":"+max);
 
@@ -597,14 +614,16 @@
 		},
 
 		moveComplete : function () {
-
-			// circular illusion: reset to first slide without user noticing
-			// var max = (this.PANE_WIDTH * this.NUM_PANES) - this.VIEWPORT_WIDTH;
-			//  if (this.currentLeft >= max) {
-			// 	this.$pane_slider.css({left:0});
-			// 	this.current_position = 0;
-			// 	this.currentLeft = 0;
-			// }
+			console.log ('moveComplete');
+			console.log (this.current_position);
+			console.log (this.NUM_PANES + this.PANES_VISIBLE);
+			if (this.options.infinite && this.current_position == (this.NUM_PANES-1) + this.PANES_VISIBLE) {
+				// infinite and we're off the end!
+				// re-e-wind, the crowd says 'bo selecta!'
+				this.$pane_slider.css({left:0});
+				this.current_position = 0;
+				this.currentLeft = 0;
+			}
 
 			this.$item.trigger('curatorCarousel:changed', [this, this.current_position]);
 
@@ -701,6 +720,9 @@ augment.extend = function (base, body) {
         networkIcon:function () {
             return this.data.network_name.toLowerCase();
         },
+        networkName:function () {
+            return this.data.network_name.toLowerCase();
+        },
         userUrl:function () {
             var netId = this.data.network_id+'';
             if (netId === '1') {
@@ -724,6 +746,12 @@ augment.extend = function (base, body) {
                 s = Curator.StringUtils.linksToHref(s);
                 s = Curator.StringUtils.instagramLinks(s);
             }
+
+            return helpers.nl2br(s);
+        },
+        nl2br:function(s) {
+            s = s.trim();
+            s = s.replace(/(?:\r\n|\r|\n)/g, '<br />');
 
             return s;
         },
@@ -1648,7 +1676,7 @@ Curator.Templates = {
 
     postTemplate : ' \
 <div class="crt-post-c">\
-    <div class="crt-post post<%=id%>"> \
+    <div class="crt-post post<%=id%> crt-post-<%=this.networkIcon()%>"> \
         <div class="crt-post-header"> \
             <span class="social-icon"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \
             <img src="<%=user_image%>"  /> \
@@ -1661,9 +1689,10 @@ Curator.Templates = {
             </div> \
             <div class="text crt-post-content-text <%=this.contentTextClasses()%>"> \
                 <p class="crt-date"><%=this.prettyDate(source_created_at)%></p> \
-                <%=this.parseText(text)%> \
+                <div class="crt-post-text-body"><%=this.parseText(text)%></div> \
             </div> \
         </div> \
+        <div class="crt-post-read-more"><a href="#" class="crt-post-read-more-button">Read more</a> </div> \
         <div class="crt-post-share">Share <a href="#" class="shareFacebook"><i class="crt-icon-facebook"></i></a>  <a href="#" class="shareTwitter"><i class="crt-icon-twitter-bird"></i></a> </div> \
     </div>\
 </div>',
@@ -1700,7 +1729,7 @@ Curator.Templates = {
         </div> \
         <div class="crt-popup-text <%=this.contentTextClasses()%>"> \
             <p class="crt-date"><%=this.prettyDate(source_created_at)%></p> \
-            <%=this.parseText(text)%> \
+            <div class="crt-popup-text-body"><%=this.parseText(text)%></div> \
         </div> \
     </div> \
 </div>',
@@ -2055,7 +2084,8 @@ Curator.CarouselDefaults = {
     scroll:'more',
     animate:true,
     carousel:{
-        autoPlay:true
+        autoPlay:true,
+        autoLoad:true
     },
     onPostsLoaded:function(){}
 };
@@ -2088,7 +2118,7 @@ Curator.Carousel = Curator.augment.extend(Curator.Client, {
 
             this.$feed.curatorCarousel(this.options.carousel);
             this.$feed.on('curatorCarousel:changed', function (event, carousel, currentSlide) {
-                if (!that.allLoaded) {
+                if (that.options.carousel.autoLoad) {
                     if (currentSlide >= that.feed.postsLoaded - 4) {
                         that.loadMorePosts();
                     }
@@ -2170,10 +2200,13 @@ Curator.PanelDefaults = {
     postsPerPage:12,
     maxPosts:0,
     apiEndpoint:'https://api.curator.io/v1',
-    carousel:{
+    panel: {
         // speed: 500,
-        autoplay: true,
-        moveAmount:1
+        autoPlay: true,
+        autoLoad: true,
+        moveAmount:1,
+        fixedHeight:false,
+        infinite:true
     },
     onPostsLoaded:function(){}
 };
@@ -2194,7 +2227,7 @@ Curator.Panel = Curator.augment.extend(Curator.Client, {
         Curator.log(this.options);
 
         if (this.uber.init.call (this)) {
-            this.options.slick = $.extend({}, Curator.PanelDefaults.carousel, options.carousel);
+            this.options.panel = $.extend({}, Curator.PanelDefaults.panel, options.panel);
 
             this.allLoaded = false;
 
@@ -2203,9 +2236,13 @@ Curator.Panel = Curator.augment.extend(Curator.Client, {
             this.$feed = $('<div class="crt-feed"></div>').appendTo(this.$container);
             this.$container.addClass('crt-panel');
 
-            this.$feed.curatorCarousel(this.options.carousel);
+            if (this.options.panel.fixedHeight) {
+                this.$container.addClass('crt-panel-fixed-height');
+            }
+
+            this.$feed.curatorCarousel(this.options.panel);
             this.$feed.on('curatorCarousel:changed', function (event, carousel, currentSlide) {
-                if (!that.allLoaded) {
+                if (!that.allLoaded && that.options.panel.autoLoad) {
                     if (currentSlide >= that.feed.postsLoaded - 4) {
                         that.loadMorePosts();
                     }

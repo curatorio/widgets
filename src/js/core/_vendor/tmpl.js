@@ -9,6 +9,9 @@
         networkIcon:function () {
             return this.data.network_name.toLowerCase();
         },
+        networkName:function () {
+            return this.data.network_name.toLowerCase();
+        },
         userUrl:function () {
             var netId = this.data.network_id+'';
             if (netId === '1') {
@@ -32,6 +35,12 @@
                 s = Curator.StringUtils.linksToHref(s);
                 s = Curator.StringUtils.instagramLinks(s);
             }
+
+            return helpers.nl2br(s);
+        },
+        nl2br:function(s) {
+            s = s.trim();
+            s = s.replace(/(?:\r\n|\r|\n)/g, '<br />');
 
             return s;
         },

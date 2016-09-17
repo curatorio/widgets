@@ -483,6 +483,8 @@
       color: #2B2B2B; }
       .crt-post .crt-post-share A:hover {
         color: black; }
+  .crt-post .crt-post-read-more {
+    display: none; }
   .crt-post .crt-play {
     position: absolute;
     left: 0;
@@ -872,11 +874,70 @@ body.crt-popup-visible {
           justify-content: center; }
 
 .crt-panel {
-  max-width: 320px;
   min-height: 400px;
   position: relative; }
   .crt-panel .crt-logo {
     display: none; }
+  .crt-panel .crt-post {
+    margin: 0 4px;
+    box-sizing: border-box; }
+  .crt-panel.crt-panel-fixed-height {
+    height: 570px; }
+    .crt-panel.crt-panel-fixed-height .crt-post,
+    .crt-panel.crt-panel-fixed-height .crt-post-c,
+    .crt-panel.crt-panel-fixed-height .ctr-carousel-slider,
+    .crt-panel.crt-panel-fixed-height .ctr-carousel-stage,
+    .crt-panel.crt-panel-fixed-height .crt-feed {
+      height: 100%; }
+    .crt-panel.crt-panel-fixed-height .ctr-carousel-stage {
+      overflow: hidden; }
+    .crt-panel.crt-panel-fixed-height .crt-post .crt-post-share {
+      bottom: -50px;
+      display: none; }
+    .crt-panel.crt-panel-fixed-height .crt-post-read-more {
+      display: block;
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      text-align: center;
+      padding-bottom: 0.5em;
+      padding-top: 4em;
+      /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#000000+0,131313+100 */
+      background: transparent;
+      background: -webkit-gradient(left top, left bottom, color-stop(0%, transparent), color-stop(100%, rgba(0, 0, 0, 0.1)));
+      background: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.1) 100%);
+      filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#000000', endColorstr='#000000', GradientType=0 ); }
+    .crt-panel.crt-panel-fixed-height .crt-post-read-more-button {
+      display: inline-block;
+      background-color: #ccc;
+      text-decoration: none;
+      height: 2.5em;
+      line-height: 2.5em;
+      padding: 0 1em;
+      margin-bottom: 0.25em;
+      border-radius: 0.2em;
+      color: #000000; }
+  .crt-panel .slick-prev, .crt-panel .slick-next {
+    z-index: 100; }
+  .crt-panel .slick-prev,
+  .crt-panel .slick-next {
+    width: 30px;
+    height: 50px; }
+    .crt-panel .slick-prev:before, .crt-panel .slick-prev:before,
+    .crt-panel .slick-next:before,
+    .crt-panel .slick-next:before {
+      color: #000000;
+      font-size: 25px;
+      font-family: 'crt'; }
+  .crt-panel .slick-prev {
+    left: -30px; }
+    .crt-panel .slick-prev:before {
+      content: '\e804'; }
+  .crt-panel .slick-next {
+    right: -30px; }
+    .crt-panel .slick-next:before {
+      content: '\e803'; }
 
 .crt-grid {
   position: relative;

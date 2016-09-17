@@ -4,7 +4,7 @@ Curator.Templates = {
 
     postTemplate : ' \
 <div class="crt-post-c">\
-    <div class="crt-post post<%=id%>"> \
+    <div class="crt-post post<%=id%> crt-post-<%=this.networkIcon()%>"> \
         <div class="crt-post-header"> \
             <span class="social-icon"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \
             <img src="<%=user_image%>"  /> \
@@ -17,9 +17,10 @@ Curator.Templates = {
             </div> \
             <div class="text crt-post-content-text <%=this.contentTextClasses()%>"> \
                 <p class="crt-date"><%=this.prettyDate(source_created_at)%></p> \
-                <%=this.parseText(text)%> \
+                <div class="crt-post-text-body"><%=this.parseText(text)%></div> \
             </div> \
         </div> \
+        <div class="crt-post-read-more"><a href="#" class="crt-post-read-more-button">Read more</a> </div> \
         <div class="crt-post-share">Share <a href="#" class="shareFacebook"><i class="crt-icon-facebook"></i></a>  <a href="#" class="shareTwitter"><i class="crt-icon-twitter-bird"></i></a> </div> \
     </div>\
 </div>',
@@ -56,7 +57,7 @@ Curator.Templates = {
         </div> \
         <div class="crt-popup-text <%=this.contentTextClasses()%>"> \
             <p class="crt-date"><%=this.prettyDate(source_created_at)%></p> \
-            <%=this.parseText(text)%> \
+            <div class="crt-popup-text-body"><%=this.parseText(text)%></div> \
         </div> \
     </div> \
 </div>',

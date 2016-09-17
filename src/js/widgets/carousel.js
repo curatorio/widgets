@@ -7,7 +7,8 @@ Curator.CarouselDefaults = {
     scroll:'more',
     animate:true,
     carousel:{
-        autoPlay:true
+        autoPlay:true,
+        autoLoad:true
     },
     onPostsLoaded:function(){}
 };
@@ -40,7 +41,7 @@ Curator.Carousel = Curator.augment.extend(Curator.Client, {
 
             this.$feed.curatorCarousel(this.options.carousel);
             this.$feed.on('curatorCarousel:changed', function (event, carousel, currentSlide) {
-                if (!that.allLoaded) {
+                if (that.options.carousel.autoLoad) {
                     if (currentSlide >= that.feed.postsLoaded - 4) {
                         that.loadMorePosts();
                     }

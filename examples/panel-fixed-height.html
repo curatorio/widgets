@@ -7,11 +7,11 @@
     <link href="css/example.css" rel="stylesheet" />
     <style type="text/css">
         #curator-feed {
-            width: 400px;;
-            background-color: #ffffff;
+            width: 330px;;
+            xbackground-color: #ffffff;
         }
         #curator-feed-container {
-            background-color: #efefef;
+            xbackground-color: #efefef;
         }
     </style>
 </head>
@@ -33,7 +33,13 @@
     // Change FEED_ID to your unique FEED_ID
     var widget = new Curator.Panel({
         container:'#curator-feed',
-        feedId:"3f79ae1c-7eba-41f9-82e2-dc7205a7"
+        feedId:"3f79ae1c-7eba-41f9-82e2-dc7205a7",
+        postsPerPage:3,
+        panel : {
+            fixedHeight:570,
+            autoLoad:false,
+            infinite:true
+        }
     });
 </script>
 </body>
