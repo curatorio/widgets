@@ -117,7 +117,7 @@
 			var PANE_WRAPPER_WIDTH = this.options.infinite ? ((this.NUM_PANES+1) * 100) + '%' : (this.NUM_PANES * 100) + '%'; // % width of slider (total panes * 100)
 
 			this.VIEWPORT_WIDTH = this.$viewport.width();
-			this.PANES_VISIBLE = Math.floor(this.VIEWPORT_WIDTH/this.options.minWidth);
+			this.PANES_VISIBLE = this.VIEWPORT_WIDTH<this.options.minWidth ? 1 : Math.floor(this.VIEWPORT_WIDTH/this.options.minWidth);
 
 			this.$pane_slider.css({width: PANE_WRAPPER_WIDTH}); // set css on pane slider
 
@@ -213,9 +213,9 @@
 		},
 
 		moveComplete : function () {
-			console.log ('moveComplete');
-			console.log (this.current_position);
-			console.log (this.NUM_PANES + this.PANES_VISIBLE);
+			// console.log ('moveComplete');
+			// console.log (this.current_position);
+			// console.log (this.NUM_PANES + this.PANES_VISIBLE);
 			if (this.options.infinite && this.current_position == (this.NUM_PANES-1) + this.PANES_VISIBLE) {
 				// infinite and we're off the end!
 				// re-e-wind, the crowd says 'bo selecta!'

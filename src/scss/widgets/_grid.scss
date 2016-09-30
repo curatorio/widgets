@@ -32,6 +32,9 @@
 		img.spacer {
 			width: 100%;
 			display: block;
+			margin: 0 !important;
+			padding: 0 !important;
+			position: relative;
 		}
 
 		.crt-post-content-text-c,
@@ -118,6 +121,19 @@
 			.crt-post-content-text-c {
 				display: none;
 			}
+		}
+	}
+
+	.crt-feed-more {
+		text-align: center;
+		a {
+			display: inline-block;
+			background-color: #efefef;
+			color: #000000;
+			padding: 20px;
+			margin-top: 15px;
+			text-decoration: none;
+			border-radius: 3px;
 		}
 	}
 }

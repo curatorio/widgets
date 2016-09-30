@@ -26,6 +26,7 @@ $.extend(Curator.Feed.prototype,{
     postCount:0,
     feedBase:'',
     currentPage:0,
+    posts:[],
 
     init: function (options) {
         Curator.log ('Feed->init with options');
@@ -53,6 +54,22 @@ $.extend(Curator.Feed.prototype,{
         this._loadPosts (params);
     },
 
+    loadMore: function (paramsIn) {
+        Curator.log ('Feed->loadMore '+this.loading);
+        if (this.loading) {
+            return false;
+        }
+
+        var params = {
+            limit:this.options.postsPerPage
+        };
+        $.extend(params,this.options.feedParams, paramsIn);
+
+        params.offset = this.posts.length;
+
+        this._loadPosts (params);
+    },
+
     _loadPosts : function (params) {
         Curator.log ('Feed->_loadPosts');
         var that = this;
@@ -62,13 +79,17 @@ $.extend(Curator.Feed.prototype,{
         $.ajax({
             url: this.getUrl('/posts'),
             dataType: 'json',
-            data: {params: params},
+            data: params,
             success: function (data) {
                 Curator.log('Feed->_loadPosts success');
 
                 if (data.success) {
                     that.postCount = data.postCount;
                     that.postsLoaded += data.posts.length;
+
+                    that.posts = that.posts.concat(data.posts);
+
+                    console.log (that.posts);
                     if (that.options.onPostsLoaded) {
                         that.options.onPostsLoaded(data.posts);
                     }
