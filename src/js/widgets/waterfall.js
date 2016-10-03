@@ -57,7 +57,6 @@ Curator.Waterfall = Curator.augment.extend(Curator.Client, {
             }
 
 
-            console.log (this.options.animate);
             this.$feed.gridalicious({
                 selector:'.crt-post-c',
                 gutter:0,
@@ -95,6 +94,20 @@ Curator.Waterfall = Curator.augment.extend(Curator.Client, {
 
         //this.$feed.append(postElements);
         this.$feed.gridalicious('append', postElements);
+
+        var that = this;
+        $.each(postElements,function (i) {
+            var post = this;
+            if (that.options.waterfall.maxHeight > 0 && post.height() > that.options.waterfall.maxHeight) {
+                post.find('.crt-post')
+                    .css({maxHeight: that.options.waterfall.maxHeight})
+                    .addClass('crt-post-max-height');
+            }
+            if (that.options.waterfall.showReadMore) {
+                post.find('.crt-post')
+                    .addClass('crt-post-show-read-more');
+            }
+        });
 
         this.popupManager.setPosts(posts);
 

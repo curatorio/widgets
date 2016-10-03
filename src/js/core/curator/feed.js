@@ -89,7 +89,6 @@ $.extend(Curator.Feed.prototype,{
 
                     that.posts = that.posts.concat(data.posts);
 
-                    console.log (that.posts);
                     if (that.options.onPostsLoaded) {
                         that.options.onPostsLoaded(data.posts);
                     }

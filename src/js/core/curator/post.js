@@ -22,6 +22,7 @@ Curator.Post = augment.extend(Object, {
         this.$el.find('.shareFacebook').click($.proxy(this.onShareFacebookClick,this));
         this.$el.find('.shareTwitter').click($.proxy(this.onShareTwitterClick,this));
         this.$el.find('.crt-hitarea').click($.proxy(this.onPostClick,this));
+        this.$el.find('.crt-post-read-more-button').click($.proxy(this.onReadMoreClick,this));
 
         this.$post = this.$el.find('.crt-post');
 
@@ -45,5 +46,10 @@ Curator.Post = augment.extend(Object, {
     onPostClick : function (ev) {
         ev.preventDefault();
         $(this).trigger('postClick',this, this.json, ev);
+    },
+
+    onReadMoreClick : function (ev) {
+        ev.preventDefault();
+        $(this).trigger('postReadMoreClick',this, this.json, ev);
     }
 });

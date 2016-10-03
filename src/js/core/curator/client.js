@@ -26,10 +26,6 @@ Curator.Client = augment.extend(Object, {
 
         this.$container = $(this.options.container);
 
-        // if (!Curator.checkPowered(this.$container)) {
-        //     return false;
-        // }
-
         this.createFeed();
         this.createPopupManager();
 
@@ -70,6 +66,7 @@ Curator.Client = augment.extend(Object, {
     createPostElement: function (postJson) {
         var post = new Curator.Post(postJson);
         $(post).bind('postClick',$.proxy(this.onPostClick, this));
+        $(post).bind('postReadMoreClick',$.proxy(this.onPostClick, this));
 
         if (this.options.onPostCreated) {
             this.options.onPostCreated (post);
