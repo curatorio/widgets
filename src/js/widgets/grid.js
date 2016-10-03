@@ -4,6 +4,7 @@ Curator.GridDefaults = {
     maxPosts:0,
     apiEndpoint:'https://api.curator.io/v1',
     onPostsLoaded:function(){},
+    onPostCreated:function(){},
     animate:true,
     grid: {
         minWidth:200,
@@ -62,7 +63,7 @@ Curator.Grid = Curator.augment.extend(Curator.Client, {
     constructor: function (options) {
         this.uber.setOptions.call (this, options,  Curator.GridDefaults);
 
-        Curator.log("Panel->init with options:");
+        Curator.log("Grid->init with options:");
         Curator.log(this.options);
 
         if (this.uber.init.call (this)) {
@@ -134,7 +135,7 @@ Curator.Grid = Curator.augment.extend(Curator.Client, {
             var that = this;
             var postElements = [];
             $(posts).each(function(i){
-                var p = that.createPostElement(this);
+                var p = that.createPostElement.call(that, this);
                 postElements.push(p.$el);
                 that.$feed.append(p.$el);
 
@@ -157,7 +158,7 @@ Curator.Grid = Curator.augment.extend(Curator.Client, {
     createPostElement: function (postJson) {
         var post = new Curator.Post(postJson, '#gridPostTemplate');
         $(post).bind('postClick',$.proxy(this.onPostClick, this));
-
+        
         if (this.options.onPostCreated) {
             this.options.onPostCreated (post);
         }
@@ -215,8 +216,9 @@ Curator.Grid = Curator.augment.extend(Curator.Client, {
     },
 
     destroy : function () {
-        this.$feed.remove();
-        this.$container.removeClass('crt-grid').css({'height':'','overflow':''});
+        this.$container.empty()
+            .removeClass('crt-grid')
+            .css({'height':'','overflow':''});
 
         delete this.$feed;
         delete this.$container;

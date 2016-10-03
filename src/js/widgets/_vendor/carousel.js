@@ -244,7 +244,7 @@
 					options
 				);
 			}
-		},
+		}, 
 
 		moveComplete : function () {
 			// console.log ('moveComplete');

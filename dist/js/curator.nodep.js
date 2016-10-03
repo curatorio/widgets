@@ -2443,7 +2443,7 @@ var $ = window.Zepto;
 
 			$(window).smartresize(function () {
 				that.resize();
-				that.move (that.current_position, false);
+				that.move (that.current_position, true);
 
 				// reset animation timer
 				if (that.options.autoPlay) {
@@ -2458,6 +2458,7 @@ var $ = window.Zepto;
 
 			if (this.NUM_PANES > 0) {
 				this.resize();
+				this.move (this.current_position, true);
 
 				if (!this.animating) {
 					if (this.options.autoPlay) {
@@ -2472,7 +2473,9 @@ var $ = window.Zepto;
 			this.$panes = this.$pane_slider.children();
 		},
 
+
 		resize: function () {
+			// console.log('resize');
 			// total panes (+1 for circular illusion)
 			var PANE_WRAPPER_WIDTH = this.options.infinite ? ((this.NUM_PANES+1) * 100) + '%' : (this.NUM_PANES * 100) + '%'; // % width of slider (total panes * 100)
 
@@ -2485,12 +2488,32 @@ var $ = window.Zepto;
 
 			var that = this;
 
-			if (this.options.infinite)
-			{
-				var first = this.$panes.first().clone();
+			if (this.options.infinite) {
 
-				this.$pane_slider.append(first);
+				this.$panes.filter('.crt-clone').remove();
+
+				for(var i = this.NUM_PANES-1; i > this.NUM_PANES - 1 - this.PANES_VISIBLE; i--)
+				{
+					// console.log(i);
+					var first = this.$panes.eq(i).clone();
+					first.addClass('crt-clone');
+					first.css('opacity','1');
+					this.$pane_slider.prepend(first);
+					this.FAKE_NUM = this.PANES_VISIBLE;
+				}
 				this.$panes = this.$pane_slider.children();
+			// {
+			// 	var mod = (this.NUM_PANES-1) % this.PANES_VISIBLE;
+			// 	console.log(this.NUM_PANES);
+			// 	console.log(this.PANES_VISIBLE);
+			// 	console.log('mod: '+mod);
+            //
+            //
+			// 	var first = this.$panes.first().clone();
+			// 	first.addClass('crt-clone');
+			// 	first.css('opacity','1');
+			// 	this.$pane_slider.append(first);
+			// 	this.$panes = this.$pane_slider.children();
 			}
 
 			this.$panes.each(function (index) {
@@ -2525,7 +2548,12 @@ var $ = window.Zepto;
 
 			this.current_position = i;
 
-			var maxPos = this.options.infinite ? this.NUM_PANES + this.PANES_VISIBLE : this.NUM_PANES;
+			var maxPos = this.NUM_PANES - this.PANES_VISIBLE;
+
+			// if (this.options.infinite)
+			// {
+			// 	var mod = this.NUM_PANES % this.PANES_VISIBLE;
+			// }
 
 			if (this.current_position < 0) {
 				this.current_position = 0;
@@ -2533,19 +2561,25 @@ var $ = window.Zepto;
 				this.current_position = maxPos;
 			}
 
-			var left = this.PANE_WIDTH * this.current_position;
+			var curIncFake = (this.FAKE_NUM + this.current_position);
+			var left = curIncFake * this.PANE_WIDTH;
+			// console.log('move');
+			// console.log(curIncFake);
 			var panesInView = this.PANES_VISIBLE;
 			var max = this.options.infinite ? (this.PANE_WIDTH * this.NUM_PANES) : (this.PANE_WIDTH * this.NUM_PANES) - this.VIEWPORT_WIDTH;
 
+
+			this.currentLeft = left;
+
 			// console.log(left+":"+max);
 
-			if (left < 0) {
-				this.currentLeft = 0;
-			} else if (left > max) {
-				this.currentLeft = max;
-			} else {
-				this.currentLeft = left;
-			}
+			// if (left < 0) {
+			// 	this.currentLeft = 0;
+			// } else if (left > max) {
+			// 	this.currentLeft = max;
+			// } else {
+			// 	this.currentLeft = left;
+			// }
 
 			if (noAnimate) {
 				this.$pane_slider.css(
@@ -2570,23 +2604,26 @@ var $ = window.Zepto;
 					options
 				);
 			}
-		},
+		}, 
 
 		moveComplete : function () {
 			// console.log ('moveComplete');
 			// console.log (this.current_position);
-			// console.log (this.NUM_PANES + this.PANES_VISIBLE);
-			if (this.options.infinite && this.current_position == (this.NUM_PANES-1) + this.PANES_VISIBLE) {
+			// console.log (this.NUM_PANES - this.PANES_VISIBLE);
+			if (this.options.infinite && (this.current_position >= (this.NUM_PANES - this.PANES_VISIBLE))) {
+				// console.log('IIIII');
 				// infinite and we're off the end!
 				// re-e-wind, the crowd says 'bo selecta!'
 				this.$pane_slider.css({left:0});
-				this.current_position = 0;
+				this.current_position = 0 - this.PANES_VISIBLE;
 				this.currentLeft = 0;
 			}
 
 			this.$item.trigger('curatorCarousel:changed', [this, this.current_position]);
 
-			this.animate ();
+			if (this.options.autoPlay) {
+				this.animate();
+			}
 		},
 
 		addControls : function () {
@@ -3003,10 +3040,6 @@ Curator.Client = augment.extend(Object, {
 
         this.$container = $(this.options.container);
 
-        // if (!Curator.checkPowered(this.$container)) {
-        //     return false;
-        // }
-
         this.createFeed();
         this.createPopupManager();
 
@@ -3047,6 +3080,7 @@ Curator.Client = augment.extend(Object, {
     createPostElement: function (postJson) {
         var post = new Curator.Post(postJson);
         $(post).bind('postClick',$.proxy(this.onPostClick, this));
+        $(post).bind('postReadMoreClick',$.proxy(this.onPostClick, this));
 
         if (this.options.onPostCreated) {
             this.options.onPostCreated (post);
@@ -3160,7 +3194,6 @@ $.extend(Curator.Feed.prototype,{
 
                     that.posts = that.posts.concat(data.posts);
 
-                    console.log (that.posts);
                     if (that.options.onPostsLoaded) {
                         that.options.onPostsLoaded(data.posts);
                     }
@@ -3587,6 +3620,7 @@ Curator.Post = augment.extend(Object, {
         this.$el.find('.shareFacebook').click($.proxy(this.onShareFacebookClick,this));
         this.$el.find('.shareTwitter').click($.proxy(this.onShareTwitterClick,this));
         this.$el.find('.crt-hitarea').click($.proxy(this.onPostClick,this));
+        this.$el.find('.crt-post-read-more-button').click($.proxy(this.onReadMoreClick,this));
 
         this.$post = this.$el.find('.crt-post');
 
@@ -3610,6 +3644,11 @@ Curator.Post = augment.extend(Object, {
     onPostClick : function (ev) {
         ev.preventDefault();
         $(this).trigger('postClick',this, this.json, ev);
+    },
+
+    onReadMoreClick : function (ev) {
+        ev.preventDefault();
+        $(this).trigger('postReadMoreClick',this, this.json, ev);
     }
 });
 /* global FB */
@@ -3681,12 +3720,14 @@ Curator.Templates = {
                 <a href="javascript:;" class="crt-play"><i class="play"></i></a> \
             </div> \
             <div class="text crt-post-content-text <%=this.contentTextClasses()%>"> \
-                <p class="crt-date"><%=this.prettyDate(source_created_at)%></p> \
                 <div class="crt-post-text-body"><%=this.parseText(text)%></div> \
             </div> \
         </div> \
+        <div class="crt-post-footer">\
+            <div class="crt-date"><%=this.prettyDate(source_created_at)%></div> \
+            <div class="crt-post-share"><span class="ctr-share-hint"></span><a href="#" class="shareFacebook"><i class="crt-icon-facebook"></i></a>  <a href="#" class="shareTwitter"><i class="crt-icon-twitter"></i></a></div>\
+        </div> \
         <div class="crt-post-read-more"><a href="#" class="crt-post-read-more-button">Read more</a> </div> \
-        <div class="crt-post-share">Share <a href="#" class="shareFacebook"><i class="crt-icon-facebook"></i></a>  <a href="#" class="shareTwitter"><i class="crt-icon-twitter"></i></a> </div> \
     </div>\
 </div>',
 
@@ -3998,7 +4039,6 @@ Curator.Waterfall = Curator.augment.extend(Curator.Client, {
             }
 
 
-            console.log (this.options.animate);
             this.$feed.gridalicious({
                 selector:'.crt-post-c',
                 gutter:0,
@@ -4036,6 +4076,20 @@ Curator.Waterfall = Curator.augment.extend(Curator.Client, {
 
         //this.$feed.append(postElements);
         this.$feed.gridalicious('append', postElements);
+
+        var that = this;
+        $.each(postElements,function (i) {
+            var post = this;
+            if (that.options.waterfall.maxHeight > 0 && post.height() > that.options.waterfall.maxHeight) {
+                post.find('.crt-post')
+                    .css({maxHeight: that.options.waterfall.maxHeight})
+                    .addClass('crt-post-max-height');
+            }
+            if (that.options.waterfall.showReadMore) {
+                post.find('.crt-post')
+                    .addClass('crt-post-show-read-more');
+            }
+        });
 
         this.popupManager.setPosts(posts);
 
@@ -4312,6 +4366,7 @@ Curator.GridDefaults = {
     maxPosts:0,
     apiEndpoint:'https://api.curator.io/v1',
     onPostsLoaded:function(){},
+    onPostCreated:function(){},
     animate:true,
     grid: {
         minWidth:200,
@@ -4370,7 +4425,7 @@ Curator.Grid = Curator.augment.extend(Curator.Client, {
     constructor: function (options) {
         this.uber.setOptions.call (this, options,  Curator.GridDefaults);
 
-        Curator.log("Panel->init with options:");
+        Curator.log("Grid->init with options:");
         Curator.log(this.options);
 
         if (this.uber.init.call (this)) {
@@ -4442,7 +4497,7 @@ Curator.Grid = Curator.augment.extend(Curator.Client, {
             var that = this;
             var postElements = [];
             $(posts).each(function(i){
-                var p = that.createPostElement(this);
+                var p = that.createPostElement.call(that, this);
                 postElements.push(p.$el);
                 that.$feed.append(p.$el);
 
@@ -4465,7 +4520,7 @@ Curator.Grid = Curator.augment.extend(Curator.Client, {
     createPostElement: function (postJson) {
         var post = new Curator.Post(postJson, '#gridPostTemplate');
         $(post).bind('postClick',$.proxy(this.onPostClick, this));
-
+        
         if (this.options.onPostCreated) {
             this.options.onPostCreated (post);
         }
@@ -4523,8 +4578,9 @@ Curator.Grid = Curator.augment.extend(Curator.Client, {
     },
 
     destroy : function () {
-        this.$feed.remove();
-        this.$container.removeClass('crt-grid').css({'height':'','overflow':''});
+        this.$container.empty()
+            .removeClass('crt-grid')
+            .css({'height':'','overflow':''});
 
         delete this.$feed;
         delete this.$container;
