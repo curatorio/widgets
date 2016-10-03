@@ -115,7 +115,7 @@
 
 
 		resize: function () {
-			console.log('resize');
+			// console.log('resize');
 			// total panes (+1 for circular illusion)
 			var PANE_WRAPPER_WIDTH = this.options.infinite ? ((this.NUM_PANES+1) * 100) + '%' : (this.NUM_PANES * 100) + '%'; // % width of slider (total panes * 100)
 
@@ -134,7 +134,7 @@
 
 				for(var i = this.NUM_PANES-1; i > this.NUM_PANES - 1 - this.PANES_VISIBLE; i--)
 				{
-					console.log(i);
+					// console.log(i);
 					var first = this.$panes.eq(i).clone();
 					first.addClass('crt-clone');
 					first.css('opacity','1');
@@ -190,7 +190,6 @@
 
 			var maxPos = this.NUM_PANES - this.PANES_VISIBLE;
 
-
 			// if (this.options.infinite)
 			// {
 			// 	var mod = this.NUM_PANES % this.PANES_VISIBLE;
@@ -204,8 +203,8 @@
 
 			var curIncFake = (this.FAKE_NUM + this.current_position);
 			var left = curIncFake * this.PANE_WIDTH;
-			console.log('move');
-			console.log(curIncFake);
+			// console.log('move');
+			// console.log(curIncFake);
 			var panesInView = this.PANES_VISIBLE;
 			var max = this.options.infinite ? (this.PANE_WIDTH * this.NUM_PANES) : (this.PANE_WIDTH * this.NUM_PANES) - this.VIEWPORT_WIDTH;
 
@@ -248,11 +247,11 @@
 		},
 
 		moveComplete : function () {
-			console.log ('moveComplete');
-			console.log (this.current_position);
-			console.log (this.NUM_PANES - this.PANES_VISIBLE);
+			// console.log ('moveComplete');
+			// console.log (this.current_position);
+			// console.log (this.NUM_PANES - this.PANES_VISIBLE);
 			if (this.options.infinite && (this.current_position >= (this.NUM_PANES - this.PANES_VISIBLE))) {
-				console.log('IIIII');
+				// console.log('IIIII');
 				// infinite and we're off the end!
 				// re-e-wind, the crowd says 'bo selecta!'
 				this.$pane_slider.css({left:0});
