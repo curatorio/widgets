@@ -120,7 +120,7 @@
 			var PANE_WRAPPER_WIDTH = this.options.infinite ? ((this.NUM_PANES+1) * 100) + '%' : (this.NUM_PANES * 100) + '%'; // % width of slider (total panes * 100)
 
 			this.VIEWPORT_WIDTH = this.$viewport.width();
-			this.PANES_VISIBLE = Math.floor(this.VIEWPORT_WIDTH/this.options.minWidth);
+			this.PANES_VISIBLE = this.VIEWPORT_WIDTH<this.options.minWidth ? 1 : Math.floor(this.VIEWPORT_WIDTH/this.options.minWidth);
 
 			this.$pane_slider.css({width: PANE_WRAPPER_WIDTH}); // set css on pane slider
 

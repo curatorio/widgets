@@ -10,7 +10,8 @@ Curator.PanelDefaults = {
         autoLoad: true,
         moveAmount:1,
         fixedHeight:false,
-        infinite:true
+        infinite:true,
+        minWidth:2000
     },
     onPostsLoaded:function(){}
 };

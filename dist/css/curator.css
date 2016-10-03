@@ -997,7 +997,10 @@ body.crt-popup-visible {
     margin: 0; }
     .crt-grid .crt-post img.spacer {
       width: 100%;
-      display: block; }
+      display: block;
+      margin: 0 !important;
+      padding: 0 !important;
+      position: relative; }
     .crt-grid .crt-post .crt-post-content-text-c,
     .crt-grid .crt-post .crt-post-content-image {
       position: absolute;
@@ -1054,3 +1057,13 @@ body.crt-popup-visible {
       opacity: 1; }
     .crt-grid .crt-post.crt-post-has-image .crt-post-content-text-c {
       display: none; }
+  .crt-grid .crt-feed-more {
+    text-align: center; }
+    .crt-grid .crt-feed-more a {
+      display: inline-block;
+      background-color: #efefef;
+      color: #000000;
+      padding: 20px;
+      margin-top: 15px;
+      text-decoration: none;
+      border-radius: 3px; }

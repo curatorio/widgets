@@ -483,6 +483,8 @@
       color: #2B2B2B; }
       .crt-post .crt-post-share A:hover {
         color: black; }
+  .crt-post .crt-post-read-more {
+    display: none; }
   .crt-post .crt-play {
     position: absolute;
     left: 0;

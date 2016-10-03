@@ -518,7 +518,7 @@
 			var PANE_WRAPPER_WIDTH = this.options.infinite ? ((this.NUM_PANES+1) * 100) + '%' : (this.NUM_PANES * 100) + '%'; // % width of slider (total panes * 100)
 
 			this.VIEWPORT_WIDTH = this.$viewport.width();
-			this.PANES_VISIBLE = Math.floor(this.VIEWPORT_WIDTH/this.options.minWidth);
+			this.PANES_VISIBLE = this.VIEWPORT_WIDTH<this.options.minWidth ? 1 : Math.floor(this.VIEWPORT_WIDTH/this.options.minWidth);
 
 			this.$pane_slider.css({width: PANE_WRAPPER_WIDTH}); // set css on pane slider
 
@@ -614,9 +614,9 @@
 		},
 
 		moveComplete : function () {
-			console.log ('moveComplete');
-			console.log (this.current_position);
-			console.log (this.NUM_PANES + this.PANES_VISIBLE);
+			// console.log ('moveComplete');
+			// console.log (this.current_position);
+			// console.log (this.NUM_PANES + this.PANES_VISIBLE);
 			if (this.options.infinite && this.current_position == (this.NUM_PANES-1) + this.PANES_VISIBLE) {
 				// infinite and we're off the end!
 				// re-e-wind, the crowd says 'bo selecta!'
@@ -1138,6 +1138,7 @@ $.extend(Curator.Feed.prototype,{
     postCount:0,
     feedBase:'',
     currentPage:0,
+    posts:[],
 
     init: function (options) {
         Curator.log ('Feed->init with options');
@@ -1165,6 +1166,22 @@ $.extend(Curator.Feed.prototype,{
         this._loadPosts (params);
     },
 
+    loadMore: function (paramsIn) {
+        Curator.log ('Feed->loadMore '+this.loading);
+        if (this.loading) {
+            return false;
+        }
+
+        var params = {
+            limit:this.options.postsPerPage
+        };
+        $.extend(params,this.options.feedParams, paramsIn);
+
+        params.offset = this.posts.length;
+
+        this._loadPosts (params);
+    },
+
     _loadPosts : function (params) {
         Curator.log ('Feed->_loadPosts');
         var that = this;
@@ -1174,13 +1191,17 @@ $.extend(Curator.Feed.prototype,{
         $.ajax({
             url: this.getUrl('/posts'),
             dataType: 'json',
-            data: {params: params},
+            data: params,
             success: function (data) {
                 Curator.log('Feed->_loadPosts success');
 
                 if (data.success) {
                     that.postCount = data.postCount;
                     that.postsLoaded += data.posts.length;
+
+                    that.posts = that.posts.concat(data.posts);
+
+                    console.log (that.posts);
                     if (that.options.onPostsLoaded) {
                         that.options.onPostsLoaded(data.posts);
                     }
@@ -2223,7 +2244,8 @@ Curator.PanelDefaults = {
         autoLoad: true,
         moveAmount:1,
         fixedHeight:false,
-        infinite:true
+        infinite:true,
+        minWidth:2000
     },
     onPostsLoaded:function(){}
 };
@@ -2367,6 +2389,12 @@ Curator.Templates.gridPostTemplate = ' \
     </div>\
 </div>';
 
+Curator.Templates.gridFeedTemplate = ' \
+<div class="crt-feed-window">\
+    <div class="crt-feed"></div>\
+</div>\
+<div class="crt-feed-more"><a href="#">Load more</a></div>';
+
 
 Curator.Grid = Curator.augment.extend(Curator.Client, {
     containerHeight: 0,
@@ -2378,6 +2406,7 @@ Curator.Grid = Curator.augment.extend(Curator.Client, {
     totalPostsLoaded:0,
     allLoaded:false,
     previousCol:0,
+    page:0,
 
     constructor: function (options) {
         this.uber.setOptions.call (this, options,  Curator.GridDefaults);
@@ -2388,11 +2417,32 @@ Curator.Grid = Curator.augment.extend(Curator.Client, {
         if (this.uber.init.call (this)) {
             this.options.grid = $.extend({}, Curator.GridDefaults.grid, options.grid);
 
-            this.$feed = $('<div class="crt-feed"></div>').appendTo(this.$container);
+            var tmpl = Curator.Template.render('#gridFeedTemplate', {});
+            this.$container.append(tmpl);
+            this.$feed = this.$container.find('.crt-feed');
+            this.$feedWindow = this.$container.find('.crt-feed-window');
+            this.$loadMore = this.$container.find('.crt-feed-more a');
+
             this.$container.addClass('crt-grid');
 
-            var cols = Math.floor(this.$container.width()/this.options.minWidth);
+            var cols = Math.floor(this.$container.width()/this.options.grid.minWidth);
             var postsNeeded = cols *  (this.options.grid.rows + 1); // get 1 extra row just in case
+
+            if (this.options.grid.showLoadMore) {
+                this.$feed.css({
+                    position:'absolute',
+                    left:0,
+                    top:0,
+                    width:'100%'
+                });
+                this.$feedWindow.css({
+                    'position':'relative'
+                });
+                postsNeeded = cols *  (this.options.grid.rows * 2); //
+                this.$loadMore.click(this.onMoreClicked.bind(this))
+            } else {
+                this.$loadMore.hide();
+            }
             this.feed.options.postsPerPage = postsNeeded;
             this.loadPosts(0);
         }
@@ -2415,7 +2465,6 @@ Curator.Grid = Curator.augment.extend(Curator.Client, {
         });
 
         $(document).on('ready',function(){
-            console.log ('DOCUMENT LOADED');
             clearTimeout(to);
             to = setTimeout(function(){
                 that.updateLayout();
@@ -2475,6 +2524,24 @@ Curator.Grid = Curator.augment.extend(Curator.Client, {
         this.popupManager.showPopup(post);
     },
 
+    onMoreClicked: function (ev) {
+        ev.preventDefault();
+
+        var postHeight = this.$container.find('.crt-post-c').width();
+        var windowHeight = this.options.grid.rows * postHeight;
+        // this.$feedWindow.css({'overflow':'hidden'});
+        // this.$feedWindow.height(this.options.grid.rows * postHeight);
+
+        this.page += 1;
+
+        var that = this;
+        this.$feed.animate({
+            'top':0-(windowHeight*this.page)
+        },500,'easeInOutSine', function() {
+            that.feed.loadMore();
+        });
+    },
+
     updateLayout : function ( ) {
         var cols = Math.floor(this.$container.width()/this.options.grid.minWidth);
         var postsNeeded = cols *  this.options.grid.rows;
@@ -2492,8 +2559,8 @@ Curator.Grid = Curator.augment.extend(Curator.Client, {
 
     updateHeight : function () {
         var postHeight = this.$container.find('.crt-post-c').width();
-        this.$container.css({'overflow':'hidden'});
-        this.$container.height(this.options.grid.rows * postHeight);
+        this.$feedWindow.css({'overflow':'hidden'});
+        this.$feedWindow.height(this.options.grid.rows * postHeight);
     },
 
     destroy : function () {
