@@ -83,7 +83,7 @@
 
 			$(window).smartresize(function () {
 				that.resize();
-				that.move (that.current_position, false);
+				that.move (that.current_position, true);
 
 				// reset animation timer
 				if (that.options.autoPlay) {
@@ -98,6 +98,7 @@
 
 			if (this.NUM_PANES > 0) {
 				this.resize();
+				this.move (this.current_position, true);
 
 				if (!this.animating) {
 					if (this.options.autoPlay) {
@@ -112,7 +113,9 @@
 			this.$panes = this.$pane_slider.children();
 		},
 
+
 		resize: function () {
+			console.log('resize');
 			// total panes (+1 for circular illusion)
 			var PANE_WRAPPER_WIDTH = this.options.infinite ? ((this.NUM_PANES+1) * 100) + '%' : (this.NUM_PANES * 100) + '%'; // % width of slider (total panes * 100)
 
@@ -125,12 +128,32 @@
 
 			var that = this;
 
-			if (this.options.infinite)
-			{
-				var first = this.$panes.first().clone();
+			if (this.options.infinite) {
 
-				this.$pane_slider.append(first);
+				this.$panes.filter('.crt-clone').remove();
+
+				for(var i = this.NUM_PANES-1; i > this.NUM_PANES - 1 - this.PANES_VISIBLE; i--)
+				{
+					console.log(i);
+					var first = this.$panes.eq(i).clone();
+					first.addClass('crt-clone');
+					first.css('opacity','1');
+					this.$pane_slider.prepend(first);
+					this.FAKE_NUM = this.PANES_VISIBLE;
+				}
 				this.$panes = this.$pane_slider.children();
+			// {
+			// 	var mod = (this.NUM_PANES-1) % this.PANES_VISIBLE;
+			// 	console.log(this.NUM_PANES);
+			// 	console.log(this.PANES_VISIBLE);
+			// 	console.log('mod: '+mod);
+            //
+            //
+			// 	var first = this.$panes.first().clone();
+			// 	first.addClass('crt-clone');
+			// 	first.css('opacity','1');
+			// 	this.$pane_slider.append(first);
+			// 	this.$panes = this.$pane_slider.children();
 			}
 
 			this.$panes.each(function (index) {
@@ -165,7 +188,13 @@
 
 			this.current_position = i;
 
-			var maxPos = this.options.infinite ? this.NUM_PANES + this.PANES_VISIBLE : this.NUM_PANES;
+			var maxPos = this.NUM_PANES - this.PANES_VISIBLE;
+
+
+			// if (this.options.infinite)
+			// {
+			// 	var mod = this.NUM_PANES % this.PANES_VISIBLE;
+			// }
 
 			if (this.current_position < 0) {
 				this.current_position = 0;
@@ -173,19 +202,25 @@
 				this.current_position = maxPos;
 			}
 
-			var left = this.PANE_WIDTH * this.current_position;
+			var curIncFake = (this.FAKE_NUM + this.current_position);
+			var left = curIncFake * this.PANE_WIDTH;
+			console.log('move');
+			console.log(curIncFake);
 			var panesInView = this.PANES_VISIBLE;
 			var max = this.options.infinite ? (this.PANE_WIDTH * this.NUM_PANES) : (this.PANE_WIDTH * this.NUM_PANES) - this.VIEWPORT_WIDTH;
 
+
+			this.currentLeft = left;
+
 			// console.log(left+":"+max);
 
-			if (left < 0) {
-				this.currentLeft = 0;
-			} else if (left > max) {
-				this.currentLeft = max;
-			} else {
-				this.currentLeft = left;
-			}
+			// if (left < 0) {
+			// 	this.currentLeft = 0;
+			// } else if (left > max) {
+			// 	this.currentLeft = max;
+			// } else {
+			// 	this.currentLeft = left;
+			// }
 
 			if (noAnimate) {
 				this.$pane_slider.css(
@@ -215,18 +250,21 @@
 		moveComplete : function () {
 			console.log ('moveComplete');
 			console.log (this.current_position);
-			console.log (this.NUM_PANES + this.PANES_VISIBLE);
-			if (this.options.infinite && this.current_position == (this.NUM_PANES-1) + this.PANES_VISIBLE) {
+			console.log (this.NUM_PANES - this.PANES_VISIBLE);
+			if (this.options.infinite && (this.current_position >= (this.NUM_PANES - this.PANES_VISIBLE))) {
+				console.log('IIIII');
 				// infinite and we're off the end!
 				// re-e-wind, the crowd says 'bo selecta!'
 				this.$pane_slider.css({left:0});
-				this.current_position = 0;
+				this.current_position = 0 - this.PANES_VISIBLE;
 				this.currentLeft = 0;
 			}
 
 			this.$item.trigger('curatorCarousel:changed', [this, this.current_position]);
 
-			this.animate ();
+			if (this.options.autoPlay) {
+				this.animate();
+			}
 		},
 
 		addControls : function () {
