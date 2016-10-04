@@ -3987,12 +3987,11 @@ Curator.WaterfallDefaults = {
     maxPosts:0,
     apiEndpoint:'https://api.curator.io/v1',
     scroll:'more',
-    gridWidth:250,
     onPostsLoaded:function(){},
-    animate:true,
-    animateSpeed:400,
     waterfall: {
-
+        gridWidth:250,
+        animate:true,
+        animateSpeed:400
     }
 }; 
 
@@ -4009,6 +4008,7 @@ Curator.Waterfall = Curator.augment.extend(Curator.Client, {
 
     constructor: function (options) {
         this.uber.setOptions.call (this, options,  Curator.WaterfallDefaults);
+        this.options.waterfall = $.extend({}, Curator.WaterfallDefaults.waterfall, options.waterfall);
 
         Curator.log("Waterfall->init with options:");
         Curator.log(this.options);
@@ -4042,11 +4042,11 @@ Curator.Waterfall = Curator.augment.extend(Curator.Client, {
             this.$feed.gridalicious({
                 selector:'.crt-post-c',
                 gutter:0,
-                width:this.options.gridWidth,
-                animate:this.options.animate,
+                width:this.options.waterfall.gridWidth,
+                animate:this.options.waterfall.animate,
                 animationOptions: {
-                    speed: (this.options.animateSpeed/2),
-                    duration: this.options.animateSpeed
+                    speed: (this.options.waterfall.animateSpeed/2),
+                    duration: this.options.waterfall.animateSpeed
                 }
             });
 
@@ -4421,6 +4421,7 @@ Curator.Grid = Curator.augment.extend(Curator.Client, {
     allLoaded:false,
     previousCol:0,
     page:0,
+    rowsShowing:0,
 
     constructor: function (options) {
         this.uber.setOptions.call (this, options,  Curator.GridDefaults);
@@ -4443,20 +4444,23 @@ Curator.Grid = Curator.augment.extend(Curator.Client, {
             var postsNeeded = cols *  (this.options.grid.rows + 1); // get 1 extra row just in case
 
             if (this.options.grid.showLoadMore) {
-                this.$feed.css({
-                    position:'absolute',
-                    left:0,
-                    top:0,
-                    width:'100%'
-                });
+                // this.$feed.css({
+                //     position:'absolute',
+                //     left:0,
+                //     top:0,
+                //     width:'100%'
+                // });
                 this.$feedWindow.css({
                     'position':'relative'
                 });
-                postsNeeded = cols *  (this.options.grid.rows * 2); //
+                // postsNeeded = cols *  (this.options.grid.rows * 2); //
                 this.$loadMore.click(this.onMoreClicked.bind(this))
             } else {
                 this.$loadMore.hide();
             }
+
+            this.rowsShowing = this.options.grid.rows;
+
             this.feed.options.postsPerPage = postsNeeded;
             this.loadPosts(0);
         }
@@ -4541,19 +4545,11 @@ Curator.Grid = Curator.augment.extend(Curator.Client, {
     onMoreClicked: function (ev) {
         ev.preventDefault();
 
-        var postHeight = this.$container.find('.crt-post-c').width();
-        var windowHeight = this.options.grid.rows * postHeight;
-        // this.$feedWindow.css({'overflow':'hidden'});
-        // this.$feedWindow.height(this.options.grid.rows * postHeight);
+        this.rowsShowing = this.rowsShowing + this.options.grid.rows;
 
-        this.page += 1;
+        this.updateHeight(true);
 
-        var that = this;
-        this.$feed.animate({
-            'top':0-(windowHeight*this.page)
-        },500,'easeInOutSine', function() {
-            that.feed.loadMore();
-        });
+        this.feed.loadMore();
     },
 
     updateLayout : function ( ) {
@@ -4571,10 +4567,26 @@ Curator.Grid = Curator.augment.extend(Curator.Client, {
         this.updateHeight();
     },
 
-    updateHeight : function () {
+    updateHeight : function (animate) {
         var postHeight = this.$container.find('.crt-post-c').width();
         this.$feedWindow.css({'overflow':'hidden'});
-        this.$feedWindow.height(this.options.grid.rows * postHeight);
+
+        var maxRows = Math.ceil(this.feed.postCount / this.previousCol);
+        var rows = this.rowsShowing < maxRows ? this.rowsShowing : maxRows;
+
+        if (animate) {
+            this.$feedWindow.animate({height:rows * postHeight});
+        } else {
+            this.$feedWindow.height(rows * postHeight);
+        }
+
+        if (this.options.grid.showLoadMore) {
+            if (this.rowsShowing >= maxRows) {
+                this.$loadMore.hide();
+            } else {
+                this.$loadMore.show();
+            }
+        }
     },
 
     destroy : function () {

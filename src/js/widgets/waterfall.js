@@ -5,12 +5,11 @@ Curator.WaterfallDefaults = {
     maxPosts:0,
     apiEndpoint:'https://api.curator.io/v1',
     scroll:'more',
-    gridWidth:250,
     onPostsLoaded:function(){},
-    animate:true,
-    animateSpeed:400,
     waterfall: {
-
+        gridWidth:250,
+        animate:true,
+        animateSpeed:400
     }
 }; 
 
@@ -27,6 +26,7 @@ Curator.Waterfall = Curator.augment.extend(Curator.Client, {
 
     constructor: function (options) {
         this.uber.setOptions.call (this, options,  Curator.WaterfallDefaults);
+        this.options.waterfall = $.extend({}, Curator.WaterfallDefaults.waterfall, options.waterfall);
 
         Curator.log("Waterfall->init with options:");
         Curator.log(this.options);
@@ -60,11 +60,11 @@ Curator.Waterfall = Curator.augment.extend(Curator.Client, {
             this.$feed.gridalicious({
                 selector:'.crt-post-c',
                 gutter:0,
-                width:this.options.gridWidth,
-                animate:this.options.animate,
+                width:this.options.waterfall.gridWidth,
+                animate:this.options.waterfall.animate,
                 animationOptions: {
-                    speed: (this.options.animateSpeed/2),
-                    duration: this.options.animateSpeed
+                    speed: (this.options.waterfall.animateSpeed/2),
+                    duration: this.options.waterfall.animateSpeed
                 }
             });
 
