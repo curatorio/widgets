@@ -41,10 +41,13 @@ Curator.Carousel = Curator.augment.extend(Curator.Client, {
 
             this.$feed.curatorCarousel(this.options.carousel);
             this.$feed.on('curatorCarousel:changed', function (event, carousel, currentSlide) {
+                // console.log('curatorCarousel:changed '+currentSlide);
+                // console.log('curatorCarousel:changed '+(that.feed.postsLoaded-carousel.PANES_VISIBLE));
+                // console.log(carousel.PANES_VISIBLE);
                 if (that.options.carousel.autoLoad) {
-                    if (currentSlide >= that.feed.postsLoaded - 4) {
-                        that.loadMorePosts();
-                    }
+                    // if (currentSlide >= that.feed.postsLoaded - carousel.PANES_VISIBLE) {
+                    that.loadMorePosts();
+                    // }
                 }
             });
 

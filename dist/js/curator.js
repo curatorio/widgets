@@ -455,6 +455,7 @@
 		current_position:0,
 		animating:false,
 		timeout:null,
+		FAKE_NUM:0,
 
 		init : function (item, options) {
 			// console.log('init');
@@ -586,6 +587,7 @@
 		},
 
 		move : function (i, noAnimate) {
+			// console.log(i);
 
 			this.current_position = i;
 
@@ -612,15 +614,15 @@
 
 			this.currentLeft = left;
 
-			// console.log(left+":"+max);
+			console.log(left+":"+max);
 
-			// if (left < 0) {
-			// 	this.currentLeft = 0;
-			// } else if (left > max) {
-			// 	this.currentLeft = max;
-			// } else {
-			// 	this.currentLeft = left;
-			// }
+			if (left < 0) {
+				this.currentLeft = 0;
+			} else if (left > max) {
+				this.currentLeft = max;
+			} else {
+				this.currentLeft = left;
+			}
 
 			if (noAnimate) {
 				this.$pane_slider.css(
@@ -1119,7 +1121,7 @@ Curator.Client = augment.extend(Object, {
     },
 
     createPostElement: function (postJson) {
-        var post = new Curator.Post(postJson);
+        var post = new Curator.Post(postJson, this.options);
         $(post).bind('postClick',$.proxy(this.onPostClick, this));
         $(post).bind('postReadMoreClick',$.proxy(this.onPostClick, this));
 
@@ -1652,8 +1654,10 @@ Curator.Post = augment.extend(Object, {
     templateId:'#post-template',
     defaultTemplateId:'#post-template',
 
-    constructor:function (postJson, templateId) {
-        this.templateId = templateId || this.defaultTemplateId;
+    constructor:function (postJson, options) {
+        this.options = options;
+        this.templateId = this.defaultTemplateId;
+        // this.templateId = templateId || this.defaultTemplateId;
 
         this.json = postJson;
         this.$el = Curator.Template.render(this.templateId, postJson);
@@ -1662,6 +1666,11 @@ Curator.Post = augment.extend(Object, {
         this.$el.find('.shareTwitter').click($.proxy(this.onShareTwitterClick,this));
         this.$el.find('.crt-hitarea').click($.proxy(this.onPostClick,this));
         this.$el.find('.crt-post-read-more-button').click($.proxy(this.onReadMoreClick,this));
+        this.$post = this.$el.find('.crt-post');
+        this.$image = this.$el.find('.crt-post-image');
+        this.$image.css({opacity:0});
+
+        this.$image.on('load',$.proxy(this.onImageLoaded,this));
 
         this.$post = this.$el.find('.crt-post');
 
@@ -1685,6 +1694,16 @@ Curator.Post = augment.extend(Object, {
     onPostClick : function (ev) {
         ev.preventDefault();
         $(this).trigger('postClick',this, this.json, ev);
+    },
+
+    onImageLoaded : function () {
+        this.$image.animate({opacity:1});
+
+        if (this.options.waterfall && this.options.waterfall.maxHeight > 0 && this.$post.height() > this.options.waterfall.maxHeight) {
+            this.$post
+                .css({maxHeight: this.options.waterfall.maxHeight})
+                .addClass('crt-post-max-height');
+        }
     },
 
     onReadMoreClick : function (ev) {
@@ -1757,7 +1776,7 @@ Curator.Templates = {
         </div> \
         <div class="crt-post-content"> \
             <div class="image crt-hitarea crt-post-content-image <%=this.contentImageClasses()%>" > \
-                <img src="<%=image%>" /> \
+                <img src="<%=image%>" class="crt-post-image" /> \
                 <a href="javascript:;" class="crt-play"><i class="play"></i></a> \
             </div> \
             <div class="text crt-post-content-text <%=this.contentTextClasses()%>"> \
@@ -2079,7 +2098,6 @@ Curator.Waterfall = Curator.augment.extend(Curator.Client, {
                 }.bind(this));
             }
 
-
             this.$feed.gridalicious({
                 selector:'.crt-post-c',
                 gutter:0,
@@ -2121,11 +2139,6 @@ Curator.Waterfall = Curator.augment.extend(Curator.Client, {
         var that = this;
         $.each(postElements,function (i) {
             var post = this;
-            if (that.options.waterfall.maxHeight > 0 && post.height() > that.options.waterfall.maxHeight) {
-                post.find('.crt-post')
-                    .css({maxHeight: that.options.waterfall.maxHeight})
-                    .addClass('crt-post-max-height');
-            }
             if (that.options.waterfall.showReadMore) {
                 post.find('.crt-post')
                     .addClass('crt-post-show-read-more');
@@ -2210,10 +2223,13 @@ Curator.Carousel = Curator.augment.extend(Curator.Client, {
 
             this.$feed.curatorCarousel(this.options.carousel);
             this.$feed.on('curatorCarousel:changed', function (event, carousel, currentSlide) {
+                // console.log('curatorCarousel:changed '+currentSlide);
+                // console.log('curatorCarousel:changed '+(that.feed.postsLoaded-carousel.PANES_VISIBLE));
+                // console.log(carousel.PANES_VISIBLE);
                 if (that.options.carousel.autoLoad) {
-                    if (currentSlide >= that.feed.postsLoaded - 4) {
-                        that.loadMorePosts();
-                    }
+                    // if (currentSlide >= that.feed.postsLoaded - carousel.PANES_VISIBLE) {
+                    that.loadMorePosts();
+                    // }
                 }
             });
 

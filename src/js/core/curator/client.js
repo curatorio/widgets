@@ -64,7 +64,7 @@ Curator.Client = augment.extend(Object, {
     },
 
     createPostElement: function (postJson) {
-        var post = new Curator.Post(postJson);
+        var post = new Curator.Post(postJson, this.options);
         $(post).bind('postClick',$.proxy(this.onPostClick, this));
         $(post).bind('postReadMoreClick',$.proxy(this.onPostClick, this));
 

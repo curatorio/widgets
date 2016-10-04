@@ -54,6 +54,7 @@
 		current_position:0,
 		animating:false,
 		timeout:null,
+		FAKE_NUM:0,
 
 		init : function (item, options) {
 			// console.log('init');
@@ -185,6 +186,7 @@
 		},
 
 		move : function (i, noAnimate) {
+			// console.log(i);
 
 			this.current_position = i;
 
@@ -211,15 +213,15 @@
 
 			this.currentLeft = left;
 
-			// console.log(left+":"+max);
+			console.log(left+":"+max);
 
-			// if (left < 0) {
-			// 	this.currentLeft = 0;
-			// } else if (left > max) {
-			// 	this.currentLeft = max;
-			// } else {
-			// 	this.currentLeft = left;
-			// }
+			if (left < 0) {
+				this.currentLeft = 0;
+			} else if (left > max) {
+				this.currentLeft = max;
+			} else {
+				this.currentLeft = left;
+			}
 
 			if (noAnimate) {
 				this.$pane_slider.css(

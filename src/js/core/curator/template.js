@@ -12,7 +12,7 @@ Curator.Templates = {
         </div> \
         <div class="crt-post-content"> \
             <div class="image crt-hitarea crt-post-content-image <%=this.contentImageClasses()%>" > \
-                <img src="<%=image%>" /> \
+                <img src="<%=image%>" class="crt-post-image" /> \
                 <a href="javascript:;" class="crt-play"><i class="play"></i></a> \
             </div> \
             <div class="text crt-post-content-text <%=this.contentTextClasses()%>"> \
