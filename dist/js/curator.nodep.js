@@ -3615,7 +3615,7 @@ Curator.Post = augment.extend(Object, {
 
     constructor:function (postJson, options) {
         this.options = options;
-        this.templateId = this.defaultTemplateId;
+        this.templateId = options.postTemplate ? options.postTemplate : this.defaultTemplateId;
         // this.templateId = templateId || this.defaultTemplateId;
 
         this.json = postJson;
@@ -3658,9 +3658,9 @@ Curator.Post = augment.extend(Object, {
     onImageLoaded : function () {
         this.$image.animate({opacity:1});
 
-        if (this.options.waterfall && this.options.waterfall.maxHeight > 0 && this.$post.height() > this.options.waterfall.maxHeight) {
+        if (this.options.maxHeight && this.options.maxHeight > 0 && this.$post.height() > this.options.maxHeight) {
             this.$post
-                .css({maxHeight: this.options.waterfall.maxHeight})
+                .css({maxHeight: this.options.maxHeight})
                 .addClass('crt-post-max-height');
         }
     },
@@ -3756,7 +3756,7 @@ Curator.Templates = {
 <div class="crt-popup-container"></div> \
 </div> \
 </div>',
-
+ 
     popupTemplate : ' \
 <div class="crt-popup"> \
     <a href="#" class="crt-close crt-icon-cancel"></a> \
@@ -3765,7 +3765,9 @@ Curator.Templates = {
     <div class="crt-popup-left">  \
         <div class="crt-video"> \
             <div class="crt-video-container">\
-                <video src="<%=video%>" type="video/mp3" preload="none"></video>\
+                <video preload="none">\
+                <source src="<%=video%>" type="video/mp4" >\
+                </video>\
                 <img src="<%=image%>" />\
                 <a href="javascript:;" class="crt-play"><i class="play"></i></a> \
             </div> \
@@ -4384,6 +4386,7 @@ Curator.GridDefaults = {
     onPostsLoaded:function(){},
     onPostCreated:function(){},
     animate:true,
+    postTemplate:'#gridPostTemplate',
     grid: {
         minWidth:200,
         rows:3
@@ -4538,7 +4541,7 @@ Curator.Grid = Curator.augment.extend(Curator.Client, {
     },
 
     createPostElement: function (postJson) {
-        var post = new Curator.Post(postJson, '#gridPostTemplate');
+        var post = new Curator.Post(postJson, this.options);
         $(post).bind('postClick',$.proxy(this.onPostClick, this));
         
         if (this.options.onPostCreated) {

@@ -6,6 +6,7 @@ Curator.GridDefaults = {
     onPostsLoaded:function(){},
     onPostCreated:function(){},
     animate:true,
+    postTemplate:'#gridPostTemplate',
     grid: {
         minWidth:200,
         rows:3
@@ -160,7 +161,7 @@ Curator.Grid = Curator.augment.extend(Curator.Client, {
     },
 
     createPostElement: function (postJson) {
-        var post = new Curator.Post(postJson, '#gridPostTemplate');
+        var post = new Curator.Post(postJson, this.options);
         $(post).bind('postClick',$.proxy(this.onPostClick, this));
         
         if (this.options.onPostCreated) {

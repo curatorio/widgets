@@ -42,7 +42,9 @@ Curator.Templates = {
     <div class="crt-popup-left">  \
         <div class="crt-video"> \
             <div class="crt-video-container">\
-                <video src="<%=video%>" type="video/mp3" preload="none"></video>\
+                <video preload="none">\
+                <source src="<%=video%>" type="video/mp4" >\
+                </video>\
                 <img src="<%=image%>" />\
                 <a href="javascript:;" class="crt-play"><i class="play"></i></a> \
             </div> \

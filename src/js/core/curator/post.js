@@ -15,7 +15,7 @@ Curator.Post = augment.extend(Object, {
 
     constructor:function (postJson, options) {
         this.options = options;
-        this.templateId = this.defaultTemplateId;
+        this.templateId = options.postTemplate ? options.postTemplate : this.defaultTemplateId;
         // this.templateId = templateId || this.defaultTemplateId;
 
         this.json = postJson;
@@ -58,9 +58,9 @@ Curator.Post = augment.extend(Object, {
     onImageLoaded : function () {
         this.$image.animate({opacity:1});
 
-        if (this.options.waterfall && this.options.waterfall.maxHeight > 0 && this.$post.height() > this.options.waterfall.maxHeight) {
+        if (this.options.maxHeight && this.options.maxHeight > 0 && this.$post.height() > this.options.maxHeight) {
             this.$post
-                .css({maxHeight: this.options.waterfall.maxHeight})
+                .css({maxHeight: this.options.maxHeight})
                 .addClass('crt-post-max-height');
         }
     },
