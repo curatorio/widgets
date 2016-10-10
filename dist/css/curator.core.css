@@ -389,6 +389,9 @@ body.crt-popup-visible {
   width: 100%;
   position: relative; }
 
+.crt-popup-wrapper div {
+  box-sizing: border-box; }
+
 .crt-popup-wrapper {
   width: 100%;
   height: 100%;
@@ -452,9 +455,9 @@ body.crt-popup-visible {
             display: block; }
     .crt-popup-wrapper .crt-popup .crt-popup-right {
       position: absolute;
-      width: 305px;
+      width: 335px;
       height: 100%;
-      padding: 15px;
+      padding: 10px 20px;
       font-family: Arial, san-serif;
       font-weight: normal !important;
       font-size: 15px;
@@ -464,6 +467,23 @@ body.crt-popup-visible {
       text-align: left; }
       .crt-popup-wrapper .crt-popup .crt-popup-right a {
         color: #626262; }
+      .crt-popup-wrapper .crt-popup .crt-popup-right .crt-popup-text {
+        position: absolute;
+        top: 90px;
+        left: 20px;
+        right: 20px;
+        bottom: 20px;
+        overflow-x: hidden;
+        overflow-y: scroll; }
+        .crt-popup-wrapper .crt-popup .crt-popup-right .crt-popup-text .crt-popup-text-container {
+          padding-right: 5px; }
+        .crt-popup-wrapper .crt-popup .crt-popup-right .crt-popup-text::-webkit-scrollbar {
+          width: 6px;
+          height: 6px; }
+        .crt-popup-wrapper .crt-popup .crt-popup-right .crt-popup-text::-webkit-scrollbar-thumb {
+          background: #ccc; }
+        .crt-popup-wrapper .crt-popup .crt-popup-right .crt-popup-text::-webkit-scrollbar-track {
+          background: #fff; }
     .crt-popup-wrapper .crt-popup .crt-popup-header {
       border-bottom: 1px solid #efefef;
       color: #2B2B2B;
@@ -605,6 +625,18 @@ body.crt-popup-visible {
 
 @media screen and (max-width: 910px) {
   .crt-popup-wrapper .crt-popup .crt-popup-right {
-    position: relative; }
+    position: relative;
+    width: auto;
+    max-width: 600px;
+    right: auto;
+    height: auto;
+    padding-bottom: 20px; }
+    .crt-popup-wrapper .crt-popup .crt-popup-right .crt-popup-text {
+      position: relative;
+      top: auto;
+      left: auto;
+      right: auto;
+      bottom: auto;
+      max-height: 300px; }
   .crt-popup-wrapper .crt-popup .crt-popup-left {
     padding-right: 0; } }

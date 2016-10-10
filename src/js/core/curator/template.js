@@ -60,8 +60,10 @@ Curator.Templates = {
             <div class="crt-post-name"><span><%=user_full_name%></span><br/><a href="<%=this.userUrl()%>" target="_blank">@<%=user_screen_name%></a></div> \
         </div> \
         <div class="crt-popup-text <%=this.contentTextClasses()%>"> \
-            <p class="crt-date"><%=this.prettyDate(source_created_at)%></p> \
-            <div class="crt-popup-text-body"><%=this.parseText(text)%></div> \
+            <div class="crt-popup-text-container"> \
+                <p class="crt-date"><%=this.prettyDate(source_created_at)%></p> \
+                <div class="crt-popup-text-body"><%=this.parseText(text)%></div> \
+            </div> \
         </div> \
     </div> \
 </div>',

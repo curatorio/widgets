@@ -54,6 +54,10 @@ body {
     position: relative;
 }
 
+.crt-popup-wrapper div {
+    box-sizing: border-box;
+}
+
 .crt-popup-wrapper
 {
     width: 100%;
@@ -158,9 +162,9 @@ body {
         .crt-popup-right
         {
             position: absolute;
-            width: 305px;
+            width: 335px;
             height: 100%;
-            padding: 15px;
+            padding: 10px 20px;
             font-family: Arial, san-serif;
             font-weight: normal !important;
             font-size: 15px;
@@ -172,6 +176,22 @@ body {
 
             a {
                 color: #626262;
+            }
+
+            .crt-popup-text {
+                position: absolute;
+                top: 90px;
+                left: 20px;
+                right: 20px;
+                bottom:20px;
+                overflow-x: hidden;
+                overflow-y: scroll;
+
+                .crt-popup-text-container {
+                    padding-right: 5px;
+                }
+
+                @include scrollbars(6px, #ccc, #fff);
             }
         }
 
@@ -350,6 +370,20 @@ body {
         .crt-popup {
             .crt-popup-right {
                 position: relative;
+                width: auto;
+                max-width: 600px;
+                right: auto;
+                height: auto;
+                padding-bottom: 20px;
+
+                .crt-popup-text {
+                    position: relative;
+                    top: auto;
+                    left: auto;
+                    right: auto;
+                    bottom: auto;
+                    max-height: 300px;
+                }
 
             }
             .crt-popup-left {

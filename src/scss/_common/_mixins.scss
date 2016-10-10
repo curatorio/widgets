@@ -17,6 +17,22 @@
     @include crt-clearfix();
 }
 
+@mixin scrollbars($size, $foreground-color, $background-color: mix($foreground-color, white,  25%)) {
+    // For Google Chrome
+    &::-webkit-scrollbar {
+        width:  $size;
+        height: $size;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: $foreground-color;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: $background-color;
+    }
+}
+
 @mixin play ($size:25px, $border:3px) {
     $background:#f9f9f9;
     $foreground:#efefef;
