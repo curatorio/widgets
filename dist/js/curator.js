@@ -776,14 +776,15 @@ augment.extend = function (base, body) {
 
         },
         parseText:function(s) {
-            if (this.data.network_id===1 || this.data.network_id==='1') {
-                // twitter
+            if (this.data.network_name==='Twitter') {
                 s = Curator.StringUtils.linksToHref(s);
                 s = Curator.StringUtils.twitterLinks(s);
-            } else if (this.data.network_id===2 || this.data.network_id==='2') {
-                // instagram
+            } else if (this.data.network_name==='Instagram') {
                 s = Curator.StringUtils.linksToHref(s);
                 s = Curator.StringUtils.instagramLinks(s);
+            } else if (this.data.network_name==='Facebook') {
+                s = Curator.StringUtils.linksToHref(s);
+                s = Curator.StringUtils.facebookLinks(s);
             }
 
             return helpers.nl2br(s);
@@ -2023,6 +2024,20 @@ Curator.StringUtils = {
         s = s.replace(/[#]+[A-Za-z0-9-_]+/g, function(t) {
             var tag = t.replace("#","");
             return Curator.StringUtils.url("https://www.instagram.com/explore/tags/"+tag+'/',t);
+        });
+
+        return s;
+    },
+
+    facebookLinks : function (s)
+    {
+        s = s.replace(/[@]+[A-Za-z0-9-_]+/g, function(u) {
+            var username = u.replace("@","");
+            return Curator.StringUtils.url("https://www.facebook.com/"+username+'/',u);
+        });
+        s = s.replace(/[#]+[A-Za-z0-9-_]+/g, function(t) {
+            var tag = t.replace("#","%23");
+            return Curator.StringUtils.url("https://www.facebook.com/search/top/?q="+tag,t);
         });
 
         return s;

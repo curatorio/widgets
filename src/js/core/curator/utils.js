@@ -156,6 +156,20 @@ Curator.StringUtils = {
         return s;
     },
 
+    facebookLinks : function (s)
+    {
+        s = s.replace(/[@]+[A-Za-z0-9-_]+/g, function(u) {
+            var username = u.replace("@","");
+            return Curator.StringUtils.url("https://www.facebook.com/"+username+'/',u);
+        });
+        s = s.replace(/[#]+[A-Za-z0-9-_]+/g, function(t) {
+            var tag = t.replace("#","%23");
+            return Curator.StringUtils.url("https://www.facebook.com/search/top/?q="+tag,t);
+        });
+
+        return s;
+    },
+
     linksToHref : function (s)
     {
         s = s.replace(/[A-Za-z]+:\/\/[A-Za-z0-9-_]+\.[A-Za-z0-9-_:%&~\?\/.=]+/g, function(url) {

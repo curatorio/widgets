@@ -26,14 +26,15 @@
 
         },
         parseText:function(s) {
-            if (this.data.network_id===1 || this.data.network_id==='1') {
-                // twitter
+            if (this.data.network_name==='Twitter') {
                 s = Curator.StringUtils.linksToHref(s);
                 s = Curator.StringUtils.twitterLinks(s);
-            } else if (this.data.network_id===2 || this.data.network_id==='2') {
-                // instagram
+            } else if (this.data.network_name==='Instagram') {
                 s = Curator.StringUtils.linksToHref(s);
                 s = Curator.StringUtils.instagramLinks(s);
+            } else if (this.data.network_name==='Facebook') {
+                s = Curator.StringUtils.linksToHref(s);
+                s = Curator.StringUtils.facebookLinks(s);
             }
 
             return helpers.nl2br(s);
