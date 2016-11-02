@@ -2669,6 +2669,7 @@ Curator.Grid = Curator.augment.extend(Curator.Client, {
     destroy : function () {
         this.$container.empty()
             .removeClass('crt-grid')
+            .removeClass('crt-grid-col'+this.previousCol)
             .css({'height':'','overflow':''});
 
         delete this.$feed;
