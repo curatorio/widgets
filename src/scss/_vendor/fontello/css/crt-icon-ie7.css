@@ -1,0 +1,28 @@
+[class^="crt-icon"], [class*=" crt-icon"] {
+  font-family: 'crt-icon';
+  font-style: normal;
+  font-weight: normal;
+ 
+  /* fix buttons height */
+  line-height: 1em;
+ 
+  /* you can be more comfortable with increased icons size */
+  /* font-size: 120%; */
+}
+ 
+.crt-iconrss { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe801;&nbsp;'); }
+.crt-iconcancel { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe802;&nbsp;'); }
+.crt-iconright-open { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe803;&nbsp;'); }
+.crt-iconleft-open { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe804;&nbsp;'); }
+.crt-icontwitter { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xf099;&nbsp;'); }
+.crt-iconfacebook { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xf09a;&nbsp;'); }
+.crt-icongplus-1 { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xf0d5;&nbsp;'); }
+.crt-iconlinkedin-1 { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xf0e1;&nbsp;'); }
+.crt-iconyoutube-1 { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xf167;&nbsp;'); }
+.crt-iconinstagram-1 { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xf16d;&nbsp;'); }
+.crt-icontumblr-1 { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xf173;&nbsp;'); }
+.crt-iconvine { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xf1ca;&nbsp;'); }
+.crt-iconpinterest-1 { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xf231;&nbsp;'); }
+.crt-iconsnapchat-ghost { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xf2ac;&nbsp;'); }
+.crt-iconflickr { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xf303;&nbsp;'); }
+.crt-iconvimeo { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xf306;&nbsp;'); }

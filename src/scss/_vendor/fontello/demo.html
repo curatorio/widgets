@@ -228,12 +228,12 @@ body {
   display: none;
 }
 @font-face {
-      font-family: 'crt';
-      src: url('./font/crt.eot?32869198');
-      src: url('./font/crt.eot?32869198#iefix') format('embedded-opentype'),
-           url('./font/crt.woff?32869198') format('woff'),
-           url('./font/crt.ttf?32869198') format('truetype'),
-           url('./font/crt.svg?32869198#crt') format('svg');
+      font-family: 'crt-icon';
+      src: url('./font/crt-icon.eot?94571535');
+      src: url('./font/crt-icon.eot?94571535#iefix') format('embedded-opentype'),
+           url('./font/crt-icon.woff?94571535') format('woff'),
+           url('./font/crt-icon.ttf?94571535') format('truetype'),
+           url('./font/crt-icon.svg?94571535#crt-icon') format('svg');
       font-weight: normal;
       font-style: normal;
     }
@@ -241,7 +241,7 @@ body {
      
     .demo-icon
     {
-      font-family: "crt";
+      font-family: "crt-icon";
       font-style: normal;
       font-weight: normal;
       speak: none;
@@ -275,7 +275,7 @@ body {
       /* text-shadow: 1px 1px 1px rgba(127, 127, 127, 0.3); */
     }
      </style>
-    <link rel="stylesheet" href="css/animation.css"><!--[if IE 7]><link rel="stylesheet" href="css/crt-ie7.css"><![endif]-->
+    <link rel="stylesheet" href="css/animation.css"><!--[if IE 7]><link rel="stylesheet" href="css/crt-icon-ie7.css"><![endif]-->
     <script>
       function toggleCodes(on) {
         var obj = document.getElementById('icons');
@@ -292,7 +292,7 @@ body {
   <body>
     <div class="container header">
       <h1>
-        crt
+        crt-icon
          <small>font demo</small>
       </h1>
       <label class="switch">
@@ -301,26 +301,28 @@ body {
     </div>
     <div id="icons" class="container">
       <div class="row">
-        <div title="Code: 0xe800" class="the-icons span3"><i class="demo-icon icon-youtube">&#xe800;</i> <span class="i-name">icon-youtube</span><span class="i-code">0xe800</span></div>
-        <div title="Code: 0xe801" class="the-icons span3"><i class="demo-icon icon-rss">&#xe801;</i> <span class="i-name">icon-rss</span><span class="i-code">0xe801</span></div>
-        <div title="Code: 0xe802" class="the-icons span3"><i class="demo-icon icon-cancel">&#xe802;</i> <span class="i-name">icon-cancel</span><span class="i-code">0xe802</span></div>
-        <div title="Code: 0xe803" class="the-icons span3"><i class="demo-icon icon-right-open">&#xe803;</i> <span class="i-name">icon-right-open</span><span class="i-code">0xe803</span></div>
+        <div title="Code: 0xe801" class="the-icons span3"><i class="demo-icon crt-iconrss">&#xe801;</i> <span class="i-name">crt-iconrss</span><span class="i-code">0xe801</span></div>
+        <div title="Code: 0xe802" class="the-icons span3"><i class="demo-icon crt-iconcancel">&#xe802;</i> <span class="i-name">crt-iconcancel</span><span class="i-code">0xe802</span></div>
+        <div title="Code: 0xe803" class="the-icons span3"><i class="demo-icon crt-iconright-open">&#xe803;</i> <span class="i-name">crt-iconright-open</span><span class="i-code">0xe803</span></div>
+        <div title="Code: 0xe804" class="the-icons span3"><i class="demo-icon crt-iconleft-open">&#xe804;</i> <span class="i-name">crt-iconleft-open</span><span class="i-code">0xe804</span></div>
       </div>
       <div class="row">
-        <div title="Code: 0xe804" class="the-icons span3"><i class="demo-icon icon-left-open">&#xe804;</i> <span class="i-name">icon-left-open</span><span class="i-code">0xe804</span></div>
-        <div title="Code: 0xf303" class="the-icons span3"><i class="demo-icon icon-flickr">&#xf303;</i> <span class="i-name">icon-flickr</span><span class="i-code">0xf303</span></div>
-        <div title="Code: 0xf306" class="the-icons span3"><i class="demo-icon icon-vimeo">&#xf306;</i> <span class="i-name">icon-vimeo</span><span class="i-code">0xf306</span></div>
-        <div title="Code: 0xf309" class="the-icons span3"><i class="demo-icon icon-twitter">&#xf309;</i> <span class="i-name">icon-twitter</span><span class="i-code">0xf309</span></div>
+        <div title="Code: 0xf099" class="the-icons span3"><i class="demo-icon crt-icontwitter">&#xf099;</i> <span class="i-name">crt-icontwitter</span><span class="i-code">0xf099</span></div>
+        <div title="Code: 0xf09a" class="the-icons span3"><i class="demo-icon crt-iconfacebook">&#xf09a;</i> <span class="i-name">crt-iconfacebook</span><span class="i-code">0xf09a</span></div>
+        <div title="Code: 0xf0d5" class="the-icons span3"><i class="demo-icon crt-icongplus-1">&#xf0d5;</i> <span class="i-name">crt-icongplus-1</span><span class="i-code">0xf0d5</span></div>
+        <div title="Code: 0xf0e1" class="the-icons span3"><i class="demo-icon crt-iconlinkedin-1">&#xf0e1;</i> <span class="i-name">crt-iconlinkedin-1</span><span class="i-code">0xf0e1</span></div>
       </div>
       <div class="row">
-        <div title="Code: 0xf30c" class="the-icons span3"><i class="demo-icon icon-facebook">&#xf30c;</i> <span class="i-name">icon-facebook</span><span class="i-code">0xf30c</span></div>
-        <div title="Code: 0xf30f" class="the-icons span3"><i class="demo-icon icon-gplus">&#xf30f;</i> <span class="i-name">icon-gplus</span><span class="i-code">0xf30f</span></div>
-        <div title="Code: 0xf312" class="the-icons span3"><i class="demo-icon icon-pinterest">&#xf312;</i> <span class="i-name">icon-pinterest</span><span class="i-code">0xf312</span></div>
-        <div title="Code: 0xf315" class="the-icons span3"><i class="demo-icon icon-tumblr">&#xf315;</i> <span class="i-name">icon-tumblr</span><span class="i-code">0xf315</span></div>
+        <div title="Code: 0xf167" class="the-icons span3"><i class="demo-icon crt-iconyoutube-1">&#xf167;</i> <span class="i-name">crt-iconyoutube-1</span><span class="i-code">0xf167</span></div>
+        <div title="Code: 0xf16d" class="the-icons span3"><i class="demo-icon crt-iconinstagram-1">&#xf16d;</i> <span class="i-name">crt-iconinstagram-1</span><span class="i-code">0xf16d</span></div>
+        <div title="Code: 0xf173" class="the-icons span3"><i class="demo-icon crt-icontumblr-1">&#xf173;</i> <span class="i-name">crt-icontumblr-1</span><span class="i-code">0xf173</span></div>
+        <div title="Code: 0xf1ca" class="the-icons span3"><i class="demo-icon crt-iconvine">&#xf1ca;</i> <span class="i-name">crt-iconvine</span><span class="i-code">0xf1ca</span></div>
       </div>
       <div class="row">
-        <div title="Code: 0xf318" class="the-icons span3"><i class="demo-icon icon-linkedin">&#xf318;</i> <span class="i-name">icon-linkedin</span><span class="i-code">0xf318</span></div>
-        <div title="Code: 0xf32d" class="the-icons span3"><i class="demo-icon icon-instagram">&#xf32d;</i> <span class="i-name">icon-instagram</span><span class="i-code">0xf32d</span></div>
+        <div title="Code: 0xf231" class="the-icons span3"><i class="demo-icon crt-iconpinterest-1">&#xf231;</i> <span class="i-name">crt-iconpinterest-1</span><span class="i-code">0xf231</span></div>
+        <div title="Code: 0xf2ac" class="the-icons span3"><i class="demo-icon crt-iconsnapchat-ghost">&#xf2ac;</i> <span class="i-name">crt-iconsnapchat-ghost</span><span class="i-code">0xf2ac</span></div>
+        <div title="Code: 0xf303" class="the-icons span3"><i class="demo-icon crt-iconflickr">&#xf303;</i> <span class="i-name">crt-iconflickr</span><span class="i-code">0xf303</span></div>
+        <div title="Code: 0xf306" class="the-icons span3"><i class="demo-icon crt-iconvimeo">&#xf306;</i> <span class="i-name">crt-iconvimeo</span><span class="i-code">0xf306</span></div>
       </div>
     </div>
     <div class="container footer">Generated by <a href="http://fontello.com">fontello.com</a></div>

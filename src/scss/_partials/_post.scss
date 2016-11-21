@@ -44,18 +44,16 @@
             float: left;
             display: block;
             width: 43px;
-            height: 57px;
+            height: 55px;
             margin-right: 10px;
             margin-left: 3px;
-            background-color: $color-post-icon-bg;
-            border-radius: 50%;
-            line-height: 57px;
             text-align: center;
             padding-top: 2px;
 
             i {
-                margin-top:0;
-                font-size: 35px;
+                @include vertical-center();
+                display: block;
+                font-size: 38px;
                 color: $color-post-icon-text;
 
                 &.crt-icon-twitter {
@@ -142,7 +140,6 @@
         .play {
             display: none;
         }
-
     }
 
     .crt-post-content-image-hidden {
@@ -181,7 +178,7 @@
         line-height: .9em;
         font-size: .9em;
         color: $color-post-share-text;
-        background-color: $color-post-share-bg;
+        //background-color: $color-post-share-bg;
         text-align: right;
         box-shadow: none;
 

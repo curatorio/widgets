@@ -1,47 +1,11 @@
 {
-  "name": "crt",
-  "css_prefix_text": "icon-",
+  "name": "crt-icon",
+  "css_prefix_text": "crt-icon",
   "css_use_suffix": false,
   "hinting": true,
   "units_per_em": 1000,
   "ascent": 850,
   "glyphs": [
-    {
-      "uid": "bc50457410acf467b8b5721240768742",
-      "css": "facebook",
-      "code": 62220,
-      "src": "entypo"
-    },
-    {
-      "uid": "d090355c31f497b61d676416c1fd39fb",
-      "css": "twitter",
-      "code": 62217,
-      "src": "entypo"
-    },
-    {
-      "uid": "0fbfb1cd7a847c88ea4c141d0e1bbdb5",
-      "css": "instagram",
-      "code": 62253,
-      "src": "entypo"
-    },
-    {
-      "uid": "689febe699d74bc8862965555503e445",
-      "css": "pinterest",
-      "code": 62226,
-      "src": "entypo"
-    },
-    {
-      "uid": "d491462e64eb5b8c4f064108a2ff1780",
-      "css": "tumblr",
-      "code": 62229,
-      "src": "entypo"
-    },
-    {
-      "uid": "7132e1233bc16cd1b6efe7e29d3613a5",
-      "css": "linkedin",
-      "code": 62232,
-      "src": "entypo"
-    },
     {
       "uid": "538531af0e023b15882c505ee2297cbe",
       "css": "vimeo",
@@ -53,18 +17,6 @@
       "css": "flickr",
       "code": 62211,
       "src": "entypo"
-    },
-    {
-      "uid": "b945f4ac2439565661e8e4878e35d379",
-      "css": "gplus",
-      "code": 62223,
-      "src": "entypo"
-    },
-    {
-      "uid": "57a4f84c40a0c44d47387105f162a427",
-      "css": "youtube",
-      "code": 59392,
-      "src": "zocial"
     },
     {
       "uid": "3e617d8049807e128c80d0344ba09e37",
@@ -89,6 +41,66 @@
       "css": "left-open",
       "code": 59396,
       "src": "websymbols"
+    },
+    {
+      "uid": "4c1ef492f1d2c39a2250ae457cee2a6e",
+      "css": "instagram-1",
+      "code": 61805,
+      "src": "fontawesome"
+    },
+    {
+      "uid": "8e04c98c8f5ca0a035776e3001ad2638",
+      "css": "facebook",
+      "code": 61594,
+      "src": "fontawesome"
+    },
+    {
+      "uid": "627abcdb627cb1789e009c08e2678ef9",
+      "css": "twitter",
+      "code": 61593,
+      "src": "fontawesome"
+    },
+    {
+      "uid": "cc399e4597f157dcbf016be0b7407fea",
+      "css": "pinterest-1",
+      "code": 62001,
+      "src": "fontawesome"
+    },
+    {
+      "uid": "b8d0c7d76e87b94882329a88e8e43d3d",
+      "css": "gplus-1",
+      "code": 61653,
+      "src": "fontawesome"
+    },
+    {
+      "uid": "676cf66256441f09e4934ae6378b3e2d",
+      "css": "vine",
+      "code": 61898,
+      "src": "fontawesome"
+    },
+    {
+      "uid": "a9862b9d5197886c1ad693ecd7120b31",
+      "css": "youtube-1",
+      "code": 61799,
+      "src": "fontawesome"
+    },
+    {
+      "uid": "43fcf807461234935e65261328e1dff6",
+      "css": "tumblr-1",
+      "code": 61811,
+      "src": "fontawesome"
+    },
+    {
+      "uid": "e9107949dd6c9e8ab2b29ae07156e38c",
+      "css": "linkedin-1",
+      "code": 61665,
+      "src": "fontawesome"
+    },
+    {
+      "uid": "1b1a592d33fa26c37926cbe840eb60b8",
+      "css": "snapchat-ghost",
+      "code": 62124,
+      "src": "fontawesome"
     }
   ]
 }

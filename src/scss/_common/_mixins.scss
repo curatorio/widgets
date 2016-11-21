@@ -17,6 +17,14 @@
     @include crt-clearfix();
 }
 
+@mixin vertical-center()
+{
+
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
 @mixin scrollbars($size, $foreground-color, $background-color: mix($foreground-color, white,  25%)) {
     // For Google Chrome
     &::-webkit-scrollbar {

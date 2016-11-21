@@ -1,27 +1,28 @@
 @font-face {
-  font-family: 'crt';
-  src: url('../fonts/crt.eot?36155308');
-  src: url('../fonts/crt.eot?36155308#iefix') format('embedded-opentype'),
-       url('../fonts/crt.woff2?36155308') format('woff2'),
-       url('../fonts/crt.woff?36155308') format('woff'),
-       url('../fonts/crt.ttf?36155308') format('truetype'),
-       url('../fonts/crt.svg?36155308#crt') format('svg');
+  font-family: 'crt-icon';
+  src: url('../fonts/crt-icon.eot?56848357');
+  src: url('../fonts/crt-icon.eot?56848357#iefix') format('embedded-opentype'),
+       url('../fonts/crt-icon.woff2?56848357') format('woff2'),
+       url('../fonts/crt-icon.woff?56848357') format('woff'),
+       url('../fonts/crt-icon.ttf?56848357') format('truetype'),
+       url('../fonts/crt-icon.svg?56848357#crt-icon') format('svg');
   font-weight: normal;
   font-style: normal;
 }
+
 /* Chrome hack: SVG is rendered more smooth in Windozze. 100% magic, uncomment if you need it. */
 /* Note, that will break hinting! In other OS-es font will be not as sharp as it could be */
 /*
 @media screen and (-webkit-min-device-pixel-ratio:0) {
   @font-face {
-    font-family: 'crt';
-    src: url('../fonts/crt.svg?36155308#crt') format('svg');
+    font-family: 'crt-icon';
+    src: url('../fonts/crt-icon.svg?56848357#crt-icon') format('svg');
   }
 }
 */
  
- [class^="crt-icon-"]:before, [class*=" crt-icon-"]:before {
-  font-family: "crt";
+ [class^="crt-icon"]:before, [class*=" crt-icon"]:before {
+  font-family: "crt-icon";
   font-style: normal;
   font-weight: normal;
   speak: none;
@@ -55,17 +56,19 @@
   /* text-shadow: 1px 1px 1px rgba(127, 127, 127, 0.3); */
 }
  
-.crt-icon-youtube:before { content: '\e800'; } /* '' */
 .crt-icon-rss:before { content: '\e801'; } /* '' */
 .crt-icon-cancel:before { content: '\e802'; } /* '' */
 .crt-icon-right-open:before { content: '\e803'; } /* '' */
 .crt-icon-left-open:before { content: '\e804'; } /* '' */
+.crt-icon-twitter:before { content: '\f099'; } /* '' */
+.crt-icon-facebook:before { content: '\f09a'; } /* '' */
+.crt-icon-gplus:before { content: '\f0d5'; } /* '' */
+.crt-icon-linkedin:before { content: '\f0e1'; } /* '' */
+.crt-icon-youtube:before { content: '\f167'; } /* '' */
+.crt-icon-instagram:before { content: '\f16d'; } /* '' */
+.crt-icon-tumblr:before { content: '\f173'; } /* '' */
+.crt-icon-vine:before { content: '\f1ca'; } /* '' */
+.crt-icon-pinterest:before { content: '\f231'; } /* '' */
+.crt-icon-snapchat-ghost:before { content: '\f2ac'; } /* '' */
 .crt-icon-flickr:before { content: '\f303'; } /* '' */
 .crt-icon-vimeo:before { content: '\f306'; } /* '' */
-.crt-icon-twitter:before { content: '\f309'; } /* '' */
-.crt-icon-facebook:before { content: '\f30c'; } /* '' */
-.crt-icon-gplus:before { content: '\f30f'; } /* '' */
-.crt-icon-pinterest:before { content: '\f312'; } /* '' */
-.crt-icon-tumblr:before { content: '\f315'; } /* '' */
-.crt-icon-linkedin:before { content: '\f318'; } /* '' */
-.crt-icon-instagram:before { content: '\f32d'; } /* '' */
