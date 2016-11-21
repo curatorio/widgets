@@ -21,6 +21,7 @@ Curator.Carousel = Curator.augment.extend(Curator.Client, {
     $feed: null,
     posts:[],
     carousel:null,
+    firstLoad:true,
 
     constructor: function (options) {
         this.uber.setOptions.call (this, options,  Curator.CarouselDefaults);
@@ -39,9 +40,9 @@ Curator.Carousel = Curator.augment.extend(Curator.Client, {
             this.$feed = $('<div class="crt-feed"></div>').appendTo(this.$container);
             this.$container.addClass('crt-carousel');
 
-            this.$feed.curatorCarousel(this.options.carousel);
+            this.carousel = new window.CCarousel(this.$feed, this.options.carousel);
             this.$feed.on('curatorCarousel:changed', function (event, carousel, currentSlide) {
-                // console.log('curatorCarousel:changed '+currentSlide);
+                console.log('curatorCarousel:changed '+currentSlide);
                 // console.log('curatorCarousel:changed '+(that.feed.postsLoaded-carousel.PANES_VISIBLE));
                 // console.log(carousel.PANES_VISIBLE);
                 if (that.options.carousel.autoLoad) {
@@ -76,16 +77,17 @@ Curator.Carousel = Curator.augment.extend(Curator.Client, {
                 var p = that.createPostElement(this);
                 $els.push(p.$el);
 
-                if (that.options.animate) {
+                if (that.options.animate && that.firstLoad) {
                     p.$el.css({opacity: 0});
                     setTimeout(function () {
+                        console.log (i);
                         p.$el.css({opacity: 0}).animate({opacity: 1});
                     }, i * 100);
                 }
             });
 
-            that.$feed.curatorCarousel('add',$els);
-            that.$feed.curatorCarousel('update');
+            this.carousel.add($els);
+            this.carousel.update();
 
             // that.$feed.c().trigger('add.owl.carousel',$(p.$el));
 
@@ -93,6 +95,7 @@ Curator.Carousel = Curator.augment.extend(Curator.Client, {
 
             this.options.onPostsLoaded (this, posts);
         }
+        this.firstLoad = false;
     },
 
     onPostsFail: function (data) {
@@ -102,7 +105,7 @@ Curator.Carousel = Curator.augment.extend(Curator.Client, {
     },
 
     destroy : function () {
-        this.$feed.curatorCarousel('destroy');
+        this.carousel.destroy();
         this.$feed.remove();
         this.$container.removeClass('crt-carousel');
 

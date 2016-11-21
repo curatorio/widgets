@@ -29,6 +29,10 @@ $color-post-share-text:     $color-secondary;
 @import "_common/mixins";
 @import "_vendor/fontello/css/crt-icon";
 
+.crt-icon-google {
+	@extend .crt-icon-gplus;
+}
+
 @import "_common/general";
 
 @import "_partials/post";

@@ -14,6 +14,8 @@ var srcJs       = src+"js/";
 var watchPaths  = [
     dest+'/**',
     'tests/**/*.html',
+    'tests/**/*.css',
+    'tests/**/*.js',
     'examples/**/*.html'
 ];
 

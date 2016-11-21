@@ -46,22 +46,19 @@
 		}
 	};
 
-	var Carousel = function (item, options) {
-		this.init (item, options);
-	};
-
-	$.extend(Carousel.prototype,{
+	var Carousel =  augment.extend(Object, {
 		current_position:0,
 		animating:false,
 		timeout:null,
 		FAKE_NUM:0,
+		PANES_VISIBLE:0,
 
-		init : function (item, options) {
-			// console.log('init');
+		constructor : function (item, options) {
+			Curator.log('Carousel->construct');
 
 			var that = this;
 
-			this.options = options;
+			this.options = $.extend([], defaults, options);
 
 			this.$item = $(item);
 			this.$viewport = this.$item; // <div> slider, known as $viewport
@@ -139,6 +136,8 @@
 					var first = this.$panes.eq(i).clone();
 					first.addClass('crt-clone');
 					first.css('opacity','1');
+					// Should probably move this out to an event
+					first.find('.crt-post-image').css({opacity:1});
 					this.$pane_slider.prepend(first);
 					this.FAKE_NUM = this.PANES_VISIBLE;
 				}
@@ -299,7 +298,6 @@
 	$.extend($.fn, { 
 		curatorCarousel: function (opts) {
 			var args = (arguments.length === 1 ? [arguments[0]] : Array.apply(null, arguments));
-			var options = $.extend([], defaults, opts);
 
 			$.each(this, function(index, item) {
 				var id = $(item).data('carousel');
@@ -316,5 +314,7 @@
 			return this;
 		}
 	});
+
+	window.CCarousel = Carousel;
 })($);
 
