@@ -80,8 +80,10 @@ $.extend(Curator.Popup.prototype, {
 
         if (this.videoPlaying) {
             this.$popup.find('video')[0].play();
+            this.popupManager.client.track('video:play');
         } else {
             this.$popup.find('video')[0].pause();
+            this.popupManager.client.track('video:pause');
         }
 
         Curator.log(this.videoPlaying);

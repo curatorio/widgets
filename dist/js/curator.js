@@ -1122,7 +1122,7 @@ Curator.Client = augment.extend(Object, {
     },
 
     createPostElement: function (postJson) {
-        var post = new Curator.Post(postJson, this.options);
+        var post = new Curator.Post(postJson, this.options, this);
         $(post).bind('postClick',$.proxy(this.onPostClick, this));
         $(post).bind('postReadMoreClick',$.proxy(this.onPostClick, this));
 
@@ -1145,6 +1145,29 @@ Curator.Client = augment.extend(Object, {
 
     onPostClick: function (ev,post) {
         this.popupManager.showPopup(post);
+    },
+
+    track : function (a) {
+        Curator.log('Feed->track '+a);
+
+        $.ajax({
+            url: this.getUrl('/track/'+this.options.feedId),
+            dataType: 'json',
+            data: {a:a},
+            success: function (data) {
+                Curator.log('Feed->track success');
+                Curator.log(data);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                Curator.log('Feed->_loadPosts fail');
+                Curator.log(textStatus);
+                Curator.log(errorThrown);
+            }
+        });
+    },
+
+    getUrl : function (trail) {
+        return this.options.apiEndpoint+trail;
     }
 });
 $.support.cors = true;
@@ -1440,6 +1463,8 @@ $.extend(Curator.PopupManager.prototype, {
                 break;
             }
         }
+
+        this.client.track('popup:show');
     },
 
     setPosts: function (posts) {
@@ -1475,8 +1500,8 @@ $.extend(Curator.PopupManager.prototype, {
     },
 
     hide: function () {
-
         Curator.log('PopupManager->hide');
+        this.client.track('popup:hide');
         $('body').removeClass('crt-popup-visible');
         this.currentPostNum = 0;
         this.popup = null;
@@ -1576,8 +1601,10 @@ $.extend(Curator.Popup.prototype, {
 
         if (this.videoPlaying) {
             this.$popup.find('video')[0].play();
+            this.popupManager.client.track('video:play');
         } else {
             this.$popup.find('video')[0].pause();
+            this.popupManager.client.track('video:pause');
         }
 
         Curator.log(this.videoPlaying);
@@ -1655,8 +1682,10 @@ Curator.Post = augment.extend(Object, {
     templateId:'#post-template',
     defaultTemplateId:'#post-template',
 
-    constructor:function (postJson, options) {
+    constructor:function (postJson, options, widget) {
         this.options = options;
+        this.widget = widget;
+
         this.templateId = options.postTemplate ? options.postTemplate : this.defaultTemplateId;
         // this.templateId = templateId || this.defaultTemplateId;
 
@@ -1667,6 +1696,7 @@ Curator.Post = augment.extend(Object, {
         this.$el.find('.shareTwitter').click($.proxy(this.onShareTwitterClick,this));
         this.$el.find('.crt-hitarea').click($.proxy(this.onPostClick,this));
         this.$el.find('.crt-post-read-more-button').click($.proxy(this.onReadMoreClick,this));
+        this.$el.on('click','.crt-post-text-body a',$.proxy(this.onLinkClick,this));
         this.$post = this.$el.find('.crt-post');
         this.$image = this.$el.find('.crt-post-image');
         this.$image.css({opacity:0});
@@ -1683,18 +1713,24 @@ Curator.Post = augment.extend(Object, {
     onShareFacebookClick : function (ev) {
         ev.preventDefault();
         Curator.SocialFacebook.share(this.json);
+        this.widget.track('share:facebook');
         return false;
     },
 
     onShareTwitterClick : function (ev) {
         ev.preventDefault();
         Curator.SocialTwitter.share(this.json);
+        this.widget.track('share:twitter');
         return false;
     },
 
     onPostClick : function (ev) {
         ev.preventDefault();
         $(this).trigger('postClick',this, this.json, ev);
+    },
+
+    onLinkClick : function (ev) {
+        this.widget.track('click:link');
     },
 
     onImageLoaded : function () {
@@ -1709,6 +1745,7 @@ Curator.Post = augment.extend(Object, {
 
     onReadMoreClick : function (ev) {
         ev.preventDefault();
+        this.widget.track('click:read-more');
         $(this).trigger('postReadMoreClick',this, this.json, ev);
     }
 });
@@ -1868,6 +1905,53 @@ Curator.Template = {
         return $(tmpl).filter('div');
     }
 
+};
+
+
+
+Curator.Track = {
+
+    track : function (action)
+    {
+        $.ajax({
+            url: this.getUrl('/posts'),
+            dataType: 'json',
+            data: params,
+            success: function (data) {
+                Curator.log('Feed->_loadPosts success');
+
+                if (data.success) {
+                    that.postCount = data.postCount;
+                    that.postsLoaded += data.posts.length;
+
+                    that.posts = that.posts.concat(data.posts);
+
+                    if (that.options.onPostsLoaded) {
+                        that.options.onPostsLoaded(data.posts);
+                    }
+                } else {
+                    if (that.options.onPostsFail) {
+                        that.options.onPostsFail(data);
+                    }
+                }
+                that.loading = false;
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                Curator.log('Feed->_loadPosts fail');
+                Curator.log(textStatus);
+                Curator.log(errorThrown);
+
+                if (that.options.onPostsFail) {
+                    that.options.onPostsFail();
+                }
+                that.loading = false;
+            }
+        });
+    },
+
+    getUrl : function (trail) {
+        return this.feedBase+'/'+this.options.feedId+trail;
+    }
 };
 
 

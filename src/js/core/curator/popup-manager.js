@@ -65,6 +65,8 @@ $.extend(Curator.PopupManager.prototype, {
                 break;
             }
         }
+
+        this.client.track('popup:show');
     },
 
     setPosts: function (posts) {
@@ -100,8 +102,8 @@ $.extend(Curator.PopupManager.prototype, {
     },
 
     hide: function () {
-
         Curator.log('PopupManager->hide');
+        this.client.track('popup:hide');
         $('body').removeClass('crt-popup-visible');
         this.currentPostNum = 0;
         this.popup = null;

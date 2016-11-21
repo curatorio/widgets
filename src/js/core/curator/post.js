@@ -13,8 +13,10 @@ Curator.Post = augment.extend(Object, {
     templateId:'#post-template',
     defaultTemplateId:'#post-template',
 
-    constructor:function (postJson, options) {
+    constructor:function (postJson, options, widget) {
         this.options = options;
+        this.widget = widget;
+
         this.templateId = options.postTemplate ? options.postTemplate : this.defaultTemplateId;
         // this.templateId = templateId || this.defaultTemplateId;
 
@@ -25,6 +27,7 @@ Curator.Post = augment.extend(Object, {
         this.$el.find('.shareTwitter').click($.proxy(this.onShareTwitterClick,this));
         this.$el.find('.crt-hitarea').click($.proxy(this.onPostClick,this));
         this.$el.find('.crt-post-read-more-button').click($.proxy(this.onReadMoreClick,this));
+        this.$el.on('click','.crt-post-text-body a',$.proxy(this.onLinkClick,this));
         this.$post = this.$el.find('.crt-post');
         this.$image = this.$el.find('.crt-post-image');
         this.$image.css({opacity:0});
@@ -41,18 +44,24 @@ Curator.Post = augment.extend(Object, {
     onShareFacebookClick : function (ev) {
         ev.preventDefault();
         Curator.SocialFacebook.share(this.json);
+        this.widget.track('share:facebook');
         return false;
     },
 
     onShareTwitterClick : function (ev) {
         ev.preventDefault();
         Curator.SocialTwitter.share(this.json);
+        this.widget.track('share:twitter');
         return false;
     },
 
     onPostClick : function (ev) {
         ev.preventDefault();
         $(this).trigger('postClick',this, this.json, ev);
+    },
+
+    onLinkClick : function (ev) {
+        this.widget.track('click:link');
     },
 
     onImageLoaded : function () {
@@ -67,6 +76,7 @@ Curator.Post = augment.extend(Object, {
 
     onReadMoreClick : function (ev) {
         ev.preventDefault();
+        this.widget.track('click:read-more');
         $(this).trigger('postReadMoreClick',this, this.json, ev);
     }
 });

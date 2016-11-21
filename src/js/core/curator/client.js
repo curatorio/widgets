@@ -64,7 +64,7 @@ Curator.Client = augment.extend(Object, {
     },
 
     createPostElement: function (postJson) {
-        var post = new Curator.Post(postJson, this.options);
+        var post = new Curator.Post(postJson, this.options, this);
         $(post).bind('postClick',$.proxy(this.onPostClick, this));
         $(post).bind('postReadMoreClick',$.proxy(this.onPostClick, this));
 
@@ -87,5 +87,28 @@ Curator.Client = augment.extend(Object, {
 
     onPostClick: function (ev,post) {
         this.popupManager.showPopup(post);
+    },
+
+    track : function (a) {
+        Curator.log('Feed->track '+a);
+
+        $.ajax({
+            url: this.getUrl('/track/'+this.options.feedId),
+            dataType: 'json',
+            data: {a:a},
+            success: function (data) {
+                Curator.log('Feed->track success');
+                Curator.log(data);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                Curator.log('Feed->_loadPosts fail');
+                Curator.log(textStatus);
+                Curator.log(errorThrown);
+            }
+        });
+    },
+
+    getUrl : function (trail) {
+        return this.options.apiEndpoint+trail;
     }
 });
