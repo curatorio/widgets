@@ -1033,7 +1033,7 @@ if ($ === undefined) {
 	}
 
 	$.extend($.fn, { 
-		curatorCarousel: function (opts) {
+		curatorCarousel: function (options) { 
 			var args = (arguments.length === 1 ? [arguments[0]] : Array.apply(null, arguments));
 
 			$.each(this, function(index, item) {
