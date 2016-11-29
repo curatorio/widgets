@@ -949,7 +949,7 @@ if ($ === undefined) {
 
 			this.currentLeft = left;
 
-			console.log(left+":"+max);
+			//console.log(left+":"+max);
 
 			if (left < 0) {
 				this.currentLeft = 0;
@@ -1033,7 +1033,7 @@ if ($ === undefined) {
 	}
 
 	$.extend($.fn, { 
-		curatorCarousel: function (options) { 
+		curatorCarousel: function (options) {
 			var args = (arguments.length === 1 ? [arguments[0]] : Array.apply(null, arguments));
 
 			$.each(this, function(index, item) {
@@ -1692,8 +1692,8 @@ Curator.Post = augment.extend(Object, {
         this.json = postJson;
         this.$el = Curator.Template.render(this.templateId, postJson);
 
-        this.$el.find('.shareFacebook').click($.proxy(this.onShareFacebookClick,this));
-        this.$el.find('.shareTwitter').click($.proxy(this.onShareTwitterClick,this));
+        this.$el.find('.crt-share-facebook').click($.proxy(this.onShareFacebookClick,this));
+        this.$el.find('.crt-share-twitter').click($.proxy(this.onShareTwitterClick,this));
         this.$el.find('.crt-hitarea').click($.proxy(this.onPostClick,this));
         this.$el.find('.crt-post-read-more-button').click($.proxy(this.onReadMoreClick,this));
         this.$el.on('click','.crt-post-text-body a',$.proxy(this.onLinkClick,this));
@@ -1823,7 +1823,7 @@ Curator.Templates = {
         </div> \
         <div class="crt-post-footer">\
             <div class="crt-date"><%=this.prettyDate(source_created_at)%></div> \
-            <div class="crt-post-share"><span class="ctr-share-hint"></span><a href="#" class="shareFacebook"><i class="crt-icon-facebook"></i></a>  <a href="#" class="shareTwitter"><i class="crt-icon-twitter"></i></a></div>\
+            <div class="crt-post-share"><span class="ctr-share-hint"></span><a href="#" class="crt-share-facebook"><i class="crt-icon-facebook"></i></a>  <a href="#" class="crt-share-twitter"><i class="crt-icon-twitter"></i></a></div>\
         </div> \
         <div class="crt-post-read-more"><a href="#" class="crt-post-read-more-button">Read more</a> </div> \
     </div>\

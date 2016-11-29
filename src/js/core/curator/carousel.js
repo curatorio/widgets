@@ -212,7 +212,7 @@
 
 			this.currentLeft = left;
 
-			console.log(left+":"+max);
+			//console.log(left+":"+max);
 
 			if (left < 0) {
 				this.currentLeft = 0;
@@ -296,7 +296,7 @@
 	}
 
 	$.extend($.fn, { 
-		curatorCarousel: function (options) { 
+		curatorCarousel: function (options) {
 			var args = (arguments.length === 1 ? [arguments[0]] : Array.apply(null, arguments));
 
 			$.each(this, function(index, item) {

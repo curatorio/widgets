@@ -23,8 +23,8 @@ Curator.Post = augment.extend(Object, {
         this.json = postJson;
         this.$el = Curator.Template.render(this.templateId, postJson);
 
-        this.$el.find('.shareFacebook').click($.proxy(this.onShareFacebookClick,this));
-        this.$el.find('.shareTwitter').click($.proxy(this.onShareTwitterClick,this));
+        this.$el.find('.crt-share-facebook').click($.proxy(this.onShareFacebookClick,this));
+        this.$el.find('.crt-share-twitter').click($.proxy(this.onShareTwitterClick,this));
         this.$el.find('.crt-hitarea').click($.proxy(this.onPostClick,this));
         this.$el.find('.crt-post-read-more-button').click($.proxy(this.onReadMoreClick,this));
         this.$el.on('click','.crt-post-text-body a',$.proxy(this.onLinkClick,this));
