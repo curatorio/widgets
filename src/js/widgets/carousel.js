@@ -60,7 +60,9 @@ Curator.Carousel = Curator.augment.extend(Curator.Client, {
     loadMorePosts : function () {
         Curator.log('Carousel->loadMorePosts');
 
-        this.feed.loadPosts(this.feed.currentPage+1);
+        if (this.feed.postCount > this.feed.postsLoaded) {
+            this.feed.loadPosts(this.feed.currentPage + 1);
+        }
     },
 
     onPostsLoaded: function (posts) {

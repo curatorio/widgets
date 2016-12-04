@@ -19,10 +19,15 @@
     // While you're testing
     Curator.debug = true;
 
+    var l = window.location.href;
+    var feedId = l.indexOf('.dev') ? '58aa4d66-e2ba-42ce-bed5-16a7ee1d' : 'd770f4ab-f2cc-4514-a8d2-c2a03122' ;
+    var endPoint = l.indexOf('.dev') ? 'http://curator-api.dev/v1' : 'https://api.curator.io/v1' ;
+
     // Change FEED_ID to your unique FEED_ID
     var widget = new Curator.Carousel({
         container:'#curator-feed',
-        feedId:"d770f4ab-f2cc-4514-a8d2-c2a03122",
+        feedId:feedId,
+        apiEndpoint: endPoint,
         carousel:{
             autoPlay:true
         }
