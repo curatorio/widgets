@@ -7,6 +7,7 @@
 		speed: 5000,
 		duration: 700,
 		minWidth: 250,
+		panesVisible: null,
 		moveAmount: 0,
 		autoPlay: false,
 		useCss : true
@@ -117,12 +118,20 @@
 			// total panes (+1 for circular illusion)
 			var PANE_WRAPPER_WIDTH = this.options.infinite ? ((this.NUM_PANES+1) * 100) + '%' : (this.NUM_PANES * 100) + '%'; // % width of slider (total panes * 100)
 
-			this.VIEWPORT_WIDTH = this.$viewport.width();
-			this.PANES_VISIBLE = this.VIEWPORT_WIDTH<this.options.minWidth ? 1 : Math.floor(this.VIEWPORT_WIDTH/this.options.minWidth);
-
 			this.$pane_slider.css({width: PANE_WRAPPER_WIDTH}); // set css on pane slider
 
-			this.PANE_WIDTH = (this.VIEWPORT_WIDTH/this.PANES_VISIBLE);
+			this.VIEWPORT_WIDTH = this.$viewport.width();
+
+			console.log (this.options.panesVisible);
+
+			if (this.options.panesVisible) {
+				// TODO - change to check if it's a function or a number
+				this.PANES_VISIBLE = this.options.panesVisible();
+				this.PANE_WIDTH = (this.VIEWPORT_WIDTH / this.PANES_VISIBLE);
+			} else {
+				this.PANES_VISIBLE = this.VIEWPORT_WIDTH < this.options.minWidth ? 1 : Math.floor(this.VIEWPORT_WIDTH / this.options.minWidth);
+				this.PANE_WIDTH = (this.VIEWPORT_WIDTH / this.PANES_VISIBLE);
+			}
 
 			var that = this;
 
