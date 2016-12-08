@@ -7,7 +7,7 @@ Curator.Client = augment.extend(Object, {
 
     setOptions : function (options, defaults) {
 
-        this.options = $.extend({}, defaults,options);
+        this.options = $.extend({}, defaults, options);
 
         if (options.debug) {
             Curator.debug = true;

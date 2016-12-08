@@ -687,24 +687,24 @@ if (!$.support.cors && $.ajaxTransport && window.XDomainRequest) {
 // Test $ exists
 
 var Curator = {
-    debug:false,
-    SOURCE_TYPES : ['twitter','instagram'],
+    debug: false,
+    SOURCE_TYPES: ['twitter', 'instagram'],
 
-    log:function (s) {
+    log: function (s) {
 
         if (window.console && Curator.debug) {
             window.console.log(s);
         }
     },
 
-    alert:function (s) {
+    alert: function (s) {
         if (window.alert) {
             window.alert(s);
         }
     },
 
-    checkContainer:function (container) {
-        Curator.log("Curator->checkContainer: "+container);
+    checkContainer: function (container) {
+        Curator.log("Curator->checkContainer: " + container);
         if ($(container).length === 0) {
             if (window.console) {
                 window.console.log('Curator could not find the element ' + container + '. Please ensure this element existings in your HTML code. Exiting.');
@@ -714,23 +714,70 @@ var Curator = {
         return true;
     },
 
-    checkPowered : function (jQuerytag) {
+    checkPowered: function (jQuerytag) {
         Curator.log("Curator->checkPowered");
-        var h = jQuerytag.html ();
+        var h = jQuerytag.html();
         // Curator.log (h);
         if (h.indexOf('Curator') > 0) {
             return true;
         } else {
-            Curator.alert ('Container is missing Powered by Curator');
+            Curator.alert('Container is missing Powered by Curator');
             return false;
         }
     },
 
-    augment:augment
+    loadCSS: function (config) {
+        try {
+            var sheet = Curator.createSheet(config);
+
+            var headerBgs = '.crt-post .crt-post-header, .crt-post .crt-post-header .social-icon';
+            var headerTexts = '.crt-post .crt-post-header, .crt-post .crt-post-share, .crt-post .crt-post-header .crt-post-name a, .crt-post .crt-post-share a, .crt-post .crt-post-header .social-icon i';
+            var bodyBgs = '.crt-post';
+            var bodyTexts = '.crt-post .crt-post-content-text';
+
+            // add new rules
+            Curator.addCSSRule(sheet, headerBgs, 'background-color:' + config.colours.headerBg);
+            Curator.addCSSRule(sheet, headerTexts, 'color:' + config.colours.headerText);
+            Curator.addCSSRule(sheet, bodyBgs, 'background-color:' + config.colours.bodyBg);
+            Curator.addCSSRule(sheet, bodyTexts, 'color:' + config.colours.bodyText);
+        }
+        catch (err) {
+            console.log('CURATOR UNABLE TO LOAD CSS');
+            console.log(err.message);
+        }
+    },
+
+    addCSSRule: function (sheet, selector, rules, index) {
+        if ('insertRule' in sheet) {
+            sheet.insertRule(selector + '{' + rules + '}', 0);
+        }
+        else if ('addRule' in sheet) {
+            sheet.addRule(selector, rules);
+        }
+    },
+
+    createSheet: function () {
+        var style = document.createElement("style");
+        // WebKit hack :(
+        style.appendChild(document.createTextNode(""));
+        document.head.appendChild(style);
+        return style.sheet;
+    },
+
+    loadWidget: function (config, template) {
+        if (template) {
+            Curator.Templates.postTemplate = template;
+        }
+
+        var ConstructorClass = window.Curator[config.type];
+        window.curatorWidget = new ConstructorClass(config);
+    },
+
+    augment: augment
 };
 
 if ($ === undefined) {
-    Curator.alert ('Curator requires jQuery. \n\nPlease include jQuery in your HTML before the Curator widget script tag.\n\nVisit http://jquery.com/download/ to get the latest version');
+    Curator.alert('Curator requires jQuery. \n\nPlease include jQuery in your HTML before the Curator widget script tag.\n\nVisit http://jquery.com/download/ to get the latest version');
 }
 
 
@@ -744,6 +791,7 @@ if ($ === undefined) {
 		speed: 5000,
 		duration: 700,
 		minWidth: 250,
+		panesVisible: null,
 		moveAmount: 0,
 		autoPlay: false,
 		useCss : true
@@ -854,12 +902,20 @@ if ($ === undefined) {
 			// total panes (+1 for circular illusion)
 			var PANE_WRAPPER_WIDTH = this.options.infinite ? ((this.NUM_PANES+1) * 100) + '%' : (this.NUM_PANES * 100) + '%'; // % width of slider (total panes * 100)
 
-			this.VIEWPORT_WIDTH = this.$viewport.width();
-			this.PANES_VISIBLE = this.VIEWPORT_WIDTH<this.options.minWidth ? 1 : Math.floor(this.VIEWPORT_WIDTH/this.options.minWidth);
-
 			this.$pane_slider.css({width: PANE_WRAPPER_WIDTH}); // set css on pane slider
 
-			this.PANE_WIDTH = (this.VIEWPORT_WIDTH/this.PANES_VISIBLE);
+			this.VIEWPORT_WIDTH = this.$viewport.width();
+
+			console.log (this.options.panesVisible);
+
+			if (this.options.panesVisible) {
+				// TODO - change to check if it's a function or a number
+				this.PANES_VISIBLE = this.options.panesVisible();
+				this.PANE_WIDTH = (this.VIEWPORT_WIDTH / this.PANES_VISIBLE);
+			} else {
+				this.PANES_VISIBLE = this.VIEWPORT_WIDTH < this.options.minWidth ? 1 : Math.floor(this.VIEWPORT_WIDTH / this.options.minWidth);
+				this.PANE_WIDTH = (this.VIEWPORT_WIDTH / this.PANES_VISIBLE);
+			}
 
 			var that = this;
 
@@ -1065,7 +1121,7 @@ Curator.Client = augment.extend(Object, {
 
     setOptions : function (options, defaults) {
 
-        this.options = $.extend({}, defaults,options);
+        this.options = $.extend({}, defaults, options);
 
         if (options.debug) {
             Curator.debug = true;
@@ -2151,6 +2207,7 @@ Curator.WaterfallDefaults = {
     apiEndpoint:'https://api.curator.io/v1',
     scroll:'more',
     onPostsLoaded:function(){},
+    debug:false,
     waterfall: {
         gridWidth:250,
         animate:true,

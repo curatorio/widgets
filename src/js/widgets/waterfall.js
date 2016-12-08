@@ -6,6 +6,7 @@ Curator.WaterfallDefaults = {
     apiEndpoint:'https://api.curator.io/v1',
     scroll:'more',
     onPostsLoaded:function(){},
+    debug:false,
     waterfall: {
         gridWidth:250,
         animate:true,
