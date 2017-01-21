@@ -6,7 +6,10 @@ Curator.SocialFacebook = {
         obj.url = Curator.Utils.postUrl(post);
         var cb =  function(){};
 
-        if (window.FB) {
+        // Disabling for now - doesn't work - seems to get error "Can't Load URL: The domain of this URL isn't
+        // included in the app's domains"
+        var useJSSDK = false; // window.FB
+        if (useJSSDK) {
             window.FB.ui({
                 method: 'feed',
                 link: obj.url,

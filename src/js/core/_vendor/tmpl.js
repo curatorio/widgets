@@ -13,6 +13,16 @@
             return this.data.network_name.toLowerCase();
         },
         userUrl:function () {
+            if (this.data.originator_user_url && this.data.originator_user_url != '') {
+                return this.data.userUrl;
+            }
+            if (this.data.user_url && this.data.user_url != '') {
+                return this.data.user_url;
+            }
+            if (this.data.userUrl && this.data.userUrl != '') {
+                return this.data.userUrl;
+            }
+            
             var netId = this.data.network_id+'';
             if (netId === '1') {
                 return 'http://twitter.com/' + this.data.user_screen_name;

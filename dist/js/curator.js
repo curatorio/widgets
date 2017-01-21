@@ -442,6 +442,16 @@ augment.extend = function (base, body) {
             return this.data.network_name.toLowerCase();
         },
         userUrl:function () {
+            if (this.data.originator_user_url && this.data.originator_user_url != '') {
+                return this.data.userUrl;
+            }
+            if (this.data.user_url && this.data.user_url != '') {
+                return this.data.user_url;
+            }
+            if (this.data.userUrl && this.data.userUrl != '') {
+                return this.data.userUrl;
+            }
+            
             var netId = this.data.network_id+'';
             if (netId === '1') {
                 return 'http://twitter.com/' + this.data.user_screen_name;
@@ -1601,13 +1611,15 @@ $.extend(Curator.Popup.prototype, {
 
         this.$popup = Curator.Template.render(this.templateId, this.json);
 
-        if (this.json.network_id === 8)
+        if (this.json.video && this.json.video.indexOf('youtu') >= 0 )
         {
             // youtube
             this.$popup.find('video').remove();
 
+            var youTubeId = Curator.StringUtils.youtubeVideoId(this.json.video);
+
             var src = '<iframe id="ytplayer" type="text/html" width="615" height="615" \
-            src="https://www.youtube.com/embed/'+this.json.source_identifier+'?autoplay=0&rel=0&showinfo" \
+            src="https://www.youtube.com/embed/'+youTubeId+'?autoplay=0&rel=0&showinfo" \
             frameborder="0"></iframe>';
 
             this.$popup.find('.crt-video-container img').remove();
@@ -1813,7 +1825,10 @@ Curator.SocialFacebook = {
         obj.url = Curator.Utils.postUrl(post);
         var cb =  function(){};
 
-        if (window.FB) {
+        // Disabling for now - doesn't work - seems to get error "Can't Load URL: The domain of this URL isn't
+        // included in the app's domains"
+        var useJSSDK = false; // window.FB
+        if (useJSSDK) {
             window.FB.ui({
                 method: 'feed',
                 link: obj.url,
@@ -2195,6 +2210,12 @@ Curator.StringUtils = {
     url : function (s,t) {
         t = t || s;
         return '<a href="'+s+'" target="_blank">'+t+'</a>';
+    },
+
+    youtubeVideoId : function (url){
+        var regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#\&\?]*).*/;
+        var match = url.match(regExp);
+        return (match&&match[7].length==11)? match[7] : false;
     }
 };
 
