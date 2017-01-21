@@ -37,9 +37,10 @@
     "gulp-rename": "*",
     "gulp-sass": "*",
     "gulp-uglify": "*",
-    "gulp-umd": "^0.2.0",
+    "gulp-umd": "*",
     "gulp-wrap": "^0.13.0",
     "jshint-stylish": "^2.1.0",
-    "sass": "*"
+    "sass": "*",
+    "jshint": "*"
   }
 }

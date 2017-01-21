@@ -14,7 +14,7 @@
         },
         userUrl:function () {
             if (this.data.originator_user_url && this.data.originator_user_url != '') {
-                return this.data.userUrl;
+                return this.data.originator_user_url;
             }
             if (this.data.user_url && this.data.user_url != '') {
                 return this.data.user_url;
@@ -45,6 +45,8 @@
             } else if (this.data.network_name==='Facebook') {
                 s = Curator.StringUtils.linksToHref(s);
                 s = Curator.StringUtils.facebookLinks(s);
+            } else {
+                s = Curator.StringUtils.linksToHref(s);
             }
 
             return helpers.nl2br(s);
@@ -70,12 +72,13 @@
             var minute = 60,
                 hour = minute * 60,
                 day = hour * 24,
-                week = day * 7;
+                week = day * 7,
+                month = day * 30;
 
             var fuzzy;
 
             if (delta < 30) {
-                fuzzy = 'Just then';
+                fuzzy = 'Just now';
             } else if (delta < minute) {
                 fuzzy = delta + ' seconds ago';
             } else if (delta < 2 * minute) {
@@ -88,6 +91,12 @@
                 fuzzy = Math.floor(delta / hour) + ' hours ago';
             } else if (delta < day * 2) {
                 fuzzy = 'Yesterday';
+            } else if (delta < week) {
+                fuzzy = 'This week';
+            } else if (delta < week * 2) {
+                fuzzy = 'Last week';
+            } else if (delta < month) {
+                fuzzy = 'This month';
             } else {
                 fuzzy = date;
             }
