@@ -28,17 +28,16 @@
     Curator.debug = true;
 
     $(document).ready(function(){
-
-    // Change FEED_ID to your unique FEED_ID
-    var widget = new Curator.Grid({
-        container:'#curator-feed',
-        feedId:"c70e66e4-6932-487d-8174-00fae1fc",
-        apiEndpoint:'http://api.curator.io/v1',
-        grid: {
-            minWidth:150,
-            rows:2
-        }
-    });
+        // Change FEED_ID to your unique FEED_ID
+        var widget = new Curator.Grid({
+            container:'#curator-feed',
+            feedId:"c70e66e4-6932-487d-8174-00fae1fc",
+            apiEndpoint:'http://api.curator.io/v1',
+            grid: {
+                minWidth:150,
+                rows:2
+            }
+        });
     })
 </script>
 </body>
