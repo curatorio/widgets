@@ -1,14 +1,16 @@
 
 
 Curator.Templates = {
-
     postTemplate : ' \
 <div class="crt-post-c">\
     <div class="crt-post post<%=id%> crt-post-<%=this.networkIcon()%>"> \
         <div class="crt-post-header"> \
             <span class="social-icon"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \
             <img src="<%=user_image%>"  /> \
-            <div class="crt-post-name"><span><%=user_full_name%></span><br/><a href="<%=this.userUrl()%>" target="_blank">@<%=user_screen_name%></a></div> \
+            <div class="crt-post-name">\
+            <div class="crt-post-fullname"><%=user_full_name%></div>\
+            <div class="crt-post-username"><a href="<%=this.userUrl()%>" target="_blank">@<%=user_screen_name%></a></div>\
+            </div> \
         </div> \
         <div class="crt-post-content"> \
             <div class="image crt-hitarea crt-post-content-image <%=this.contentImageClasses()%>" > \

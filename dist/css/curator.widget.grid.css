@@ -175,7 +175,7 @@
       position: absolute;
       left: 105px;
       top: 11px;
-      right: 3px;
+      right: 0px;
       font-size: 0.9em;
       line-height: 1.1em;
       white-space: nowrap;
@@ -186,6 +186,14 @@
         color: #2B2B2B; }
         .crt-post .crt-post-header .crt-post-name a:hover {
           color: black; }
+    .crt-post .crt-post-header .crt-post-fullname {
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis; }
+    .crt-post .crt-post-header .crt-post-username {
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis; }
   .crt-post .crt-post-content-text {
     padding-left: 17px;
     padding-right: 17px;
