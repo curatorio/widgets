@@ -2401,16 +2401,16 @@ augment.extend = function (base, body) {
             return this.data.network_name.toLowerCase();
         },
         userUrl:function () {
-            if (this.data.originator_user_url && this.data.originator_user_url != '') {
-                return this.data.originator_user_url;
-            }
             if (this.data.user_url && this.data.user_url != '') {
                 return this.data.user_url;
+            }
+            if (this.data.originator_user_url && this.data.originator_user_url != '') {
+                return this.data.originator_user_url;
             }
             if (this.data.userUrl && this.data.userUrl != '') {
                 return this.data.userUrl;
             }
-            
+
             var netId = this.data.network_id+'';
             if (netId === '1') {
                 return 'http://twitter.com/' + this.data.user_screen_name;
@@ -2420,24 +2420,28 @@ augment.extend = function (base, body) {
                 return 'http://facebook.com/'+this.data.user_screen_name;
             }
 
-            return this.data.network_id;
+            return '#';
 
         },
         parseText:function(s) {
-            if (this.data.network_name==='Twitter') {
-                s = Curator.StringUtils.linksToHref(s);
-                s = Curator.StringUtils.twitterLinks(s);
-            } else if (this.data.network_name==='Instagram') {
-                s = Curator.StringUtils.linksToHref(s);
-                s = Curator.StringUtils.instagramLinks(s);
-            } else if (this.data.network_name==='Facebook') {
-                s = Curator.StringUtils.linksToHref(s);
-                s = Curator.StringUtils.facebookLinks(s);
+            if (this.data.is_html) {
+                return s;
             } else {
-                s = Curator.StringUtils.linksToHref(s);
-            }
+                if (this.data.network_name === 'Twitter') {
+                    s = Curator.StringUtils.linksToHref(s);
+                    s = Curator.StringUtils.twitterLinks(s);
+                } else if (this.data.network_name === 'Instagram') {
+                    s = Curator.StringUtils.linksToHref(s);
+                    s = Curator.StringUtils.instagramLinks(s);
+                } else if (this.data.network_name === 'Facebook') {
+                    s = Curator.StringUtils.linksToHref(s);
+                    s = Curator.StringUtils.facebookLinks(s);
+                } else {
+                    s = Curator.StringUtils.linksToHref(s);
+                }
 
-            return helpers.nl2br(s);
+                return helpers.nl2br(s);
+            }
         },
         nl2br:function(s) {
             s = s.trim();
