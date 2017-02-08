@@ -30,7 +30,11 @@ $color-post-share-text:     $color-secondary;
 @import "_vendor/fontello/css/crt-icon";
 
 .crt-icon-google {
-	@extend .crt-icon-gplus;
+	@extend .crt-icon-gplus-1;
+}
+
+.crt-icon-unknown {
+	@extend .crt-icon-attention-alt;
 }
 
 @import "_common/general";
