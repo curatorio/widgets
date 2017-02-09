@@ -37,6 +37,10 @@ $color-post-share-text:     $color-secondary;
 	@extend .crt-icon-attention-alt;
 }
 
+.crt-icon-linkedin {
+	@extend .crt-icon-linkedin-1;
+}
+
 @import "_common/general";
 
 @import "_partials/post";
