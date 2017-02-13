@@ -1,12 +1,11 @@
-Curator.io Social Feed Widgets
-===
+# Curator.io Social Feed Widgets
 
 
 ### Demo
 
 [Curator.io](http://curator.io/showcase)
 
-### Setup
+## Setup
 
 Sign up to [Curator.io](http://admin.curator.io/auth/register) to set up a social feed - it's free :)
 You'll need your unique `FEED_ID` to use the widgets.
@@ -43,7 +42,7 @@ Then, before your closing ```<body>``` tag add:
 </script>
 ```
 
-### Widgets
+## Widgets
 
 There are 4 main widgets in the Curator library:
 
@@ -76,7 +75,7 @@ var widget = new Curator.Panel({
 });
 ```
 
-### Customisation
+## Customisation
 
 ### Widget Options
 
@@ -181,4 +180,18 @@ Following templates are predefined:
  - Curator.Templates.postTemplate
  - Curator.Templates.popupTemplate
  - Curator.Templates.popupWrapperTemplate
+
+### Custom CSS
+
+As the widget HTML is added directly to the HTML of the webpage (not using an IFRAME) the CSS styles of the widget can be overridden in the same way you'd override CSS on the page. You can use CSS Specificity (see [MDN Specificity](https://developer.mozilla.org/en-US/docs/Web/CSS/Specificity)) to override the styles predefined by the curator.css file.
+
+In the example below we use the ID selector of the div containing the widget '#curator-feed' to override the font-size of the post:
+
+```css
+#curator-feed .crt-post .crt-post-content-text {
+   font-size:20px;
+}
+```
+
+These styles can be placed in the websites main css file or a `<style>` tag in the actual HTML.
 
