@@ -49,6 +49,10 @@ $color-post-share-text:     $color-secondary;
 	@extend .crt-icon-pinterest-1;
 }
 
+.crt-icon-tumblr {
+	@extend .crt-icon-tumblr-1;
+}
+
 .crt-icon-youtube {
 	@extend .crt-icon-youtube-1;
 }
