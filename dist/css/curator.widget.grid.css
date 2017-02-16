@@ -89,11 +89,11 @@
   content: '\f12a'; }
 
 /* '' */
-.crt-icon-youtube-1:before {
+.crt-icon-youtube-1:before, .crt-icon-youtube:before {
   content: '\f167'; }
 
 /* '' */
-.crt-icon-instagram-1:before {
+.crt-icon-instagram-1:before, .crt-icon-instagram:before {
   content: '\f16d'; }
 
 /* '' */
@@ -105,7 +105,7 @@
   content: '\f1ca'; }
 
 /* '' */
-.crt-icon-pinterest-1:before {
+.crt-icon-pinterest-1:before, .crt-icon-pinterest:before {
   content: '\f231'; }
 
 /* '' */

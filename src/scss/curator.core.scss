@@ -41,6 +41,18 @@ $color-post-share-text:     $color-secondary;
 	@extend .crt-icon-linkedin-1;
 }
 
+.crt-icon-instagram {
+	@extend .crt-icon-instagram-1;
+}
+
+.crt-icon-pinterest {
+	@extend .crt-icon-pinterest-1;
+}
+
+.crt-icon-youtube {
+	@extend .crt-icon-youtube-1;
+}
+
 @import "_common/general";
 
 @import "_partials/post";
