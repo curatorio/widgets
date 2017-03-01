@@ -54,10 +54,6 @@ body {
     position: relative;
 }
 
-.crt-popup-wrapper div {
-    box-sizing: border-box;
-}
-
 .crt-popup-wrapper
 {
     width: 100%;
@@ -73,6 +69,9 @@ body {
     overflow-y: auto;
     /*[empty]background-color:;*/
 
+    div {
+        box-sizing: border-box;
+    }
 
     .crt-popup-container
     {
@@ -90,17 +89,11 @@ body {
     .crt-popup
     {
         position: relative;
-        //margin-bottom: -255px;
         max-width: 950px;
         width: 100%;
-        //height: 475px;
-        /*[disabled]background-color:#000000;*/
         z-index: 101;
-        //display: none;
         background-color: #ffffff;
         float: left;
-
-
 
         a {
             text-overflow: ellipsis;
@@ -112,10 +105,8 @@ body {
             }
         }
 
-
-        .crt-popup-left
-        {
-            //@extend .flex-container;
+        .crt-popup-left {
+            display: none;
             background-color: #ffffff;
 
             padding-right: 335px;
@@ -161,29 +152,18 @@ body {
 
         .crt-popup-right
         {
-            position: absolute;
             width: 335px;
-            height: 100%;
             padding: 10px 20px;
             font-family: Arial, san-serif;
             font-weight: normal !important;
             font-size: 15px;
             color: #0b0b0b;
-            top: 0;
-            right: 0;
-            text-align: left;
-            //display: none;
 
             a {
                 color: #626262;
             }
 
             .crt-popup-text {
-                position: absolute;
-                top: 90px;
-                left: 20px;
-                right: 20px;
-                bottom:20px;
                 overflow-x: hidden;
                 overflow-y: scroll;
 
@@ -262,35 +242,6 @@ body {
             opacity: 0.5;
         }
 
-        .crt-close
-        {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            z-index: 1;
-        }
-        .crt-previous,
-        .crt-next
-        {
-            position: absolute;
-            top: 50%;
-            margin-top: -25px;
-            right: -51px;
-            z-index: 1;
-            color: #ffffff;
-            height: 50px;
-            width:50px;
-            text-align: center;
-            //border: 1px solid red;
-            line-height: 50px;
-            font-size: 20px;
-        }
-
-        .crt-previous {
-            right: auto;
-            left: -51px;
-        }
-
         a.crt-play {
             position: absolute;
             top: 0;
@@ -319,12 +270,59 @@ body {
             }
         }
 
-        &.no-image {
-            .crt-popup-left {
-                display: none;
+        .crt-close
+        {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1;
+        }
+
+        .crt-previous,
+        .crt-next
+        {
+            position: absolute;
+            top: 50%;
+            margin-top: -25px;
+            right: -51px;
+            z-index: 1;
+            color: #ffffff;
+            height: 50px;
+            width:50px;
+            text-align: center;
+            //border: 1px solid red;
+            line-height: 50px;
+            font-size: 20px;
+        }
+
+        .crt-previous {
+            right: auto;
+            left: -51px;
+        }
+
+        &.has-image {
+
+            .crt-popup-left
+            {
+                //@extend .flex-container;
+                display: block;
             }
-            .crt-popup-right {
-                position: relative;
+
+            .crt-popup-right
+            {
+                position: absolute;
+                width: 335px;
+                height: 100%;
+                top: 0;
+                right: 0;
+
+                .crt-popup-text {
+                    position: absolute;
+                    top: 90px;
+                    left: 20px;
+                    right: 20px;
+                    bottom:20px;
+                }
             }
         }
 

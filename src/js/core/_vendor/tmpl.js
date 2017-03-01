@@ -143,7 +143,7 @@
         }
     };
 
-    this.parseTemplate = function(str, data) {
+    root.parseTemplate = function(str, data) {
         /// <summary>
         /// Client side template parser that uses &lt;#= #&gt; and &lt;# code #&gt; expressions.
         /// and # # code blocks for template expansion.

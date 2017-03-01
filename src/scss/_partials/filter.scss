@@ -1,0 +1,53 @@
+.crt-filter {
+	margin: 5px;
+	padding: 5px;
+	text-align: center;
+
+	.crt-filter-network {
+		position: relative;
+		display: block;
+
+		ul {
+			display: inline-block;
+			margin: 0;
+			padding: 0;
+			background-color: #efefef;
+
+			li {
+				display: inline-block;
+
+				a {
+					display: block;
+					padding: 7px 10px;
+					text-decoration: none;
+					font-size: 1em;
+					line-height: 1.2em;
+					color: #707070;
+
+					transition: background-color 0.3s linear;
+
+					i {
+						margin-left: -5px;
+					}
+
+					&:hover {
+						text-decoration: none;
+						background-color: rgba(0,0,0,.10);
+					}
+				}
+
+				&.active {
+
+					a {
+						background-color: #cccccc;
+					}
+				}
+			}
+		}
+
+		.crt-filter-label {
+			text-transform: uppercase;
+
+		}
+	}
+}

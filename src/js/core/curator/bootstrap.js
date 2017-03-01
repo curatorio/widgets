@@ -1,6 +1,6 @@
 // Test $ exists
 
-var Curator = {
+let Curator = {
     debug: false,
     SOURCE_TYPES: ['twitter', 'instagram'],
 
@@ -30,7 +30,7 @@ var Curator = {
 
     checkPowered: function (jQuerytag) {
         Curator.log("Curator->checkPowered");
-        var h = jQuerytag.html();
+        let h = jQuerytag.html();
         // Curator.log (h);
         if (h.indexOf('Curator') > 0) {
             return true;
@@ -42,12 +42,12 @@ var Curator = {
 
     loadCSS: function (config) {
         try {
-            var sheet = Curator.createSheet(config);
+            let sheet = Curator.createSheet(config);
 
-            var headerBgs = '.crt-post .crt-post-header, .crt-post .crt-post-header .social-icon';
-            var headerTexts = '.crt-post .crt-post-header, .crt-post .crt-post-share, .crt-post .crt-post-header .crt-post-name a, .crt-post .crt-post-share a, .crt-post .crt-post-header .social-icon i';
-            var bodyBgs = '.crt-post';
-            var bodyTexts = '.crt-post .crt-post-content-text';
+            let headerBgs = '.crt-post .crt-post-header, .crt-post .crt-post-header .social-icon';
+            let headerTexts = '.crt-post .crt-post-header, .crt-post .crt-post-share, .crt-post .crt-post-header .crt-post-name a, .crt-post .crt-post-share a, .crt-post .crt-post-header .social-icon i';
+            let bodyBgs = '.crt-post';
+            let bodyTexts = '.crt-post .crt-post-content-text';
 
             // add new rules
             Curator.addCSSRule(sheet, headerBgs, 'background-color:' + config.colours.headerBg);
@@ -71,7 +71,7 @@ var Curator = {
     },
 
     createSheet: function () {
-        var style = document.createElement("style");
+        let style = document.createElement("style");
         // WebKit hack :(
         style.appendChild(document.createTextNode(""));
         document.head.appendChild(style);
@@ -83,8 +83,27 @@ var Curator = {
             Curator.Templates.postTemplate = template;
         }
 
-        var ConstructorClass = window.Curator[config.type];
+        let ConstructorClass = window.Curator[config.type];
         window.curatorWidget = new ConstructorClass(config);
+    },
+
+    Templates:{},
+
+    Config:{
+        Defaults : {
+            apiEndpoint: 'https://api.curator.io/v1',
+            feedId:'',
+            postsPerPage:12,
+            maxPosts:0,
+            debug: false,
+            postTemplate:'#post-template',
+            onPostsLoaded: function () {
+            },
+            filter: {
+                show: false,
+                label: 'Show:'
+            }
+        }
     },
 
     augment: augment

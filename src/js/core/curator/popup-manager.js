@@ -5,20 +5,13 @@
 */
 
 
-Curator.PopupManager = function (curator) {
-    // console.log (this);
-    this.init(curator);
-};
-
-
-$.extend(Curator.PopupManager.prototype, {
-    templateId:'#popup-wrapper-template',
-    client:null,
-
-    init: function (client) {
+class PopupManager {
+    
+    constructor (client) {
         Curator.log("PopupManager->init ");
 
         this.client = client;
+        this.templateId='#popup-wrapper-template';
 
         this.$wrapper = Curator.Template.render(this.templateId, {});
         this.$popupContainer = this.$wrapper.find('.crt-popup-container');
@@ -28,21 +21,21 @@ $.extend(Curator.PopupManager.prototype, {
         this.$underlay.click($.proxy(this.onUnderlayClick,this));
         //this.$popupContainer.click($.proxy(this.onUnderlayClick,this));
 
-    },
+    }
 
-    showPopup: function (post) {
+    showPopup (post) {
         if (this.popup) {
-            this.popup.hide(function(){
+            this.popup.hide(() => {
                 this.popup.destroy();
                 this.showPopup2(post);
-            }.bind(this));
+            });
         } else {
             this.showPopup2(post);
         }
 
-    },  
+    }
 
-    showPopup2: function (post) {
+    showPopup2 (post) {
         this.popup = new Curator.Popup(this, post, this.feed);
         this.$popupContainer.append(this.popup.$popup);
 
@@ -56,7 +49,7 @@ $.extend(Curator.PopupManager.prototype, {
         $('body').addClass('crt-popup-visible');
 
         this.currentPostNum = 0;
-        for(var i=0;i < this.posts.length;i++)
+        for(let i=0;i < this.posts.length;i++)
         {
             // console.log (post.json.id +":"+this.posts[i].id);
             if (post.json.id == this.posts[i].id) {
@@ -67,57 +60,58 @@ $.extend(Curator.PopupManager.prototype, {
         }
 
         this.client.track('popup:show');
-    },
+    }
 
-    setPosts: function (posts) {
+    setPosts (posts) {
         this.posts = posts;
-    },
+    }
 
-    onClose : function () {
+    onClose  () {
         this.hide();
-    },
+    }
 
-    onPrevious: function () {
+    onPrevious () {
         this.currentPostNum-=1;
         this.currentPostNum = this.currentPostNum>=0?this.currentPostNum:this.posts.length-1; // loop back to start
 
         this.showPopup({json:this.posts[this.currentPostNum]});
-    },
+    }
 
-    onNext: function () {
+    onNext () {
         this.currentPostNum+=1;
         this.currentPostNum = this.currentPostNum<this.posts.length?this.currentPostNum:0; // loop back to start
 
         this.showPopup({json:this.posts[this.currentPostNum]});
-    },
+    }
 
-    onUnderlayClick: function (e) {
+    onUnderlayClick (e) {
         Curator.log('PopupManager->onUnderlayClick');
         e.preventDefault();
 
         this.popup.hide(function(){
             this.hide();
         }.bind(this));
+    }
 
-    },
-
-    hide: function () {
+    hide () {
         Curator.log('PopupManager->hide');
         this.client.track('popup:hide');
         $('body').removeClass('crt-popup-visible');
         this.currentPostNum = 0;
         this.popup = null;
-        this.$underlay.fadeOut(function(){
+        this.$underlay.fadeOut(() => {
             this.$underlay.css({'display':'','opacity':''});
             this.$wrapper.hide();
-        }.bind(this));
-    },
+        });
+    }
     
-    destroy: function () {
+    destroy () {
 
         this.$underlay.remove();
 
         delete this.$popup;
         delete this.$underlay;
     }
-});
+}
+
+Curator.PopupManager = PopupManager; 

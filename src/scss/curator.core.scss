@@ -29,40 +29,14 @@ $color-post-share-text:     $color-secondary;
 @import "_common/mixins";
 @import "_vendor/fontello/css/crt-icon";
 
-.crt-icon-google {
-	@extend .crt-icon-gplus-1;
-}
-
-.crt-icon-unknown {
-	@extend .crt-icon-attention-alt;
-}
-
-.crt-icon-linkedin {
-	@extend .crt-icon-linkedin-1;
-}
-
-.crt-icon-instagram {
-	@extend .crt-icon-instagram-1;
-}
-
-.crt-icon-pinterest {
-	@extend .crt-icon-pinterest-1;
-}
-
-.crt-icon-tumblr {
-	@extend .crt-icon-tumblr-1;
-}
-
-.crt-icon-youtube {
-	@extend .crt-icon-youtube-1;
-}
-
+@import "_common/icons";
 @import "_common/general";
 
 @import "_partials/post";
 @import "_partials/tag";
 @import "_partials/popup";
 @import "_partials/play";
+@import "_partials/filter";
 
 
 

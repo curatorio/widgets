@@ -1,6 +1,6 @@
 {
   "name": "curator-widgets",
-  "version": "1.0.0",
+  "version": "1.4.4",
   "description": "Curator Widgets - Social media aggregator widgets",
   "homepage": "https://github.com/curatorio/widgets",
   "main": "dist/curator.core.js",
@@ -26,7 +26,7 @@
   },
   "devDependencies": {
     "gulp": "*",
-    "gulp-add-src": "^0.2.0",
+    "gulp-add-src": "*",
     "gulp-autoprefixer": "*",
     "gulp-concat": "*",
     "gulp-if": "*",
@@ -38,9 +38,9 @@
     "gulp-sass": "*",
     "gulp-uglify": "*",
     "gulp-umd": "*",
-    "gulp-wrap": "^0.13.0",
-    "jshint-stylish": "^2.1.0",
-    "sass": "*",
-    "jshint": "*"
+    "gulp-wrap": "*",
+    "jshint": "*",
+    "gulp-babel": "*",
+    "babel-preset-latest": "*"
   }
 }

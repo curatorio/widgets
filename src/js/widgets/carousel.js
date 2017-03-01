@@ -1,40 +1,33 @@
 
-Curator.CarouselDefaults = {
-    feedId:'',
-    postsPerPage:12,
-    maxPosts:0,
-    apiEndpoint:'https://api.curator.io/v1',
+
+Curator.Config.Carousel = $.extend({}, Curator.Config.Defaults, {
     scroll:'more',
-    animate:true,
     carousel:{
         autoPlay:true,
         autoLoad:true
     },
-    onPostsLoaded:function(){}
-};
+});
 
-Curator.Carousel = Curator.augment.extend(Curator.Client, {
-    containerHeight: 0,
-    loading: false,
-    feed: null,
-    $container: null,
-    $feed: null,
-    posts:[],
-    carousel:null,
-    firstLoad:true,
+class Carousel extends Client {
 
-    constructor: function (options) {
-        this.uber.setOptions.call (this, options,  Curator.CarouselDefaults);
+    constructor (options) {
+        super ();
+
+        this.setOptions (options,  Curator.Config.Carousel);
+
+        this.containerHeight=0;
+        this.loading=false;
+        this.posts=[];
+        this.firstLoad=true;
 
         Curator.log("Carousel->init with options:");
         Curator.log(this.options);
 
-        if (this.uber.init.call (this)) {
-            this.options.carousel = $.extend({}, Curator.CarouselDefaults.carousel, options.carousel);
+        if (this.init (this)) {
 
             this.allLoaded = false;
 
-            var that = this;
+             let that = this;
 
             // this.$wrapper = $('<div class="crt-carousel-wrapper"></div>').appendTo(this.$container);
             this.$feed = $('<div class="crt-feed"></div>').appendTo(this.$container);
@@ -55,17 +48,17 @@ Curator.Carousel = Curator.augment.extend(Curator.Client, {
             // load first set of posts
             this.loadPosts(0);
         }
-    },
+    }
 
-    loadMorePosts : function () {
+    loadMorePosts  () {
         Curator.log('Carousel->loadMorePosts');
 
         if (this.feed.postCount > this.feed.postsLoaded) {
             this.feed.loadPosts(this.feed.currentPage + 1);
         }
-    },
+    }
 
-    onPostsLoaded: function (posts) {
+    onPostsLoaded (posts) {
         Curator.log("Carousel->onPostsLoaded");
 
         this.loading = false;
@@ -73,10 +66,10 @@ Curator.Carousel = Curator.augment.extend(Curator.Client, {
         if (posts.length === 0) {
             this.allLoaded = true;
         } else {
-            var that = this;
-            var $els = [];
+             let that = this;
+             let $els = [];
             $(posts).each(function(i){
-                var p = that.createPostElement(this);
+                 let p = that.createPostElement(this);
                 $els.push(p.$el);
 
                 if (that.options.animate && that.firstLoad) {
@@ -98,15 +91,15 @@ Curator.Carousel = Curator.augment.extend(Curator.Client, {
             this.options.onPostsLoaded (this, posts);
         }
         this.firstLoad = false;
-    },
-
-    onPostsFail: function (data) {
+    }
+    
+    onPostsFail (data) {
         Curator.log("Carousel->onPostsFail");
         this.loading = false;
         this.$feed.html('<p style="text-align: center">'+data.message+'</p>');
-    },
+    }
 
-    destroy : function () {
+    destroy  () {
         this.carousel.destroy();
         this.$feed.remove();
         this.$container.removeClass('crt-carousel');
@@ -123,4 +116,7 @@ Curator.Carousel = Curator.augment.extend(Curator.Client, {
         delete this.feed;
     }
 
-});
+}
+
+
+Curator.Carousel = Carousel;

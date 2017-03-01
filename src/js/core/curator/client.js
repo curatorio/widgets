@@ -1,13 +1,13 @@
 
-Curator.Client = augment.extend(Object, {
-    constructor : function () {
+class Client {
+
+    constructor () {
         Curator.log('Client->construct');
+    }
 
-    },
+    setOptions (options, defaults) {
 
-    setOptions : function (options, defaults) {
-
-        this.options = $.extend({}, defaults, options);
+        this.options = $.extend(true,{}, defaults, options);
 
         if (options.debug) {
             Curator.debug = true;
@@ -16,9 +16,9 @@ Curator.Client = augment.extend(Object, {
         // Curator.log(this.options);
 
         return true;
-    },
+    }
 
-    init : function () {
+    init () {
 
         if (!Curator.checkContainer(this.options.container)) {
             return false;
@@ -27,44 +27,49 @@ Curator.Client = augment.extend(Object, {
         this.$container = $(this.options.container);
 
         this.createFeed();
+        this.createFilter();
         this.createPopupManager();
 
         return true;
-    },
+    }
 
-    createFeed : function () {
-        this.feed = new Curator.Feed ({
-            debug:this.options.debug,
-            feedId:this.options.feedId,
-            feedParams:this.options.feedParams,
-            postsPerPage:this.options.postsPerPage,
-            apiEndpoint:this.options.apiEndpoint,
-            onPostsLoaded:this.onPostsLoaded.bind(this),
-            onPostsFail:this.onPostsFail.bind(this)
+    createFeed () {
+        this.feed = new Curator.Feed (this);
+        this.feed.on('postsLoaded', (event) => {
+            this.onPostsLoaded(event.target);
         });
-    },
-    
-    createPopupManager : function () {
+        this.feed.on('postsFailed', (event) => {
+            this.onPostsFail(event.target);
+        });
+    }
+
+    createPopupManager () {
         this.popupManager = new Curator.PopupManager(this);
-    },
+    }
 
-    loadPosts: function (page) {
+    createFilter () {
+        if (this.options.filter && this.options.filter.show) {
+            this.filter = new Curator.Filter(this);
+        }
+    }
+
+    loadPosts (page) {
         this.feed.loadPosts(page);
-    },
+    }
 
-    createPostElements : function (posts)
+    createPostElements (posts)
     {
-        var that = this;
-        var postElements = [];
+        let that = this;
+        let postElements = [];
         $(posts).each(function(){
-            var p = that.createPostElement(this);
+            let p = that.createPostElement(this);
             postElements.push(p.$el);
         });
         return postElements;
-    },
+    }
 
-    createPostElement: function (postJson) {
-        var post = new Curator.Post(postJson, this.options, this);
+    createPostElement (postJson) {
+        let post = new Curator.Post(postJson, this.options, this);
         $(post).bind('postClick',$.proxy(this.onPostClick, this));
         $(post).bind('postReadMoreClick',$.proxy(this.onPostClick, this));
 
@@ -73,42 +78,44 @@ Curator.Client = augment.extend(Object, {
         }
 
         return post;
-    },
+    }
 
-    onPostsLoaded: function (posts) {
+    onPostsLoaded (event) {
         Curator.log('Client->onPostsLoaded');
-        Curator.log(posts);
-    },
+        Curator.log(event.target);
+    }
 
-    onPostsFail: function (data) {
+    onPostsFail (event) {
         Curator.log('Client->onPostsLoadedFail');
-        Curator.log(data);
-    },
+        Curator.log(event.target);
+    }
 
-    onPostClick: function (ev,post) {
+    onPostClick (ev,post) {
         this.popupManager.showPopup(post);
-    },
+    }
 
-    track : function (a) {
+    track (a) {
         Curator.log('Feed->track '+a);
 
         $.ajax({
             url: this.getUrl('/track/'+this.options.feedId),
             dataType: 'json',
             data: {a:a},
-            success: function (data) {
+            success (data) {
                 Curator.log('Feed->track success');
                 Curator.log(data);
             },
-            error: function (jqXHR, textStatus, errorThrown) {
+            error (jqXHR, textStatus, errorThrown) {
                 Curator.log('Feed->_loadPosts fail');
                 Curator.log(textStatus);
                 Curator.log(errorThrown);
             }
         });
-    },
+    }
 
-    getUrl : function (trail) {
+    getUrl (trail) {
         return this.options.apiEndpoint+trail;
     }
-});
+}
+
+Curator.Client = Client;

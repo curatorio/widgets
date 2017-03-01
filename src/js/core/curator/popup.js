@@ -5,33 +5,37 @@
 */
 
 
-Curator.Popup = function (json,feed) {
-    this.init(json,feed);
-};
-
-
-
-$.extend(Curator.Popup.prototype, {
-    templateId:'#popup-template',
-    videoPlaying:false,
-
-    init: function (popupManager, post, feed) {
+class Popup {
+    
+    constructor (popupManager, post, feed) {
         Curator.log("Popup->init ");
  
         this.popupManager = popupManager;
         this.json = post.json;
         this.feed = feed;
 
+        this.templateId='#popup-template';
+        this.videoPlaying=false;
+
         this.$popup = Curator.Template.render(this.templateId, this.json);
+
+        if (this.json.image) {
+            this.$popup.addClass('has-image');
+        }
+
+        if (this.json.video) {
+            this.$popup.addClass('has-video');
+        }
 
         if (this.json.video && this.json.video.indexOf('youtu') >= 0 )
         {
             // youtube
             this.$popup.find('video').remove();
+            // this.$popup.removeClass('has-image');
 
-            var youTubeId = Curator.StringUtils.youtubeVideoId(this.json.video);
+            let youTubeId = Curator.StringUtils.youtubeVideoId(this.json.video);
 
-            var src = '<iframe id="ytplayer" type="text/html" width="615" height="615" \
+            let src = '<iframe id="ytplayer" type="text/html" width="615" height="615" \
             src="https://www.youtube.com/embed/'+youTubeId+'?autoplay=0&rel=0&showinfo" \
             frameborder="0"></iframe>';
 
@@ -39,42 +43,37 @@ $.extend(Curator.Popup.prototype, {
             this.$popup.find('.crt-video-container a').remove();
             this.$popup.find('.crt-video-container').append(src);
 
-        } else if (!this.json.image) {
-            this.$popup.addClass('no-image');
         }
 
-        if (this.json.video) {
-            this.$popup.addClass('has-video');
-        }
 
         this.$popup.on('click',' .crt-close', $.proxy(this.onClose,this));
         this.$popup.on('click',' .crt-previous', $.proxy(this.onPrevious,this));
         this.$popup.on('click',' .crt-next', $.proxy(this.onNext,this));
         this.$popup.on('click',' .crt-play', $.proxy(this.onPlay,this));
 
-    },
+    }
 
-    onClose: function (e) {
+    onClose (e) {
         e.preventDefault();
-        var that = this;
+        let that = this;
         this.hide(function(){
             that.popupManager.onClose();
         });
-    },
+    }
 
-    onPrevious: function (e) {
+    onPrevious (e) {
         e.preventDefault();
 
         this.popupManager.onPrevious();
-    },
+    }
 
-    onNext: function (e) {
+    onNext (e) {
         e.preventDefault();
 
         this.popupManager.onNext();
-    },
+    }
 
-    onPlay: function (e) {
+    onPlay (e) {
         Curator.log('Popup->onPlay');
         e.preventDefault();
 
@@ -91,25 +90,25 @@ $.extend(Curator.Popup.prototype, {
         Curator.log(this.videoPlaying);
 
         this.$popup.toggleClass('video-playing',this.videoPlaying );
-    },
+    }
 
-    show: function () {
+    show () {
         //
-        // var post = this.json;
-        // var mediaUrl = post.image,
+        // let post = this.json;
+        // let mediaUrl = post.image,
         //     text = post.text;
         //
         // if (mediaUrl) {
-        //     var $imageWrapper = that.$el.find('div.main-image-wrapper');
+        //     let $imageWrapper = that.$el.find('div.main-image-wrapper');
         //     this.loadMainImage(mediaUrl, $imageWrapper, ['main-image']);
         // }
         //
-        // var $socialIcon = this.$el.find('.social-icon');
+        // let $socialIcon = this.$el.find('.social-icon');
         // $socialIcon.attr('class', 'social-icon');
         // $socialIcon.addClass(Curator.SOURCE_TYPES[post.sourceType]);
         //
         // //format the date
-        // var date = Curator.Utils.dateAsDayMonthYear(post.sourceCreateAt);
+        // let date = Curator.Utils.dateAsDayMonthYear(post.sourceCreateAt);
         //
         // this.$el.find('input.discovery-id').val(post.id);
         // this.$el.find('div.full-name span').html(post.user_full_name);
@@ -124,18 +123,18 @@ $.extend(Curator.Popup.prototype, {
             //     $('.popup .content').fadeIn('slow');
             // });
         });
-    },
+    }
     
-    hide: function (callback) {
+    hide (callback) {
         Curator.log('Popup->hide');
-        var that = this;
+        let that = this;
         this.$popup.fadeOut(function(){
             that.destroy();
             callback ();
         });
-    },
+    }
     
-    destroy: function () {
+    destroy () {
         if (this.$popup && this.$popup.length) {
             this.$popup.remove();
 
@@ -147,4 +146,6 @@ $.extend(Curator.Popup.prototype, {
 
         delete this.$popup;
     }
-});
+}
+
+Curator.Popup = Popup;

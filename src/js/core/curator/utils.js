@@ -23,7 +23,7 @@ Curator.Utils = {
     },
 
     center : function (elementWidth, elementHeight, bound) {
-        var s = window.screen,
+        let s = window.screen,
             b = bound || {},
             bH = b.height || s.height,
             bW = b.width || s.height,
@@ -62,12 +62,12 @@ Curator.DateUtils = {
      */
     dateFromString: function (time) {
         dtstr = time.replace(/\D/g," ");
-        var dtcomps = dtstr.split(" ");
+        let dtcomps = dtstr.split(" ");
 
         // modify month between 1 based ISO 8601 and zero based Date
         dtcomps[1]--;
 
-        var date = new Date(Date.UTC(dtcomps[0],dtcomps[1],dtcomps[2],dtcomps[3],dtcomps[4],dtcomps[5]));
+        let date = new Date(Date.UTC(dtcomps[0],dtcomps[1],dtcomps[2],dtcomps[3],dtcomps[4],dtcomps[5]));
 
         return date;
     },
@@ -76,17 +76,17 @@ Curator.DateUtils = {
      * Format the date as DD/MM/YYYY
      */
     dateAsDayMonthYear: function (strEpoch) {
-        var myDate = new Date(parseInt(strEpoch, 10));
+        let myDate = new Date(parseInt(strEpoch, 10));
         // console.log(myDate.toGMTString()+"<br>"+myDate.toLocaleString());
 
-        var day = myDate.getDate() + '';
-        var month = (myDate.getMonth() + 1) + '';
-        var year = myDate.getFullYear() + '';
+        let day = myDate.getDate() + '';
+        let month = (myDate.getMonth() + 1) + '';
+        let year = myDate.getFullYear() + '';
 
         day = day.length === 1 ? '0' + day : day;
         month = month.length === 1 ? '0' + month : month;
 
-        var created = day + '/' + month + '/' + year;
+        let created = day + '/' + month + '/' + year;
 
         return created;
     },
@@ -95,11 +95,11 @@ Curator.DateUtils = {
      * Convert the date into a time array
      */
     dateAsTimeArray: function (strEpoch) {
-        var myDate = new Date(parseInt(strEpoch, 10));
+        let myDate = new Date(parseInt(strEpoch, 10));
 
-        var hours = myDate.getHours() + '';
-        var mins = myDate.getMinutes() + '';
-        var ampm;
+        let hours = myDate.getHours() + '';
+        let mins = myDate.getMinutes() + '';
+        let ampm;
 
         if (hours >= 12) {
             ampm = 'PM';
@@ -114,7 +114,7 @@ Curator.DateUtils = {
         hours = hours.length === 1 ? '0' + hours : hours; //console.log(hours.length);
         mins = mins.length === 1 ? '0' + mins : mins; //console.log(mins);
 
-        var array = [
+        let array = [
             parseInt(hours.charAt(0), 10),
             parseInt(hours.charAt(1), 10),
             parseInt(mins.charAt(0), 10),
@@ -131,11 +131,11 @@ Curator.StringUtils = {
     twitterLinks : function (s)
     {
         s = s.replace(/[@]+[A-Za-z0-9-_]+/g, function(u) {
-            var username = u.replace("@","");
+            let username = u.replace("@","");
             return Curator.StringUtils.url("https://twitter.com/"+username,u);
         });
         s = s.replace(/[#]+[A-Za-z0-9-_]+/g, function(t) {
-            var tag = t.replace("#","%23");
+            let tag = t.replace("#","%23");
             return Curator.StringUtils.url("https://twitter.com/search?q="+tag,t);
         });
 
@@ -145,11 +145,11 @@ Curator.StringUtils = {
     instagramLinks : function (s)
     {
         s = s.replace(/[@]+[A-Za-z0-9-_]+/g, function(u) {
-            var username = u.replace("@","");
+            let username = u.replace("@","");
             return Curator.StringUtils.url("https://www.instagram.com/"+username+'/',u);
         });
         s = s.replace(/[#]+[A-Za-z0-9-_]+/g, function(t) {
-            var tag = t.replace("#","");
+            let tag = t.replace("#","");
             return Curator.StringUtils.url("https://www.instagram.com/explore/tags/"+tag+'/',t);
         });
 
@@ -159,11 +159,11 @@ Curator.StringUtils = {
     facebookLinks : function (s)
     {
         s = s.replace(/[@]+[A-Za-z0-9-_]+/g, function(u) {
-            var username = u.replace("@","");
+            let username = u.replace("@","");
             return Curator.StringUtils.url("https://www.facebook.com/"+username+'/',u);
         });
         s = s.replace(/[#]+[A-Za-z0-9-_]+/g, function(t) {
-            var tag = t.replace("#","%23");
+            let tag = t.replace("#","%23");
             return Curator.StringUtils.url("https://www.facebook.com/search/top/?q="+tag,t);
         });
 
@@ -185,8 +185,8 @@ Curator.StringUtils = {
     },
 
     youtubeVideoId : function (url){
-        var regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#\&\?]*).*/;
-        var match = url.match(regExp);
+        let regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#\&\?]*).*/;
+        let match = url.match(regExp);
         return (match&&match[7].length==11)? match[7] : false;
     }
 };

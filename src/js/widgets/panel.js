@@ -1,9 +1,5 @@
 
-Curator.PanelDefaults = {
-    feedId:'',
-    postsPerPage:12,
-    maxPosts:0,
-    apiEndpoint:'https://api.curator.io/v1',
+Curator.Config.Panel = $.extend({}, Curator.Config.Defaults, {
     panel: {
         // speed: 500,
         autoPlay: true,
@@ -12,31 +8,28 @@ Curator.PanelDefaults = {
         fixedHeight:false,
         infinite:true,
         minWidth:2000
-    },
-    onPostsLoaded:function(){}
-};
+    }
+});
 
+class Panel extends Curator.Client {
 
-Curator.Panel = Curator.augment.extend(Curator.Client, {
-    containerHeight: 0,
-    loading: false,
-    feed: null,
-    $container: null,
-    $feed: null,
-    posts:[],
+    constructor  (options) {
+        super ();
 
-    constructor: function (options) {
-        this.uber.setOptions.call (this, options,  Curator.PanelDefaults);
+        this.setOptions (options,  Curator.Config.Panel);
 
         Curator.log("Panel->init with options:");
         Curator.log(this.options);
 
-        if (this.uber.init.call (this)) {
-            this.options.panel = $.extend({}, Curator.PanelDefaults.panel, options.panel);
+        this.containerHeight=0;
+        this.loading=false;
+        this.feed=null;
+        this.$container=null;
+        this.$feed=null;
+        this.posts=[];
 
+        if (this.init (this)) {
             this.allLoaded = false;
-
-            var that = this;
 
             this.$feed = $('<div class="crt-feed"></div>').appendTo(this.$container);
             this.$container.addClass('crt-panel');
@@ -46,10 +39,10 @@ Curator.Panel = Curator.augment.extend(Curator.Client, {
             }
 
             this.$feed.curatorCarousel(this.options.panel);
-            this.$feed.on('curatorCarousel:changed', function (event, carousel, currentSlide) {
-                if (!that.allLoaded && that.options.panel.autoLoad) {
-                    if (currentSlide >= that.feed.postsLoaded - 4) {
-                        that.loadMorePosts();
+            this.$feed.on('curatorCarousel:changed', (event, carousel, currentSlide) => {
+                if (!this.allLoaded && this.options.panel.autoLoad) {
+                    if (currentSlide >= this.feed.postsLoaded - 4) {
+                        this.loadMorePosts();
                     }
                 }
             });
@@ -57,15 +50,15 @@ Curator.Panel = Curator.augment.extend(Curator.Client, {
             // load first set of posts
             this.loadPosts(0);
         }
-    },
+    }
 
-    loadMorePosts : function () {
+    loadMorePosts   () {
         Curator.log('Carousel->loadMorePosts');
 
         this.feed.loadPosts(this.feed.currentPage+1);
-    },
+    }
 
-    onPostsLoaded: function (posts) {
+    onPostsLoaded  (posts) {
         Curator.log("Carousel->onPostsLoaded");
 
         this.loading = false;
@@ -73,10 +66,10 @@ Curator.Panel = Curator.augment.extend(Curator.Client, {
         if (posts.length === 0) {
             this.allLoaded = true;
         } else {
-            var that = this;
-            var $els = [];
+            let that = this;
+            let $els = [];
             $(posts).each(function(){
-                var p = that.createPostElement(this);
+                let p = that.createPostElement(this);
                 $els.push(p.$el);
             });
 
@@ -87,15 +80,15 @@ Curator.Panel = Curator.augment.extend(Curator.Client, {
 
             this.options.onPostsLoaded (this, posts);
         }
-    },
+    }
 
-    onPostsFail: function (data) {
+    onPostsFail  (data) {
         Curator.log("Carousel->onPostsFail");
         this.loading = false;
         this.$feed.html('<p style="text-align: center">'+data.message+'</p>');
-    },
+    }
 
-    destroy : function () {
+    destroy   () {
         this.$feed.curatorCarousel('destroy');
         this.$feed.remove();
         this.$container.removeClass('crt-panel');
@@ -111,4 +104,6 @@ Curator.Panel = Curator.augment.extend(Curator.Client, {
         // unregistering events etc
         delete this.feed;
     }
-});
+}
+
+Curator.Panel = Panel;

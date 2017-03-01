@@ -1,7 +1,7 @@
 
 
-Curator.Templates = {
-    postTemplate : ' \
+
+Curator.Templates.postTemplate = ' \
 <div class="crt-post-c">\
     <div class="crt-post post<%=id%> crt-post-<%=this.networkIcon()%>"> \
         <div class="crt-post-header"> \
@@ -15,7 +15,7 @@ Curator.Templates = {
         <div class="crt-post-content"> \
             <div class="image crt-hitarea crt-post-content-image <%=this.contentImageClasses()%>" > \
                 <img src="<%=image%>" class="crt-post-image" /> \
-                <a href="javascript:;" class="crt-play"><i class="play"></i></a> \
+                <span class="crt-play"><i class="play"></i></span> \
             </div> \
             <div class="text crt-post-content-text <%=this.contentTextClasses()%>"> \
                 <div class="crt-post-text-body"><%=this.parseText(text)%></div> \
@@ -27,16 +27,17 @@ Curator.Templates = {
         </div> \
         <div class="crt-post-read-more"><a href="#" class="crt-post-read-more-button">Read more</a> </div> \
     </div>\
-</div>',
+</div>';
 
-    popupWrapperTemplate : ' <div class="crt-popup-wrapper"> \
-<div class="crt-popup-underlay"></div> \
-<div class="crt-popup-wrapper-c"> \
-<div class="crt-popup-container"></div> \
-</div> \
-</div>',
+Curator.Templates.popupWrapperTemplate = ' \
+<div class="crt-popup-wrapper"> \
+    <div class="crt-popup-underlay"></div> \
+    <div class="crt-popup-wrapper-c"> \
+        <div class="crt-popup-container"></div> \
+    </div> \
+</div>';
 
-    popupTemplate : ' \
+Curator.Templates.popupTemplate = ' \
 <div class="crt-popup"> \
     <a href="#" class="crt-close crt-icon-cancel"></a> \
     <a href="#" class="crt-next crt-icon-right-open"></a> \
@@ -68,11 +69,9 @@ Curator.Templates = {
             </div> \
         </div> \
     </div> \
-</div>',
+</div>';
 
-
-    popupUnderlayTemplate : '' 
-};
+Curator.Templates.popupUnderlayTemplate = '';
 
 Curator.Template = {
     camelize: function (s) {
@@ -81,15 +80,18 @@ Curator.Template = {
         });
     },
     render: function (templateId, data) {
-        var cam = this.camelize(templateId).substring(1);
-        var source = '';
+        let cam = this.camelize(templateId).substring(1);
+        let source = '';
 
-        if ($(templateId).length===1)
-        {
-            source = $(templateId).html();
-        } else if (Curator.Templates[cam] !== undefined)
+        // console.log (cam);
+        // console.log (data);
+
+        if (Curator.Templates[cam] !== undefined)
         {
             source = Curator.Templates[cam];
+        } else if ($(templateId).length===1)
+        {
+            source = $(templateId).html();
         }
 
         if (source === '')
@@ -97,13 +99,12 @@ Curator.Template = {
             throw new Error ('could not find template '+templateId+'('+cam+')');
         }
 
-        var tmpl = window.parseTemplate(source, data);
+        let tmpl = window.parseTemplate(source, data);
         if ($.parseHTML) {
             // breaks with jquery < 1.8
             tmpl = $.parseHTML(tmpl);
         }
         return $(tmpl).filter('div');
     }
-
 };
 

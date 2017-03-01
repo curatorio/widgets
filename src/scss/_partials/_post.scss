@@ -113,7 +113,7 @@
     {
         padding-left: 17px;
         padding-right: 17px;
-        padding-top: 16px;
+        //padding-top: 16px;
         padding-bottom: 16px;
         color: $color-post-text;
         font-size:  $font-size-post-text;
@@ -139,6 +139,7 @@
         max-height: 400px;
         overflow: hidden;
         position: relative;
+        margin-bottom: 16px;
 
         .text
         {

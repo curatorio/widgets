@@ -3,104 +3,210 @@
 <head>
     <title></title>
     <link href="../dist/css/curator.css" rel="stylesheet" />
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" />
     <link href="css/example.css" rel="stylesheet"/>
+
 </head>
 <body>
 <h1>Curator.io Examples</h1>
-<table align="center">
-    <tr>
-        <td><a href="waterfall.html">Waterfall</a></td>
-        <td></td>
-    </tr>
-    <tr>
-        <td><a href="waterfall-require.html">Waterfall</a></td>
-        <td> - using RequireJS</td>
-    </tr>
-    <tr>
-        <td><a href="waterfall-zepto.html">Waterfall</a></td>
-        <td> - using Zepto</td>
-    </tr>
-    <tr>
-        <td><a href="waterfall-nodep.html">Waterfall</a></td>
-        <td> - no dependencies</td>
-    </tr>
-    <tr>
-        <td><a href="waterfall-pagination.html">Waterfall</a></td>
-        <td> - with Pagination</td>
-    </tr>
-    <tr>
-        <td><a href="waterfall-fixedheight.html">Waterfall</a></td>
-        <td> - max height</td>
-    </tr>
-    <tr>
-        <td><a href="carousel.html">Carousel</a></td>
-        <td></td>
-    </tr>
-    <tr>
-        <td><a href="carousel-zepto.html">Carousel</a></td>
-        <td> - using Zepto</td>
-    </tr>
-    <tr>
-        <td><a href="carousel-require.html">Carousel</a></td>
-        <td> - using RequireJS</td>
-    </tr>
-    <tr>
-        <td><a href="carousel-nodep.html">Carousel</a></td>
-        <td> - no dependencies</td>
-    </tr>
-    <tr>
-        <td><a href="carousel-limited.html">Carousel</a></td>
-        <td> - limited</td>
-    </tr>
-    <tr>
-        <td><a href="panel.html">Panel</a></td>
-        <td></td>
-    </tr>
-    <tr>
-        <td><a href="panel-nodep.html">Panel</a></td>
-        <td> - no dependencies</td>
-    </tr>
-    <tr>
-        <td><a href="panel-fixed-height.html">Panel</a></td>
-        <td> - fixed height</td>
-    </tr>
-    <tr>
-        <td><a href="grid.html">Grid</a></td>
-        <td></td>
-    </tr>
-    <tr>
-        <td><a href="grid-embed.html">Grid</a></td>
-        <td> - embed</td>
-    </tr>
-    <tr>
-        <td><a href="grid-zepto.html">Grid</a></td>
-        <td> - zepto</td>
-    </tr>
-    <tr>
-        <td><a href="grid-loadmore.html">Grid</a></td>
-        <td> - with load more</td>
-    </tr>
-    <tr>
-        <td><a href="grid-nodep.html">Grid</a></td>
-        <td> - no dependencies</td>
-    </tr>
-    <tr>
-        <td><a href="custom.html">Custom</a></td>
-        <td></td>
-    </tr>
-</table>
-<h5 class="center">Icons</h5>
-<p class="center">
-    1 - <i class="crt-icon-twitter"></i><br>
-    2 - <i class="crt-icon-instagram"></i><br>
-    3 - <i class="crt-icon-facebook"></i><br>
-    4 - <i class="crt-icon-pinterest"></i><br>
-    5 - <i class="crt-icon-google"></i><br>
-    6 - <i class="crt-icon-vine"></i><br>
-    7 - <i class="crt-icon-flickr"></i><br>
-    8 - <i class="crt-icon-youtube"></i><br>
-    10 - <i class="crt-icon-tumblr"></i><br>
-</p>
+
+<div class="container">
+    <div class="row">
+        <div class="col-sm-4">
+            <h3>Waterfall Examples</h3>
+            <table class="table table-striped">
+
+                <tr>
+                    <td><a href="waterfall.html">Waterfall</a></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td><a href="waterfall-require.html">Waterfall</a></td>
+                    <td> - using RequireJS</td>
+                </tr>
+                <tr>
+                    <td><a href="waterfall-zepto.html">Waterfall</a></td>
+                    <td> - using Zepto</td>
+                </tr>
+                <tr>
+                    <td><a href="waterfall-nodep.html">Waterfall</a></td>
+                    <td> - no dependencies</td>
+                </tr>
+                <tr>
+                    <td><a href="waterfall-pagination.html">Waterfall</a></td>
+                    <td> - with Pagination</td>
+                </tr>
+                <tr>
+                    <td><a href="waterfall-fixedheight.html">Waterfall</a></td>
+                    <td> - max height</td>
+                </tr>
+                <tr>
+                    <td><a href="waterfall-filter.html">Waterfall</a></td>
+                    <td> - with filter</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="col-sm-4">
+            <h3>Carousel Examples</h3>
+            <table class="table table-striped">
+                <tr>
+                    <td><a href="carousel.html">Carousel</a></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td><a href="carousel-zepto.html">Carousel</a></td>
+                    <td> - using Zepto</td>
+                </tr>
+                <tr>
+                    <td><a href="carousel-require.html">Carousel</a></td>
+                    <td> - using RequireJS</td>
+                </tr>
+                <tr>
+                    <td><a href="carousel-nodep.html">Carousel</a></td>
+                    <td> - no dependencies</td>
+                </tr>
+                <tr>
+                    <td><a href="carousel-limited.html">Carousel</a></td>
+                    <td> - limited</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="col-sm-4">
+            <h3>Grid Examples</h3>
+            <table class="table table-striped">
+                <tr>
+                    <td><a href="grid.html">Grid</a></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td><a href="grid-embed.html">Grid</a></td>
+                    <td> - embed</td>
+                </tr>
+                <tr>
+                    <td><a href="grid-zepto.html">Grid</a></td>
+                    <td> - zepto</td>
+                </tr>
+                <tr>
+                    <td><a href="grid-loadmore.html">Grid</a></td>
+                    <td> - with load more</td>
+                </tr>
+                <tr>
+                    <td><a href="grid-nodep.html">Grid</a></td>
+                    <td> - no dependencies</td>
+                </tr>
+            </table>
+
+            <h3>Panel Examples</h3>
+            <table class="table table-striped">
+                <tr>
+                    <td><a href="panel.html">Panel</a></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td><a href="panel-nodep.html">Panel</a></td>
+                    <td> - no dependencies</td>
+                </tr>
+                <tr>
+                    <td><a href="panel-fixed-height.html">Panel</a></td>
+                    <td> - fixed height</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+
+<div class="row">
+    <div class="col-md-6">
+
+        <h4>Icons</h4>
+
+        <div class="row">
+            <div class="col-md-6">
+                <table class="table  table-striped">
+                    <tr>
+                        <th>#</th>
+                        <th>name</th>
+                        <th>icon</th>
+                    </tr>
+                    <tr>
+                        <td>0</td>
+                        <td>.crt-icon-unknown</td>
+                        <td><i class="crt-icon-unknown"></i></td>
+                    </tr>
+                    <tr>
+                        <td>1</td>
+                        <td>.crt-icon-twitter</td>
+                        <td><i class="crt-icon-twitter"></i></td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>.crt-icon-instagram</td>
+                        <td><i class="crt-icon-instagram"></i></td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>.crt-icon-facebook</td>
+                        <td><i class="crt-icon-facebook"></i></td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>.crt-icon-pinterest</td>
+                        <td><i class="crt-icon-pinterest"></i></td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td>.crt-icon-google</td>
+                        <td><i class="crt-icon-google"></i></td>
+                    </tr>
+                </table>
+            </div>
+            <div class="col-md-6">
+
+                <table class="table  table-striped">
+                    <tr>
+                        <th>#</th>
+                        <th>name</th>
+                        <th>icon</th>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td>.crt-icon-vine</td>
+                        <td><i class="crt-icon-vine"></i></td>
+                    </tr>
+                    <tr>
+                        <td>7</td>
+                        <td>.crt-icon-flickr</td>
+                        <td><i class="crt-icon-flickr"></i></td>
+                    </tr>
+                    <tr>
+                        <td>8</td>
+                        <td>.crt-icon-youtube</td>
+                        <td><i class="crt-icon-youtube"></i></td>
+                    </tr>
+                    <tr>
+                        <td>9</td>
+                        <td>.crt-icon-tumblr</td>
+                        <td><i class="crt-icon-tumblr"></i></td>
+                    </tr>
+                    <tr>
+                        <td>10</td>
+                        <td>.crt-icon-rss</td>
+                        <td><i class="crt-icon-rss"></i></td>
+                    </tr>
+                    <tr>
+                        <td>11</td>
+                        <td>.crt-icon-linkedin</td>
+                        <td><i class="crt-icon-linkedin"></i></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
 </body>
 </html>
 

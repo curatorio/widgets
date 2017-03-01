@@ -2,11 +2,11 @@
 
 Curator.SocialTwitter = {
     share: function (post) {
-        var obj = post;
+        let obj = post;
         obj.url = Curator.Utils.postUrl(post);
 
-        var url = "http://twitter.com/share?url={{url}}&text={{text}}&hashtags={{hashtags}}";
-        var url2 = Curator.Utils.tinyparser(url, obj);
+        let url = "http://twitter.com/share?url={{url}}&text={{text}}&hashtags={{hashtags}}";
+        let url2 = Curator.Utils.tinyparser(url, obj);
         // console.log(obj);
         // console.log(url);
         // console.log(url2);

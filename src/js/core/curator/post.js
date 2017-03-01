@@ -7,27 +7,23 @@
 */
 
 
+class Post {
 
-
-Curator.Post = augment.extend(Object, {
-    templateId:'#post-template',
-    defaultTemplateId:'#post-template',
-
-    constructor:function (postJson, options, widget) {
+    constructor (postJson, options, widget) {
         this.options = options;
         this.widget = widget;
 
-        this.templateId = options.postTemplate ? options.postTemplate : this.defaultTemplateId;
-        // this.templateId = templateId || this.defaultTemplateId;
+        this.templateId = this.options.postTemplate;
 
         this.json = postJson;
         this.$el = Curator.Template.render(this.templateId, postJson);
 
         this.$el.find('.crt-share-facebook').click($.proxy(this.onShareFacebookClick,this));
         this.$el.find('.crt-share-twitter').click($.proxy(this.onShareTwitterClick,this));
-        this.$el.find('.crt-hitarea').click($.proxy(this.onPostClick,this));
+        // this.$el.find('.crt-hitarea').click($.proxy(this.onPostClick,this));
         this.$el.find('.crt-post-read-more-button').click($.proxy(this.onReadMoreClick,this));
-        this.$el.on('click','.crt-post-text-body a',$.proxy(this.onLinkClick,this));
+        // this.$el.on('click','.crt-post-text-body a',$.proxy(this.onLinkClick,this));
+        this.$el.click($.proxy(this.onPostClick,this));
         this.$post = this.$el.find('.crt-post');
         this.$image = this.$el.find('.crt-post-image');
         this.$image.css({opacity:0});
@@ -39,32 +35,38 @@ Curator.Post = augment.extend(Object, {
         if (this.json.video) {
             this.$post.addClass('has-video');
         }
-    },
+    }
 
-    onShareFacebookClick : function (ev) {
+    onShareFacebookClick (ev) {
         ev.preventDefault();
         Curator.SocialFacebook.share(this.json);
         this.widget.track('share:facebook');
         return false;
-    },
+    }
 
-    onShareTwitterClick : function (ev) {
+    onShareTwitterClick (ev) {
         ev.preventDefault();
         Curator.SocialTwitter.share(this.json);
         this.widget.track('share:twitter');
         return false;
-    },
+    }
 
-    onPostClick : function (ev) {
-        ev.preventDefault();
-        $(this).trigger('postClick',this, this.json, ev);
-    },
+    onPostClick (ev) {
 
-    onLinkClick : function (ev) {
-        this.widget.track('click:link');
-    },
+        let target = $(ev.target);
 
-    onImageLoaded : function () {
+        if (target.is('a') && target.attr('href') !== '#') {
+            this.widget.track('click:link');
+            console.log ('link');
+        } else {
+            ev.preventDefault();
+            console.log('post');
+            $(this).trigger('postClick', this, this.json, ev);
+        }
+
+    }
+
+    onImageLoaded () {
         this.$image.animate({opacity:1});
 
         if (this.options.maxHeight && this.options.maxHeight > 0 && this.$post.height() > this.options.maxHeight) {
@@ -72,11 +74,13 @@ Curator.Post = augment.extend(Object, {
                 .css({maxHeight: this.options.maxHeight})
                 .addClass('crt-post-max-height');
         }
-    },
+    }
 
-    onReadMoreClick : function (ev) {
+    onReadMoreClick (ev) {
         ev.preventDefault();
         this.widget.track('click:read-more');
         $(this).trigger('postReadMoreClick',this, this.json, ev);
     }
-});
+}
+
+Curator.Post = Post;

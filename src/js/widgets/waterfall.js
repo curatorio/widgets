@@ -1,60 +1,47 @@
 
-Curator.WaterfallDefaults = {
-    feedId:'',
-    postsPerPage:12,
-    maxPosts:0,
-    apiEndpoint:'https://api.curator.io/v1',
+Curator.Config.Waterfall = $.extend({}, Curator.Config.Defaults, {
     scroll:'more',
-    onPostsLoaded:function(){},
-    debug:false,
     waterfall: {
         gridWidth:250,
         animate:true,
         animateSpeed:400
     }
-}; 
+});
 
 
-Curator.Waterfall = Curator.augment.extend(Curator.Client, {
-    containerHeight: 0,
-    loading: false,
-    feed: null,
-    $container: null,
-    $feed: null,
-    posts:[],
-    popupManager:null,
-    name:'Waterfall',
+class Waterfall extends Curator.Client {
 
-    constructor: function (options) {
-        this.uber.setOptions.call (this, options,  Curator.WaterfallDefaults);
-        this.options.waterfall = $.extend({}, Curator.WaterfallDefaults.waterfall, options.waterfall);
+    constructor (options) {
+        super ();
+
+        this.setOptions (options,  Curator.Config.Waterfall);
 
         Curator.log("Waterfall->init with options:");
         Curator.log(this.options);
 
-        if (this.uber.init.call (this)) {
+        if (this.init (this)) {
             this.$scroll = $('<div class="crt-feed-scroll"></div>').appendTo(this.$container);
             this.$feed = $('<div class="crt-feed"></div>').appendTo(this.$scroll);
             this.$container.addClass('crt-feed-container');
 
             if (this.options.scroll=='continuous') {
-                $(this.$scroll).scroll(function () {
-                    var height = this.$scroll.height();
-                    var cHeight = this.$feed.height();
-                    var scrollTop = this.$scroll.scrollTop();
+                $(this.$scroll).scroll(() => {
+                    let height = this.$scroll.height();
+                    let cHeight = this.$feed.height();
+                    let scrollTop = this.$scroll.scrollTop();
                     if (scrollTop >= cHeight - height) {
                         this.loadMorePosts();
                     }
-                }.bind(this));
+                });
             } else if (this.options.scroll=='none') {
                 // no scroll - use javascript to trigger loading
             } else {
                 // default to more
                 this.$more = $('<div class="crt-feed-more"><a href="#"><span>Load more</span></a></div>').appendTo(this.$scroll);
-                this.$more.find('a').on('click',function(ev){
+                this.$more.find('a').on('click',(ev) => {
                     ev.preventDefault();
                     this.loadMorePosts();
-                }.bind(this));
+                });
             }
 
             this.$feed.gridalicious({
@@ -68,36 +55,41 @@ Curator.Waterfall = Curator.augment.extend(Curator.Client, {
                 }
             });
 
+            Curator.EventBus.on('crt:filter:change', event => {
+                this.$feed.find('.crt-post-c').remove();
+            });
+
             // Load first set of posts
             this.loadPosts(0);
         }
-    },
-    
-    loadPosts : function (page, clear) {
+    }
+
+    loadPosts  (page, clear) {
         Curator.log('Waterfall->loadPage');
         if (clear) {
             this.$feed.find('.crt-post-c').remove();
         }
         this.feed.loadPosts(page);
-    },
+    }
 
-    loadMorePosts : function () {
+    loadMorePosts  () {
         Curator.log('Waterfall->loadMorePosts');
 
         this.feed.loadPosts(this.feed.currentPage+1);
-    },
+    }
 
-    onPostsLoaded: function (posts) {
+    onPostsLoaded (posts) {
         Curator.log("Waterfall->onPostsLoaded");
-        
-        var postElements = this.createPostElements (posts);
+        Curator.log(posts);
+
+        let postElements = this.createPostElements (posts);
 
         //this.$feed.append(postElements);
         this.$feed.gridalicious('append', postElements);
 
-        var that = this;
+        let that = this;
         $.each(postElements,function (i) {
-            var post = this;
+            let post = this;
             if (that.options.waterfall.showReadMore) {
                 post.find('.crt-post')
                     .addClass('crt-post-show-read-more');
@@ -108,14 +100,14 @@ Curator.Waterfall = Curator.augment.extend(Curator.Client, {
 
         this.loading = false;
         this.options.onPostsLoaded (this, posts);
-    },
+    }
 
-    onPostsFailed: function (data) {
+    onPostsFailed (data) {
         this.loading = false;
         this.$feed.html('<p style="text-align: center">'+data.message+'</p>');
-    },
+    }
 
-    destroy : function () {
+    destroy  () {
         //this.$feed.slick('unslick');
         this.$feed.remove();
         this.$scroll.remove();
@@ -136,5 +128,7 @@ Curator.Waterfall = Curator.augment.extend(Curator.Client, {
         // unregistering events etc
         delete this.feed;
     }
-});
+}
 
+
+Curator.Waterfall = Waterfall;

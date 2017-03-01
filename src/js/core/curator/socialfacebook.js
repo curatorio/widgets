@@ -2,13 +2,13 @@
 
 Curator.SocialFacebook = {
     share: function (post) {
-        var obj = post;
+        let obj = post;
         obj.url = Curator.Utils.postUrl(post);
-        var cb =  function(){};
+        let cb =  function(){};
 
         // Disabling for now - doesn't work - seems to get error "Can't Load URL: The domain of this URL isn't
         // included in the app's domains"
-        var useJSSDK = false; // window.FB
+        let useJSSDK = false; // window.FB
         if (useJSSDK) {
             window.FB.ui({
                 method: 'feed',
@@ -18,11 +18,8 @@ Curator.SocialFacebook = {
                 description: obj.text
             }, cb);
         } else {
-            var url = "https://www.facebook.com/sharer/sharer.php?u={{url}}&d={{text}}";
-            var url2 = Curator.Utils.tinyparser(url, obj);
-            console.log(obj);
-            console.log(url);
-            console.log(url2);
+            let url = "https://www.facebook.com/sharer/sharer.php?u={{url}}&d={{text}}";
+            let url2 = Curator.Utils.tinyparser(url, obj);
             Curator.Utils.popup(url2, 'twitter', '600', '430', '0');
         }
     }

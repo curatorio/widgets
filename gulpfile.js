@@ -23,10 +23,21 @@ var jsHintConfig = {
 
 };
 
+var babelError = function(err) {
+    console.log('[BABEL ERROR]');
+    console.log(err.fileName + ( err.loc ? '( '+err.loc.line+', '+err.loc.column+' ): ' : ': '));
+    console.log('error Babel: ' + err.message + '\n');
+    console.log(err.codeFrame);
+    notify({ message: err.message });
+
+    this.emit('end');
+};
+
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 // Gulp modules
 
 var gulp = require('gulp'),
+    babel = require("gulp-babel"),
     sass = require('gulp-sass'),
     autoprefixer = require('gulp-autoprefixer'),
     jshint = require('gulp-jshint'),
@@ -345,6 +356,8 @@ gulp.task('scripts:combined', function() {
         srcJs+'widgets/custom.js'
     ])
     .pipe(concat('curator.js'))
+    .pipe(babel())
+    .on('error',babelError)
     .pipe(wrap({ src: srcJs+'templates/default.js'}))
     .pipe(gulp.dest(destJs))
     .pipe(notify({ message: 'scripts:combined task complete' }));
@@ -355,16 +368,9 @@ gulp.task('scripts:combined', function() {
 
 gulp.task('scripts:nodep', function() {
     return gulp.src([
-            srcJs+'widgets/_vendor/zepto.js',
-            srcJs+'widgets/_vendor/zepto.scope.js',
-            srcJs+'widgets/_vendor/zepto.animate.js',
-            srcJs+'widgets/_vendor/zepto.extend.js',
-            srcJs+'widgets/_vendor/zepto.fxmethods.js',
             srcJs+'widgets/_vendor/smartresize.js',
             srcJs+'widgets/_vendor/jquery.grid-a-licious.js',
             srcJs+'widgets/_vendor/carousel.js',
-            // srcJs+'widgets/_vendor/owl.carousel.js',
-            // srcJs+'widgets/_vendor/slick.js',
             srcJs+'core/_vendor/*.js',
             srcJs+'core/**/*.js',
             srcJs+'widgets/waterfall.js',
@@ -373,6 +379,16 @@ gulp.task('scripts:nodep', function() {
             srcJs+'widgets/grid.js',
             srcJs+'widgets/custom.js'
         ])
+        .pipe(concat('curator.nodep.js'))
+        .pipe(babel())
+        .on('error',babelError)
+        .pipe(addsrc.prepend([
+            srcJs+'widgets/_vendor/zepto.js',
+            srcJs+'widgets/_vendor/zepto.scope.js',
+            srcJs+'widgets/_vendor/zepto.animate.js',
+            srcJs+'widgets/_vendor/zepto.extend.js',
+            srcJs+'widgets/_vendor/zepto.fxmethods.js',
+        ]))
         .pipe(concat('curator.nodep.js'))
         .pipe(wrap({ src: srcJs+'templates/nodep.js'}))
         .pipe(gulp.dest(destJs))
