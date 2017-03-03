@@ -1,25 +1,17 @@
 /**
- * jQuery Grid-A-Licious(tm) v3.01
+ * Based on the awesome jQuery Grid-A-Licious(tm)
  *
  * Terms of Use - jQuery Grid-A-Licious(tm)
  * under the MIT (http://www.opensource.org/licenses/mit-license.php) License.
  *
- * Copyright 2008-2012 Andreas Pihlström (Suprb). All rights reserved.
+ * Original Version Copyright 2008-2012 Andreas Pihlström (Suprb). All rights reserved.
  * (http://suprb.com/apps/gridalicious/)
  *
  */
 
-
-// The Grid-A-Licious magic
-
 (function ($) {
 
-    $.Gal = function (options, element) {
-        this.element = $(element);
-        this._init(options);
-    };
-
-    $.Gal.settings = {
+    let defaultSettings = {
         selector: '.item',
         width: 225,
         gutter: 20,
@@ -30,34 +22,38 @@
             effect: 'fadeInOnAppear',
             queue: true,
             complete: function () {}
-        },
+        }
     };
 
-    $.Gal.prototype = {
+    class WaterfallRender {
+        constructor (options, element) {
+            this.element = $(element);
+            this._init(options);
+        }
 
-        _init: function (options) {
-            var container = this;
+        _init (options) {
+            let container = this;
             this.name = this._setName(5);
             this.gridArr = [];
             this.gridArrAppend = [];
             this.gridArrPrepend = [];
             this.setArr = false;
             this.setGrid = false;
-            this.setOptions;
             this.cols = 0;
             this.itemCount = 0;
-            this.prependCount = 0;
             this.isPrepending = false;
             this.appendCount = 0;
             this.resetCount = true;
             this.ifCallback = true;
             this.box = this.element;
             this.boxWidth = this.box.width();
-            this.options = $.extend(true, {}, $.Gal.settings, options);
+            this.options = $.extend(true, {}, defaultSettings, options);
             this.gridArr = $.makeArray(this.box.find(this.options.selector));
             this.isResizing = false;
             this.w = 0;
             this.boxArr = [];
+
+            // this.offscreenRender = $('<div class="grid-rendered"></div>').appendTo('body');
 
             // build columns
             this._setCols();
@@ -69,14 +65,14 @@
             $(window).smartresize(function () {
                 container.resize();
             });
-        },
+        }
 
-        _setName: function (length, current) {
+        _setName (length, current) {
             current = current ? current : '';
             return length ? this._setName(--length, "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz".charAt(Math.floor(Math.random() * 60)) + current) : current;
-        },
+        }
 
-        _setCols: function () {
+        _setCols () {
             // calculate columns
             this.cols = Math.floor(this.box.width() / this.options.width);
             //If Cols lower than 1, the grid disappears
@@ -84,9 +80,14 @@
             diff = (this.box.width() - (this.cols * this.options.width) - this.options.gutter) / this.cols;
             w = (this.options.width + diff) / this.box.width() * 100;
             this.w = w;
+            this.colHeights = new Array (this.cols);
+            this.colHeights.fill(0);
+            this.colItems = new Array (this.cols);
+            this.colItems.fill([]);
+
             // add columns to box
-            for (var i = 0; i < this.cols; i++) {
-                var div = $('<div></div>').addClass('galcolumn').attr('id', 'item' + i + this.name).css({
+            for (let i = 0; i < this.cols; i++) {
+                let div = $('<div></div>').addClass('galcolumn').attr('id', 'item' + i + this.name).css({
                     'width': w + '%',
                     'paddingLeft': this.options.gutter,
                     'paddingBottom': this.options.gutter,
@@ -98,31 +99,19 @@
                 });
                 this.box.append(div);
             }
-            
-            
-            this.box.find($('#clear' + this.name)).remove();
-            // add clear float
-            var clear = $('<div></div>').css({
-                'clear': 'both',
-                'height': '0',
-                'width': '0',
-                'display': 'block'
-            }).attr('id', 'clear' + this.name);
-            this.box.append(clear);
-        },
+        }
 
-        _renderGrid: function (method, arr, count, prepArray) {
-            var items = [];
-            var boxes = [];
-            var prependArray = [];
-            var itemCount = 0;
-            var prependCount = this.prependCount;
-            var appendCount = this.appendCount;
-            var gutter = this.options.gutter;
-            var cols = this.cols;
-            var name = this.name;
-            var i = 0;
-            var w = $('.galcolumn').width();
+        _renderGrid (method, arr, count, prepArray) {
+            let items = [];
+            let boxes = [];
+            let prependArray = [];
+            let itemCount = 0;
+            let appendCount = this.appendCount;
+            let gutter = this.options.gutter;
+            let cols = this.cols;
+            let name = this.name;
+            let i = 0;
+            let w = $('.galcolumn').width();
 
             // if arr
             if (arr) {
@@ -133,13 +122,13 @@
                     appendCount += count;
                     // set itemCount to last count of appened items
                     itemCount = this.appendCount;
-                }               
+                }
                 // if prepend
                 if (method == "prepend") {
                     // set itemCount
                     this.isPrepending = true;
                     itemCount = Math.round(count % cols);
-                    if (itemCount <= 0) itemCount = cols; 
+                    if (itemCount <= 0) itemCount = cols;
                 }
                 // called by _updateAfterPrepend()
                 if (method == "renderAfterPrepend") {
@@ -155,79 +144,80 @@
             }
 
             // push out the items to the columns
-            $.each(boxes, function (index, value) {
-                var item = $(value);
-                var width = '100%';
-            
-                // if you want something not to be "responsive", add the class "not-responsive" to the selector container            
+            for (let item of boxes) {
+                let width = '100%';
+
+                // if you want something not to be "responsive", add the class "not-responsive" to the selector container
                 if (item.hasClass('not-responsive')) {
-                  width = 'auto';
+                    width = 'auto';
                 }
-                
+
                 item.css({
                     'marginBottom': gutter,
                     'zoom': '1',
                     'filter': 'alpha(opacity=0)',
                     'opacity': '0'
                 });
-                //.find('img, object, embed, iframe').css({
-                //    'width': width,
-                //    'height': 'auto',
-                //    'display': 'block',
-                //    'margin-left': 'auto',
-                //    'margin-right': 'auto'
-                //});
-                
-                // prepend on append to column
-                if (method == 'prepend') {
-                    itemCount--;
-                    $("#item" + itemCount + name).prepend(item);
-                    items.push(item);
-                    if(itemCount == 0) itemCount = cols;
-                    
-                } else {
-                    $("#item" + itemCount + name).append(item);
-                    items.push(item);
-                    itemCount++;
-                    if (itemCount >= cols) itemCount = 0;
-                    if (appendCount >= cols) appendCount = (appendCount - cols);
+
+                // find shortest col
+                let shortestCol = 0;
+                for (let i=1; i < this.colHeights.length;i++) {
+                    if (this.colHeights[i] < this.colHeights[shortestCol]) {
+                        shortestCol = i;
+                    }
                 }
-            });
+
+                // prepend or append to shortest column
+                if (method == 'prepend') {
+                    $("#item" + shortestCol + name).prepend(item);
+                    items.push(item);
+
+                } else {
+                    $("#item" + shortestCol + name).append(item);
+                    items.push(item);
+                    if (appendCount >= cols) {
+                        appendCount = (appendCount - cols);
+                    }
+                }
+
+                // update col heights
+                this.colItems[shortestCol].push(item);
+                this.colHeights[shortestCol] += item.height();
+            }
 
             this.appendCount = appendCount;
-            this.itemCount = itemCount;
 
             if (method == "append" || method == "prepend") {
-                if (method == "prepend") { 
-                  // render old items and reverse the new items
-                  this._updateAfterPrepend(this.gridArr, boxes);
+                if (method == "prepend") {
+                    // render old items and reverse the new items
+                    this._updateAfterPrepend(this.gridArr, boxes);
                 }
                 this._renderItem(items);
                 this.isPrepending = false;
             } else {
                 this._renderItem(this.gridArr);
             }
-        },
+        }
 
-        _collectItems: function () {
-            var collection = [];
+        _collectItems () {
+            let collection = [];
             $(this.box).find(this.options.selector).each(function (i) {
                 collection.push($(this));
             });
             return collection;
-        },
+        }
 
-        _renderItem: function (items) {
+        _renderItem (items) {
 
-            var speed = this.options.animationOptions.speed;
-            var effect = this.options.animationOptions.effect;
-            var duration = this.options.animationOptions.duration;
-            var queue = this.options.animationOptions.queue;
-            var animate = this.options.animate;
-            var complete = this.options.animationOptions.complete;
+            let speed = this.options.animationOptions.speed;
+            let effect = this.options.animationOptions.effect;
+            let duration = this.options.animationOptions.duration;
+            let queue = this.options.animationOptions.queue;
+            let animate = this.options.animate;
+            let complete = this.options.animationOptions.complete;
 
-            var i = 0;
-            var t = 0;
+            let i = 0;
+            let t = 0;
 
             // animate
             if (animate === true && !this.isResizing) {
@@ -278,7 +268,7 @@
                     });
                 }
 
-            // don not animate & no queue
+                // don not animate & no queue
             } else {
                 $.each(items, function (index, value) {
                     $(value).css({
@@ -290,19 +280,25 @@
                     complete.call(items);
                 }
             }
-        },
+        }
 
-        _updateAfterPrepend: function (prevItems, newItems) {            
-            var gridArr = this.gridArr;
+        _updateAfterPrepend (prevItems, newItems) {
+            let gridArr = this.gridArr;
             // add new items to gridArr
             $.each(newItems, function (index, value) {
                 gridArr.unshift(value);
             });
             this.gridArr = gridArr;
-        },
+        }
 
-        resize: function () {
+        resize () {
             if (this.box.width() === this.boxWidth) {
+                return;
+            }
+
+            let newCols = Math.floor(this.box.width() / this.options.width);
+            if (this.cols === newCols) {
+                // nothings changed yet
                 return;
             }
 
@@ -317,34 +313,34 @@
             this.ifCallback = true;
             this.isResizing = false;
             this.boxWidth = this.box.width();
-        },
+        }
 
-        append: function (items) {
-            var gridArr = this.gridArr;
-            var gridArrAppend = this.gridArrPrepend;
+        append (items) {
+            let gridArr = this.gridArr;
+            let gridArrAppend = this.gridArrPrepend;
             $.each(items, function (index, value) {
                 gridArr.push(value);
                 gridArrAppend.push(value);
             });
             this._renderGrid('append', items, $(items).size());
-        },
+        }
 
-        prepend: function (items) {
+        prepend (items) {
             this.ifCallback = false;
             this._renderGrid('prepend', items, $(items).size());
             this.ifCallback = true;
-        },
-    };
+        }
+    }
 
-    $.fn.gridalicious = function (options, e) {
+    $.fn.waterfall = function (options, e) {
         if (typeof options === 'string') {
             this.each(function () {
-                var container = $.data(this, 'gridalicious');
+                let container = $.data(this, 'WaterfallRender');
                 container[options].apply(container, [e]);
             });
         } else {
             this.each(function () {
-                $.data(this, 'gridalicious', new $.Gal(options, this));
+                $.data(this, 'WaterfallRender', new WaterfallRender(options, this));
             });
         }
         return this;

@@ -44,7 +44,7 @@ class Waterfall extends Curator.Client {
                 });
             }
 
-            this.$feed.gridalicious({
+            this.$feed.waterfall({
                 selector:'.crt-post-c',
                 gutter:0,
                 width:this.options.waterfall.gridWidth,
@@ -85,7 +85,7 @@ class Waterfall extends Curator.Client {
         let postElements = this.createPostElements (posts);
 
         //this.$feed.append(postElements);
-        this.$feed.gridalicious('append', postElements);
+        this.$feed.waterfall('append', postElements);
 
         let that = this;
         $.each(postElements,function (i) {
