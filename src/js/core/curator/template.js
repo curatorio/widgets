@@ -5,7 +5,7 @@ Curator.Templates.postTemplate = ' \
 <div class="crt-post-c">\
     <div class="crt-post post<%=id%> crt-post-<%=this.networkIcon()%>"> \
         <div class="crt-post-header"> \
-            <span class="social-icon"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \
+            <span class="crt-social-icon"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \
             <img src="<%=user_image%>"  /> \
             <div class="crt-post-name">\
             <div class="crt-post-fullname"><%=user_full_name%></div>\
@@ -13,9 +13,9 @@ Curator.Templates.postTemplate = ' \
             </div> \
         </div> \
         <div class="crt-post-content"> \
-            <div class="image crt-hitarea crt-post-content-image <%=this.contentImageClasses()%>" > \
-                <img src="<%=image%>" class="crt-post-image" /> \
-                <span class="crt-play"><i class="play"></i></span> \
+            <div class="crt-image crt-hitarea crt-post-content-image <%=this.contentImageClasses()%>" > \
+                <div class="crt-image-c"><img src="<%=image%>" class="crt-post-image" /></div> \
+                <span class="crt-play"><i class="crt-play-icon"></i></span> \
             </div> \
             <div class="text crt-post-content-text <%=this.contentTextClasses()%>"> \
                 <div class="crt-post-text-body"><%=this.parseText(text)%></div> \
@@ -49,7 +49,7 @@ Curator.Templates.popupTemplate = ' \
                 <source src="<%=video%>" type="video/mp4" >\
                 </video>\
                 <img src="<%=image%>" />\
-                <a href="javascript:;" class="crt-play"><i class="play"></i></a> \
+                <a href="javascript:;" class="crt-play"><i class="crt-play-icon"></i></a> \
             </div> \
         </div> \
         <div class="crt-image"> \
@@ -58,7 +58,7 @@ Curator.Templates.popupTemplate = ' \
     </div> \
     <div class="crt-popup-right"> \
         <div class="crt-popup-header"> \
-            <span class="social-icon"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \
+            <span class="crt-social-icon"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \
             <img src="<%=user_image%>"  /> \
             <div class="crt-post-name"><span><%=user_full_name%></span><br/><a href="<%=this.userUrl()%>" target="_blank">@<%=user_screen_name%></a></div> \
         </div> \
@@ -67,6 +67,9 @@ Curator.Templates.popupTemplate = ' \
                 <p class="crt-date"><%=this.prettyDate(source_created_at)%></p> \
                 <div class="crt-popup-text-body"><%=this.parseText(text)%></div> \
             </div> \
+        </div> \
+        <div class="crt-popup-footer">\
+            <div class="crt-post-share"><span class="ctr-share-hint"></span><a href="#" class="crt-share-facebook"><i class="crt-icon-facebook"></i></a>  <a href="#" class="crt-share-twitter"><i class="crt-icon-twitter"></i></a></div>\
         </div> \
     </div> \
 </div>';

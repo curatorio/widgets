@@ -46,11 +46,11 @@
 			height: 100%;
 		}
 
-		.social-icon-normal {
+		.crt-social-icon-normal {
 			color: #ffffff;
 		}
 
-		.social-icon {
+		.crt-social-icon {
 			position: absolute;
 			right: 3px;
 			bottom: 5px;
@@ -84,7 +84,7 @@
 			opacity: 0;
 			transition: opacity .4s linear;
 
-			.crt-post-header .social-icon,
+			.crt-post-header .crt-social-icon,
 			.crt-post-header {
 				background-color: transparent;
 
@@ -107,7 +107,7 @@
 		}
 
 		.crt-hitarea:hover {
-			.social-icon-normal {
+			.crt-social-icon-normal {
 				opacity: 0;
 
 			}

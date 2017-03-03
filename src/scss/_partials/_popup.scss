@@ -187,7 +187,7 @@ body {
             position: relative;
             margin-bottom: 15px;
 
-            .social-icon
+            .crt-social-icon
             {
                 float: left;
                 display: block;
@@ -237,6 +237,12 @@ body {
             }
         }
 
+        .crt-popup-footer {
+            .crt-post-share {
+                text-align: right;
+            }
+        }
+
         .crt-date {
             margin-top: 0;
             opacity: 0.5;
@@ -250,7 +256,7 @@ body {
             height: 100%;
             z-index: 3;
 
-            .play {
+            .crt-play-icon {
                 position: absolute;
                 @include play(30px);
                 top:50%;
@@ -321,7 +327,14 @@ body {
                     top: 90px;
                     left: 20px;
                     right: 20px;
-                    bottom:20px;
+                    bottom:40px;
+                }
+
+                .crt-popup-footer {
+                    position: absolute;
+                    left: 20px;
+                    right: 20px;
+                    bottom:15px;
                 }
             }
         }
@@ -341,7 +354,7 @@ body {
                 }
             }
             a.crt-play {
-                .play {
+                .crt-play-icon {
                     display: block;
                 }
             }

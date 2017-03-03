@@ -50,7 +50,22 @@ class Popup {
         this.$popup.on('click',' .crt-previous', $.proxy(this.onPrevious,this));
         this.$popup.on('click',' .crt-next', $.proxy(this.onNext,this));
         this.$popup.on('click',' .crt-play', $.proxy(this.onPlay,this));
+        this.$popup.on('click','.crt-share-facebook',$.proxy(this.onShareFacebookClick,this));
+        this.$popup.on('click','.crt-share-twitter',$.proxy(this.onShareTwitterClick,this));
+    }
 
+    onShareFacebookClick (ev) {
+        ev.preventDefault();
+        Curator.SocialFacebook.share(this.json);
+        this.widget.track('share:facebook');
+        return false;
+    }
+
+    onShareTwitterClick (ev) {
+        ev.preventDefault();
+        Curator.SocialTwitter.share(this.json);
+        this.widget.track('share:twitter');
+        return false;
     }
 
     onClose (e) {

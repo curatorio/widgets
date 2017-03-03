@@ -18,8 +18,8 @@ Curator.Templates.gridPostTemplate = ' \
                         <%=this.parseText(text)%> \
                     </div> \
                 </div> \
-                <a href="javascript:;" class="crt-play"><i class="play"></i></a> \
-                <span class="social-icon social-icon-normal"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \
+                <a href="javascript:;" class="crt-play"><i class="crt-play-icon"></i></a> \
+                <span class="crt-social-icon crt-social-icon-normal"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \
                 <div class="crt-post-hover">\
                     <div class="crt-post-header"> \
                         <img src="<%=user_image%>"  /> \
@@ -28,7 +28,7 @@ Curator.Templates.gridPostTemplate = ' \
                     <div class="crt-post-hover-text"> \
                         <%=this.parseText(text)%> \
                     </div> \
-                    <span class="social-icon social-icon-hover"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \
+                    <span class="crt-social-icon crt-social-icon-hover"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \
                 </div> \
             </div> \
         </div> \

@@ -26,9 +26,18 @@ class Post {
         this.$el.click($.proxy(this.onPostClick,this));
         this.$post = this.$el.find('.crt-post');
         this.$image = this.$el.find('.crt-post-image');
+        this.$imageContainer = this.$el.find('.crt-image-c');
         this.$image.css({opacity:0});
 
         this.$image.on('load',$.proxy(this.onImageLoaded,this));
+
+        if (this.json.image_width > 0) {
+            var p = (this.json.image_height/this.json.image_width)*100;
+            this.$imageContainer.addClass('crt-image-responsive')
+                .css('padding-bottom',p+'%')
+        }
+
+        this.$image.data('dims',this.json.image_width+':'+this.json.image_height);
 
         this.$post = this.$el.find('.crt-post');
 
