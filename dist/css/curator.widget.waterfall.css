@@ -131,14 +131,15 @@
  */
 .crt-post-c {
   width: 368px;
-  float: left; }
+  float: left;
+  position: relative; }
 
 .crt-post-bg {
   position: absolute;
-  top: 5px;
+  top: 0px;
   left: 5px;
   right: 5px;
-  bottom: 5px;
+  bottom: 0px;
   background-color: #efefef; }
 
 .crt-post {
@@ -731,7 +732,8 @@ body.crt-popup-visible {
   .crt-feed-container .crt-post-c {
     width: 100%;
     float: none;
-    display: inline-block; }
+    display: block;
+    margin-bottom: 10px; }
   .crt-feed-container .crt-feed-more {
     background-color: #ffffff;
     padding: 4px; }

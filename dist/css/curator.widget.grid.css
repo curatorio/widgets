@@ -131,14 +131,15 @@
  */
 .crt-post-c {
   width: 368px;
-  float: left; }
+  float: left;
+  position: relative; }
 
 .crt-post-bg {
   position: absolute;
-  top: 5px;
+  top: 0px;
   left: 5px;
   right: 5px;
-  bottom: 5px;
+  bottom: 0px;
   background-color: #efefef; }
 
 .crt-post {

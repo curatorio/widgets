@@ -153,7 +153,6 @@
                 }
 
                 item.css({
-                    'marginBottom': gutter,
                     'zoom': '1',
                     'filter': 'alpha(opacity=0)',
                     'opacity': '0'

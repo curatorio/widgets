@@ -1,0 +1,40 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <link href="../dist/css/curator.widget.carousel.css" rel="stylesheet" />
+    <link href="css/example.css" rel="stylesheet" />
+</head>
+<body>
+<h1>Curator.io Examples</h1>
+<h2>Carousel Widget - no dependencies</h2>
+<p class="center"><a href="index.html">Examples</a></p>
+<div id="curator-feed" style="max-width:1000px">
+    <a href="https://curator.io" target="_blank" class="crt-logo">Powered by Curator.io</a>
+</div>
+
+<script type="text/javascript" src="../dist/js/curator.nodep.min.js"></script>
+<script type="text/javascript">
+    // While you're testing
+    Curator.debug = true;
+
+    var l = window.location.href;
+    var feedId = l.indexOf('.dev') ? '58aa4d66-e2ba-42ce-bed5-16a7ee1d' : 'd770f4ab-f2cc-4514-a8d2-c2a03122' ;
+    var endPoint = l.indexOf('.dev') ? 'http://curator-api.dev/v1' : 'https://api.curator.io/v1' ;
+
+    // Change FEED_ID to your unique FEED_ID
+    var widget = new Curator.Carousel({
+        container:'#curator-feed',
+        feedId:feedId,
+        apiEndpoint: endPoint,
+        carousel:{
+            autoPlay:true
+        }
+    });
+</script>
+</body>
+</html>
+
+
+

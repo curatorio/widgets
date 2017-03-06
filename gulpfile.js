@@ -343,7 +343,7 @@ gulp.task('scripts:custom', ['scripts:core'], function() {
 gulp.task('scripts:combined', function() {
     return gulp.src([
         srcJs+'widgets/_vendor/smartresize.js',
-        srcJs+'widgets/_vendor/jquery.grid-a-licious.js',
+        srcJs+'widgets/_vendor/waterfall-renderer.js',
         srcJs+'widgets/_vendor/carousel.js',
         // srcJs+'widgets/_vendor/owl.carousel.js',
         // srcJs+'widgets/_vendor/slick.js',
@@ -369,7 +369,7 @@ gulp.task('scripts:combined', function() {
 gulp.task('scripts:nodep', function() {
     return gulp.src([
             srcJs+'widgets/_vendor/smartresize.js',
-            srcJs+'widgets/_vendor/jquery.grid-a-licious.js',
+            srcJs+'widgets/_vendor/waterfall-renderer.js',
             srcJs+'widgets/_vendor/carousel.js',
             srcJs+'core/_vendor/*.js',
             srcJs+'core/**/*.js',
@@ -399,10 +399,8 @@ gulp.task('scripts:nodep', function() {
 // Scripts Production
 
 gulp.task('scripts:prod', function() {
-    return gulp.src(srcJs+'**/*.js')
-        .pipe(jshint('.jshintrc'))
+    return gulp.src([destJs+'curator.js',destJs+'curator.nodep.js'])
         .pipe(jshint.reporter('default'))
-        .pipe(concat('main.js'))
         .pipe(gulp.dest(destJs))
         .pipe(rename({suffix: '.min'}))
         .pipe(uglify())

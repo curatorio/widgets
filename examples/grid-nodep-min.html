@@ -1,0 +1,39 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Curator Examples - Grid</title>
+    <meta name="viewport" content="width=device-width" />
+    <link href="../dist/css/curator.css" rel="stylesheet" />
+    <link href="css/example.css" rel="stylesheet" />
+    <style type="text/css">
+        #curator-feed {
+            max-width: 900px;
+        }
+    </style>
+</head>
+<body>
+<h1>Curator.io Examples</h1>
+<h2>Grid Widget - No dependencies</h2>
+<p class="center"><a href="index.html">Examples</a></p>
+<div id="curator-feed">
+    <a href="http://curator.io" target="_blank" class="crt-logo crt-tag">Powered by Curator.io</a>
+</div>
+
+<script type="text/javascript" src="js/vendor/jquery.min.js"></script>
+<script type="text/javascript" src="../dist/js/curator.min.js"></script>
+<script type="text/javascript">
+    // While you're testing
+    Curator.debug = true;
+
+    // Change FEED_ID to your unique FEED_ID
+    var widget = new Curator.Grid({
+        container:'#curator-feed',
+        feedId:"c70e66e4-6932-487d-8174-00fae1fc",
+        rows:3,
+        apiEndpoint:'http://api.curator.io/v1'
+    });
+</script>
+</body>
+</html>
+

@@ -3,6 +3,7 @@
   "version": "1.5.0",
   "description": "Curator Widgets - Social media aggregator widgets",
   "homepage": "https://github.com/curatorio/widgets",
+  "repository": "https://github.com/curatorio/widgets",
   "main": "dist/curator.core.js",
   "author": {
     "name": "Thomas Garrood",
