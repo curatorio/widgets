@@ -2,7 +2,6 @@
     //min-width: 320px;
     min-height: 400px;
     position: relative;
-    font-family: 'Arial';
 
     .crt-logo {
         display: none;
@@ -18,26 +17,78 @@
 
         background-color: $color-feed-bg;
         -webkit-font-smoothing:antialiased;
-        font-family: 'Helvetica',Arial,sans-serif;
     }
 
     .crt-post-c {
-        float: left;
-        width: 100%;
+        width: auto;
 
         .crt-post {
-            width: 100%;
+            width: auto;
         }
+    }
+
+    .ctr-carousel-stage {
+        //border: 1px solid red;
     }
 
     .ctr-carousel-slider {
         display: flex !important;
+
         .crt-post-c {
-            display: flex !important;
+            //display: flex !important;
             height: auto;
             justify-content: center;
+            //background-color: #efefef;
         }
     }
-
 }
 
+
+$width:30px;
+$height:50px;
+
+.crt-panel-next,
+.crt-panel-prev {
+    font-size: 0;
+    line-height: 0;
+    position: absolute;
+    top: 50%;
+    display: block;
+    padding: 0;
+    margin-top: -10px;
+    transform: translate(0, -50%);
+    cursor: pointer;
+    color: transparent;
+    border: none;
+    outline: none;
+    background: transparent;
+    width: $width;
+    height: $height;
+    z-index: 100;
+
+    &:before {
+        color: #000000;
+        font-size: 35px;
+        font-family: 'crt-icon';
+        line-height: 1;
+        opacity: .75;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+}
+
+.crt-panel-prev {
+    left: 0-$width;
+
+    &:before {
+        content: '\e804';
+    }
+}
+
+.crt-panel-next {
+    right: 0-$width;
+
+    &:before {
+        content: '\e803'; // right-arrow
+    }
+}

@@ -70,8 +70,8 @@ class Client {
 
     createPostElement (postJson) {
         let post = new Curator.Post(postJson, this.options, this);
-        $(post).bind('postClick',$.proxy(this.onPostClick, this));
-        $(post).bind('postReadMoreClick',$.proxy(this.onPostClick, this));
+        $(post).bind('postClick',this.onPostClick.bind(this));
+        $(post).bind('postReadMoreClick',this.onPostClick.bind(this));
 
         if (this.options.onPostCreated) {
             this.options.onPostCreated (post);

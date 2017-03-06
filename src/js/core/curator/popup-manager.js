@@ -18,8 +18,8 @@ class PopupManager {
         this.$underlay = this.$wrapper.find('.crt-popup-underlay');
 
         $('body').append(this.$wrapper);
-        this.$underlay.click($.proxy(this.onUnderlayClick,this));
-        //this.$popupContainer.click($.proxy(this.onUnderlayClick,this));
+        this.$underlay.click(this.onUnderlayClick.bind(this));
+        //this.$popupContainer.click(this.onUnderlayClick.bind(this));
 
     }
 

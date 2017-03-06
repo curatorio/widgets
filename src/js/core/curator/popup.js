@@ -46,12 +46,12 @@ class Popup {
         }
 
 
-        this.$popup.on('click',' .crt-close', $.proxy(this.onClose,this));
-        this.$popup.on('click',' .crt-previous', $.proxy(this.onPrevious,this));
-        this.$popup.on('click',' .crt-next', $.proxy(this.onNext,this));
-        this.$popup.on('click',' .crt-play', $.proxy(this.onPlay,this));
-        this.$popup.on('click','.crt-share-facebook',$.proxy(this.onShareFacebookClick,this));
-        this.$popup.on('click','.crt-share-twitter',$.proxy(this.onShareTwitterClick,this));
+        this.$popup.on('click',' .crt-close', this.onClose.bind(this));
+        this.$popup.on('click',' .crt-previous', this.onPrevious.bind(this));
+        this.$popup.on('click',' .crt-next', this.onNext.bind(this));
+        this.$popup.on('click',' .crt-play', this.onPlay.bind(this));
+        this.$popup.on('click','.crt-share-facebook',this.onShareFacebookClick.bind(this));
+        this.$popup.on('click','.crt-share-twitter',this.onShareTwitterClick.bind(this));
     }
 
     onShareFacebookClick (ev) {

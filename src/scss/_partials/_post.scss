@@ -11,16 +11,24 @@
     float: left;
 }
 
+.crt-post-bg {
+    position: absolute;
+    top:5px;
+    left:5px;
+    right:5px;
+    bottom:5px;
+    background-color: $color-post-bg;
+    //border: 1px solid $color-post-border;
+}
+
 .crt-post 
 {
     //max-height: 370px;
     //min-height: 200px;
+    margin:0 5px;
     overflow: hidden;
     position: relative;
     z-index: 1;
-    margin:5px;
-    border: 1px solid $color-post-border;
-    background-color: $color-post-bg;
     //box-shadow: 0px 0px 3px $color-post-shadow;
     border-radius: $post-border-radius;
 

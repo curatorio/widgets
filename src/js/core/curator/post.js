@@ -18,21 +18,30 @@ class Post {
         this.json = postJson;
         this.$el = Curator.Template.render(this.templateId, postJson);
 
-        this.$el.find('.crt-share-facebook').click($.proxy(this.onShareFacebookClick,this));
-        this.$el.find('.crt-share-twitter').click($.proxy(this.onShareTwitterClick,this));
-        // this.$el.find('.crt-hitarea').click($.proxy(this.onPostClick,this));
-        this.$el.find('.crt-post-read-more-button').click($.proxy(this.onReadMoreClick,this));
-        // this.$el.on('click','.crt-post-text-body a',$.proxy(this.onLinkClick,this));
-        this.$el.click($.proxy(this.onPostClick,this));
+        this.$el.find('.crt-share-facebook').click(this.onShareFacebookClick.bind(this));
+        this.$el.find('.crt-share-twitter').click(this.onShareTwitterClick.bind(this));
+        // this.$el.find('.crt-hitarea').click(this.onPostClick.bind(this));
+        this.$el.find('.crt-post-read-more-button').click(this.onReadMoreClick.bind(this));
+        // this.$el.on('click','.crt-post-text-body a',this.onLinkClick.bind(this));
+        this.$el.click(this.onPostClick.bind(this));
         this.$post = this.$el.find('.crt-post');
         this.$image = this.$el.find('.crt-post-image');
         this.$imageContainer = this.$el.find('.crt-image-c');
         this.$image.css({opacity:0});
 
-        this.$image.on('load',$.proxy(this.onImageLoaded,this));
+        if (this.json.image) {
+            this.$image.on('load', this.onImageLoaded.bind(this));
+            this.$image.on('error', this.onImageError.bind(this));
+        } else {
+            // no image ... call this.onImageLoaded
+            setTimeout(() => {
+                console.log('asdasd');
+                this.setHeight();
+            },100)
+        }
 
         if (this.json.image_width > 0) {
-            var p = (this.json.image_height/this.json.image_width)*100;
+            let p = (this.json.image_height/this.json.image_width)*100;
             this.$imageContainer.addClass('crt-image-responsive')
                 .css('padding-bottom',p+'%')
         }
@@ -66,10 +75,8 @@ class Post {
 
         if (target.is('a') && target.attr('href') !== '#') {
             this.widget.track('click:link');
-            console.log ('link');
         } else {
             ev.preventDefault();
-            console.log('post');
             $(this).trigger('postClick', this, this.json, ev);
         }
 
@@ -78,7 +85,20 @@ class Post {
     onImageLoaded () {
         this.$image.animate({opacity:1});
 
-        if (this.options.maxHeight && this.options.maxHeight > 0 && this.$post.height() > this.options.maxHeight) {
+        this.setHeight();
+    }
+
+    onImageError () {
+        // Unable to load image!!!
+        this.$image.hide();
+
+        this.setHeight();
+    }
+
+    setHeight () {
+        let height = this.$post.height();
+        console.log(height);
+        if (this.options.maxHeight && this.options.maxHeight > 0 && height > this.options.maxHeight) {
             this.$post
                 .css({maxHeight: this.options.maxHeight})
                 .addClass('crt-post-max-height');

@@ -1980,9 +1980,9 @@ var $ = window.Zepto;
 
 'use strict';
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
@@ -2014,392 +2014,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         return fn ? this.bind('resize', debounce(fn)) : this.trigger(sr);
     };
 })($, 'smartresize');
-
-/**
- * Based on the awesome jQuery Grid-A-Licious(tm)
- *
- * Terms of Use - jQuery Grid-A-Licious(tm)
- * under the MIT (http://www.opensource.org/licenses/mit-license.php) License.
- *
- * Original Version Copyright 2008-2012 Andreas Pihlström (Suprb). All rights reserved.
- * (http://suprb.com/apps/gridalicious/)
- *
- */
-
-(function ($) {
-
-    var defaultSettings = {
-        selector: '.item',
-        width: 225,
-        gutter: 20,
-        animate: false,
-        animationOptions: {
-            speed: 200,
-            duration: 300,
-            effect: 'fadeInOnAppear',
-            queue: true,
-            complete: function complete() {}
-        }
-    };
-
-    var WaterfallRender = function () {
-        function WaterfallRender(options, element) {
-            _classCallCheck(this, WaterfallRender);
-
-            this.element = $(element);
-            this._init(options);
-        }
-
-        _createClass(WaterfallRender, [{
-            key: '_init',
-            value: function _init(options) {
-                var container = this;
-                this.name = this._setName(5);
-                this.gridArr = [];
-                this.gridArrAppend = [];
-                this.gridArrPrepend = [];
-                this.setArr = false;
-                this.setGrid = false;
-                this.cols = 0;
-                this.itemCount = 0;
-                this.isPrepending = false;
-                this.appendCount = 0;
-                this.resetCount = true;
-                this.ifCallback = true;
-                this.box = this.element;
-                this.boxWidth = this.box.width();
-                this.options = $.extend(true, {}, defaultSettings, options);
-                this.gridArr = $.makeArray(this.box.find(this.options.selector));
-                this.isResizing = false;
-                this.w = 0;
-                this.boxArr = [];
-
-                // this.offscreenRender = $('<div class="grid-rendered"></div>').appendTo('body');
-
-                // build columns
-                this._setCols();
-                // build grid
-                this._renderGrid('append');
-                // add class 'gridalicious' to container
-                $(this.box).addClass('gridalicious');
-                // add smartresize
-                $(window).smartresize(function () {
-                    container.resize();
-                });
-            }
-        }, {
-            key: '_setName',
-            value: function _setName(length, current) {
-                current = current ? current : '';
-                return length ? this._setName(--length, "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz".charAt(Math.floor(Math.random() * 60)) + current) : current;
-            }
-        }, {
-            key: '_setCols',
-            value: function _setCols() {
-                // calculate columns
-                this.cols = Math.floor(this.box.width() / this.options.width);
-                //If Cols lower than 1, the grid disappears
-                if (this.cols < 1) {
-                    this.cols = 1;
-                }
-                diff = (this.box.width() - this.cols * this.options.width - this.options.gutter) / this.cols;
-                w = (this.options.width + diff) / this.box.width() * 100;
-                this.w = w;
-                this.colHeights = new Array(this.cols);
-                this.colHeights.fill(0);
-                this.colItems = new Array(this.cols);
-                this.colItems.fill([]);
-
-                // add columns to box
-                for (var i = 0; i < this.cols; i++) {
-                    var div = $('<div></div>').addClass('galcolumn').attr('id', 'item' + i + this.name).css({
-                        'width': w + '%',
-                        'paddingLeft': this.options.gutter,
-                        'paddingBottom': this.options.gutter,
-                        'float': 'left',
-                        '-webkit-box-sizing': 'border-box',
-                        '-moz-box-sizing': 'border-box',
-                        '-o-box-sizing': 'border-box',
-                        'box-sizing': 'border-box'
-                    });
-                    this.box.append(div);
-                }
-            }
-        }, {
-            key: '_renderGrid',
-            value: function _renderGrid(method, arr, count, prepArray) {
-                var items = [];
-                var boxes = [];
-                var prependArray = [];
-                var itemCount = 0;
-                var appendCount = this.appendCount;
-                var gutter = this.options.gutter;
-                var cols = this.cols;
-                var name = this.name;
-                var i = 0;
-                var w = $('.galcolumn').width();
-
-                // if arr
-                if (arr) {
-                    boxes = arr;
-                    // if append
-                    if (method == "append") {
-                        // get total of items to append
-                        appendCount += count;
-                        // set itemCount to last count of appened items
-                        itemCount = this.appendCount;
-                    }
-                    // if prepend
-                    if (method == "prepend") {
-                        // set itemCount
-                        this.isPrepending = true;
-                        itemCount = Math.round(count % cols);
-                        if (itemCount <= 0) itemCount = cols;
-                    }
-                    // called by _updateAfterPrepend()
-                    if (method == "renderAfterPrepend") {
-                        // get total of items that was previously prepended
-                        appendCount += count;
-                        // set itemCount by counting previous prepended items
-                        itemCount = count;
-                    }
-                } else {
-                    boxes = this.gridArr;
-                    appendCount = $(this.gridArr).size();
-                }
-
-                // push out the items to the columns
-                var _iteratorNormalCompletion = true;
-                var _didIteratorError = false;
-                var _iteratorError = undefined;
-
-                try {
-                    for (var _iterator = boxes[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-                        var item = _step.value;
-
-                        var width = '100%';
-
-                        // if you want something not to be "responsive", add the class "not-responsive" to the selector container
-                        if (item.hasClass('not-responsive')) {
-                            width = 'auto';
-                        }
-
-                        item.css({
-                            'marginBottom': gutter,
-                            'zoom': '1',
-                            'filter': 'alpha(opacity=0)',
-                            'opacity': '0'
-                        });
-
-                        // find shortest col
-                        var shortestCol = 0;
-                        for (var _i = 1; _i < this.colHeights.length; _i++) {
-                            if (this.colHeights[_i] < this.colHeights[shortestCol]) {
-                                shortestCol = _i;
-                            }
-                        }
-
-                        // prepend or append to shortest column
-                        if (method == 'prepend') {
-                            $("#item" + shortestCol + name).prepend(item);
-                            items.push(item);
-                        } else {
-                            $("#item" + shortestCol + name).append(item);
-                            items.push(item);
-                            if (appendCount >= cols) {
-                                appendCount = appendCount - cols;
-                            }
-                        }
-
-                        // update col heights
-                        this.colItems[shortestCol].push(item);
-                        this.colHeights[shortestCol] += item.height();
-                    }
-                } catch (err) {
-                    _didIteratorError = true;
-                    _iteratorError = err;
-                } finally {
-                    try {
-                        if (!_iteratorNormalCompletion && _iterator.return) {
-                            _iterator.return();
-                        }
-                    } finally {
-                        if (_didIteratorError) {
-                            throw _iteratorError;
-                        }
-                    }
-                }
-
-                this.appendCount = appendCount;
-
-                if (method == "append" || method == "prepend") {
-                    if (method == "prepend") {
-                        // render old items and reverse the new items
-                        this._updateAfterPrepend(this.gridArr, boxes);
-                    }
-                    this._renderItem(items);
-                    this.isPrepending = false;
-                } else {
-                    this._renderItem(this.gridArr);
-                }
-            }
-        }, {
-            key: '_collectItems',
-            value: function _collectItems() {
-                var collection = [];
-                $(this.box).find(this.options.selector).each(function (i) {
-                    collection.push($(this));
-                });
-                return collection;
-            }
-        }, {
-            key: '_renderItem',
-            value: function _renderItem(items) {
-
-                var speed = this.options.animationOptions.speed;
-                var effect = this.options.animationOptions.effect;
-                var duration = this.options.animationOptions.duration;
-                var queue = this.options.animationOptions.queue;
-                var animate = this.options.animate;
-                var complete = this.options.animationOptions.complete;
-
-                var i = 0;
-                var t = 0;
-
-                // animate
-                if (animate === true && !this.isResizing) {
-
-                    // fadeInOnAppear
-                    if (queue === true && effect == "fadeInOnAppear") {
-                        if (this.isPrepending) items.reverse();
-                        $.each(items, function (index, value) {
-                            setTimeout(function () {
-                                $(value).animate({
-                                    opacity: '1.0'
-                                }, duration);
-                                t++;
-                                if (t == items.length) {
-                                    complete.call(undefined, items);
-                                }
-                            }, i * speed);
-                            i++;
-                        });
-                    } else if (queue === false && effect == "fadeInOnAppear") {
-                        if (this.isPrepending) items.reverse();
-                        $.each(items, function (index, value) {
-                            $(value).animate({
-                                opacity: '1.0'
-                            }, duration);
-                            t++;
-                            if (t == items.length) {
-                                if (this.ifCallback) {
-                                    complete.call(undefined, items);
-                                }
-                            }
-                        });
-                    }
-
-                    // no effect but queued
-                    if (queue === true && !effect) {
-                        $.each(items, function (index, value) {
-                            $(value).css({
-                                'opacity': '1',
-                                'filter': 'alpha(opacity=100)'
-                            });
-                            t++;
-                            if (t == items.length) {
-                                if (this.ifCallback) {
-                                    complete.call(undefined, items);
-                                }
-                            }
-                        });
-                    }
-
-                    // don not animate & no queue
-                } else {
-                    $.each(items, function (index, value) {
-                        $(value).css({
-                            'opacity': '1',
-                            'filter': 'alpha(opacity=100)'
-                        });
-                    });
-                    if (this.ifCallback) {
-                        complete.call(items);
-                    }
-                }
-            }
-        }, {
-            key: '_updateAfterPrepend',
-            value: function _updateAfterPrepend(prevItems, newItems) {
-                var gridArr = this.gridArr;
-                // add new items to gridArr
-                $.each(newItems, function (index, value) {
-                    gridArr.unshift(value);
-                });
-                this.gridArr = gridArr;
-            }
-        }, {
-            key: 'resize',
-            value: function resize() {
-                if (this.box.width() === this.boxWidth) {
-                    return;
-                }
-
-                var newCols = Math.floor(this.box.width() / this.options.width);
-                if (this.cols === newCols) {
-                    // nothings changed yet
-                    return;
-                }
-
-                // delete columns in box
-                this.box.find($('.galcolumn')).remove();
-                // build columns
-                this._setCols();
-                // build grid
-                this.ifCallback = false;
-                this.isResizing = true;
-                this._renderGrid('append');
-                this.ifCallback = true;
-                this.isResizing = false;
-                this.boxWidth = this.box.width();
-            }
-        }, {
-            key: 'append',
-            value: function append(items) {
-                var gridArr = this.gridArr;
-                var gridArrAppend = this.gridArrPrepend;
-                $.each(items, function (index, value) {
-                    gridArr.push(value);
-                    gridArrAppend.push(value);
-                });
-                this._renderGrid('append', items, $(items).size());
-            }
-        }, {
-            key: 'prepend',
-            value: function prepend(items) {
-                this.ifCallback = false;
-                this._renderGrid('prepend', items, $(items).size());
-                this.ifCallback = true;
-            }
-        }]);
-
-        return WaterfallRender;
-    }();
-
-    $.fn.waterfall = function (options, e) {
-        if (typeof options === 'string') {
-            this.each(function () {
-                var container = $.data(this, 'WaterfallRender');
-                container[options].apply(container, [e]);
-            });
-        } else {
-            this.each(function () {
-                $.data(this, 'WaterfallRender', new WaterfallRender(options, this));
-            });
-        }
-        return this;
-    };
-})($);
 
 var Factory = function Factory() {};
 var slice = Array.prototype.slice;
@@ -2859,8 +2473,8 @@ var EventBus = function () {
             args = [event].concat(args);
             if (typeof this.listeners[type] != "undefined") {
                 var numOfCallbacks = this.listeners[type].length;
-                for (var _i2 = 0; _i2 < numOfCallbacks; _i2++) {
-                    var listener = this.listeners[type][_i2];
+                for (var _i = 0; _i < numOfCallbacks; _i++) {
+                    var listener = this.listeners[type][_i];
                     if (listener && listener.callback) {
                         var concatArgs = args.concat(listener.args);
                         listener.callback.apply(listener.scope, concatArgs);
@@ -2919,7 +2533,8 @@ Curator.EventBus = new EventBus();
         pane_stage: {
             'width': '100%', // viewport needs to be fluid
             'overflow': 'hidden',
-            'position': 'relative'
+            'position': 'relative',
+            'height': 0
         },
 
         pane_slider: {
@@ -2938,246 +2553,271 @@ Curator.EventBus = new EventBus();
         }
     };
 
-    var Carousel = augment.extend(Object, {
-        current_position: 0,
-        animating: false,
-        timeout: null,
-        FAKE_NUM: 0,
-        PANES_VISIBLE: 0,
+    var Carousel = function () {
+        function Carousel(container, options) {
+            var _this = this;
 
-        constructor: function constructor(item, options) {
+            _classCallCheck(this, Carousel);
+
             Curator.log('Carousel->construct');
 
-            var that = this;
+            this.current_position = 0;
+            this.animating = false;
+            this.timeout = null;
+            this.FAKE_NUM = 0;
+            this.PANES_VISIBLE = 0;
 
             this.options = $.extend([], defaults, options);
 
-            this.$item = $(item);
-            this.$viewport = this.$item; // <div> slider, known as $viewport
+            this.$viewport = $(container); // <div> slider, known as $viewport
 
             this.$panes = this.$viewport.children();
             this.$panes.detach();
 
             this.$pane_stage = $('<div class="ctr-carousel-stage"></div>').appendTo(this.$viewport);
             this.$pane_slider = $('<div class="ctr-carousel-slider"></div>').appendTo(this.$pane_stage);
-            // this.$pane_slider = this.$item;
 
-            this.$panes.appendTo(this.$pane_slider);
+            // this.$pane_slider.append(this.$panes);
 
             this.$viewport.css(css.viewport); // set css on viewport
             this.$pane_slider.css(css.pane_slider); // set css on pane slider
             this.$pane_stage.css(css.pane_stage); // set css on pane slider
 
-            this.update();
             this.addControls();
+            this.update();
 
             $(window).smartresize(function () {
-                that.resize();
-                that.move(that.current_position, true);
+                _this.resize();
+                _this.move(_this.current_position, true);
 
                 // reset animation timer
-                if (that.options.autoPlay) {
-                    that.animate();
+                if (_this.options.autoPlay) {
+                    _this.animate();
                 }
             });
-        },
-
-        update: function update() {
-            this.$panes = this.$pane_slider.children(); // <li> list items, known as $panes
-            this.NUM_PANES = this.options.circular ? this.$panes.length + 1 : this.$panes.length;
-
-            if (this.NUM_PANES > 0) {
-                this.resize();
-                this.move(this.current_position, true);
-
-                if (!this.animating) {
-                    if (this.options.autoPlay) {
-                        this.animate();
-                    }
-                }
-            }
-        },
-
-        add: function add($els) {
-            this.$pane_slider.append($els);
-            this.$panes = this.$pane_slider.children();
-        },
-
-        resize: function resize() {
-            // console.log('resize');
-            // total panes (+1 for circular illusion)
-            var PANE_WRAPPER_WIDTH = this.options.infinite ? (this.NUM_PANES + 1) * 100 + '%' : this.NUM_PANES * 100 + '%'; // % width of slider (total panes * 100)
-
-            this.$pane_slider.css({ width: PANE_WRAPPER_WIDTH }); // set css on pane slider
-
-            this.VIEWPORT_WIDTH = this.$viewport.width();
-
-            console.log(this.options.panesVisible);
-
-            if (this.options.panesVisible) {
-                // TODO - change to check if it's a function or a number
-                this.PANES_VISIBLE = this.options.panesVisible();
-                this.PANE_WIDTH = this.VIEWPORT_WIDTH / this.PANES_VISIBLE;
-            } else {
-                this.PANES_VISIBLE = this.VIEWPORT_WIDTH < this.options.minWidth ? 1 : Math.floor(this.VIEWPORT_WIDTH / this.options.minWidth);
-                this.PANE_WIDTH = this.VIEWPORT_WIDTH / this.PANES_VISIBLE;
-            }
-
-            var that = this;
-
-            if (this.options.infinite) {
-
-                this.$panes.filter('.crt-clone').remove();
-
-                for (var i = this.NUM_PANES - 1; i > this.NUM_PANES - 1 - this.PANES_VISIBLE; i--) {
-                    // console.log(i);
-                    var first = this.$panes.eq(i).clone();
-                    first.addClass('crt-clone');
-                    first.css('opacity', '1');
-                    // Should probably move this out to an event
-                    first.find('.crt-post-image').css({ opacity: 1 });
-                    this.$pane_slider.prepend(first);
-                    this.FAKE_NUM = this.PANES_VISIBLE;
-                }
-                this.$panes = this.$pane_slider.children();
-                // {
-                // 	var mod = (this.NUM_PANES-1) % this.PANES_VISIBLE;
-                // 	console.log(this.NUM_PANES);
-                // 	console.log(this.PANES_VISIBLE);
-                // 	console.log('mod: '+mod);
-                //
-                //
-                // 	var first = this.$panes.first().clone();
-                // 	first.addClass('crt-clone');
-                // 	first.css('opacity','1');
-                // 	this.$pane_slider.append(first);
-                // 	this.$panes = this.$pane_slider.children();
-            }
-
-            this.$panes.each(function (index) {
-                $(this).css($.extend(css.pane, { width: that.PANE_WIDTH + 'px' }));
-            });
-        },
-
-        destroy: function destroy() {},
-
-        animate: function animate() {
-            this.animating = true;
-            var that = this;
-            clearTimeout(this.timeout);
-            this.timeout = setTimeout(function () {
-                that.next();
-            }, this.options.speed);
-        },
-
-        next: function next() {
-            var move = this.options.moveAmount ? this.options.moveAmount : this.PANES_VISIBLE;
-            this.move(this.current_position + move, false);
-        },
-
-        prev: function prev() {
-            var move = this.options.moveAmount ? this.options.moveAmount : this.PANES_VISIBLE;
-            this.move(this.current_position - move, false);
-        },
-
-        move: function move(i, noAnimate) {
-            // console.log(i);
-
-            this.current_position = i;
-
-            var maxPos = this.NUM_PANES - this.PANES_VISIBLE;
-
-            // if (this.options.infinite)
-            // {
-            // 	var mod = this.NUM_PANES % this.PANES_VISIBLE;
-            // }
-
-            if (this.current_position < 0) {
-                this.current_position = 0;
-            } else if (this.current_position > maxPos) {
-                this.current_position = maxPos;
-            }
-
-            var curIncFake = this.FAKE_NUM + this.current_position;
-            var left = curIncFake * this.PANE_WIDTH;
-            // console.log('move');
-            // console.log(curIncFake);
-            var panesInView = this.PANES_VISIBLE;
-            var max = this.options.infinite ? this.PANE_WIDTH * this.NUM_PANES : this.PANE_WIDTH * this.NUM_PANES - this.VIEWPORT_WIDTH;
-
-            this.currentLeft = left;
-
-            //console.log(left+":"+max);
-
-            if (left < 0) {
-                this.currentLeft = 0;
-            } else if (left > max) {
-                this.currentLeft = max;
-            } else {
-                this.currentLeft = left;
-            }
-
-            if (noAnimate) {
-                this.$pane_slider.css({
-                    left: 0 - this.currentLeft + 'px'
-                });
-            } else {
-                var that = this;
-                var options = {
-                    duration: this.options.duration,
-                    complete: function complete() {
-                        that.moveComplete();
-                    }
-                };
-                if (this.options.easing) {
-                    options.easing = this.options.easing;
-                }
-                this.$pane_slider.animate({
-                    left: 0 - this.currentLeft + 'px'
-                }, options);
-            }
-        },
-
-        moveComplete: function moveComplete() {
-            // console.log ('moveComplete');
-            // console.log (this.current_position);
-            // console.log (this.NUM_PANES - this.PANES_VISIBLE);
-            if (this.options.infinite && this.current_position >= this.NUM_PANES - this.PANES_VISIBLE) {
-                // console.log('IIIII');
-                // infinite and we're off the end!
-                // re-e-wind, the crowd says 'bo selecta!'
-                this.$pane_slider.css({ left: 0 });
-                this.current_position = 0 - this.PANES_VISIBLE;
-                this.currentLeft = 0;
-            }
-
-            this.$item.trigger('curatorCarousel:changed', [this, this.current_position]);
-
-            if (this.options.autoPlay) {
-                this.animate();
-            }
-        },
-
-        addControls: function addControls() {
-            this.$viewport.append('<button type="button" data-role="none" class="slick-prev slick-arrow" aria-label="Previous" role="button" aria-disabled="false">Previous</button>');
-            this.$viewport.append('<button type="button" data-role="none" class="slick-next slick-arrow" aria-label="Next" role="button" aria-disabled="false">Next</button>');
-
-            this.$viewport.on('click', '.slick-prev', this.prev.bind(this));
-            this.$viewport.on('click', '.slick-next', this.next.bind(this));
-        },
-
-        method: function method() {
-            var m = arguments[0];
-            // var args = (arguments.length === 1 ? [arguments[0]] : Array.apply(null, arguments));
-            if (m == 'update') {
-                this.update();
-            } else if (m == 'add') {
-                this.add(arguments[1]);
-            } else if (m == 'destroy') {
-                this.destroy();
-            } else {}
         }
-    });
+
+        _createClass(Carousel, [{
+            key: 'update',
+            value: function update() {
+                this.$panes = this.$pane_slider.children(); // <li> list items, known as $panes
+                this.NUM_PANES = this.options.circular ? this.$panes.length + 1 : this.$panes.length;
+
+                if (this.NUM_PANES > 0) {
+                    this.resize();
+                    this.move(this.current_position, true);
+
+                    if (!this.animating) {
+                        if (this.options.autoPlay) {
+                            this.animate();
+                        }
+                    }
+                }
+            }
+        }, {
+            key: 'add',
+            value: function add($els) {
+                var $panes = [];
+                //
+                // $.each($els,(i, $pane)=> {
+                //     let p = $pane.wrapAll('<div class="crt-carousel-col"></div>').parent();
+                //     $panes.push(p)
+                // });
+
+                this.$pane_slider.append($els);
+                this.$panes = this.$pane_slider.children();
+            }
+        }, {
+            key: 'resize',
+            value: function resize() {
+                var _this2 = this;
+
+                var PANE_WRAPPER_WIDTH = this.options.infinite ? (this.NUM_PANES + 1) * 100 + '%' : this.NUM_PANES * 100 + '%'; // % width of slider (total panes * 100)
+
+                this.$pane_slider.css({ width: PANE_WRAPPER_WIDTH }); // set css on pane slider
+
+                this.VIEWPORT_WIDTH = this.$viewport.width();
+
+                if (this.options.panesVisible) {
+                    // TODO - change to check if it's a function or a number
+                    this.PANES_VISIBLE = this.options.panesVisible();
+                    this.PANE_WIDTH = this.VIEWPORT_WIDTH / this.PANES_VISIBLE;
+                } else {
+                    this.PANES_VISIBLE = this.VIEWPORT_WIDTH < this.options.minWidth ? 1 : Math.floor(this.VIEWPORT_WIDTH / this.options.minWidth);
+                    this.PANE_WIDTH = this.VIEWPORT_WIDTH / this.PANES_VISIBLE;
+                }
+
+                if (this.options.infinite) {
+
+                    this.$panes.filter('.crt-clone').remove();
+
+                    for (var i = this.NUM_PANES - 1; i > this.NUM_PANES - 1 - this.PANES_VISIBLE; i--) {
+                        // console.log(i);
+                        var first = this.$panes.eq(i).clone();
+                        first.addClass('crt-clone');
+                        first.css('opacity', '1');
+                        // Should probably move this out to an event
+                        first.find('.crt-post-image').css({ opacity: 1 });
+                        this.$pane_slider.prepend(first);
+                        this.FAKE_NUM = this.PANES_VISIBLE;
+                    }
+                    this.$panes = this.$pane_slider.children();
+                }
+
+                this.$panes.each(function (index, pane) {
+                    $(pane).css($.extend(css.pane, { width: _this2.PANE_WIDTH + 'px' }));
+                });
+            }
+        }, {
+            key: 'destroy',
+            value: function destroy() {}
+        }, {
+            key: 'animate',
+            value: function animate() {
+                var _this3 = this;
+
+                this.animating = true;
+                clearTimeout(this.timeout);
+                this.timeout = setTimeout(function () {
+                    _this3.next();
+                }, this.options.speed);
+            }
+        }, {
+            key: 'next',
+            value: function next() {
+                var move = this.options.moveAmount ? this.options.moveAmount : this.PANES_VISIBLE;
+                this.move(this.current_position + move, false);
+            }
+        }, {
+            key: 'prev',
+            value: function prev() {
+                var move = this.options.moveAmount ? this.options.moveAmount : this.PANES_VISIBLE;
+                this.move(this.current_position - move, false);
+            }
+        }, {
+            key: 'move',
+            value: function move(i, noAnimate) {
+                var _this4 = this;
+
+                // console.log(i);
+
+                this.current_position = i;
+
+                var maxPos = this.NUM_PANES - this.PANES_VISIBLE;
+
+                // if (this.options.infinite)
+                // {
+                // 	let mod = this.NUM_PANES % this.PANES_VISIBLE;
+                // }
+
+                if (this.current_position < 0) {
+                    this.current_position = 0;
+                } else if (this.current_position > maxPos) {
+                    this.current_position = maxPos;
+                }
+
+                var curIncFake = this.FAKE_NUM + this.current_position;
+                var left = curIncFake * this.PANE_WIDTH;
+                // console.log('move');
+                // console.log(curIncFake);
+                var panesInView = this.PANES_VISIBLE;
+                var max = this.options.infinite ? this.PANE_WIDTH * this.NUM_PANES : this.PANE_WIDTH * this.NUM_PANES - this.VIEWPORT_WIDTH;
+
+                this.currentLeft = left;
+
+                //console.log(left+":"+max);
+
+                if (left < 0) {
+                    this.currentLeft = 0;
+                } else if (left > max) {
+                    this.currentLeft = max;
+                } else {
+                    this.currentLeft = left;
+                }
+
+                if (noAnimate) {
+                    this.$pane_slider.css({
+                        left: 0 - this.currentLeft + 'px'
+                    });
+                    this.moveComplete();
+                } else {
+                    var options = {
+                        duration: this.options.duration,
+                        complete: function complete() {
+                            _this4.moveComplete();
+                        }
+                    };
+                    if (this.options.easing) {
+                        options.easing = this.options.easing;
+                    }
+                    this.$pane_slider.animate({
+                        left: 0 - this.currentLeft + 'px'
+                    }, options);
+                }
+            }
+        }, {
+            key: 'moveComplete',
+            value: function moveComplete() {
+                var _this5 = this;
+
+                // console.log ('moveComplete');
+                // console.log (this.current_position);
+                // console.log (this.NUM_PANES - this.PANES_VISIBLE);
+                if (this.options.infinite && this.current_position >= this.NUM_PANES - this.PANES_VISIBLE) {
+                    // console.log('IIIII');
+                    // infinite and we're off the end!
+                    // re-e-wind, the crowd says 'bo selecta!'
+                    this.$pane_slider.css({ left: 0 });
+                    this.current_position = 0 - this.PANES_VISIBLE;
+                    this.currentLeft = 0;
+                }
+
+                setTimeout(function () {
+                    var paneMaxHieght = 0;
+                    for (var i = _this5.current_position; i < _this5.current_position + _this5.PANES_VISIBLE; i++) {
+                        var p = $(_this5.$panes[i]).children('.crt-post');
+                        var h = p.height();
+                        if (h > paneMaxHieght) {
+                            paneMaxHieght = h;
+                        }
+                        console.log(p);
+                        console.log(i + ":" + h);
+                    }
+                    _this5.$pane_stage.animate({ height: paneMaxHieght }, 300);
+                }, 50);
+
+                this.$viewport.trigger('curatorCarousel:changed', [this, this.current_position]);
+
+                if (this.options.autoPlay) {
+                    this.animate();
+                }
+            }
+        }, {
+            key: 'addControls',
+            value: function addControls() {
+                this.$viewport.append('<button type="button" data-role="none" class="crt-panel-prev crt-panel-arrow" aria-label="Previous" role="button" aria-disabled="false">Previous</button>');
+                this.$viewport.append('<button type="button" data-role="none" class="crt-panel-next crt-panel-arrow" aria-label="Next" role="button" aria-disabled="false">Next</button>');
+
+                this.$viewport.on('click', '.crt-panel-prev', this.prev.bind(this));
+                this.$viewport.on('click', '.crt-panel-next', this.next.bind(this));
+            }
+        }, {
+            key: 'method',
+            value: function method() {
+                var m = arguments[0];
+                // let args = (arguments.length === 1 ? [arguments[0]] : Array.apply(null, arguments));
+                if (m == 'update') {
+                    this.update();
+                } else if (m == 'add') {
+                    this.add(arguments[1]);
+                } else if (m == 'destroy') {
+                    this.destroy();
+                } else {}
+            }
+        }]);
+
+        return Carousel;
+    }();
 
     var carousels = {};
     function rand() {
@@ -3247,14 +2887,14 @@ var Client = function () {
     }, {
         key: 'createFeed',
         value: function createFeed() {
-            var _this = this;
+            var _this6 = this;
 
             this.feed = new Curator.Feed(this);
             this.feed.on('postsLoaded', function (event) {
-                _this.onPostsLoaded(event.target);
+                _this6.onPostsLoaded(event.target);
             });
             this.feed.on('postsFailed', function (event) {
-                _this.onPostsFail(event.target);
+                _this6.onPostsFail(event.target);
             });
         }
     }, {
@@ -3289,8 +2929,8 @@ var Client = function () {
         key: 'createPostElement',
         value: function createPostElement(postJson) {
             var post = new Curator.Post(postJson, this.options, this);
-            $(post).bind('postClick', $.proxy(this.onPostClick, this));
-            $(post).bind('postReadMoreClick', $.proxy(this.onPostClick, this));
+            $(post).bind('postClick', this.onPostClick.bind(this));
+            $(post).bind('postReadMoreClick', this.onPostClick.bind(this));
 
             if (this.options.onPostCreated) {
                 this.options.onPostCreated(post);
@@ -3370,22 +3010,22 @@ var Feed = function (_EventBus) {
     function Feed(client) {
         _classCallCheck(this, Feed);
 
-        var _this2 = _possibleConstructorReturn(this, (Feed.__proto__ || Object.getPrototypeOf(Feed)).call(this));
+        var _this7 = _possibleConstructorReturn(this, (Feed.__proto__ || Object.getPrototypeOf(Feed)).call(this));
 
         Curator.log('Feed->init with options');
 
-        _this2.client = client;
+        _this7.client = client;
 
-        _this2.posts = [];
-        _this2.currentPage = 0;
-        _this2.postsLoaded = 0;
-        _this2.postCount = 0;
-        _this2.loading = false;
+        _this7.posts = [];
+        _this7.currentPage = 0;
+        _this7.postsLoaded = 0;
+        _this7.postCount = 0;
+        _this7.loading = false;
 
-        _this2.options = _this2.client.options;
+        _this7.options = _this7.client.options;
 
-        _this2.feedBase = _this2.options.apiEndpoint + '/feed';
-        return _this2;
+        _this7.feedBase = _this7.options.apiEndpoint + '/feed';
+        return _this7;
     }
 
     _createClass(Feed, [{
@@ -3425,7 +3065,7 @@ var Feed = function (_EventBus) {
     }, {
         key: '_loadPosts',
         value: function _loadPosts(params) {
-            var _this3 = this;
+            var _this8 = this;
 
             Curator.log('Feed->_loadPosts');
 
@@ -3439,25 +3079,25 @@ var Feed = function (_EventBus) {
                     Curator.log('Feed->_loadPosts success');
 
                     if (data.success) {
-                        _this3.postCount = data.postCount;
-                        _this3.postsLoaded += data.posts.length;
+                        _this8.postCount = data.postCount;
+                        _this8.postsLoaded += data.posts.length;
 
-                        _this3.posts = _this3.posts.concat(data.posts);
-                        _this3.networks = data.networks;
+                        _this8.posts = _this8.posts.concat(data.posts);
+                        _this8.networks = data.networks;
 
-                        _this3.trigger('postsLoaded', data.posts);
+                        _this8.trigger('postsLoaded', data.posts);
                     } else {
-                        _this3.trigger('postsFailed', data.posts);
+                        _this8.trigger('postsFailed', data.posts);
                     }
-                    _this3.loading = false;
+                    _this8.loading = false;
                 },
                 error: function error(jqXHR, textStatus, errorThrown) {
                     Curator.log('Feed->_loadPosts fail');
                     Curator.log(textStatus);
                     Curator.log(errorThrown);
 
-                    _this3.trigger('postsFailed', []);
-                    _this3.loading = false;
+                    _this8.trigger('postsFailed', []);
+                    _this8.loading = false;
                 }
             });
         }
@@ -3535,7 +3175,7 @@ Curator.Templates.filterTemplate = ' <div class="crt-filter"> \
 
 var Filter = function () {
     function Filter(client) {
-        var _this4 = this;
+        var _this9 = this;
 
         _classCallCheck(this, Filter);
 
@@ -3556,20 +3196,20 @@ var Filter = function () {
             var t = $(ev.target);
             var networkId = t.data('network');
 
-            _this4.$filter.find('.crt-filter-network li').removeClass('active');
+            _this9.$filter.find('.crt-filter-network li').removeClass('active');
             t.parent().addClass('active');
 
             Curator.EventBus.trigger('crt:filter:change');
 
             if (networkId) {
-                _this4.client.feed.loadPosts(0, { network_id: networkId });
+                _this9.client.feed.loadPosts(0, { network_id: networkId });
             } else {
-                _this4.client.feed.loadPosts(0, {});
+                _this9.client.feed.loadPosts(0, {});
             }
         });
 
         this.client.feed.on('postsLoaded', function (event) {
-            _this4.onPostsLoaded(event.target);
+            _this9.onPostsLoaded(event.target);
         });
     }
 
@@ -3581,29 +3221,29 @@ var Filter = function () {
             if (!this.filtersLoaded) {
                 this.$filterNetworks.append('<li class="active"><a href="#" data-network="0"> All</a></li>');
 
-                var _iteratorNormalCompletion2 = true;
-                var _didIteratorError2 = false;
-                var _iteratorError2 = undefined;
+                var _iteratorNormalCompletion = true;
+                var _didIteratorError = false;
+                var _iteratorError = undefined;
 
                 try {
-                    for (var _iterator2 = this.client.feed.networks[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-                        var id = _step2.value;
+                    for (var _iterator = this.client.feed.networks[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                        var id = _step.value;
 
                         var network = Curator.Networks[id];
                         console.log(network);
                         this.$filterNetworks.append('<li><a href="#" data-network="' + id + '"><i class="' + network.icon + '"></i> ' + network.name + '</a></li>');
                     }
                 } catch (err) {
-                    _didIteratorError2 = true;
-                    _iteratorError2 = err;
+                    _didIteratorError = true;
+                    _iteratorError = err;
                 } finally {
                     try {
-                        if (!_iteratorNormalCompletion2 && _iterator2.return) {
-                            _iterator2.return();
+                        if (!_iteratorNormalCompletion && _iterator.return) {
+                            _iterator.return();
                         }
                     } finally {
-                        if (_didIteratorError2) {
-                            throw _iteratorError2;
+                        if (_didIteratorError) {
+                            throw _iteratorError;
                         }
                     }
                 }
@@ -3741,19 +3381,19 @@ var PopupManager = function () {
         this.$underlay = this.$wrapper.find('.crt-popup-underlay');
 
         $('body').append(this.$wrapper);
-        this.$underlay.click($.proxy(this.onUnderlayClick, this));
-        //this.$popupContainer.click($.proxy(this.onUnderlayClick,this));
+        this.$underlay.click(this.onUnderlayClick.bind(this));
+        //this.$popupContainer.click(this.onUnderlayClick.bind(this));
     }
 
     _createClass(PopupManager, [{
         key: 'showPopup',
         value: function showPopup(post) {
-            var _this5 = this;
+            var _this10 = this;
 
             if (this.popup) {
                 this.popup.hide(function () {
-                    _this5.popup.destroy();
-                    _this5.showPopup2(post);
+                    _this10.popup.destroy();
+                    _this10.showPopup2(post);
                 });
             } else {
                 this.showPopup2(post);
@@ -3825,7 +3465,7 @@ var PopupManager = function () {
     }, {
         key: 'hide',
         value: function hide() {
-            var _this6 = this;
+            var _this11 = this;
 
             Curator.log('PopupManager->hide');
             this.client.track('popup:hide');
@@ -3833,8 +3473,8 @@ var PopupManager = function () {
             this.currentPostNum = 0;
             this.popup = null;
             this.$underlay.fadeOut(function () {
-                _this6.$underlay.css({ 'display': '', 'opacity': '' });
-                _this6.$wrapper.hide();
+                _this11.$underlay.css({ 'display': '', 'opacity': '' });
+                _this11.$wrapper.hide();
             });
         }
     }, {
@@ -3897,12 +3537,12 @@ var Popup = function () {
             this.$popup.find('.crt-video-container').append(src);
         }
 
-        this.$popup.on('click', ' .crt-close', $.proxy(this.onClose, this));
-        this.$popup.on('click', ' .crt-previous', $.proxy(this.onPrevious, this));
-        this.$popup.on('click', ' .crt-next', $.proxy(this.onNext, this));
-        this.$popup.on('click', ' .crt-play', $.proxy(this.onPlay, this));
-        this.$popup.on('click', '.crt-share-facebook', $.proxy(this.onShareFacebookClick, this));
-        this.$popup.on('click', '.crt-share-twitter', $.proxy(this.onShareTwitterClick, this));
+        this.$popup.on('click', ' .crt-close', this.onClose.bind(this));
+        this.$popup.on('click', ' .crt-previous', this.onPrevious.bind(this));
+        this.$popup.on('click', ' .crt-next', this.onNext.bind(this));
+        this.$popup.on('click', ' .crt-play', this.onPlay.bind(this));
+        this.$popup.on('click', '.crt-share-facebook', this.onShareFacebookClick.bind(this));
+        this.$popup.on('click', '.crt-share-twitter', this.onShareTwitterClick.bind(this));
     }
 
     _createClass(Popup, [{
@@ -4036,6 +3676,8 @@ Curator.Popup = Popup;
 
 var Post = function () {
     function Post(postJson, options, widget) {
+        var _this12 = this;
+
         _classCallCheck(this, Post);
 
         this.options = options;
@@ -4046,18 +3688,27 @@ var Post = function () {
         this.json = postJson;
         this.$el = Curator.Template.render(this.templateId, postJson);
 
-        this.$el.find('.crt-share-facebook').click($.proxy(this.onShareFacebookClick, this));
-        this.$el.find('.crt-share-twitter').click($.proxy(this.onShareTwitterClick, this));
-        // this.$el.find('.crt-hitarea').click($.proxy(this.onPostClick,this));
-        this.$el.find('.crt-post-read-more-button').click($.proxy(this.onReadMoreClick, this));
-        // this.$el.on('click','.crt-post-text-body a',$.proxy(this.onLinkClick,this));
-        this.$el.click($.proxy(this.onPostClick, this));
+        this.$el.find('.crt-share-facebook').click(this.onShareFacebookClick.bind(this));
+        this.$el.find('.crt-share-twitter').click(this.onShareTwitterClick.bind(this));
+        // this.$el.find('.crt-hitarea').click(this.onPostClick.bind(this));
+        this.$el.find('.crt-post-read-more-button').click(this.onReadMoreClick.bind(this));
+        // this.$el.on('click','.crt-post-text-body a',this.onLinkClick.bind(this));
+        this.$el.click(this.onPostClick.bind(this));
         this.$post = this.$el.find('.crt-post');
         this.$image = this.$el.find('.crt-post-image');
         this.$imageContainer = this.$el.find('.crt-image-c');
         this.$image.css({ opacity: 0 });
 
-        this.$image.on('load', $.proxy(this.onImageLoaded, this));
+        if (this.json.image) {
+            this.$image.on('load', this.onImageLoaded.bind(this));
+            this.$image.on('error', this.onImageError.bind(this));
+        } else {
+            // no image ... call this.onImageLoaded
+            setTimeout(function () {
+                console.log('asdasd');
+                _this12.setHeight();
+            }, 100);
+        }
 
         if (this.json.image_width > 0) {
             var p = this.json.image_height / this.json.image_width * 100;
@@ -4097,10 +3748,8 @@ var Post = function () {
 
             if (target.is('a') && target.attr('href') !== '#') {
                 this.widget.track('click:link');
-                console.log('link');
             } else {
                 ev.preventDefault();
-                console.log('post');
                 $(this).trigger('postClick', this, this.json, ev);
             }
         }
@@ -4109,7 +3758,22 @@ var Post = function () {
         value: function onImageLoaded() {
             this.$image.animate({ opacity: 1 });
 
-            if (this.options.maxHeight && this.options.maxHeight > 0 && this.$post.height() > this.options.maxHeight) {
+            this.setHeight();
+        }
+    }, {
+        key: 'onImageError',
+        value: function onImageError() {
+            // Unable to load image!!!
+            this.$image.hide();
+
+            this.setHeight();
+        }
+    }, {
+        key: 'setHeight',
+        value: function setHeight() {
+            var height = this.$post.height();
+            console.log(height);
+            if (this.options.maxHeight && this.options.maxHeight > 0 && height > this.options.maxHeight) {
                 this.$post.css({ maxHeight: this.options.maxHeight }).addClass('crt-post-max-height');
             }
         }
@@ -4178,6 +3842,7 @@ Curator.SocialTwitter = {
 
 Curator.Templates.postTemplate = ' \
 <div class="crt-post-c">\
+    <div class="crt-post-bg"></div> \
     <div class="crt-post post<%=id%> crt-post-<%=this.networkIcon()%>"> \
         <div class="crt-post-header"> \
             <span class="crt-social-icon"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \
@@ -4516,57 +4181,57 @@ var Waterfall = function (_Curator$Client) {
     function Waterfall(options) {
         _classCallCheck(this, Waterfall);
 
-        var _this7 = _possibleConstructorReturn(this, (Waterfall.__proto__ || Object.getPrototypeOf(Waterfall)).call(this));
+        var _this13 = _possibleConstructorReturn(this, (Waterfall.__proto__ || Object.getPrototypeOf(Waterfall)).call(this));
 
-        _this7.setOptions(options, Curator.Config.Waterfall);
+        _this13.setOptions(options, Curator.Config.Waterfall);
 
         Curator.log("Waterfall->init with options:");
-        Curator.log(_this7.options);
+        Curator.log(_this13.options);
 
-        if (_this7.init(_this7)) {
-            _this7.$scroll = $('<div class="crt-feed-scroll"></div>').appendTo(_this7.$container);
-            _this7.$feed = $('<div class="crt-feed"></div>').appendTo(_this7.$scroll);
-            _this7.$container.addClass('crt-feed-container');
+        if (_this13.init(_this13)) {
+            _this13.$scroll = $('<div class="crt-feed-scroll"></div>').appendTo(_this13.$container);
+            _this13.$feed = $('<div class="crt-feed"></div>').appendTo(_this13.$scroll);
+            _this13.$container.addClass('crt-feed-container');
 
-            if (_this7.options.scroll == 'continuous') {
-                $(_this7.$scroll).scroll(function () {
-                    var height = _this7.$scroll.height();
-                    var cHeight = _this7.$feed.height();
-                    var scrollTop = _this7.$scroll.scrollTop();
+            if (_this13.options.scroll == 'continuous') {
+                $(_this13.$scroll).scroll(function () {
+                    var height = _this13.$scroll.height();
+                    var cHeight = _this13.$feed.height();
+                    var scrollTop = _this13.$scroll.scrollTop();
                     if (scrollTop >= cHeight - height) {
-                        _this7.loadMorePosts();
+                        _this13.loadMorePosts();
                     }
                 });
-            } else if (_this7.options.scroll == 'none') {
+            } else if (_this13.options.scroll == 'none') {
                 // no scroll - use javascript to trigger loading
             } else {
                 // default to more
-                _this7.$more = $('<div class="crt-feed-more"><a href="#"><span>Load more</span></a></div>').appendTo(_this7.$scroll);
-                _this7.$more.find('a').on('click', function (ev) {
+                _this13.$more = $('<div class="crt-feed-more"><a href="#"><span>Load more</span></a></div>').appendTo(_this13.$scroll);
+                _this13.$more.find('a').on('click', function (ev) {
                     ev.preventDefault();
-                    _this7.loadMorePosts();
+                    _this13.loadMorePosts();
                 });
             }
 
-            _this7.$feed.waterfall({
+            _this13.$feed.waterfall({
                 selector: '.crt-post-c',
                 gutter: 0,
-                width: _this7.options.waterfall.gridWidth,
-                animate: _this7.options.waterfall.animate,
+                width: _this13.options.waterfall.gridWidth,
+                animate: _this13.options.waterfall.animate,
                 animationOptions: {
-                    speed: _this7.options.waterfall.animateSpeed / 2,
-                    duration: _this7.options.waterfall.animateSpeed
+                    speed: _this13.options.waterfall.animateSpeed / 2,
+                    duration: _this13.options.waterfall.animateSpeed
                 }
             });
 
             Curator.EventBus.on('crt:filter:change', function (event) {
-                _this7.$feed.find('.crt-post-c').remove();
+                _this13.$feed.find('.crt-post-c').remove();
             });
 
             // Load first set of posts
-            _this7.loadPosts(0);
+            _this13.loadPosts(0);
         }
-        return _this7;
+        return _this13;
     }
 
     _createClass(Waterfall, [{
@@ -4659,30 +4324,30 @@ var Carousel = function (_Client) {
     function Carousel(options) {
         _classCallCheck(this, Carousel);
 
-        var _this8 = _possibleConstructorReturn(this, (Carousel.__proto__ || Object.getPrototypeOf(Carousel)).call(this));
+        var _this14 = _possibleConstructorReturn(this, (Carousel.__proto__ || Object.getPrototypeOf(Carousel)).call(this));
 
-        _this8.setOptions(options, Curator.Config.Carousel);
+        _this14.setOptions(options, Curator.Config.Carousel);
 
-        _this8.containerHeight = 0;
-        _this8.loading = false;
-        _this8.posts = [];
-        _this8.firstLoad = true;
+        _this14.containerHeight = 0;
+        _this14.loading = false;
+        _this14.posts = [];
+        _this14.firstLoad = true;
 
         Curator.log("Carousel->init with options:");
-        Curator.log(_this8.options);
+        Curator.log(_this14.options);
 
-        if (_this8.init(_this8)) {
+        if (_this14.init(_this14)) {
 
-            _this8.allLoaded = false;
+            _this14.allLoaded = false;
 
-            var _that = _this8;
+            var _that = _this14;
 
             // this.$wrapper = $('<div class="crt-carousel-wrapper"></div>').appendTo(this.$container);
-            _this8.$feed = $('<div class="crt-feed"></div>').appendTo(_this8.$container);
-            _this8.$container.addClass('crt-carousel');
+            _this14.$feed = $('<div class="crt-feed"></div>').appendTo(_this14.$container);
+            _this14.$container.addClass('crt-carousel');
 
-            _this8.carousel = new window.CCarousel(_this8.$feed, _this8.options.carousel);
-            _this8.$feed.on('curatorCarousel:changed', function (event, carousel, currentSlide) {
+            _this14.carousel = new window.CCarousel(_this14.$feed, _this14.options.carousel);
+            _this14.$feed.on('curatorCarousel:changed', function (event, carousel, currentSlide) {
                 console.log('curatorCarousel:changed ' + currentSlide);
                 // console.log('curatorCarousel:changed '+(that.feed.postsLoaded-carousel.PANES_VISIBLE));
                 // console.log(carousel.PANES_VISIBLE);
@@ -4694,9 +4359,9 @@ var Carousel = function (_Client) {
             });
 
             // load first set of posts
-            _this8.loadPosts(0);
+            _this14.loadPosts(0);
         }
-        return _this8;
+        return _this14;
     }
 
     _createClass(Carousel, [{
@@ -4794,43 +4459,43 @@ var Panel = function (_Curator$Client2) {
     function Panel(options) {
         _classCallCheck(this, Panel);
 
-        var _this9 = _possibleConstructorReturn(this, (Panel.__proto__ || Object.getPrototypeOf(Panel)).call(this));
+        var _this15 = _possibleConstructorReturn(this, (Panel.__proto__ || Object.getPrototypeOf(Panel)).call(this));
 
-        _this9.setOptions(options, Curator.Config.Panel);
+        _this15.setOptions(options, Curator.Config.Panel);
 
         Curator.log("Panel->init with options:");
-        Curator.log(_this9.options);
+        Curator.log(_this15.options);
 
-        _this9.containerHeight = 0;
-        _this9.loading = false;
-        _this9.feed = null;
-        _this9.$container = null;
-        _this9.$feed = null;
-        _this9.posts = [];
+        _this15.containerHeight = 0;
+        _this15.loading = false;
+        _this15.feed = null;
+        _this15.$container = null;
+        _this15.$feed = null;
+        _this15.posts = [];
 
-        if (_this9.init(_this9)) {
-            _this9.allLoaded = false;
+        if (_this15.init(_this15)) {
+            _this15.allLoaded = false;
 
-            _this9.$feed = $('<div class="crt-feed"></div>').appendTo(_this9.$container);
-            _this9.$container.addClass('crt-panel');
+            _this15.$feed = $('<div class="crt-feed"></div>').appendTo(_this15.$container);
+            _this15.$container.addClass('crt-panel');
 
-            if (_this9.options.panel.fixedHeight) {
-                _this9.$container.addClass('crt-panel-fixed-height');
+            if (_this15.options.panel.fixedHeight) {
+                _this15.$container.addClass('crt-panel-fixed-height');
             }
 
-            _this9.$feed.curatorCarousel(_this9.options.panel);
-            _this9.$feed.on('curatorCarousel:changed', function (event, carousel, currentSlide) {
-                if (!_this9.allLoaded && _this9.options.panel.autoLoad) {
-                    if (currentSlide >= _this9.feed.postsLoaded - 4) {
-                        _this9.loadMorePosts();
+            _this15.$feed.curatorCarousel(_this15.options.panel);
+            _this15.$feed.on('curatorCarousel:changed', function (event, carousel, currentSlide) {
+                if (!_this15.allLoaded && _this15.options.panel.autoLoad) {
+                    if (currentSlide >= _this15.feed.postsLoaded - 4) {
+                        _this15.loadMorePosts();
                     }
                 }
             });
 
             // load first set of posts
-            _this9.loadPosts(0);
+            _this15.loadPosts(0);
         }
-        return _this9;
+        return _this15;
     }
 
     _createClass(Panel, [{
@@ -4946,69 +4611,69 @@ var Grid = function (_Client2) {
     function Grid(options) {
         _classCallCheck(this, Grid);
 
-        var _this10 = _possibleConstructorReturn(this, (Grid.__proto__ || Object.getPrototypeOf(Grid)).call(this));
+        var _this16 = _possibleConstructorReturn(this, (Grid.__proto__ || Object.getPrototypeOf(Grid)).call(this));
 
-        _this10.setOptions(options, Curator.Config.Grid);
+        _this16.setOptions(options, Curator.Config.Grid);
 
         Curator.log("Grid->init with options:");
-        Curator.log(_this10.options);
+        Curator.log(_this16.options);
 
-        _this10.containerHeight = 0;
-        _this10.loading = false;
-        _this10.feed = null;
-        _this10.$container = null;
-        _this10.$feed = null;
-        _this10.posts = [];
-        _this10.totalPostsLoaded = 0;
-        _this10.allLoaded = false;
-        _this10.previousCol = 0;
-        _this10.page = 0;
-        _this10.rowsShowing = 0;
+        _this16.containerHeight = 0;
+        _this16.loading = false;
+        _this16.feed = null;
+        _this16.$container = null;
+        _this16.$feed = null;
+        _this16.posts = [];
+        _this16.totalPostsLoaded = 0;
+        _this16.allLoaded = false;
+        _this16.previousCol = 0;
+        _this16.page = 0;
+        _this16.rowsShowing = 0;
 
-        if (_this10.init(_this10)) {
+        if (_this16.init(_this16)) {
 
             var tmpl = Curator.Template.render('#gridFeedTemplate', {});
-            _this10.$container.append(tmpl);
-            _this10.$feed = _this10.$container.find('.crt-feed');
-            _this10.$feedWindow = _this10.$container.find('.crt-feed-window');
-            _this10.$loadMore = _this10.$container.find('.crt-feed-more a');
+            _this16.$container.append(tmpl);
+            _this16.$feed = _this16.$container.find('.crt-feed');
+            _this16.$feedWindow = _this16.$container.find('.crt-feed-window');
+            _this16.$loadMore = _this16.$container.find('.crt-feed-more a');
 
-            _this10.$container.addClass('crt-grid');
+            _this16.$container.addClass('crt-grid');
 
-            var cols = Math.floor(_this10.$container.width() / _this10.options.grid.minWidth);
-            var postsNeeded = cols * (_this10.options.grid.rows + 1); // get 1 extra row just in case
+            var cols = Math.floor(_this16.$container.width() / _this16.options.grid.minWidth);
+            var postsNeeded = cols * (_this16.options.grid.rows + 1); // get 1 extra row just in case
 
-            if (_this10.options.grid.showLoadMore) {
+            if (_this16.options.grid.showLoadMore) {
                 // this.$feed.css({
                 //     position:'absolute',
                 //     left:0,
                 //     top:0,
                 //     width:'100%'
                 // });
-                _this10.$feedWindow.css({
+                _this16.$feedWindow.css({
                     'position': 'relative'
                 });
                 // postsNeeded = cols *  (this.options.grid.rows * 2); //
-                _this10.$loadMore.click(_this10.onMoreClicked.bind(_this10));
+                _this16.$loadMore.click(_this16.onMoreClicked.bind(_this16));
             } else {
-                _this10.$loadMore.hide();
+                _this16.$loadMore.hide();
             }
 
-            _this10.rowsShowing = _this10.options.grid.rows;
+            _this16.rowsShowing = _this16.options.grid.rows;
 
-            _this10.feed.options.postsPerPage = postsNeeded;
-            _this10.loadPosts(0);
+            _this16.feed.options.postsPerPage = postsNeeded;
+            _this16.loadPosts(0);
         }
 
         var to = null;
-        var that = _this10;
+        var that = _this16;
         $(window).resize(function () {
             clearTimeout(to);
             to = setTimeout(function () {
                 that.updateLayout();
             }, 100);
         });
-        _this10.updateLayout();
+        _this16.updateLayout();
 
         $(window).on('curatorCssLoaded', function () {
             clearTimeout(to);
@@ -5023,7 +4688,7 @@ var Grid = function (_Client2) {
                 that.updateLayout();
             }, 100);
         });
-        return _this10;
+        return _this16;
     }
 
     _createClass(Grid, [{

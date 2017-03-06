@@ -133,13 +133,19 @@
   width: 368px;
   float: left; }
 
+.crt-post-bg {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  right: 5px;
+  bottom: 5px;
+  background-color: #efefef; }
+
 .crt-post {
+  margin: 0 5px;
   overflow: hidden;
   position: relative;
   z-index: 1;
-  margin: 5px;
-  border: 1px solid #efefef;
-  background-color: #efefef;
   border-radius: 0px; }
   .crt-post a {
     transition: color 0.2s linear; }

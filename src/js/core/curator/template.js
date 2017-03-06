@@ -3,6 +3,7 @@
 
 Curator.Templates.postTemplate = ' \
 <div class="crt-post-c">\
+    <div class="crt-post-bg"></div> \
     <div class="crt-post post<%=id%> crt-post-<%=this.networkIcon()%>"> \
         <div class="crt-post-header"> \
             <span class="crt-social-icon"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \

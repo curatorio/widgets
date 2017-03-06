@@ -69,7 +69,7 @@ class Carousel extends Client {
              let that = this;
              let $els = [];
             $(posts).each(function(i){
-                 let p = that.createPostElement(this);
+                let p = that.createPostElement(this);
                 $els.push(p.$el);
 
                 if (that.options.animate && that.firstLoad) {
