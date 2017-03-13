@@ -3,15 +3,15 @@
 // Configuration
 
 
-var dest        = "dist/";
-var destCss     = dest+"css/";
-var destJs      = dest+"js/";
+const dest        = "dist/";
+const destCss     = dest+"css/";
+const destJs      = dest+"js/";
 
-var src         = "src/";
-var srcScss     = src+"scss/";
-var srcJs       = src+"js/";
+const src         = "src/";
+const srcScss     = src+"scss/";
+const srcJs       = src+"js/";
 
-var watchPaths  = [
+const watchPaths  = [
     dest+'/**',
     'tests/**/*.html',
     'tests/**/*.css',
@@ -19,11 +19,17 @@ var watchPaths  = [
     'examples/**/*.html'
 ];
 
-var jsHintConfig = {
+const jsHintConfig = {
 
 };
 
-var babelError = function(err) {
+const bubleConfig = {
+    transforms: {
+        dangerousForOf: true
+    }
+};
+
+const babelError = function(err) {
     console.log('[BABEL ERROR]');
     console.log(err.fileName + ( err.loc ? '( '+err.loc.line+', '+err.loc.column+' ): ' : ': '));
     console.log('error Babel: ' + err.message + '\n');
@@ -36,25 +42,28 @@ var babelError = function(err) {
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 // Gulp modules
 
-var gulp = require('gulp'),
-    babel = require("gulp-babel"),
+const gulp = require('gulp'),
     sass = require('gulp-sass'),
     autoprefixer = require('gulp-autoprefixer'),
-    jshint = require('gulp-jshint'),
     rename = require('gulp-rename'),
     concat = require('gulp-concat'),
     uglify = require('gulp-uglify'),
     livereload = require('gulp-livereload'),
     wrap = require('gulp-wrap'),
-    umd = require('gulp-umd'),
     addsrc = require('gulp-add-src'),
-    notify = require('gulp-notify');
+    notify = require('gulp-notify'),
 
-var umdTemplate = ";(function(root, factory) {\n\
+    // JS
+    umd = require('gulp-umd'),
+    jshint = require('gulp-jshint'),
+    babel = require("gulp-babel"),
+    buble = require('gulp-buble');
+
+const umdTemplate = ";(function(root, factory) {\n\
 if (typeof define === 'function' && define.amd) {\n\
     // Cheeky wrapper to add root to the factory call\n\
-    var factoryWrap = function () { \n\
-        var argsCopy = [].slice.call(arguments); \n\
+    const factoryWrap = function () { \n\
+        const argsCopy = [].slice.call(arguments); \n\
         argsCopy.unshift(root);\n\
         return factory.apply(this, argsCopy); \n\
     };\n\
@@ -70,21 +79,21 @@ if (typeof define === 'function' && define.amd) {\n\
 }));\n";
 
 
-var umdRequireJQuery = {
+const umdRequireJQuery = {
     name: 'jQuery',
     amd: 'jquery',
     cjs: 'jquery',
     global: 'jQuery',
     param: 'jQuery'
 };
-var umdRequireCurator = {
+const umdRequireCurator = {
     name: 'Curator',
     amd: 'curator',
     cjs: 'curator',
     global: 'Curator',
     param: 'Curator'
 };
-var umdRequireSlick = {
+const umdRequireSlick = {
     name: 'slick',
     amd: 'slick',
     cjs: 'slick',
@@ -356,8 +365,8 @@ gulp.task('scripts:combined', function() {
         srcJs+'widgets/custom.js'
     ])
     .pipe(concat('curator.js'))
-    .pipe(babel())
-    .on('error',babelError)
+    .pipe(buble(bubleConfig))
+    // .on('error',babelError)
     .pipe(wrap({ src: srcJs+'templates/default.js'}))
     .pipe(gulp.dest(destJs))
     .pipe(notify({ message: 'scripts:combined task complete' }));
