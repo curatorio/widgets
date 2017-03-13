@@ -187,7 +187,21 @@ Curator.StringUtils = {
     youtubeVideoId : function (url){
         let regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#\&\?]*).*/;
         let match = url.match(regExp);
-        return (match&&match[7].length==11)? match[7] : false;
+
+        if (match && match[7].length==11) {
+            return match[7];
+        } else {
+            // above doesn't work if video id starts with v
+            // eg https://www.youtube.com/embed/vDbr_EamBK4?autoplay=1
+
+            let regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/))([^#\&\?]*).*/;
+            let match2 = url.match(regExp);
+            if (match2 && match2[6].length==11) {
+                return match2[6];
+            }
+        }
+
+        return false;
     }
 };
 
