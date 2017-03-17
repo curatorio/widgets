@@ -26,9 +26,11 @@
     "jquery": ">=1.8.3"
   },
   "devDependencies": {
-    "gulp": "*",
+    "core-js": "^2.4.1",
+    "gulp": "^3.9.1",
     "gulp-add-src": "*",
     "gulp-autoprefixer": "*",
+    "gulp-buble": "^0.8.0",
     "gulp-concat": "*",
     "gulp-if": "*",
     "gulp-jshint": "*",
@@ -40,8 +42,6 @@
     "gulp-uglify": "*",
     "gulp-umd": "*",
     "gulp-wrap": "*",
-    "jshint": "*",
-    "gulp-babel": "*",
-    "babel-preset-latest": "*"
+    "jshint": "*"
   }
 }

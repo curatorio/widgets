@@ -29,16 +29,6 @@ const bubleConfig = {
     }
 };
 
-const babelError = function(err) {
-    console.log('[BABEL ERROR]');
-    console.log(err.fileName + ( err.loc ? '( '+err.loc.line+', '+err.loc.column+' ): ' : ': '));
-    console.log('error Babel: ' + err.message + '\n');
-    console.log(err.codeFrame);
-    notify({ message: err.message });
-
-    this.emit('end');
-};
-
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 // Gulp modules
 
@@ -56,7 +46,6 @@ const gulp = require('gulp'),
     // JS
     umd = require('gulp-umd'),
     jshint = require('gulp-jshint'),
-    babel = require("gulp-babel"),
     buble = require('gulp-buble');
 
 const umdTemplate = ";(function(root, factory) {\n\
@@ -366,7 +355,6 @@ gulp.task('scripts:combined', function() {
     ])
     .pipe(concat('curator.js'))
     .pipe(buble(bubleConfig))
-    // .on('error',babelError)
     .pipe(wrap({ src: srcJs+'templates/default.js'}))
     .pipe(gulp.dest(destJs))
     .pipe(notify({ message: 'scripts:combined task complete' }));
@@ -389,8 +377,7 @@ gulp.task('scripts:nodep', function() {
             srcJs+'widgets/custom.js'
         ])
         .pipe(concat('curator.nodep.js'))
-        .pipe(babel())
-        .on('error',babelError)
+        .pipe(buble(bubleConfig))
         .pipe(addsrc.prepend([
             srcJs+'widgets/_vendor/zepto.js',
             srcJs+'widgets/_vendor/zepto.scope.js',
