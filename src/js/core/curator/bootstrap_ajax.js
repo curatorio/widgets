@@ -5,17 +5,19 @@ Curator.serialize = function serialize( obj ) {
 };
 
 Curator.ajax = function (url, params, success, fail) {
-    let httpRegEx = /^https?:\/\//i;
-    if (!httpRegEx.test(url)) {
-        url = root.location.protocol+'//'+url;
-    }
+    let p = root.location.protocol,
+        pp = url.indexOf('://');
 
-    // console.log (params);
+    // IE9/IE10 cors requires same protocol
+    // stripe current protocol and match window.location
+    if (pp) {
+        url = url.substr(pp+3);
+    }
+    url = p+'//'+url;
 
     if (params) {
         url = url + Curator.serialize (params);
     }
-    // console.log (url);
 
     nanoajax({
         url:url,
