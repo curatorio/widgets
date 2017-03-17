@@ -355,6 +355,7 @@ gulp.task('scripts:combined', function() {
     ])
     .pipe(concat('curator.js'))
     .pipe(buble(bubleConfig))
+    .on('error', console.error.bind(console))
     .pipe(wrap({ src: srcJs+'templates/default.js'}))
     .pipe(gulp.dest(destJs))
     .pipe(notify({ message: 'scripts:combined task complete' }));
@@ -378,6 +379,7 @@ gulp.task('scripts:nodep', function() {
         ])
         .pipe(concat('curator.nodep.js'))
         .pipe(buble(bubleConfig))
+        .on('error', console.error.bind(console))
         .pipe(addsrc.prepend([
             srcJs+'widgets/_vendor/zepto.js',
             srcJs+'widgets/_vendor/zepto.scope.js',

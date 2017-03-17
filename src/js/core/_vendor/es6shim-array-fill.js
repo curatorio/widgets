@@ -1,15 +1,15 @@
-var arrayFill = function (array, value, start, end) {
+let arrayFill = function (array, value, start, end) {
 
     if (!Array.isArray(array)) {
         throw new TypeError('array is not a Array');
     }
 
-    var length = array.length;
+    let length = array.length;
     start = parseInt(start, 10) || 0;
     end = end === undefined ? length : (parseInt(end, 10) || 0);
 
-    var i;
-    var l;
+    let i;
+    let l;
 
     if (start < 0) {
         i = Math.max(length + start, 0);

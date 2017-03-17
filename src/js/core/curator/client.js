@@ -97,20 +97,19 @@ class Client {
     track (a) {
         Curator.log('Feed->track '+a);
 
-        $.ajax({
-            url: this.getUrl('/track/'+this.options.feedId),
-            dataType: 'json',
-            data: {a:a},
-            success (data) {
+        Curator.ajax(
+            this.getUrl('/track/'+this.options.feedId),
+            {a:a},
+            (data) => {
                 Curator.log('Feed->track success');
                 Curator.log(data);
             },
-            error (jqXHR, textStatus, errorThrown) {
+            (jqXHR, textStatus, errorThrown) => {
                 Curator.log('Feed->_loadPosts fail');
                 Curator.log(textStatus);
                 Curator.log(errorThrown);
             }
-        });
+        );
     }
 
     getUrl (trail) {

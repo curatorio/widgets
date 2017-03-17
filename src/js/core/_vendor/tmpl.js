@@ -3,9 +3,9 @@
 // John Resig - http://ejohn.org/ - MIT Licensed
 
 (function(){
-    var _tmplCache = {};
+    let _tmplCache = {};
 
-    var helpers = {
+    let helpers = {
         networkIcon:function () {
             return this.data.network_name.toLowerCase();
         },
@@ -23,7 +23,7 @@
                 return this.data.userUrl;
             }
 
-            var netId = this.data.network_id+'';
+            let netId = this.data.network_id+'';
             if (netId === '1') {
                 return 'http://twitter.com/' + this.data.user_screen_name;
             } else if (netId === '2') {
@@ -70,16 +70,16 @@
         },
         fuzzyDate : function (dateString)
         {
-            var date = Date.parse(dateString+' UTC');
-            var delta = Math.round((new Date () - date) / 1000);
+            let date = Date.parse(dateString+' UTC');
+            let delta = Math.round((new Date () - date) / 1000);
 
-            var minute = 60,
+            let minute = 60,
                 hour = minute * 60,
                 day = hour * 24,
                 week = day * 7,
                 month = day * 30;
 
-            var fuzzy;
+            let fuzzy;
 
             if (delta < 30) {
                 fuzzy = 'Just now';
@@ -108,11 +108,11 @@
             return fuzzy;
         },
         prettyDate : function(time) {
-            var date = Curator.DateUtils.dateFromString(time);
+            let date = Curator.DateUtils.dateFromString(time);
 
-            var diff = (((new Date()).getTime() - date.getTime()) / 1000);
-            var day_diff = Math.floor(diff / 86400);
-            var year = date.getFullYear(),
+            let diff = (((new Date()).getTime() - date.getTime()) / 1000);
+            let day_diff = Math.floor(diff / 86400);
+            let year = date.getFullYear(),
                 month = date.getMonth()+1,
                 day = date.getDate();
 
@@ -123,7 +123,7 @@
                     +((day<10) ? '0'+day.toString() : day.toString())
                 );
 
-            var r =
+            let r =
                 (
                     (
                         day_diff == 0 &&
@@ -157,11 +157,11 @@
         /// that object's properties are visible as variables.
         /// </param>
         /// <returns type="string" />
-        var err = "";
+        let err = "";
         try {
-            var func = _tmplCache[str];
+            let func = _tmplCache[str];
             if (!func) {
-                var strComp =
+                let strComp =
                     str.replace(/[\r\t\n]/g, " ")
                         .replace(/'(?=[^%]*%>)/g, "\t")
                         .split("'").join("\\'")
@@ -169,8 +169,8 @@
                         .replace(/<%=(.+?)%>/g, "',$1,'")
                         .split("<%").join("');")
                         .split("%>").join("p.push('");
-                var strFunc =
-                    "var p=[],print=function(){p.push.apply(p,arguments);};" +
+                let strFunc =
+                    "let p=[],print=function(){p.push.apply(p,arguments);};" +
                         "with(obj){p.push('" + strComp + "');}return p.join('');";
                 func = new Function("obj", strFunc);  // jshint ignore:line
                 _tmplCache[str] = func;

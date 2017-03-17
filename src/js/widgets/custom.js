@@ -1,37 +1,36 @@
-var widgetDefaults = {
-    feedId:'',
-    postsPerPage:12,
-    maxPosts:0,
-    apiEndpoint:'https://api.curator.io/v1',
-    onPostsLoaded:function(){}
-};
+
+Curator.Config.Custom = $.extend({}, Curator.Config.Defaults, {
+});
 
 
-Curator.Custom = Curator.augment.extend(Curator.Client, {
-    containerHeight: 0,
-    loading: false,
-    feed: null,
-    $container: null,
-    $feed: null,
-    posts:[],
-    totalPostsLoaded:0,
-    allLoaded:false,
+class Custom extends Curator.Client {
 
-    constructor: function (options) {
-        this.uber.setOptions.call (this, options,  widgetDefaults);
+    constructor  (options) {
+        super ();
+
+        this.containerHeight=0;
+        this.loading=false;
+        this.feed=null;
+        this.$container=null;
+        this.$feed=null;
+        this.posts=[];
+        this.totalPostsLoaded=0;
+        this.allLoaded=false;
+
+        this.setOptions (options,  Curator.Config.Custom);
 
         Curator.log("Panel->init with options:");
         Curator.log(this.options);
 
-        if (this.uber.init.call (this)) {
+        if (this.init (this)) {
             this.$feed = $('<div class="crt-feed"></div>').appendTo(this.$container);
             this.$container.addClass('crt-custom');
 
             this.loadPosts(0);
         }
-    },
+    }
 
-    onPostsLoaded: function (posts) {
+    onPostsLoaded (posts) {
         Curator.log("Custom->onPostsLoaded");
 
         this.loading = false;
@@ -39,10 +38,10 @@ Curator.Custom = Curator.augment.extend(Curator.Client, {
         if (posts.length === 0) {
             this.allLoaded = true;
         } else {
-            var that = this;
-            var postElements = [];
+            let that = this;
+            let postElements = [];
             $(posts).each(function(){
-                var p = that.createPostElement(this);
+                let p = that.createPostElement(this);
                 postElements.push(p.$el);
                 that.$feed.append(p.$el);
             });
@@ -51,19 +50,19 @@ Curator.Custom = Curator.augment.extend(Curator.Client, {
 
             this.options.onPostsLoaded (this, posts);
         }
-    },
+    }
 
-    onPostsFailed: function (data) {
+    onPostsFailed (data) {
         Curator.log("Custom->onPostsFailed");
         this.loading = false;
         this.$feed.html('<p style="text-align: center">'+data.message+'</p>');
-    },
+    }
 
-    onPostClick: function (ev,post) {
+    onPostClick (ev,post) {
         this.popupManager.showPopup(post);
-    },
+    }
 
-    destroy : function () {
+    destroy  () {
         this.$feed.remove();
         this.$container.removeClass('crt-custom');
 
@@ -78,5 +77,4 @@ Curator.Custom = Curator.augment.extend(Curator.Client, {
         // unregistering events etc
         delete this.feed;
     }
-
-});
+}

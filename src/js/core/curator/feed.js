@@ -73,11 +73,10 @@ class Feed extends EventBus {
 
         this.loading = true;
 
-        $.ajax({
-            url: this.getUrl('/posts'),
-            dataType: 'json',
-            data: params,
-            success : (data) => {
+        Curator.ajax(
+            this.getUrl('/posts'),
+            params,
+            (data) => {
                 Curator.log('Feed->_loadPosts success');
 
                 if (data.success) {
@@ -93,7 +92,7 @@ class Feed extends EventBus {
                 }
                 this.loading = false;
             },
-            error : (jqXHR, textStatus, errorThrown) => {
+            (jqXHR, textStatus, errorThrown) => {
                 Curator.log('Feed->_loadPosts fail');
                 Curator.log(textStatus);
                 Curator.log(errorThrown);
@@ -101,7 +100,7 @@ class Feed extends EventBus {
                 this.trigger('postsFailed',[]);
                 this.loading = false;
             }
-        });
+        );
     }
 
     loadPost (id, successCallback, failCallback) {

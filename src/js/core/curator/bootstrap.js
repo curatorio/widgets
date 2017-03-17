@@ -104,9 +104,7 @@ let Curator = {
                 label: 'Show:'
             }
         }
-    },
-
-    augment: augment
+    }
 };
 
 if ($ === undefined) {

@@ -398,34 +398,6 @@
 
 })($);
 
-
-
-var Factory = function () {};
-var slice = Array.prototype.slice;
-
-var augment = function (base, body) {
-    var uber = Factory.prototype = typeof base === "function" ? base.prototype : base;
-    var prototype = new Factory(), properties = body.apply(prototype, slice.call(arguments, 2).concat(uber));
-    if (typeof properties === "object") for (var key in properties) prototype[key] = properties[key];
-    if (!prototype.hasOwnProperty("constructor")) return prototype;
-    var constructor = prototype.constructor;
-    constructor.prototype = prototype;
-    return constructor;
-};
-
-augment.defclass = function (prototype) {
-    var constructor = prototype.constructor;
-    constructor.prototype = prototype;
-    return constructor;
-};
-
-augment.extend = function (base, body) {
-    return augment(base, function (uber) {
-        this.uber = uber;
-        return body;
-    });
-};
-
 var arrayFill = function (array, value, start, end) {
 
     if (!Array.isArray(array)) {
@@ -464,6 +436,90 @@ if (!Array.prototype.fill) {
         return arrayFill(this, value, start, end);
     };
 }
+/**
+ * Props to https://github.com/yanatan16/nanoajax
+ */
+
+(function(global){
+    // Best place to find information on XHR features is:
+    // https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest
+
+    var reqfields = [
+        'responseType', 'withCredentials', 'timeout', 'onprogress'
+    ];
+
+    function nanoajax (params, callback) {
+        // Any variable used more than once is var'd here because
+        // minification will munge the variables whereas it can't munge
+        // the object access.
+        var headers = params.headers || {}
+            , body = params.body
+            , method = params.method || (body ? 'POST' : 'GET')
+            , called = false
+
+        var req = getRequest(params.cors)
+
+        function cb(statusCode, responseText) {
+            return function () {
+                if (!called) {
+                    callback(req.status === undefined ? statusCode : req.status,
+                        req.status === 0 ? "Error" : (req.response || req.responseText || responseText),
+                        req)
+                    called = true
+                }
+            }
+        }
+
+        req.open(method, params.url, true)
+
+        var success = req.onload = cb(200)
+        req.onreadystatechange = function () {
+            if (req.readyState === 4) success()
+        }
+        req.onerror = cb(null, 'Error')
+        req.ontimeout = cb(null, 'Timeout')
+        req.onabort = cb(null, 'Abort')
+
+        if (body) {
+            setDefault(headers, 'X-Requested-With', 'XMLHttpRequest')
+
+            if (!global.FormData || !(body instanceof global.FormData)) {
+                setDefault(headers, 'Content-Type', 'application/x-www-form-urlencoded')
+            }
+        }
+
+        for (var i = 0, len = reqfields.length, field; i < len; i++) {
+            field = reqfields[i]
+            if (params[field] !== undefined)
+                req[field] = params[field]
+        }
+
+        for (var field$1 in headers)
+            req.setRequestHeader(field$1, headers[field$1])
+
+        req.send(body)
+
+        return req
+    }
+
+    function getRequest(cors) {
+        // XDomainRequest is only way to do CORS in IE 8 and 9
+        // But XDomainRequest isn't standards-compatible
+        // Notably, it doesn't allow cookies to be sent or set by servers
+        // IE 10+ is standards-compatible in its XMLHttpRequest
+        // but IE 10 can still have an XDomainRequest object, so we don't want to use it
+        if (cors && global.XDomainRequest && !/MSIE 1/.test(navigator.userAgent))
+            return new XDomainRequest
+        if (global.XMLHttpRequest)
+            return new XMLHttpRequest
+    }
+
+    function setDefault(obj, key, value) {
+        obj[key] = obj[key] || value
+    }
+
+    global.nanoajax = nanoajax;
+})(this);
 
 // Simple JavaScript Templating
 // John Resig - http://ejohn.org/ - MIT Licensed
@@ -636,7 +692,7 @@ if (!Array.prototype.fill) {
                         .split("<%").join("');")
                         .split("%>").join("p.push('");
                 var strFunc =
-                    "var p=[],print=function(){p.push.apply(p,arguments);};" +
+                    "let p=[],print=function(){p.push.apply(p,arguments);};" +
                         "with(obj){p.push('" + strComp + "');}return p.join('');";
                 func = new Function("obj", strFunc);  // jshint ignore:line
                 _tmplCache[str] = func;
@@ -650,100 +706,6 @@ if (!Array.prototype.fill) {
         return " # ERROR: " + err + " # ";
     };
 })();
-// jQuery.XDomainRequest.js
-// Author: Jason Moon - @JSONMOON
-// IE8+
-// https://github.com/MoonScript/jQuery-ajaxTransport-XDomainRequest/blob/master/jQuery.XDomainRequest.js
-
-
-if (!$.support.cors && $.ajaxTransport && window.XDomainRequest) {
-    var httpRegEx = /^https?:\/\//i;
-    var getOrPostRegEx = /^get|post$/i;
-    var sameSchemeRegEx = new RegExp('^'+window.location.protocol, 'i');
-    var htmlRegEx = /text\/html/i;
-    var jsonRegEx = /\/json/i;
-    var xmlRegEx = /\/xml/i;
-
-    // ajaxTransport exists in jQuery 1.5+
-    $.ajaxTransport('text html xml json', function(options, userOptions, jqXHR){
-        jqXHR = jqXHR;
-        // XDomainRequests must be: asynchronous, GET or POST methods, HTTP or HTTPS protocol, and same scheme as calling page
-        if (options.crossDomain && options.async && getOrPostRegEx.test(options.type) && httpRegEx.test(options.url) && sameSchemeRegEx.test(options.url)) {
-            var xdr = null;
-            var userType = (userOptions.dataType||'').toLowerCase();
-            return {
-                send: function(headers, complete){
-                    xdr = new window.XDomainRequest();
-                    if (/^\d+$/.test(userOptions.timeout)) {
-                        xdr.timeout = userOptions.timeout;
-                    }
-                    xdr.ontimeout = function(){
-                        complete(500, 'timeout');
-                    };
-                    xdr.onload = function(){
-                        var allResponseHeaders = 'Content-Length: ' + xdr.responseText.length + '\r\nContent-Type: ' + xdr.contentType;
-                        var status = {
-                            code: 200,
-                            message: 'success'
-                        };
-                        var responses = {
-                            text: xdr.responseText
-                        };
-                        try {
-                            if (userType === 'html' || htmlRegEx.test(xdr.contentType)) {
-                                responses.html = xdr.responseText;
-                            } else if (userType === 'json' || (userType !== 'text' && jsonRegEx.test(xdr.contentType))) {
-                                try {
-                                    responses.json = $.parseJSON(xdr.responseText);
-                                } catch(e) {
-                                    status.code = 500;
-                                    status.message = 'parseerror';
-                                    //throw 'Invalid JSON: ' + xdr.responseText;
-                                }
-                            } else if (userType === 'xml' || (userType !== 'text' && xmlRegEx.test(xdr.contentType))) {
-                                var doc = new window.ActiveXObject('Microsoft.XMLDOM');
-                                doc.async = false;
-                                try {
-                                    doc.loadXML(xdr.responseText);
-                                } catch(e) {
-                                    doc = undefined;
-                                }
-                                if (!doc || !doc.documentElement || doc.getElementsByTagName('parsererror').length) {
-                                    status.code = 500;
-                                    status.message = 'parseerror';
-                                    throw 'Invalid XML: ' + xdr.responseText;
-                                }
-                                responses.xml = doc;
-                            }
-                        } catch(parseMessage) {
-                            throw parseMessage;
-                        } finally {
-                            complete(status.code, status.message, responses, allResponseHeaders);
-                        }
-                    };
-                    // set an empty handler for 'onprogress' so requests don't get aborted
-                    xdr.onprogress = function(){};
-                    xdr.onerror = function(){
-                        complete(500, 'error', {
-                            text: xdr.responseText
-                        });
-                    };
-                    var postData = '';
-                    if (userOptions.data) { 
-                        postData = ($.type(userOptions.data) === 'string') ? userOptions.data : $.param(userOptions.data);
-                    }
-                    xdr.open(options.type, options.url);
-                    xdr.send(postData);
-                },
-                abort: function(){
-                    if (xdr) {
-                        xdr.abort();
-                    }
-                }
-            };
-        }
-    });
-}
 // Test $ exists
 
 var Curator = {
@@ -850,9 +812,7 @@ var Curator = {
                 label: 'Show:'
             }
         }
-    },
-
-    augment: augment
+    }
 };
 
 if ($ === undefined) {
@@ -860,6 +820,37 @@ if ($ === undefined) {
 }
 
 
+
+
+
+Curator.serialize = function serialize( obj ) {
+    return '?'+Object.keys(obj).reduce(function(a,k){a.push(k+'='+encodeURIComponent(obj[k]));return a},[]).join('&')
+};
+
+Curator.ajax = function (url, params, success, fail) {
+    var httpRegEx = /^https?:\/\//i;
+    if (!httpRegEx.test(url)) {
+        url = root.location.protocol+'//'+url;
+    }
+
+    // console.log (params);
+
+    if (params) {
+        url = url + Curator.serialize (params);
+    }
+    // console.log (url);
+
+    nanoajax({
+        url:url,
+        cors:true
+    },function(statusCode, responseText) {
+        if (statusCode) {
+            success(JSON.parse(responseText));
+        } else {
+            fail (statusCode, responseText)
+        }
+    });
+};
 
 var EventBus = function EventBus() {
     this.listeners = {};
@@ -1397,20 +1388,19 @@ Client.prototype.onPostClick = function onPostClick (ev,post) {
 Client.prototype.track = function track (a) {
     Curator.log('Feed->track '+a);
 
-    $.ajax({
-        url: this.getUrl('/track/'+this.options.feedId),
-        dataType: 'json',
-        data: {a:a},
-        success: function success (data) {
+    Curator.ajax(
+        this.getUrl('/track/'+this.options.feedId),
+        {a:a},
+        function (data) {
             Curator.log('Feed->track success');
             Curator.log(data);
         },
-        error: function error (jqXHR, textStatus, errorThrown) {
+        function (jqXHR, textStatus, errorThrown) {
             Curator.log('Feed->_loadPosts fail');
             Curator.log(textStatus);
             Curator.log(errorThrown);
         }
-    });
+    );
 };
 
 Client.prototype.getUrl = function getUrl (trail) {
@@ -1498,11 +1488,10 @@ var Feed = (function (EventBus) {
 
         this.loading = true;
 
-        $.ajax({
-            url: this.getUrl('/posts'),
-            dataType: 'json',
-            data: params,
-            success : function (data) {
+        Curator.ajax(
+            this.getUrl('/posts'),
+            params,
+            function (data) {
                 Curator.log('Feed->_loadPosts success');
 
                 if (data.success) {
@@ -1518,7 +1507,7 @@ var Feed = (function (EventBus) {
                 }
                 this$1.loading = false;
             },
-            error : function (jqXHR, textStatus, errorThrown) {
+            function (jqXHR, textStatus, errorThrown) {
                 Curator.log('Feed->_loadPosts fail');
                 Curator.log(textStatus);
                 Curator.log(errorThrown);
@@ -1526,7 +1515,7 @@ var Feed = (function (EventBus) {
                 this$1.trigger('postsFailed',[]);
                 this$1.loading = false;
             }
-        });
+        );
     };
 
     Feed.prototype.loadPost = function loadPost (id, successCallback, failCallback) {
@@ -2317,53 +2306,6 @@ Curator.Template = {
             tmpl = $.parseHTML(tmpl);
         }
         return $(tmpl).filter('div');
-    }
-};
-
-
-
-Curator.Track = {
-
-    track : function (action)
-    {
-        $.ajax({
-            url: this.getUrl('/posts'),
-            dataType: 'json',
-            data: params,
-            success: function (data) {
-                Curator.log('Feed->_loadPosts success');
-
-                if (data.success) {
-                    that.postCount = data.postCount;
-                    that.postsLoaded += data.posts.length;
-
-                    that.posts = that.posts.concat(data.posts);
-
-                    if (that.options.onPostsLoaded) {
-                        that.options.onPostsLoaded(data.posts);
-                    }
-                } else {
-                    if (that.options.onPostsFail) {
-                        that.options.onPostsFail(data);
-                    }
-                }
-                that.loading = false;
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                Curator.log('Feed->_loadPosts fail');
-                Curator.log(textStatus);
-                Curator.log(errorThrown);
-
-                if (that.options.onPostsFail) {
-                    that.options.onPostsFail();
-                }
-                that.loading = false;
-            }
-        });
-    },
-
-    getUrl : function (trail) {
-        return this.feedBase+'/'+this.options.feedId+trail;
     }
 };
 
@@ -3212,40 +3154,42 @@ var Grid = (function (Client) {
 
 Curator.Grid = Grid;
 
-var widgetDefaults = {
-    feedId:'',
-    postsPerPage:12,
-    maxPosts:0,
-    apiEndpoint:'https://api.curator.io/v1',
-    onPostsLoaded:function(){}
-};
+
+Curator.Config.Custom = $.extend({}, Curator.Config.Defaults, {
+});
 
 
-Curator.Custom = Curator.augment.extend(Curator.Client, {
-    containerHeight: 0,
-    loading: false,
-    feed: null,
-    $container: null,
-    $feed: null,
-    posts:[],
-    totalPostsLoaded:0,
-    allLoaded:false,
+var Custom = (function (superclass) {
+    function Custom  (options) {
+        superclass.call (this);
 
-    constructor: function (options) {
-        this.uber.setOptions.call (this, options,  widgetDefaults);
+        this.containerHeight=0;
+        this.loading=false;
+        this.feed=null;
+        this.$container=null;
+        this.$feed=null;
+        this.posts=[];
+        this.totalPostsLoaded=0;
+        this.allLoaded=false;
+
+        this.setOptions (options,  Curator.Config.Custom);
 
         Curator.log("Panel->init with options:");
         Curator.log(this.options);
 
-        if (this.uber.init.call (this)) {
+        if (this.init (this)) {
             this.$feed = $('<div class="crt-feed"></div>').appendTo(this.$container);
             this.$container.addClass('crt-custom');
 
             this.loadPosts(0);
         }
-    },
+    }
 
-    onPostsLoaded: function (posts) {
+    if ( superclass ) Custom.__proto__ = superclass;
+    Custom.prototype = Object.create( superclass && superclass.prototype );
+    Custom.prototype.constructor = Custom;
+
+    Custom.prototype.onPostsLoaded = function onPostsLoaded (posts) {
         Curator.log("Custom->onPostsLoaded");
 
         this.loading = false;
@@ -3265,19 +3209,19 @@ Curator.Custom = Curator.augment.extend(Curator.Client, {
 
             this.options.onPostsLoaded (this, posts);
         }
-    },
+    };
 
-    onPostsFailed: function (data) {
+    Custom.prototype.onPostsFailed = function onPostsFailed (data) {
         Curator.log("Custom->onPostsFailed");
         this.loading = false;
         this.$feed.html('<p style="text-align: center">'+data.message+'</p>');
-    },
+    };
 
-    onPostClick: function (ev,post) {
+    Custom.prototype.onPostClick = function onPostClick (ev,post) {
         this.popupManager.showPopup(post);
-    },
+    };
 
-    destroy : function () {
+    Custom.prototype.destroy = function destroy () {
         this.$feed.remove();
         this.$container.removeClass('crt-custom');
 
@@ -3291,9 +3235,10 @@ Curator.Custom = Curator.augment.extend(Curator.Client, {
         // TODO add code to cascade destroy down to Feed & Posts
         // unregistering events etc
         delete this.feed;
-    }
+    };
 
-});
+    return Custom;
+}(Curator.Client));
 
 
 	return Curator;
