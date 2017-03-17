@@ -29,7 +29,6 @@ class Filter {
 
         this.$filter.on('click','.crt-filter-network a',(ev)=>{
             ev.preventDefault();
-            console.log (ev);
             let t = $(ev.target);
             let networkId = t.data('network');
 
@@ -51,14 +50,11 @@ class Filter {
     }
 
     onPostsLoaded () {
-        console.log ("Asd");
-
         if (!this.filtersLoaded) {
             this.$filterNetworks.append('<li class="active"><a href="#" data-network="0"> All</a></li>');
 
             for (let id of this.client.feed.networks) {
                 let network = Curator.Networks[id];
-                console.log(network);
                 this.$filterNetworks.append('<li><a href="#" data-network="' + id + '"><i class="' + network.icon + '"></i> ' + network.name + '</a></li>');
             }
 

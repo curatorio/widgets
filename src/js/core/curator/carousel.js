@@ -263,8 +263,6 @@
                     if (h > paneMaxHieght) {
                         paneMaxHieght = h;
                     }
-                    console.log(p);
-                    console.log(i+":"+h);
                 }
             	this.$pane_stage.animate({height:paneMaxHieght},300);
             }, 50);

@@ -2385,6 +2385,44 @@ augment.extend = function (base, body) {
     });
 };
 
+var arrayFill = function (array, value, start, end) {
+
+    if (!Array.isArray(array)) {
+        throw new TypeError('array is not a Array');
+    }
+
+    var length = array.length;
+    start = parseInt(start, 10) || 0;
+    end = end === undefined ? length : (parseInt(end, 10) || 0);
+
+    var i;
+    var l;
+
+    if (start < 0) {
+        i = Math.max(length + start, 0);
+    } else {
+        i = Math.min(start, length);
+    }
+
+    if (end < 0) {
+        l = Math.max(length + end, 0);
+    } else {
+        l = Math.min(end, length);
+    }
+
+    for (; i < l; i++) {
+        array[i] = value;
+    }
+
+    return array;
+};
+
+
+if (!Array.prototype.fill) {
+    Array.prototype.fill = function (value, start, end) {
+        return arrayFill(this, value, start, end);
+    };
+}
 
 // Simple JavaScript Templating
 // John Resig - http://ejohn.org/ - MIT Licensed
@@ -3157,8 +3195,6 @@ Curator.EventBus = new EventBus();
                 if (h > paneMaxHieght) {
                     paneMaxHieght = h;
                 }
-                console.log(p);
-                console.log(i+":"+h);
             }
             	this$1.$pane_stage.animate({height:paneMaxHieght},300);
         }, 50);
@@ -3537,7 +3573,6 @@ var Filter = function Filter (client) {
 
     this.$filter.on('click','.crt-filter-network a',function (ev){
         ev.preventDefault();
-        console.log (ev);
         var t = $(ev.target);
         var networkId = t.data('network');
 
@@ -3561,8 +3596,6 @@ var Filter = function Filter (client) {
 Filter.prototype.onPostsLoaded = function onPostsLoaded () {
         var this$1 = this;
 
-    console.log ("Asd");
-
     if (!this.filtersLoaded) {
         this.$filterNetworks.append('<li class="active"><a href="#" data-network="0"> All</a></li>');
 
@@ -3570,7 +3603,6 @@ Filter.prototype.onPostsLoaded = function onPostsLoaded () {
             var id = list[i];
 
                 var network = Curator.Networks[id];
-            console.log(network);
             this$1.$filterNetworks.append('<li><a href="#" data-network="' + id + '"><i class="' + network.icon + '"></i> ' + network.name + '</a></li>');
         }
 
@@ -4007,7 +4039,6 @@ var Post = function Post (postJson, options, widget) {
     } else {
         // no image ... call this.onImageLoaded
         setTimeout(function () {
-            console.log('asdasd');
             this$1.setHeight();
         },100)
     }
@@ -4069,7 +4100,6 @@ Post.prototype.onImageError = function onImageError () {
 
 Post.prototype.setHeight = function setHeight () {
     var height = this.$post.height();
-    console.log(height);
     if (this.options.maxHeight && this.options.maxHeight > 0 && height > this.options.maxHeight) {
         this.$post
             .css({maxHeight: this.options.maxHeight})

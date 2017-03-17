@@ -35,7 +35,6 @@ class Post {
         } else {
             // no image ... call this.onImageLoaded
             setTimeout(() => {
-                console.log('asdasd');
                 this.setHeight();
             },100)
         }
@@ -97,7 +96,6 @@ class Post {
 
     setHeight () {
         let height = this.$post.height();
-        console.log(height);
         if (this.options.maxHeight && this.options.maxHeight > 0 && height > this.options.maxHeight) {
             this.$post
                 .css({maxHeight: this.options.maxHeight})
