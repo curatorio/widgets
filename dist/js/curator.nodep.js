@@ -2271,9 +2271,12 @@ if (!Array.prototype.fill) {
                         .replace(/<%=(.+?)%>/g, "',$1,'")
                         .split("<%").join("');")
                         .split("%>").join("p.push('");
+
+                // note - don't change the 'var' in the string to 'let'!!!
                 var strFunc =
-                    "let p=[],print=function(){p.push.apply(p,arguments);};" +
+                    "var p=[],print=function(){p.push.apply(p,arguments);};" +
                         "with(obj){p.push('" + strComp + "');}return p.join('');";
+
                 func = new Function("obj", strFunc);  // jshint ignore:line
                 _tmplCache[str] = func;
             }
@@ -2286,6 +2289,7 @@ if (!Array.prototype.fill) {
         return " # ERROR: " + err + " # ";
     };
 })();
+
 // Test $ exists
 
 var Curator = {
@@ -4187,7 +4191,6 @@ var Waterfall = (function (superclass) {
 
     Waterfall.prototype.onPostsLoaded = function onPostsLoaded (posts) {
         Curator.log("Waterfall->onPostsLoaded");
-        Curator.log(posts);
 
         var postElements = this.createPostElements (posts);
 

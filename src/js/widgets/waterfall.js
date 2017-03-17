@@ -80,7 +80,6 @@ class Waterfall extends Curator.Client {
 
     onPostsLoaded (posts) {
         Curator.log("Waterfall->onPostsLoaded");
-        Curator.log(posts);
 
         let postElements = this.createPostElements (posts);
 
