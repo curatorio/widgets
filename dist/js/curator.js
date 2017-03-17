@@ -19,12 +19,24 @@
 		return false;
 	}
 
-	// Debouncing function from John Hann
+	'use strict';
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+// Debouncing function from John Hann
 // http://unscriptable.com/index.php/2009/03/20/debouncing-javascript-methods/
 // Copy pasted from http://paulirish.com/2009/throttled-smartresize-jquery-event-handler/
 
 (function ($, sr) {
-    var debounce = function (func, threshold, execAsap) {
+    var debounce = function debounce(func, threshold, execAsap) {
         var timeout;
         return function debounced() {
             var obj = this,
@@ -34,8 +46,7 @@
                 if (!execAsap) func.apply(obj, args);
                 timeout = null;
             }
-            if (timeout) clearTimeout(timeout);
-            else if (execAsap) func.apply(obj, args);
+            if (timeout) clearTimeout(timeout);else if (execAsap) func.apply(obj, args);
 
             timeout = setTimeout(delayed, threshold || 150);
         };
@@ -68,319 +79,352 @@
             duration: 300,
             effect: 'fadeInOnAppear',
             queue: true,
-            complete: function () {}
+            complete: function complete() {}
         }
     };
 
-    var WaterfallRender = function WaterfallRender (options, element) {
-        this.element = $(element);
-        this._init(options);
-    };
+    var WaterfallRender = function () {
+        function WaterfallRender(options, element) {
+            _classCallCheck(this, WaterfallRender);
 
-    WaterfallRender.prototype._init = function _init (options) {
-        var container = this;
-        this.name = this._setName(5);
-        this.gridArr = [];
-        this.gridArrAppend = [];
-        this.gridArrPrepend = [];
-        this.setArr = false;
-        this.setGrid = false;
-        this.cols = 0;
-        this.itemCount = 0;
-        this.isPrepending = false;
-        this.appendCount = 0;
-        this.resetCount = true;
-        this.ifCallback = true;
-        this.box = this.element;
-        this.boxWidth = this.box.width();
-        this.options = $.extend(true, {}, defaultSettings, options);
-        this.gridArr = $.makeArray(this.box.find(this.options.selector));
-        this.isResizing = false;
-        this.w = 0;
-        this.boxArr = [];
-
-        // this.offscreenRender = $('<div class="grid-rendered"></div>').appendTo('body');
-
-        // build columns
-        this._setCols();
-        // build grid
-        this._renderGrid('append');
-        // add class 'gridalicious' to container
-        $(this.box).addClass('gridalicious');
-        // add smartresize
-        $(window).smartresize(function () {
-            container.resize();
-        });
-    };
-
-    WaterfallRender.prototype._setName = function _setName (length, current) {
-        current = current ? current : '';
-        return length ? this._setName(--length, "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz".charAt(Math.floor(Math.random() * 60)) + current) : current;
-    };
-
-    WaterfallRender.prototype._setCols = function _setCols () {
-            var this$1 = this;
-
-        // calculate columns
-        this.cols = Math.floor(this.box.width() / this.options.width);
-        //If Cols lower than 1, the grid disappears
-        if (this.cols < 1) { this.cols = 1; }
-        diff = (this.box.width() - (this.cols * this.options.width) - this.options.gutter) / this.cols;
-        w = (this.options.width + diff) / this.box.width() * 100;
-        this.w = w;
-        this.colHeights = new Array (this.cols);
-        this.colHeights.fill(0);
-        this.colItems = new Array (this.cols);
-        this.colItems.fill([]);
-
-        // add columns to box
-        for (var i = 0; i < this.cols; i++) {
-            var div = $('<div></div>').addClass('galcolumn').attr('id', 'item' + i + this$1.name).css({
-                'width': w + '%',
-                'paddingLeft': this$1.options.gutter,
-                'paddingBottom': this$1.options.gutter,
-                'float': 'left',
-                '-webkit-box-sizing': 'border-box',
-                '-moz-box-sizing': 'border-box',
-                '-o-box-sizing': 'border-box',
-                'box-sizing': 'border-box'
-            });
-            this$1.box.append(div);
-        }
-    };
-
-    WaterfallRender.prototype._renderGrid = function _renderGrid (method, arr, count, prepArray) {
-            var this$1 = this;
-
-        var items = [];
-        var boxes = [];
-        var prependArray = [];
-        var itemCount = 0;
-        var appendCount = this.appendCount;
-        var gutter = this.options.gutter;
-        var cols = this.cols;
-        var name = this.name;
-        var i = 0;
-        var w = $('.galcolumn').width();
-
-        // if arr
-        if (arr) {
-            boxes = arr;
-            // if append
-            if (method == "append") {
-                // get total of items to append
-                appendCount += count;
-                // set itemCount to last count of appened items
-                itemCount = this.appendCount;
-            }
-            // if prepend
-            if (method == "prepend") {
-                // set itemCount
-                this.isPrepending = true;
-                itemCount = Math.round(count % cols);
-                if (itemCount <= 0) itemCount = cols;
-            }
-            // called by _updateAfterPrepend()
-            if (method == "renderAfterPrepend") {
-                // get total of items that was previously prepended
-                appendCount += count;
-                // set itemCount by counting previous prepended items
-                itemCount = count;
-            }
-        }
-        else {
-            boxes = this.gridArr;
-            appendCount = $(this.gridArr).size();
+            this.element = $(element);
+            this._init(options);
         }
 
-        // push out the items to the columns
-        for (var i$2 = 0, list = boxes; i$2 < list.length; i$2 += 1) {
-            var item = list[i$2];
+        _createClass(WaterfallRender, [{
+            key: '_init',
+            value: function _init(options) {
+                var container = this;
+                this.name = this._setName(5);
+                this.gridArr = [];
+                this.gridArrAppend = [];
+                this.gridArrPrepend = [];
+                this.setArr = false;
+                this.setGrid = false;
+                this.cols = 0;
+                this.itemCount = 0;
+                this.isPrepending = false;
+                this.appendCount = 0;
+                this.resetCount = true;
+                this.ifCallback = true;
+                this.box = this.element;
+                this.boxWidth = this.box.width();
+                this.options = $.extend(true, {}, defaultSettings, options);
+                this.gridArr = $.makeArray(this.box.find(this.options.selector));
+                this.isResizing = false;
+                this.w = 0;
+                this.boxArr = [];
 
-                var width = '100%';
+                // this.offscreenRender = $('<div class="grid-rendered"></div>').appendTo('body');
 
-            // if you want something not to be "responsive", add the class "not-responsive" to the selector container
-            if (item.hasClass('not-responsive')) {
-                width = 'auto';
-            }
-
-            item.css({
-                'zoom': '1',
-                'filter': 'alpha(opacity=0)',
-                'opacity': '0'
-            });
-
-            // find shortest col
-            var shortestCol = 0;
-            for (var i$1=1; i$1 < this.colHeights.length;i$1++) {
-                if (this$1.colHeights[i$1] < this$1.colHeights[shortestCol]) {
-                    shortestCol = i$1;
-                }
-            }
-
-            // prepend or append to shortest column
-            if (method == 'prepend') {
-                $("#item" + shortestCol + name).prepend(item);
-                items.push(item);
-
-            } else {
-                $("#item" + shortestCol + name).append(item);
-                items.push(item);
-                if (appendCount >= cols) {
-                    appendCount = (appendCount - cols);
-                }
-            }
-
-            // update col heights
-            this$1.colItems[shortestCol].push(item);
-            this$1.colHeights[shortestCol] += item.height();
-        }
-
-        this.appendCount = appendCount;
-
-        if (method == "append" || method == "prepend") {
-            if (method == "prepend") {
-                // render old items and reverse the new items
-                this._updateAfterPrepend(this.gridArr, boxes);
-            }
-            this._renderItem(items);
-            this.isPrepending = false;
-        } else {
-            this._renderItem(this.gridArr);
-        }
-    };
-
-    WaterfallRender.prototype._collectItems = function _collectItems () {
-        var collection = [];
-        $(this.box).find(this.options.selector).each(function (i) {
-            collection.push($(this));
-        });
-        return collection;
-    };
-
-    WaterfallRender.prototype._renderItem = function _renderItem (items) {
-
-        var speed = this.options.animationOptions.speed;
-        var effect = this.options.animationOptions.effect;
-        var duration = this.options.animationOptions.duration;
-        var queue = this.options.animationOptions.queue;
-        var animate = this.options.animate;
-        var complete = this.options.animationOptions.complete;
-
-        var i = 0;
-        var t = 0;
-
-        // animate
-        if (animate === true && !this.isResizing) {
-
-            // fadeInOnAppear
-            if (queue === true && effect == "fadeInOnAppear") {
-                if (this.isPrepending) items.reverse();
-                $.each(items, function (index, value) {
-                    setTimeout(function () {
-                        $(value).animate({
-                            opacity: '1.0'
-                        }, duration);
-                        t++;
-                        if (t == items.length) {
-                            complete.call(undefined, items)
-                        }
-                    }, i * speed);
-                    i++;
-                });
-            } else if (queue === false && effect == "fadeInOnAppear") {
-                if (this.isPrepending) items.reverse();
-                $.each(items, function (index, value) {
-                    $(value).animate({
-                        opacity: '1.0'
-                    }, duration);
-                    t++;
-                    if (t == items.length) {
-                        if (this.ifCallback) {
-                            complete.call(undefined, items);
-                        }
-                    }
+                // build columns
+                this._setCols();
+                // build grid
+                this._renderGrid('append');
+                // add class 'gridalicious' to container
+                $(this.box).addClass('gridalicious');
+                // add smartresize
+                $(window).smartresize(function () {
+                    container.resize();
                 });
             }
+        }, {
+            key: '_setName',
+            value: function _setName(length, current) {
+                current = current ? current : '';
+                return length ? this._setName(--length, "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz".charAt(Math.floor(Math.random() * 60)) + current) : current;
+            }
+        }, {
+            key: '_setCols',
+            value: function _setCols() {
+                // calculate columns
+                this.cols = Math.floor(this.box.width() / this.options.width);
+                //If Cols lower than 1, the grid disappears
+                if (this.cols < 1) {
+                    this.cols = 1;
+                }
+                diff = (this.box.width() - this.cols * this.options.width - this.options.gutter) / this.cols;
+                w = (this.options.width + diff) / this.box.width() * 100;
+                this.w = w;
+                this.colHeights = new Array(this.cols);
+                this.colHeights.fill(0);
+                this.colItems = new Array(this.cols);
+                this.colItems.fill([]);
 
-            // no effect but queued
-            if (queue === true && !effect) {
-                $.each(items, function (index, value) {
-                    $(value).css({
-                        'opacity': '1',
-                        'filter': 'alpha(opacity=100)'
+                // add columns to box
+                for (var i = 0; i < this.cols; i++) {
+                    var div = $('<div></div>').addClass('galcolumn').attr('id', 'item' + i + this.name).css({
+                        'width': w + '%',
+                        'paddingLeft': this.options.gutter,
+                        'paddingBottom': this.options.gutter,
+                        'float': 'left',
+                        '-webkit-box-sizing': 'border-box',
+                        '-moz-box-sizing': 'border-box',
+                        '-o-box-sizing': 'border-box',
+                        'box-sizing': 'border-box'
                     });
-                    t++;
-                    if (t == items.length) {
-                        if (this.ifCallback) {
-                            complete.call(undefined, items);
+                    this.box.append(div);
+                }
+            }
+        }, {
+            key: '_renderGrid',
+            value: function _renderGrid(method, arr, count, prepArray) {
+                var items = [];
+                var boxes = [];
+                var prependArray = [];
+                var itemCount = 0;
+                var appendCount = this.appendCount;
+                var gutter = this.options.gutter;
+                var cols = this.cols;
+                var name = this.name;
+                var i = 0;
+                var w = $('.galcolumn').width();
+
+                // if arr
+                if (arr) {
+                    boxes = arr;
+                    // if append
+                    if (method == "append") {
+                        // get total of items to append
+                        appendCount += count;
+                        // set itemCount to last count of appened items
+                        itemCount = this.appendCount;
+                    }
+                    // if prepend
+                    if (method == "prepend") {
+                        // set itemCount
+                        this.isPrepending = true;
+                        itemCount = Math.round(count % cols);
+                        if (itemCount <= 0) itemCount = cols;
+                    }
+                    // called by _updateAfterPrepend()
+                    if (method == "renderAfterPrepend") {
+                        // get total of items that was previously prepended
+                        appendCount += count;
+                        // set itemCount by counting previous prepended items
+                        itemCount = count;
+                    }
+                } else {
+                    boxes = this.gridArr;
+                    appendCount = $(this.gridArr).size();
+                }
+
+                // push out the items to the columns
+                var _iteratorNormalCompletion = true;
+                var _didIteratorError = false;
+                var _iteratorError = undefined;
+
+                try {
+                    for (var _iterator = boxes[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                        var item = _step.value;
+
+                        var width = '100%';
+
+                        // if you want something not to be "responsive", add the class "not-responsive" to the selector container
+                        if (item.hasClass('not-responsive')) {
+                            width = 'auto';
+                        }
+
+                        item.css({
+                            'zoom': '1',
+                            'filter': 'alpha(opacity=0)',
+                            'opacity': '0'
+                        });
+
+                        // find shortest col
+                        var shortestCol = 0;
+                        for (var _i = 1; _i < this.colHeights.length; _i++) {
+                            if (this.colHeights[_i] < this.colHeights[shortestCol]) {
+                                shortestCol = _i;
+                            }
+                        }
+
+                        // prepend or append to shortest column
+                        if (method == 'prepend') {
+                            $("#item" + shortestCol + name).prepend(item);
+                            items.push(item);
+                        } else {
+                            $("#item" + shortestCol + name).append(item);
+                            items.push(item);
+                            if (appendCount >= cols) {
+                                appendCount = appendCount - cols;
+                            }
+                        }
+
+                        // update col heights
+                        this.colItems[shortestCol].push(item);
+                        this.colHeights[shortestCol] += item.height();
+                    }
+                } catch (err) {
+                    _didIteratorError = true;
+                    _iteratorError = err;
+                } finally {
+                    try {
+                        if (!_iteratorNormalCompletion && _iterator.return) {
+                            _iterator.return();
+                        }
+                    } finally {
+                        if (_didIteratorError) {
+                            throw _iteratorError;
                         }
                     }
-                });
+                }
+
+                this.appendCount = appendCount;
+
+                if (method == "append" || method == "prepend") {
+                    if (method == "prepend") {
+                        // render old items and reverse the new items
+                        this._updateAfterPrepend(this.gridArr, boxes);
+                    }
+                    this._renderItem(items);
+                    this.isPrepending = false;
+                } else {
+                    this._renderItem(this.gridArr);
+                }
             }
-
-            // don not animate & no queue
-        } else {
-            $.each(items, function (index, value) {
-                $(value).css({
-                    'opacity': '1',
-                    'filter': 'alpha(opacity=100)'
+        }, {
+            key: '_collectItems',
+            value: function _collectItems() {
+                var collection = [];
+                $(this.box).find(this.options.selector).each(function (i) {
+                    collection.push($(this));
                 });
-            });
-            if (this.ifCallback) {
-                complete.call(items);
+                return collection;
             }
-        }
-    };
+        }, {
+            key: '_renderItem',
+            value: function _renderItem(items) {
 
-    WaterfallRender.prototype._updateAfterPrepend = function _updateAfterPrepend (prevItems, newItems) {
-        var gridArr = this.gridArr;
-        // add new items to gridArr
-        $.each(newItems, function (index, value) {
-            gridArr.unshift(value);
-        });
-        this.gridArr = gridArr;
-    };
+                var speed = this.options.animationOptions.speed;
+                var effect = this.options.animationOptions.effect;
+                var duration = this.options.animationOptions.duration;
+                var queue = this.options.animationOptions.queue;
+                var animate = this.options.animate;
+                var complete = this.options.animationOptions.complete;
 
-    WaterfallRender.prototype.resize = function resize () {
-        if (this.box.width() === this.boxWidth) {
-            return;
-        }
+                var i = 0;
+                var t = 0;
 
-        var newCols = Math.floor(this.box.width() / this.options.width);
-        if (this.cols === newCols) {
-            // nothings changed yet
-            return;
-        }
+                // animate
+                if (animate === true && !this.isResizing) {
 
-        // delete columns in box
-        this.box.find($('.galcolumn')).remove();
-        // build columns
-        this._setCols();
-        // build grid
-        this.ifCallback = false;
-        this.isResizing = true;
-        this._renderGrid('append');
-        this.ifCallback = true;
-        this.isResizing = false;
-        this.boxWidth = this.box.width();
-    };
+                    // fadeInOnAppear
+                    if (queue === true && effect == "fadeInOnAppear") {
+                        if (this.isPrepending) items.reverse();
+                        $.each(items, function (index, value) {
+                            setTimeout(function () {
+                                $(value).animate({
+                                    opacity: '1.0'
+                                }, duration);
+                                t++;
+                                if (t == items.length) {
+                                    complete.call(undefined, items);
+                                }
+                            }, i * speed);
+                            i++;
+                        });
+                    } else if (queue === false && effect == "fadeInOnAppear") {
+                        if (this.isPrepending) items.reverse();
+                        $.each(items, function (index, value) {
+                            $(value).animate({
+                                opacity: '1.0'
+                            }, duration);
+                            t++;
+                            if (t == items.length) {
+                                if (this.ifCallback) {
+                                    complete.call(undefined, items);
+                                }
+                            }
+                        });
+                    }
 
-    WaterfallRender.prototype.append = function append (items) {
-        var gridArr = this.gridArr;
-        var gridArrAppend = this.gridArrPrepend;
-        $.each(items, function (index, value) {
-            gridArr.push(value);
-            gridArrAppend.push(value);
-        });
-        this._renderGrid('append', items, $(items).size());
-    };
+                    // no effect but queued
+                    if (queue === true && !effect) {
+                        $.each(items, function (index, value) {
+                            $(value).css({
+                                'opacity': '1',
+                                'filter': 'alpha(opacity=100)'
+                            });
+                            t++;
+                            if (t == items.length) {
+                                if (this.ifCallback) {
+                                    complete.call(undefined, items);
+                                }
+                            }
+                        });
+                    }
 
-    WaterfallRender.prototype.prepend = function prepend (items) {
-        this.ifCallback = false;
-        this._renderGrid('prepend', items, $(items).size());
-        this.ifCallback = true;
-    };
+                    // don not animate & no queue
+                } else {
+                    $.each(items, function (index, value) {
+                        $(value).css({
+                            'opacity': '1',
+                            'filter': 'alpha(opacity=100)'
+                        });
+                    });
+                    if (this.ifCallback) {
+                        complete.call(items);
+                    }
+                }
+            }
+        }, {
+            key: '_updateAfterPrepend',
+            value: function _updateAfterPrepend(prevItems, newItems) {
+                var gridArr = this.gridArr;
+                // add new items to gridArr
+                $.each(newItems, function (index, value) {
+                    gridArr.unshift(value);
+                });
+                this.gridArr = gridArr;
+            }
+        }, {
+            key: 'resize',
+            value: function resize() {
+                if (this.box.width() === this.boxWidth) {
+                    return;
+                }
+
+                var newCols = Math.floor(this.box.width() / this.options.width);
+                if (this.cols === newCols) {
+                    // nothings changed yet
+                    return;
+                }
+
+                // delete columns in box
+                this.box.find($('.galcolumn')).remove();
+                // build columns
+                this._setCols();
+                // build grid
+                this.ifCallback = false;
+                this.isResizing = true;
+                this._renderGrid('append');
+                this.ifCallback = true;
+                this.isResizing = false;
+                this.boxWidth = this.box.width();
+            }
+        }, {
+            key: 'append',
+            value: function append(items) {
+                var gridArr = this.gridArr;
+                var gridArrAppend = this.gridArrPrepend;
+                $.each(items, function (index, value) {
+                    gridArr.push(value);
+                    gridArrAppend.push(value);
+                });
+                this._renderGrid('append', items, $(items).size());
+            }
+        }, {
+            key: 'prepend',
+            value: function prepend(items) {
+                this.ifCallback = false;
+                this._renderGrid('prepend', items, $(items).size());
+                this.ifCallback = true;
+            }
+        }]);
+
+        return WaterfallRender;
+    }();
 
     $.fn.waterfall = function (options, e) {
         if (typeof options === 'string') {
@@ -394,20 +438,19 @@
             });
         }
         return this;
-    }
-
+    };
 })($);
 
-
-
-var Factory = function () {};
+var Factory = function Factory() {};
 var slice = Array.prototype.slice;
 
-var augment = function (base, body) {
+var augment = function augment(base, body) {
     var uber = Factory.prototype = typeof base === "function" ? base.prototype : base;
-    var prototype = new Factory(), properties = body.apply(prototype, slice.call(arguments, 2).concat(uber));
-    if (typeof properties === "object") for (var key in properties) prototype[key] = properties[key];
-    if (!prototype.hasOwnProperty("constructor")) return prototype;
+    var prototype = new Factory(),
+        properties = body.apply(prototype, slice.call(arguments, 2).concat(uber));
+    if ((typeof properties === 'undefined' ? 'undefined' : _typeof(properties)) === "object") for (var key in properties) {
+        prototype[key] = properties[key];
+    }if (!prototype.hasOwnProperty("constructor")) return prototype;
     var constructor = prototype.constructor;
     constructor.prototype = prototype;
     return constructor;
@@ -426,21 +469,20 @@ augment.extend = function (base, body) {
     });
 };
 
-
 // Simple JavaScript Templating
 // John Resig - http://ejohn.org/ - MIT Licensed
 
-(function(){
+(function () {
     var _tmplCache = {};
 
     var helpers = {
-        networkIcon:function () {
+        networkIcon: function networkIcon() {
             return this.data.network_name.toLowerCase();
         },
-        networkName:function () {
+        networkName: function networkName() {
             return this.data.network_name.toLowerCase();
         },
-        userUrl:function () {
+        userUrl: function userUrl() {
             if (this.data.user_url && this.data.user_url != '') {
                 return this.data.user_url;
             }
@@ -451,19 +493,18 @@ augment.extend = function (base, body) {
                 return this.data.userUrl;
             }
 
-            var netId = this.data.network_id+'';
+            var netId = this.data.network_id + '';
             if (netId === '1') {
                 return 'http://twitter.com/' + this.data.user_screen_name;
             } else if (netId === '2') {
-                return 'http://instagram.com/'+this.data.user_screen_name;
+                return 'http://instagram.com/' + this.data.user_screen_name;
             } else if (netId === '3') {
-                return 'http://facebook.com/'+this.data.user_screen_name;
+                return 'http://facebook.com/' + this.data.user_screen_name;
             }
 
             return '#';
-
         },
-        parseText:function(s) {
+        parseText: function parseText(s) {
             if (this.data.is_html) {
                 return s;
             } else {
@@ -483,23 +524,21 @@ augment.extend = function (base, body) {
                 return helpers.nl2br(s);
             }
         },
-        nl2br:function(s) {
+        nl2br: function nl2br(s) {
             s = s.trim();
             s = s.replace(/(?:\r\n|\r|\n)/g, '<br />');
 
             return s;
         },
-        contentImageClasses : function () {
+        contentImageClasses: function contentImageClasses() {
             return this.data.image ? 'crt-post-has-image' : 'crt-post-content-image-hidden';
         },
-        contentTextClasses : function () {
+        contentTextClasses: function contentTextClasses() {
             return this.data.text ? 'crt-post-has-text' : 'crt-post-content-text-hidden';
-
         },
-        fuzzyDate : function (dateString)
-        {
-            var date = Date.parse(dateString+' UTC');
-            var delta = Math.round((new Date () - date) / 1000);
+        fuzzyDate: function fuzzyDate(dateString) {
+            var date = Date.parse(dateString + ' UTC');
+            var delta = Math.round((new Date() - date) / 1000);
 
             var minute = 60,
                 hour = minute * 60,
@@ -514,11 +553,11 @@ augment.extend = function (base, body) {
             } else if (delta < minute) {
                 fuzzy = delta + ' seconds ago';
             } else if (delta < 2 * minute) {
-                fuzzy = 'a minute ago.'
+                fuzzy = 'a minute ago.';
             } else if (delta < hour) {
                 fuzzy = Math.floor(delta / minute) + ' minutes ago';
             } else if (Math.floor(delta / hour) == 1) {
-                fuzzy = '1 hour ago.'
+                fuzzy = '1 hour ago.';
             } else if (delta < day) {
                 fuzzy = Math.floor(delta / hour) + ' hours ago';
             } else if (delta < day * 2) {
@@ -535,43 +574,23 @@ augment.extend = function (base, body) {
 
             return fuzzy;
         },
-        prettyDate : function(time) {
+        prettyDate: function prettyDate(time) {
             var date = Curator.DateUtils.dateFromString(time);
 
-            var diff = (((new Date()).getTime() - date.getTime()) / 1000);
+            var diff = (new Date().getTime() - date.getTime()) / 1000;
             var day_diff = Math.floor(diff / 86400);
             var year = date.getFullYear(),
-                month = date.getMonth()+1,
+                month = date.getMonth() + 1,
                 day = date.getDate();
 
-            if (isNaN(day_diff) || day_diff < 0 || day_diff >= 31)
-                return (
-                    year.toString()+'-'
-                    +((month<10) ? '0'+month.toString() : month.toString())+'-'
-                    +((day<10) ? '0'+day.toString() : day.toString())
-                );
+            if (isNaN(day_diff) || day_diff < 0 || day_diff >= 31) return year.toString() + '-' + (month < 10 ? '0' + month.toString() : month.toString()) + '-' + (day < 10 ? '0' + day.toString() : day.toString());
 
-            var r =
-                (
-                    (
-                        day_diff == 0 &&
-                        (
-                            (diff < 60 && "just now")
-                            || (diff < 120 && "1 minute ago")
-                            || (diff < 3600 && Math.floor(diff / 60) + " minutes ago")
-                            || (diff < 7200 && "1 hour ago")
-                            || (diff < 86400 && Math.floor(diff / 3600) + " hours ago")
-                        )
-                    )
-                    || (day_diff == 1 && "Yesterday")
-                    || (day_diff < 7 && day_diff + " days ago")
-                    || (day_diff < 31 && Math.ceil(day_diff / 7) + " weeks ago")
-                );
+            var r = day_diff == 0 && (diff < 60 && "just now" || diff < 120 && "1 minute ago" || diff < 3600 && Math.floor(diff / 60) + " minutes ago" || diff < 7200 && "1 hour ago" || diff < 86400 && Math.floor(diff / 3600) + " hours ago") || day_diff == 1 && "Yesterday" || day_diff < 7 && day_diff + " days ago" || day_diff < 31 && Math.ceil(day_diff / 7) + " weeks ago";
             return r;
         }
     };
 
-    root.parseTemplate = function(str, data) {
+    root.parseTemplate = function (str, data) {
         /// <summary>
         /// Client side template parser that uses &lt;#= #&gt; and &lt;# code #&gt; expressions.
         /// and # # code blocks for template expansion.
@@ -589,24 +608,15 @@ augment.extend = function (base, body) {
         try {
             var func = _tmplCache[str];
             if (!func) {
-                var strComp =
-                    str.replace(/[\r\t\n]/g, " ")
-                        .replace(/'(?=[^%]*%>)/g, "\t")
-                        .split("'").join("\\'")
-                        .split("\t").join("'")
-                        .replace(/<%=(.+?)%>/g, "',$1,'")
-                        .split("<%").join("');")
-                        .split("%>").join("p.push('");
-                var strFunc =
-                    "var p=[],print=function(){p.push.apply(p,arguments);};" +
-                        "with(obj){p.push('" + strComp + "');}return p.join('');";
-                func = new Function("obj", strFunc);  // jshint ignore:line
+                var strComp = str.replace(/[\r\t\n]/g, " ").replace(/'(?=[^%]*%>)/g, "\t").split("'").join("\\'").split("\t").join("'").replace(/<%=(.+?)%>/g, "',$1,'").split("<%").join("');").split("%>").join("p.push('");
+                var strFunc = "var p=[],print=function(){p.push.apply(p,arguments);};" + "with(obj){p.push('" + strComp + "');}return p.join('');";
+                func = new Function("obj", strFunc); // jshint ignore:line
                 _tmplCache[str] = func;
             }
             helpers.data = data;
             return func.call(helpers, data);
         } catch (e) {
-            window.console.log ('Template parse error: ' +e.message);
+            window.console.log('Template parse error: ' + e.message);
             err = e.message;
         }
         return " # ERROR: " + err + " # ";
@@ -621,28 +631,28 @@ augment.extend = function (base, body) {
 if (!$.support.cors && $.ajaxTransport && window.XDomainRequest) {
     var httpRegEx = /^https?:\/\//i;
     var getOrPostRegEx = /^get|post$/i;
-    var sameSchemeRegEx = new RegExp('^'+window.location.protocol, 'i');
+    var sameSchemeRegEx = new RegExp('^' + window.location.protocol, 'i');
     var htmlRegEx = /text\/html/i;
     var jsonRegEx = /\/json/i;
     var xmlRegEx = /\/xml/i;
 
     // ajaxTransport exists in jQuery 1.5+
-    $.ajaxTransport('text html xml json', function(options, userOptions, jqXHR){
+    $.ajaxTransport('text html xml json', function (options, userOptions, jqXHR) {
         jqXHR = jqXHR;
         // XDomainRequests must be: asynchronous, GET or POST methods, HTTP or HTTPS protocol, and same scheme as calling page
         if (options.crossDomain && options.async && getOrPostRegEx.test(options.type) && httpRegEx.test(options.url) && sameSchemeRegEx.test(options.url)) {
             var xdr = null;
-            var userType = (userOptions.dataType||'').toLowerCase();
+            var userType = (userOptions.dataType || '').toLowerCase();
             return {
-                send: function(headers, complete){
+                send: function send(headers, complete) {
                     xdr = new window.XDomainRequest();
                     if (/^\d+$/.test(userOptions.timeout)) {
                         xdr.timeout = userOptions.timeout;
                     }
-                    xdr.ontimeout = function(){
+                    xdr.ontimeout = function () {
                         complete(500, 'timeout');
                     };
-                    xdr.onload = function(){
+                    xdr.onload = function () {
                         var allResponseHeaders = 'Content-Length: ' + xdr.responseText.length + '\r\nContent-Type: ' + xdr.contentType;
                         var status = {
                             code: 200,
@@ -654,20 +664,20 @@ if (!$.support.cors && $.ajaxTransport && window.XDomainRequest) {
                         try {
                             if (userType === 'html' || htmlRegEx.test(xdr.contentType)) {
                                 responses.html = xdr.responseText;
-                            } else if (userType === 'json' || (userType !== 'text' && jsonRegEx.test(xdr.contentType))) {
+                            } else if (userType === 'json' || userType !== 'text' && jsonRegEx.test(xdr.contentType)) {
                                 try {
                                     responses.json = $.parseJSON(xdr.responseText);
-                                } catch(e) {
+                                } catch (e) {
                                     status.code = 500;
                                     status.message = 'parseerror';
                                     //throw 'Invalid JSON: ' + xdr.responseText;
                                 }
-                            } else if (userType === 'xml' || (userType !== 'text' && xmlRegEx.test(xdr.contentType))) {
+                            } else if (userType === 'xml' || userType !== 'text' && xmlRegEx.test(xdr.contentType)) {
                                 var doc = new window.ActiveXObject('Microsoft.XMLDOM');
                                 doc.async = false;
                                 try {
                                     doc.loadXML(xdr.responseText);
-                                } catch(e) {
+                                } catch (e) {
                                     doc = undefined;
                                 }
                                 if (!doc || !doc.documentElement || doc.getElementsByTagName('parsererror').length) {
@@ -677,27 +687,27 @@ if (!$.support.cors && $.ajaxTransport && window.XDomainRequest) {
                                 }
                                 responses.xml = doc;
                             }
-                        } catch(parseMessage) {
+                        } catch (parseMessage) {
                             throw parseMessage;
                         } finally {
                             complete(status.code, status.message, responses, allResponseHeaders);
                         }
                     };
                     // set an empty handler for 'onprogress' so requests don't get aborted
-                    xdr.onprogress = function(){};
-                    xdr.onerror = function(){
+                    xdr.onprogress = function () {};
+                    xdr.onerror = function () {
                         complete(500, 'error', {
                             text: xdr.responseText
                         });
                     };
                     var postData = '';
-                    if (userOptions.data) { 
-                        postData = ($.type(userOptions.data) === 'string') ? userOptions.data : $.param(userOptions.data);
+                    if (userOptions.data) {
+                        postData = $.type(userOptions.data) === 'string' ? userOptions.data : $.param(userOptions.data);
                     }
                     xdr.open(options.type, options.url);
                     xdr.send(postData);
                 },
-                abort: function(){
+                abort: function abort() {
                     if (xdr) {
                         xdr.abort();
                     }
@@ -712,20 +722,20 @@ var Curator = {
     debug: false,
     SOURCE_TYPES: ['twitter', 'instagram'],
 
-    log: function (s) {
+    log: function log(s) {
 
         if (window.console && Curator.debug) {
             window.console.log(s);
         }
     },
 
-    alert: function (s) {
+    alert: function alert(s) {
         if (window.alert) {
             window.alert(s);
         }
     },
 
-    checkContainer: function (container) {
+    checkContainer: function checkContainer(container) {
         Curator.log("Curator->checkContainer: " + container);
         if ($(container).length === 0) {
             if (window.console) {
@@ -736,7 +746,7 @@ var Curator = {
         return true;
     },
 
-    checkPowered: function (jQuerytag) {
+    checkPowered: function checkPowered(jQuerytag) {
         Curator.log("Curator->checkPowered");
         var h = jQuerytag.html();
         // Curator.log (h);
@@ -748,7 +758,7 @@ var Curator = {
         }
     },
 
-    loadCSS: function (config) {
+    loadCSS: function loadCSS(config) {
         try {
             var sheet = Curator.createSheet(config);
 
@@ -762,23 +772,21 @@ var Curator = {
             Curator.addCSSRule(sheet, headerTexts, 'color:' + config.colours.headerText);
             Curator.addCSSRule(sheet, bodyBgs, 'background-color:' + config.colours.bodyBg);
             Curator.addCSSRule(sheet, bodyTexts, 'color:' + config.colours.bodyText);
-        }
-        catch (err) {
+        } catch (err) {
             console.log('CURATOR UNABLE TO LOAD CSS');
             console.log(err.message);
         }
     },
 
-    addCSSRule: function (sheet, selector, rules, index) {
+    addCSSRule: function addCSSRule(sheet, selector, rules, index) {
         if ('insertRule' in sheet) {
             sheet.insertRule(selector + '{' + rules + '}', 0);
-        }
-        else if ('addRule' in sheet) {
+        } else if ('addRule' in sheet) {
             sheet.addRule(selector, rules);
         }
     },
 
-    createSheet: function () {
+    createSheet: function createSheet() {
         var style = document.createElement("style");
         // WebKit hack :(
         style.appendChild(document.createTextNode(""));
@@ -786,7 +794,7 @@ var Curator = {
         return style.sheet;
     },
 
-    loadWidget: function (config, template) {
+    loadWidget: function loadWidget(config, template) {
         if (template) {
             Curator.Templates.postTemplate = template;
         }
@@ -795,18 +803,17 @@ var Curator = {
         window.curatorWidget = new ConstructorClass(config);
     },
 
-    Templates:{},
+    Templates: {},
 
-    Config:{
-        Defaults : {
+    Config: {
+        Defaults: {
             apiEndpoint: 'https://api.curator.io/v1',
-            feedId:'',
-            postsPerPage:12,
-            maxPosts:0,
+            feedId: '',
+            postsPerPage: 12,
+            maxPosts: 0,
             debug: false,
-            postTemplate:'#post-template',
-            onPostsLoaded: function () {
-            },
+            postTemplate: '#post-template',
+            onPostsLoaded: function onPostsLoaded() {},
             filter: {
                 show: false,
                 label: 'Show:'
@@ -821,730 +828,761 @@ if ($ === undefined) {
     Curator.alert('Curator requires jQuery. \n\nPlease include jQuery in your HTML before the Curator widget script tag.\n\nVisit http://jquery.com/download/ to get the latest version');
 }
 
+var EventBus = function () {
+    function EventBus() {
+        _classCallCheck(this, EventBus);
 
-
-var EventBus = function EventBus() {
-    this.listeners = {};
-};
-
-EventBus.prototype.on = function on (type, callback, scope) {
-        var arguments$1 = arguments;
-
-    var args = [];
-    var numOfArgs = arguments.length;
-    for (var i = 0; i < numOfArgs; i++) {
-        args.push(arguments$1[i]);
+        this.listeners = {};
     }
-    args = args.length > 3 ? args.splice(3, args.length - 1) : [];
-    if (typeof this.listeners[type] != "undefined") {
-        this.listeners[type].push({scope: scope, callback: callback, args: args});
-    } else {
-        this.listeners[type] = [{scope: scope, callback: callback, args: args}];
-    }
-};
 
-EventBus.prototype.off = function off (type, callback, scope) {
-        var this$1 = this;
-
-    if (typeof this.listeners[type] != "undefined") {
-        var numOfCallbacks = this.listeners[type].length;
-        var newArray = [];
-        for (var i = 0; i < numOfCallbacks; i++) {
-            var listener = this$1.listeners[type][i];
-            if (listener.scope == scope && listener.callback == callback) {
-
+    _createClass(EventBus, [{
+        key: 'on',
+        value: function on(type, callback, scope) {
+            var args = [];
+            var numOfArgs = arguments.length;
+            for (var i = 0; i < numOfArgs; i++) {
+                args.push(arguments[i]);
+            }
+            args = args.length > 3 ? args.splice(3, args.length - 1) : [];
+            if (typeof this.listeners[type] != "undefined") {
+                this.listeners[type].push({ scope: scope, callback: callback, args: args });
             } else {
-                newArray.push(listener);
+                this.listeners[type] = [{ scope: scope, callback: callback, args: args }];
             }
         }
-        this.listeners[type] = newArray;
-    }
-};
-
-EventBus.prototype.has = function has (type, callback, scope) {
-        var this$1 = this;
-
-    if (typeof this.listeners[type] != "undefined") {
-        var numOfCallbacks = this.listeners[type].length;
-        if (callback === undefined && scope === undefined) {
-            return numOfCallbacks > 0;
-        }
-        for (var i = 0; i < numOfCallbacks; i++) {
-            var listener = this$1.listeners[type][i];
-            if ((scope ? listener.scope == scope : true) && listener.callback == callback) {
-                return true;
+    }, {
+        key: 'off',
+        value: function off(type, callback, scope) {
+            if (typeof this.listeners[type] != "undefined") {
+                var numOfCallbacks = this.listeners[type].length;
+                var newArray = [];
+                for (var i = 0; i < numOfCallbacks; i++) {
+                    var listener = this.listeners[type][i];
+                    if (listener.scope == scope && listener.callback == callback) {} else {
+                        newArray.push(listener);
+                    }
+                }
+                this.listeners[type] = newArray;
             }
         }
-    }
-    return false;
-};
-
-EventBus.prototype.trigger = function trigger (type, target) {
-        var arguments$1 = arguments;
-        var this$1 = this;
-
-    var numOfListeners = 0;
-    var event = {
-        type: type,
-        target: target
-    };
-    var args = [];
-    var numOfArgs = arguments.length;
-    for (var i = 0; i < numOfArgs; i++) {
-        args.push(arguments$1[i]);
-    }
-    args = args.length > 2 ? args.splice(2, args.length - 1) : [];
-    args = [event].concat(args);
-    if (typeof this.listeners[type] != "undefined") {
-        var numOfCallbacks = this.listeners[type].length;
-        for (var i$1 = 0; i$1 < numOfCallbacks; i$1++) {
-            var listener = this$1.listeners[type][i$1];
-            if (listener && listener.callback) {
-                var concatArgs = args.concat(listener.args);
-                listener.callback.apply(listener.scope, concatArgs);
-                numOfListeners += 1;
+    }, {
+        key: 'has',
+        value: function has(type, callback, scope) {
+            if (typeof this.listeners[type] != "undefined") {
+                var numOfCallbacks = this.listeners[type].length;
+                if (callback === undefined && scope === undefined) {
+                    return numOfCallbacks > 0;
+                }
+                for (var i = 0; i < numOfCallbacks; i++) {
+                    var listener = this.listeners[type][i];
+                    if ((scope ? listener.scope == scope : true) && listener.callback == callback) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+    }, {
+        key: 'trigger',
+        value: function trigger(type, target) {
+            var numOfListeners = 0;
+            var event = {
+                type: type,
+                target: target
+            };
+            var args = [];
+            var numOfArgs = arguments.length;
+            for (var i = 0; i < numOfArgs; i++) {
+                args.push(arguments[i]);
+            }
+            args = args.length > 2 ? args.splice(2, args.length - 1) : [];
+            args = [event].concat(args);
+            if (typeof this.listeners[type] != "undefined") {
+                var numOfCallbacks = this.listeners[type].length;
+                for (var _i2 = 0; _i2 < numOfCallbacks; _i2++) {
+                    var listener = this.listeners[type][_i2];
+                    if (listener && listener.callback) {
+                        var concatArgs = args.concat(listener.args);
+                        listener.callback.apply(listener.scope, concatArgs);
+                        numOfListeners += 1;
+                    }
+                }
             }
         }
-    }
-};
-
-EventBus.prototype.getEvents = function getEvents () {
-        var this$1 = this;
-
-    var str = "";
-    for (var type in this.listeners) {
-        var numOfCallbacks = this$1.listeners[type].length;
-        for (var i = 0; i < numOfCallbacks; i++) {
-            var listener = this$1.listeners[type][i];
-            str += listener.scope && listener.scope.className ? listener.scope.className : "anonymous";
-            str += " listen for '" + type + "'\n";
+    }, {
+        key: 'getEvents',
+        value: function getEvents() {
+            var str = "";
+            for (var type in this.listeners) {
+                var numOfCallbacks = this.listeners[type].length;
+                for (var i = 0; i < numOfCallbacks; i++) {
+                    var listener = this.listeners[type][i];
+                    str += listener.scope && listener.scope.className ? listener.scope.className : "anonymous";
+                    str += " listen for '" + type + "'\n";
+                }
+            }
+            return str;
         }
-    }
-    return str;
-};
+    }]);
+
+    return EventBus;
+}();
 
 Curator.EventBus = new EventBus();
 
-(function($) {
-	// Default styling
-
-	var defaults = {
-		circular: false,
-		speed: 5000,
-		duration: 700,
-		minWidth: 250,
-		panesVisible: null,
-		moveAmount: 0,
-		autoPlay: false,
-		useCss : true
-	};
-
-	if ($.zepto) {
-		defaults.easing = 'ease-in-out';
-	}
-	// console.log (defaults);
-
-	var css = {
-		viewport: {
-			'width': '100%', // viewport needs to be fluid
-			// 'overflow': 'hidden',
-			'position': 'relative'
-		},
-
-		pane_stage: {
-			'width': '100%', // viewport needs to be fluid
-			'overflow': 'hidden',
-			'position': 'relative',
-            'height':0
-		},
-
-		pane_slider: {
-			'width': '0%', // will be set to (number of panes * 100)
-			'list-style': 'none',
-			'position': 'relative',
-			'overflow': 'hidden',
-			'padding': '0',
-			'left':'0'
-		},
-
-		pane: {
-			'width': '0%', // will be set to (100 / number of images)
-			'position': 'relative',
-			'float': 'left'
-		}
-	};
-
-	var Carousel = function Carousel (container, options) {
-			var this$1 = this;
-
-			Curator.log('Carousel->construct');
-
-        this.current_position=0;
-        this.animating=false;
-        this.timeout=null;
-        this.FAKE_NUM=0;
-        this.PANES_VISIBLE=0;
-
-			this.options = $.extend([], defaults, options);
-
-			this.$viewport = $(container); // <div> slider, known as $viewport
-
-        this.$panes = this.$viewport.children();
-        this.$panes.detach();
-
-			this.$pane_stage = $('<div class="ctr-carousel-stage"></div>').appendTo(this.$viewport);
-			this.$pane_slider = $('<div class="ctr-carousel-slider"></div>').appendTo(this.$pane_stage);
-
-			// this.$pane_slider.append(this.$panes);
-
-			this.$viewport.css(css.viewport); // set css on viewport
-			this.$pane_slider.css( css.pane_slider ); // set css on pane slider
-			this.$pane_stage.css( css.pane_stage ); // set css on pane slider
-
-        this.addControls();
-        this.update ();
-
-			$(window).smartresize(function () {
-				this$1.resize();
-				this$1.move (this$1.current_position, true);
-
-				// reset animation timer
-				if (this$1.options.autoPlay) {
-					this$1.animate();
-				}
-			})
-		};
-
-		Carousel.prototype.update = function update () {
-			this.$panes = this.$pane_slider.children(); // <li> list items, known as $panes
-			this.NUM_PANES = this.options.circular ? (this.$panes.length + 1) : this.$panes.length;
-
-			if (this.NUM_PANES > 0) {
-				this.resize();
-				this.move (this.current_position, true);
-
-				if (!this.animating) {
-					if (this.options.autoPlay) {
-						this.animate();
-					}
-				}
-			}
-		};
-
-		Carousel.prototype.add = function add ($els) {
-			var $panes = [];
-        //
-        // $.each($els,(i, $pane)=> {
-        // let p = $pane.wrapAll('<div class="crt-carousel-col"></div>').parent();
-        // $panes.push(p)
-        // });
-
-			this.$pane_slider.append($els);
-			this.$panes = this.$pane_slider.children();
-		};
-
-		Carousel.prototype.resize = function resize () {
-			var this$1 = this;
-
-			var PANE_WRAPPER_WIDTH = this.options.infinite ? ((this.NUM_PANES+1) * 100) + '%' : (this.NUM_PANES * 100) + '%'; // % width of slider (total panes * 100)
-
-			this.$pane_slider.css({width: PANE_WRAPPER_WIDTH}); // set css on pane slider
-
-			this.VIEWPORT_WIDTH = this.$viewport.width();
-
-			if (this.options.panesVisible) {
-				// TODO - change to check if it's a function or a number
-				this.PANES_VISIBLE = this.options.panesVisible();
-				this.PANE_WIDTH = (this.VIEWPORT_WIDTH / this.PANES_VISIBLE);
-			} else {
-				this.PANES_VISIBLE = this.VIEWPORT_WIDTH < this.options.minWidth ? 1 : Math.floor(this.VIEWPORT_WIDTH / this.options.minWidth);
-				this.PANE_WIDTH = (this.VIEWPORT_WIDTH / this.PANES_VISIBLE);
-			}
-
-			if (this.options.infinite) {
-
-				this.$panes.filter('.crt-clone').remove();
-
-				for(var i = this.NUM_PANES-1; i > this.NUM_PANES - 1 - this.PANES_VISIBLE; i--)
-				{
-					// console.log(i);
-					var first = this$1.$panes.eq(i).clone();
-					first.addClass('crt-clone');
-					first.css('opacity','1');
-					// Should probably move this out to an event
-					first.find('.crt-post-image').css({opacity:1});
-					this$1.$pane_slider.prepend(first);
-					this$1.FAKE_NUM = this$1.PANES_VISIBLE;
-				}
-				this.$panes = this.$pane_slider.children();
-
-			}
-
-			this.$panes.each(function (index, pane) {
-				$(pane).css( $.extend(css.pane, {width: this$1.PANE_WIDTH+'px'}) );
-			});
-		};
-
-		Carousel.prototype.destroy = function destroy () {
-
-		};
-
-		Carousel.prototype.animate = function animate () {
-			var this$1 = this;
-
-			this.animating = true;
-			clearTimeout(this.timeout);
-			this.timeout = setTimeout(function () {
-				this$1.next();
-			}, this.options.speed);
-		};
-
-		Carousel.prototype.next = function next () {
-			var move = this.options.moveAmount ? this.options.moveAmount : this.PANES_VISIBLE ;
-			this.move(this.current_position + move, false);
-		};
-
-		Carousel.prototype.prev = function prev () {
-			var move = this.options.moveAmount ? this.options.moveAmount : this.PANES_VISIBLE ;
-			this.move(this.current_position - move, false);
-		};
-
-		Carousel.prototype.move = function move (i, noAnimate) {
-			var this$1 = this;
-
-			// console.log(i);
-
-			this.current_position = i;
-
-			var maxPos = this.NUM_PANES - this.PANES_VISIBLE;
-
-			// if (this.options.infinite)
-			// {
-			// 	let mod = this.NUM_PANES % this.PANES_VISIBLE;
-			// }
-
-			if (this.current_position < 0) {
-				this.current_position = 0;
-			} else if (this.current_position > maxPos) {
-				this.current_position = maxPos;
-			}
-
-			var curIncFake = (this.FAKE_NUM + this.current_position);
-			var left = curIncFake * this.PANE_WIDTH;
-			// console.log('move');
-			// console.log(curIncFake);
-			var panesInView = this.PANES_VISIBLE;
-			var max = this.options.infinite ? (this.PANE_WIDTH * this.NUM_PANES) : (this.PANE_WIDTH * this.NUM_PANES) - this.VIEWPORT_WIDTH;
-
-
-			this.currentLeft = left;
-
-			//console.log(left+":"+max);
-
-			if (left < 0) {
-				this.currentLeft = 0;
-			} else if (left > max) {
-				this.currentLeft = max;
-			} else {
-				this.currentLeft = left;
-			}
-
-			if (noAnimate) {
-				this.$pane_slider.css(
-					{
-						left: ((0 - this.currentLeft) + 'px')
-					});
-            this.moveComplete();
-			} else {
-				var options = {
-					duration: this.options.duration,
-					complete: function () {
-						this$1.moveComplete();
-					}
-				};
-				if (this.options.easing) {
-					options.easing = this.options.easing;
-				}
-				this.$pane_slider.animate(
-					{
-						left: ((0 - this.currentLeft) + 'px')
-					},
-					options
-				);
-			}
-		};
-
-		Carousel.prototype.moveComplete = function moveComplete () {
-			var this$1 = this;
-
-			// console.log ('moveComplete');
-			// console.log (this.current_position);
-			// console.log (this.NUM_PANES - this.PANES_VISIBLE);
-			if (this.options.infinite && (this.current_position >= (this.NUM_PANES - this.PANES_VISIBLE))) {
-				// console.log('IIIII');
-				// infinite and we're off the end!
-				// re-e-wind, the crowd says 'bo selecta!'
-				this.$pane_slider.css({left:0});
-				this.current_position = 0 - this.PANES_VISIBLE;
-				this.currentLeft = 0;
-			}
-
-			setTimeout(function () {
-            var paneMaxHieght = 0;
-            for (var i=this$1.current_position;i<this$1.current_position + this$1.PANES_VISIBLE;i++)
-            {
-                	var p = $(this$1.$panes[i]).children('.crt-post');
-                var h = p.height();
-                if (h > paneMaxHieght) {
-                    paneMaxHieght = h;
-                }
-                console.log(p);
-                console.log(i+":"+h);
-            }
-            	this$1.$pane_stage.animate({height:paneMaxHieght},300);
-        }, 50);
-
-			this.$viewport.trigger('curatorCarousel:changed', [this, this.current_position]);
-
-			if (this.options.autoPlay) {
-				this.animate();
-			}
-		};
-
-		Carousel.prototype.addControls = function addControls () {
-			this.$viewport.append('<button type="button" data-role="none" class="crt-panel-prev crt-panel-arrow" aria-label="Previous" role="button" aria-disabled="false">Previous</button>');
-			this.$viewport.append('<button type="button" data-role="none" class="crt-panel-next crt-panel-arrow" aria-label="Next" role="button" aria-disabled="false">Next</button>');
-
-			this.$viewport.on('click','.crt-panel-prev', this.prev.bind(this));
-			this.$viewport.on('click','.crt-panel-next', this.next.bind(this));
-		};
-
-		Carousel.prototype.method = function method () {
-			var m = arguments[0];
-			// let args = (arguments.length === 1 ? [arguments[0]] : Array.apply(null, arguments));
-			if (m == 'update') {
-				this.update();
-			} else if (m == 'add') {
-				this.add(arguments[1]);
-			} else if (m == 'destroy') {
-				this.destroy();
-			} else {
-
-			}
-		};
-
-	var carousels = {};
-	function rand () {
-		return Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5);
-	}
-
-	$.extend($.fn, { 
-		curatorCarousel: function (options) {
-			var args = (arguments.length === 1 ? [arguments[0]] : Array.apply(null, arguments));
-
-			$.each(this, function(index, item) {
-				var id = $(item).data('carousel');
-
-				if (carousels[id]) {
-					carousels[id].method.apply(carousels[id], args);
-				} else {
-					id = rand();
-					carousels[id] = new Carousel(item, options);
-					$(item).data('carousel', id);
-				}
-			});
-
-			return this;
-		}
-	});
-
-	window.CCarousel = Carousel;
-})($);
-
-
-
-var Client = function Client () {
-    Curator.log('Client->construct');
-};
-
-Client.prototype.setOptions = function setOptions (options, defaults) {
-
-    this.options = $.extend(true,{}, defaults, options);
-
-    if (options.debug) {
-        Curator.debug = true;
+(function ($) {
+    // Default styling
+
+    var defaults = {
+        circular: false,
+        speed: 5000,
+        duration: 700,
+        minWidth: 250,
+        panesVisible: null,
+        moveAmount: 0,
+        autoPlay: false,
+        useCss: true
+    };
+
+    if ($.zepto) {
+        defaults.easing = 'ease-in-out';
     }
+    // console.log (defaults);
 
-    // Curator.log(this.options);
-
-    return true;
-};
-
-Client.prototype.init = function init () {
-
-    if (!Curator.checkContainer(this.options.container)) {
-        return false;
-    }
-
-    this.$container = $(this.options.container);
-
-    this.createFeed();
-    this.createFilter();
-    this.createPopupManager();
-
-    return true;
-};
-
-Client.prototype.createFeed = function createFeed () {
-        var this$1 = this;
-
-    this.feed = new Curator.Feed (this);
-    this.feed.on('postsLoaded', function (event) {
-        this$1.onPostsLoaded(event.target);
-    });
-    this.feed.on('postsFailed', function (event) {
-        this$1.onPostsFail(event.target);
-    });
-};
-
-Client.prototype.createPopupManager = function createPopupManager () {
-    this.popupManager = new Curator.PopupManager(this);
-};
-
-Client.prototype.createFilter = function createFilter () {
-    if (this.options.filter && this.options.filter.show) {
-        this.filter = new Curator.Filter(this);
-    }
-};
-
-Client.prototype.loadPosts = function loadPosts (page) {
-    this.feed.loadPosts(page);
-};
-
-Client.prototype.createPostElements = function createPostElements (posts)
-{
-    var that = this;
-    var postElements = [];
-    $(posts).each(function(){
-        var p = that.createPostElement(this);
-        postElements.push(p.$el);
-    });
-    return postElements;
-};
-
-Client.prototype.createPostElement = function createPostElement (postJson) {
-    var post = new Curator.Post(postJson, this.options, this);
-    $(post).bind('postClick',this.onPostClick.bind(this));
-    $(post).bind('postReadMoreClick',this.onPostClick.bind(this));
-
-    if (this.options.onPostCreated) {
-        this.options.onPostCreated (post);
-    }
-
-    return post;
-};
-
-Client.prototype.onPostsLoaded = function onPostsLoaded (event) {
-    Curator.log('Client->onPostsLoaded');
-    Curator.log(event.target);
-};
-
-Client.prototype.onPostsFail = function onPostsFail (event) {
-    Curator.log('Client->onPostsLoadedFail');
-    Curator.log(event.target);
-};
-
-Client.prototype.onPostClick = function onPostClick (ev,post) {
-    this.popupManager.showPopup(post);
-};
-
-Client.prototype.track = function track (a) {
-    Curator.log('Feed->track '+a);
-
-    $.ajax({
-        url: this.getUrl('/track/'+this.options.feedId),
-        dataType: 'json',
-        data: {a:a},
-        success: function success (data) {
-            Curator.log('Feed->track success');
-            Curator.log(data);
+    var css = {
+        viewport: {
+            'width': '100%', // viewport needs to be fluid
+            // 'overflow': 'hidden',
+            'position': 'relative'
         },
-        error: function error (jqXHR, textStatus, errorThrown) {
-            Curator.log('Feed->_loadPosts fail');
-            Curator.log(textStatus);
-            Curator.log(errorThrown);
+
+        pane_stage: {
+            'width': '100%', // viewport needs to be fluid
+            'overflow': 'hidden',
+            'position': 'relative',
+            'height': 0
+        },
+
+        pane_slider: {
+            'width': '0%', // will be set to (number of panes * 100)
+            'list-style': 'none',
+            'position': 'relative',
+            'overflow': 'hidden',
+            'padding': '0',
+            'left': '0'
+        },
+
+        pane: {
+            'width': '0%', // will be set to (100 / number of images)
+            'position': 'relative',
+            'float': 'left'
+        }
+    };
+
+    var Carousel = function () {
+        function Carousel(container, options) {
+            var _this = this;
+
+            _classCallCheck(this, Carousel);
+
+            Curator.log('Carousel->construct');
+
+            this.current_position = 0;
+            this.animating = false;
+            this.timeout = null;
+            this.FAKE_NUM = 0;
+            this.PANES_VISIBLE = 0;
+
+            this.options = $.extend([], defaults, options);
+
+            this.$viewport = $(container); // <div> slider, known as $viewport
+
+            this.$panes = this.$viewport.children();
+            this.$panes.detach();
+
+            this.$pane_stage = $('<div class="ctr-carousel-stage"></div>').appendTo(this.$viewport);
+            this.$pane_slider = $('<div class="ctr-carousel-slider"></div>').appendTo(this.$pane_stage);
+
+            // this.$pane_slider.append(this.$panes);
+
+            this.$viewport.css(css.viewport); // set css on viewport
+            this.$pane_slider.css(css.pane_slider); // set css on pane slider
+            this.$pane_stage.css(css.pane_stage); // set css on pane slider
+
+            this.addControls();
+            this.update();
+
+            $(window).smartresize(function () {
+                _this.resize();
+                _this.move(_this.current_position, true);
+
+                // reset animation timer
+                if (_this.options.autoPlay) {
+                    _this.animate();
+                }
+            });
+        }
+
+        _createClass(Carousel, [{
+            key: 'update',
+            value: function update() {
+                this.$panes = this.$pane_slider.children(); // <li> list items, known as $panes
+                this.NUM_PANES = this.options.circular ? this.$panes.length + 1 : this.$panes.length;
+
+                if (this.NUM_PANES > 0) {
+                    this.resize();
+                    this.move(this.current_position, true);
+
+                    if (!this.animating) {
+                        if (this.options.autoPlay) {
+                            this.animate();
+                        }
+                    }
+                }
+            }
+        }, {
+            key: 'add',
+            value: function add($els) {
+                var $panes = [];
+                //
+                // $.each($els,(i, $pane)=> {
+                //     let p = $pane.wrapAll('<div class="crt-carousel-col"></div>').parent();
+                //     $panes.push(p)
+                // });
+
+                this.$pane_slider.append($els);
+                this.$panes = this.$pane_slider.children();
+            }
+        }, {
+            key: 'resize',
+            value: function resize() {
+                var _this2 = this;
+
+                var PANE_WRAPPER_WIDTH = this.options.infinite ? (this.NUM_PANES + 1) * 100 + '%' : this.NUM_PANES * 100 + '%'; // % width of slider (total panes * 100)
+
+                this.$pane_slider.css({ width: PANE_WRAPPER_WIDTH }); // set css on pane slider
+
+                this.VIEWPORT_WIDTH = this.$viewport.width();
+
+                if (this.options.panesVisible) {
+                    // TODO - change to check if it's a function or a number
+                    this.PANES_VISIBLE = this.options.panesVisible();
+                    this.PANE_WIDTH = this.VIEWPORT_WIDTH / this.PANES_VISIBLE;
+                } else {
+                    this.PANES_VISIBLE = this.VIEWPORT_WIDTH < this.options.minWidth ? 1 : Math.floor(this.VIEWPORT_WIDTH / this.options.minWidth);
+                    this.PANE_WIDTH = this.VIEWPORT_WIDTH / this.PANES_VISIBLE;
+                }
+
+                if (this.options.infinite) {
+
+                    this.$panes.filter('.crt-clone').remove();
+
+                    for (var i = this.NUM_PANES - 1; i > this.NUM_PANES - 1 - this.PANES_VISIBLE; i--) {
+                        // console.log(i);
+                        var first = this.$panes.eq(i).clone();
+                        first.addClass('crt-clone');
+                        first.css('opacity', '1');
+                        // Should probably move this out to an event
+                        first.find('.crt-post-image').css({ opacity: 1 });
+                        this.$pane_slider.prepend(first);
+                        this.FAKE_NUM = this.PANES_VISIBLE;
+                    }
+                    this.$panes = this.$pane_slider.children();
+                }
+
+                this.$panes.each(function (index, pane) {
+                    $(pane).css($.extend(css.pane, { width: _this2.PANE_WIDTH + 'px' }));
+                });
+            }
+        }, {
+            key: 'destroy',
+            value: function destroy() {}
+        }, {
+            key: 'animate',
+            value: function animate() {
+                var _this3 = this;
+
+                this.animating = true;
+                clearTimeout(this.timeout);
+                this.timeout = setTimeout(function () {
+                    _this3.next();
+                }, this.options.speed);
+            }
+        }, {
+            key: 'next',
+            value: function next() {
+                var move = this.options.moveAmount ? this.options.moveAmount : this.PANES_VISIBLE;
+                this.move(this.current_position + move, false);
+            }
+        }, {
+            key: 'prev',
+            value: function prev() {
+                var move = this.options.moveAmount ? this.options.moveAmount : this.PANES_VISIBLE;
+                this.move(this.current_position - move, false);
+            }
+        }, {
+            key: 'move',
+            value: function move(i, noAnimate) {
+                var _this4 = this;
+
+                // console.log(i);
+
+                this.current_position = i;
+
+                var maxPos = this.NUM_PANES - this.PANES_VISIBLE;
+
+                // if (this.options.infinite)
+                // {
+                // 	let mod = this.NUM_PANES % this.PANES_VISIBLE;
+                // }
+
+                if (this.current_position < 0) {
+                    this.current_position = 0;
+                } else if (this.current_position > maxPos) {
+                    this.current_position = maxPos;
+                }
+
+                var curIncFake = this.FAKE_NUM + this.current_position;
+                var left = curIncFake * this.PANE_WIDTH;
+                // console.log('move');
+                // console.log(curIncFake);
+                var panesInView = this.PANES_VISIBLE;
+                var max = this.options.infinite ? this.PANE_WIDTH * this.NUM_PANES : this.PANE_WIDTH * this.NUM_PANES - this.VIEWPORT_WIDTH;
+
+                this.currentLeft = left;
+
+                //console.log(left+":"+max);
+
+                if (left < 0) {
+                    this.currentLeft = 0;
+                } else if (left > max) {
+                    this.currentLeft = max;
+                } else {
+                    this.currentLeft = left;
+                }
+
+                if (noAnimate) {
+                    this.$pane_slider.css({
+                        left: 0 - this.currentLeft + 'px'
+                    });
+                    this.moveComplete();
+                } else {
+                    var options = {
+                        duration: this.options.duration,
+                        complete: function complete() {
+                            _this4.moveComplete();
+                        }
+                    };
+                    if (this.options.easing) {
+                        options.easing = this.options.easing;
+                    }
+                    this.$pane_slider.animate({
+                        left: 0 - this.currentLeft + 'px'
+                    }, options);
+                }
+            }
+        }, {
+            key: 'moveComplete',
+            value: function moveComplete() {
+                var _this5 = this;
+
+                // console.log ('moveComplete');
+                // console.log (this.current_position);
+                // console.log (this.NUM_PANES - this.PANES_VISIBLE);
+                if (this.options.infinite && this.current_position >= this.NUM_PANES - this.PANES_VISIBLE) {
+                    // console.log('IIIII');
+                    // infinite and we're off the end!
+                    // re-e-wind, the crowd says 'bo selecta!'
+                    this.$pane_slider.css({ left: 0 });
+                    this.current_position = 0 - this.PANES_VISIBLE;
+                    this.currentLeft = 0;
+                }
+
+                setTimeout(function () {
+                    var paneMaxHieght = 0;
+                    for (var i = _this5.current_position; i < _this5.current_position + _this5.PANES_VISIBLE; i++) {
+                        var p = $(_this5.$panes[i]).children('.crt-post');
+                        var h = p.height();
+                        if (h > paneMaxHieght) {
+                            paneMaxHieght = h;
+                        }
+                        console.log(p);
+                        console.log(i + ":" + h);
+                    }
+                    _this5.$pane_stage.animate({ height: paneMaxHieght }, 300);
+                }, 50);
+
+                this.$viewport.trigger('curatorCarousel:changed', [this, this.current_position]);
+
+                if (this.options.autoPlay) {
+                    this.animate();
+                }
+            }
+        }, {
+            key: 'addControls',
+            value: function addControls() {
+                this.$viewport.append('<button type="button" data-role="none" class="crt-panel-prev crt-panel-arrow" aria-label="Previous" role="button" aria-disabled="false">Previous</button>');
+                this.$viewport.append('<button type="button" data-role="none" class="crt-panel-next crt-panel-arrow" aria-label="Next" role="button" aria-disabled="false">Next</button>');
+
+                this.$viewport.on('click', '.crt-panel-prev', this.prev.bind(this));
+                this.$viewport.on('click', '.crt-panel-next', this.next.bind(this));
+            }
+        }, {
+            key: 'method',
+            value: function method() {
+                var m = arguments[0];
+                // let args = (arguments.length === 1 ? [arguments[0]] : Array.apply(null, arguments));
+                if (m == 'update') {
+                    this.update();
+                } else if (m == 'add') {
+                    this.add(arguments[1]);
+                } else if (m == 'destroy') {
+                    this.destroy();
+                } else {}
+            }
+        }]);
+
+        return Carousel;
+    }();
+
+    var carousels = {};
+    function rand() {
+        return Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5);
+    }
+
+    $.extend($.fn, {
+        curatorCarousel: function curatorCarousel(options) {
+            var args = arguments.length === 1 ? [arguments[0]] : Array.apply(null, arguments);
+
+            $.each(this, function (index, item) {
+                var id = $(item).data('carousel');
+
+                if (carousels[id]) {
+                    carousels[id].method.apply(carousels[id], args);
+                } else {
+                    id = rand();
+                    carousels[id] = new Carousel(item, options);
+                    $(item).data('carousel', id);
+                }
+            });
+
+            return this;
         }
     });
-};
 
-Client.prototype.getUrl = function getUrl (trail) {
-    return this.options.apiEndpoint+trail;
-};
+    window.CCarousel = Carousel;
+})($);
+
+var Client = function () {
+    function Client() {
+        _classCallCheck(this, Client);
+
+        Curator.log('Client->construct');
+    }
+
+    _createClass(Client, [{
+        key: 'setOptions',
+        value: function setOptions(options, defaults) {
+
+            this.options = $.extend(true, {}, defaults, options);
+
+            if (options.debug) {
+                Curator.debug = true;
+            }
+
+            // Curator.log(this.options);
+
+            return true;
+        }
+    }, {
+        key: 'init',
+        value: function init() {
+
+            if (!Curator.checkContainer(this.options.container)) {
+                return false;
+            }
+
+            this.$container = $(this.options.container);
+
+            this.createFeed();
+            this.createFilter();
+            this.createPopupManager();
+
+            return true;
+        }
+    }, {
+        key: 'createFeed',
+        value: function createFeed() {
+            var _this6 = this;
+
+            this.feed = new Curator.Feed(this);
+            this.feed.on('postsLoaded', function (event) {
+                _this6.onPostsLoaded(event.target);
+            });
+            this.feed.on('postsFailed', function (event) {
+                _this6.onPostsFail(event.target);
+            });
+        }
+    }, {
+        key: 'createPopupManager',
+        value: function createPopupManager() {
+            this.popupManager = new Curator.PopupManager(this);
+        }
+    }, {
+        key: 'createFilter',
+        value: function createFilter() {
+            if (this.options.filter && this.options.filter.show) {
+                this.filter = new Curator.Filter(this);
+            }
+        }
+    }, {
+        key: 'loadPosts',
+        value: function loadPosts(page) {
+            this.feed.loadPosts(page);
+        }
+    }, {
+        key: 'createPostElements',
+        value: function createPostElements(posts) {
+            var that = this;
+            var postElements = [];
+            $(posts).each(function () {
+                var p = that.createPostElement(this);
+                postElements.push(p.$el);
+            });
+            return postElements;
+        }
+    }, {
+        key: 'createPostElement',
+        value: function createPostElement(postJson) {
+            var post = new Curator.Post(postJson, this.options, this);
+            $(post).bind('postClick', this.onPostClick.bind(this));
+            $(post).bind('postReadMoreClick', this.onPostClick.bind(this));
+
+            if (this.options.onPostCreated) {
+                this.options.onPostCreated(post);
+            }
+
+            return post;
+        }
+    }, {
+        key: 'onPostsLoaded',
+        value: function onPostsLoaded(event) {
+            Curator.log('Client->onPostsLoaded');
+            Curator.log(event.target);
+        }
+    }, {
+        key: 'onPostsFail',
+        value: function onPostsFail(event) {
+            Curator.log('Client->onPostsLoadedFail');
+            Curator.log(event.target);
+        }
+    }, {
+        key: 'onPostClick',
+        value: function onPostClick(ev, post) {
+            this.popupManager.showPopup(post);
+        }
+    }, {
+        key: 'track',
+        value: function track(a) {
+            Curator.log('Feed->track ' + a);
+
+            $.ajax({
+                url: this.getUrl('/track/' + this.options.feedId),
+                dataType: 'json',
+                data: { a: a },
+                success: function success(data) {
+                    Curator.log('Feed->track success');
+                    Curator.log(data);
+                },
+                error: function error(jqXHR, textStatus, errorThrown) {
+                    Curator.log('Feed->_loadPosts fail');
+                    Curator.log(textStatus);
+                    Curator.log(errorThrown);
+                }
+            });
+        }
+    }, {
+        key: 'getUrl',
+        value: function getUrl(trail) {
+            return this.options.apiEndpoint + trail;
+        }
+    }]);
+
+    return Client;
+}();
 
 Curator.Client = Client;
 $.support.cors = true;
 
 var defaults = {
-    postsPerPage:24,
-    feedId:'xxx',
-    feedParams:{},
-    debug:false,
-    apiEndpoint:'https://api.curator.io/v1',
-    onPostsLoaded:function(data){
+    postsPerPage: 24,
+    feedId: 'xxx',
+    feedParams: {},
+    debug: false,
+    apiEndpoint: 'https://api.curator.io/v1',
+    onPostsLoaded: function onPostsLoaded(data) {
         Curator.log('Feed->onPostsLoaded');
         Curator.log(data);
     },
-    onPostsFail:function(data) {
+    onPostsFail: function onPostsFail(data) {
         Curator.log('Feed->onPostsFail failed with message');
         Curator.log(data.message);
     }
 };
 
-var Feed = (function (EventBus) {
+var Feed = function (_EventBus) {
+    _inherits(Feed, _EventBus);
+
     function Feed(client) {
-        EventBus.call (this);
+        _classCallCheck(this, Feed);
 
-        Curator.log ('Feed->init with options');
+        var _this7 = _possibleConstructorReturn(this, (Feed.__proto__ || Object.getPrototypeOf(Feed)).call(this));
 
-        this.client = client;
+        Curator.log('Feed->init with options');
 
-        this.posts = [];
-        this.currentPage = 0;
-        this.postsLoaded = 0;
-        this.postCount = 0;
-        this.loading = false;
+        _this7.client = client;
 
-        this.options = this.client.options;
+        _this7.posts = [];
+        _this7.currentPage = 0;
+        _this7.postsLoaded = 0;
+        _this7.postCount = 0;
+        _this7.loading = false;
 
-        this.feedBase = this.options.apiEndpoint+'/feed';
+        _this7.options = _this7.client.options;
+
+        _this7.feedBase = _this7.options.apiEndpoint + '/feed';
+        return _this7;
     }
 
-    if ( EventBus ) Feed.__proto__ = EventBus;
-    Feed.prototype = Object.create( EventBus && EventBus.prototype );
-    Feed.prototype.constructor = Feed;
+    _createClass(Feed, [{
+        key: 'loadPosts',
+        value: function loadPosts(page, paramsIn) {
+            page = page || 0;
+            Curator.log('Feed->loadPosts ' + this.loading);
+            if (this.loading) {
+                return false;
+            }
+            this.currentPage = page;
 
-    Feed.prototype.loadPosts = function loadPosts (page, paramsIn) {
-        page = page || 0;
-        Curator.log ('Feed->loadPosts '+this.loading);
-        if (this.loading) {
-            return false;
+            var params = $.extend({}, this.options.feedParams, paramsIn);
+
+            params.limit = this.options.postsPerPage;
+            params.offset = page * this.options.postsPerPage;
+
+            this._loadPosts(params);
         }
-        this.currentPage = page;
+    }, {
+        key: 'loadMore',
+        value: function loadMore(paramsIn) {
+            Curator.log('Feed->loadMore ' + this.loading);
+            if (this.loading) {
+                return false;
+            }
 
-        var params = $.extend({},this.options.feedParams,paramsIn);
+            var params = {
+                limit: this.options.postsPerPage
+            };
+            $.extend(params, this.options.feedParams, paramsIn);
 
-        params.limit = this.options.postsPerPage;
-        params.offset = page * this.options.postsPerPage;
+            params.offset = this.posts.length;
 
-        this._loadPosts (params);
-    };
-
-    Feed.prototype.loadMore = function loadMore (paramsIn) {
-        Curator.log ('Feed->loadMore '+this.loading);
-        if (this.loading) {
-            return false;
+            this._loadPosts(params);
         }
+    }, {
+        key: '_loadPosts',
+        value: function _loadPosts(params) {
+            var _this8 = this;
 
-        var params = {
-            limit:this.options.postsPerPage
-        };
-        $.extend(params,this.options.feedParams, paramsIn);
+            Curator.log('Feed->_loadPosts');
 
-        params.offset = this.posts.length;
+            this.loading = true;
 
-        this._loadPosts (params);
-    };
+            $.ajax({
+                url: this.getUrl('/posts'),
+                dataType: 'json',
+                data: params,
+                success: function success(data) {
+                    Curator.log('Feed->_loadPosts success');
 
-    Feed.prototype._loadPosts = function _loadPosts (params) {
-        var this$1 = this;
+                    if (data.success) {
+                        _this8.postCount = data.postCount;
+                        _this8.postsLoaded += data.posts.length;
 
-        Curator.log ('Feed->_loadPosts');
+                        _this8.posts = _this8.posts.concat(data.posts);
+                        _this8.networks = data.networks;
 
-        this.loading = true;
+                        _this8.trigger('postsLoaded', data.posts);
+                    } else {
+                        _this8.trigger('postsFailed', data.posts);
+                    }
+                    _this8.loading = false;
+                },
+                error: function error(jqXHR, textStatus, errorThrown) {
+                    Curator.log('Feed->_loadPosts fail');
+                    Curator.log(textStatus);
+                    Curator.log(errorThrown);
 
-        $.ajax({
-            url: this.getUrl('/posts'),
-            dataType: 'json',
-            data: params,
-            success : function (data) {
-                Curator.log('Feed->_loadPosts success');
-
-                if (data.success) {
-                    this$1.postCount = data.postCount;
-                    this$1.postsLoaded += data.posts.length;
-
-                    this$1.posts = this$1.posts.concat(data.posts);
-                    this$1.networks = data.networks;
-
-                    this$1.trigger('postsLoaded',data.posts);
-                } else {
-                    this$1.trigger('postsFailed',data.posts);
+                    _this8.trigger('postsFailed', []);
+                    _this8.loading = false;
                 }
-                this$1.loading = false;
-            },
-            error : function (jqXHR, textStatus, errorThrown) {
-                Curator.log('Feed->_loadPosts fail');
-                Curator.log(textStatus);
-                Curator.log(errorThrown);
+            });
+        }
+    }, {
+        key: 'loadPost',
+        value: function loadPost(id, successCallback, failCallback) {
+            failCallback = failCallback || function () {};
+            $.get(this.getUrl('/post/' + id), {}, function (data) {
+                if (data.success) {
+                    successCallback(data.post);
+                } else {
+                    failCallback();
+                }
+            });
+        }
+    }, {
+        key: 'inappropriatePost',
+        value: function inappropriatePost(id, reason, success, failure) {
+            var params = {
+                reason: reason
+                // where: {
+                //     id: {'=': id}
+                // }
+            };
 
-                this$1.trigger('postsFailed',[]);
-                this$1.loading = false;
-            }
-        });
-    };
+            $.post(this.getUrl('/post/' + id + '/inappropriate'), params, function (data, textStatus, jqXHR) {
+                data = $.parseJSON(data);
 
-    Feed.prototype.loadPost = function loadPost (id, successCallback, failCallback) {
-        failCallback = failCallback || function(){};
-        $.get(this.getUrl('/post/' + id), {}, function (data) {
-            if (data.success) {
-                successCallback (data.post);
-            } else {
-                failCallback ();
-            }
-        });
-    };
+                if (data.success === true) {
+                    success();
+                } else {
+                    failure(jqXHR);
+                }
+            });
+        }
+    }, {
+        key: 'lovePost',
+        value: function lovePost(id, success, failure) {
+            var params = {};
 
-    Feed.prototype.inappropriatePost = function inappropriatePost (id, reason, success, failure) {
-        var params = {
-            reason: reason
-            // where: {
-            //     id: {'=': id}
-            // }
-        };
+            $.post(this.getUrl('/post/' + id + '/love'), params, function (data, textStatus, jqXHR) {
+                data = $.parseJSON(data);
 
-        $.post(this.getUrl('/post/' + id + '/inappropriate'), params, function (data, textStatus, jqXHR) {
-            data = $.parseJSON(data);
-
-            if (data.success === true) {
-                success();
-            }
-            else {
-                failure(jqXHR);
-            }
-        });
-    };
-
-    Feed.prototype.lovePost = function lovePost (id, success, failure) {
-        var params = {};
-
-        $.post(this.getUrl('/post/' + id + '/love'), params, function (data, textStatus, jqXHR) {
-            data = $.parseJSON(data);
-
-            if (data.success === true) {
-                success(data.loves);
-            }
-            else {
-                failure(jqXHR);
-            }
-        });
-    };
-
-    Feed.prototype.getUrl = function getUrl (trail) {
-        return this.feedBase+'/'+this.options.feedId+trail;
-    };
+                if (data.success === true) {
+                    success(data.loves);
+                } else {
+                    failure(jqXHR);
+                }
+            });
+        }
+    }, {
+        key: 'getUrl',
+        value: function getUrl(trail) {
+            return this.feedBase + '/' + this.options.feedId + trail;
+        }
+    }]);
 
     return Feed;
-}(EventBus));
+}(EventBus);
 
 Curator.Feed = Feed;
 /**
@@ -1552,7 +1590,6 @@ Curator.Feed = Feed;
 * Filter
 * ==================================================================
 */
-
 
 Curator.Templates.filterTemplate = ' <div class="crt-filter"> \
 <div class="crt-filter-network">\
@@ -1562,109 +1599,135 @@ Curator.Templates.filterTemplate = ' <div class="crt-filter"> \
 </div> \
 </div>';
 
-var Filter = function Filter (client) {
-    var this$1 = this;
+var Filter = function () {
+    function Filter(client) {
+        var _this9 = this;
 
-    Curator.log('Filter->construct');
+        _classCallCheck(this, Filter);
 
-    this.client = client;
+        Curator.log('Filter->construct');
 
-    this.$filter = Curator.Template.render('#filterTemplate', {});
-    this.$filterNetworks =  this.$filter.find('.networks');
+        this.client = client;
 
-    this.client.$container.append(this.$filter);
+        this.$filter = Curator.Template.render('#filterTemplate', {});
+        this.$filterNetworks = this.$filter.find('.networks');
 
-    this.$filter.find('.crt-filter-network label').text(this.client.options.filter.label);
+        this.client.$container.append(this.$filter);
 
-    this.$filter.on('click','.crt-filter-network a',function (ev){
-        ev.preventDefault();
-        console.log (ev);
-        var t = $(ev.target);
-        var networkId = t.data('network');
+        this.$filter.find('.crt-filter-network label').text(this.client.options.filter.label);
 
-        this$1.$filter.find('.crt-filter-network li').removeClass('active');
-        t.parent().addClass('active');
+        this.$filter.on('click', '.crt-filter-network a', function (ev) {
+            ev.preventDefault();
+            console.log(ev);
+            var t = $(ev.target);
+            var networkId = t.data('network');
 
-        Curator.EventBus.trigger('crt:filter:change');
+            _this9.$filter.find('.crt-filter-network li').removeClass('active');
+            t.parent().addClass('active');
 
-        if (networkId) {
-            this$1.client.feed.loadPosts(0, {network_id: networkId});
-        } else {
-            this$1.client.feed.loadPosts(0, {});
-        }
-    });
+            Curator.EventBus.trigger('crt:filter:change');
 
-    this.client.feed.on('postsLoaded', function (event) {
-        this$1.onPostsLoaded(event.target);
-    });
-};
+            if (networkId) {
+                _this9.client.feed.loadPosts(0, { network_id: networkId });
+            } else {
+                _this9.client.feed.loadPosts(0, {});
+            }
+        });
 
-Filter.prototype.onPostsLoaded = function onPostsLoaded () {
-        var this$1 = this;
-
-    console.log ("Asd");
-
-    if (!this.filtersLoaded) {
-        this.$filterNetworks.append('<li class="active"><a href="#" data-network="0"> All</a></li>');
-
-        for (var i = 0, list = this.client.feed.networks; i < list.length; i += 1) {
-            var id = list[i];
-
-                var network = Curator.Networks[id];
-            console.log(network);
-            this$1.$filterNetworks.append('<li><a href="#" data-network="' + id + '"><i class="' + network.icon + '"></i> ' + network.name + '</a></li>');
-        }
-
-        this.filtersLoaded = true;
+        this.client.feed.on('postsLoaded', function (event) {
+            _this9.onPostsLoaded(event.target);
+        });
     }
-};
+
+    _createClass(Filter, [{
+        key: 'onPostsLoaded',
+        value: function onPostsLoaded() {
+            console.log("Asd");
+
+            if (!this.filtersLoaded) {
+                this.$filterNetworks.append('<li class="active"><a href="#" data-network="0"> All</a></li>');
+
+                var _iteratorNormalCompletion2 = true;
+                var _didIteratorError2 = false;
+                var _iteratorError2 = undefined;
+
+                try {
+                    for (var _iterator2 = this.client.feed.networks[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+                        var id = _step2.value;
+
+                        var network = Curator.Networks[id];
+                        console.log(network);
+                        this.$filterNetworks.append('<li><a href="#" data-network="' + id + '"><i class="' + network.icon + '"></i> ' + network.name + '</a></li>');
+                    }
+                } catch (err) {
+                    _didIteratorError2 = true;
+                    _iteratorError2 = err;
+                } finally {
+                    try {
+                        if (!_iteratorNormalCompletion2 && _iterator2.return) {
+                            _iterator2.return();
+                        }
+                    } finally {
+                        if (_didIteratorError2) {
+                            throw _iteratorError2;
+                        }
+                    }
+                }
+
+                this.filtersLoaded = true;
+            }
+        }
+    }]);
+
+    return Filter;
+}();
 
 Curator.Filter = Filter;
 Curator.Networks = {
-    1 : {
-        name:'Twitter',
-        icon:'crt-icon-twitter'
+    1: {
+        name: 'Twitter',
+        icon: 'crt-icon-twitter'
     },
-    2 : {
-        name:'Instagram',
-        icon:'crt-icon-instagram'
+    2: {
+        name: 'Instagram',
+        icon: 'crt-icon-instagram'
     },
-    3 : {
-        name:'Facebook',
-        icon:'crt-icon-facebook'
+    3: {
+        name: 'Facebook',
+        icon: 'crt-icon-facebook'
     },
-    4 : {
-        name:'Pinterest',
-        icon:'crt-icon-pinterest'
+    4: {
+        name: 'Pinterest',
+        icon: 'crt-icon-pinterest'
     },
-    5 : {
-        name:'Google',
-        icon:'crt-icon-google'
+    5: {
+        name: 'Google',
+        icon: 'crt-icon-google'
     },
-    6 : {
-        name:'Vine',
-        icon:'crt-icon-vine'
+    6: {
+        name: 'Vine',
+        icon: 'crt-icon-vine'
     },
-    7 : {
-        name:'Flickr',
-        icon:'crt-icon-flickr'
+    7: {
+        name: 'Flickr',
+        icon: 'crt-icon-flickr'
     },
-    8 : {
-        name:'Youtube',
-        icon:'crt-icon-youtube'
+    8: {
+        name: 'Youtube',
+        icon: 'crt-icon-youtube'
     },
-    9 : {
-        name:'Tumblr',
-        icon:'crt-icon-tumblr'
+    9: {
+        name: 'Tumblr',
+        icon: 'crt-icon-tumblr'
     },
-    10 : {
-        name:'RSS',
-        icon:'crt-icon-rss'
+    10: {
+        name: 'RSS',
+        icon: 'crt-icon-rss'
     },
-    11 : {
-        name:'LinkedIn',
-        icon:'crt-icon-linkedin'
-    },
+    11: {
+        name: 'LinkedIn',
+        icon: 'crt-icon-linkedin'
+    }
 };
 /**
 * ==================================================================
@@ -1672,21 +1735,20 @@ Curator.Networks = {
 * ==================================================================
 */
 
-
-Curator.PopupInappropriate = function (post,feed) {
-    this.init(post,feed);
+Curator.PopupInappropriate = function (post, feed) {
+    this.init(post, feed);
 };
 
 $.extend(Curator.PopupInappropriate.prototype, {
     feed: null,
-    post:null,
+    post: null,
 
-    init: function (post,feed) {
+    init: function init(post, feed) {
         var that = this;
 
         this.feed = feed;
         this.post = post;
-        
+
         this.jQueryel = $('.mark-bubble');
 
         $('.mark-close').click(function (e) {
@@ -1705,23 +1767,20 @@ $.extend(Curator.PopupInappropriate.prototype, {
 
                 that.$el.find('.waiting').show();
 
-                feed.inappropriatePost(that.post.id, reason,
-                    function () {
-                        $input.val('');
-                        that.$el.find('.waiting').hide();
-                        that.$el.find('.title').html('Thank you');
-                        that.$el.find('input.text').hide();
-                        that.$el.find('input.text').html('');
-                        that.$el.find('.success-message').html('This message has been marked as inappropriate').show();
-                    },
-                    function () {
-                        that.$el.find('.waiting').hide();
-                        that.$el.find('.title').html('Oops');
-                        that.$el.find('input.text').hide();
-                        that.$el.find('input.text').html('');
-                        that.$el.find('.success-message').html('It looks like a problem has occurred. Please try again later').show();
-                    }
-                );
+                feed.inappropriatePost(that.post.id, reason, function () {
+                    $input.val('');
+                    that.$el.find('.waiting').hide();
+                    that.$el.find('.title').html('Thank you');
+                    that.$el.find('input.text').hide();
+                    that.$el.find('input.text').html('');
+                    that.$el.find('.success-message').html('This message has been marked as inappropriate').show();
+                }, function () {
+                    that.$el.find('.waiting').hide();
+                    that.$el.find('.title').html('Oops');
+                    that.$el.find('input.text').hide();
+                    that.$el.find('input.text').html('');
+                    that.$el.find('.success-message').html('It looks like a problem has occurred. Please try again later').show();
+                });
             }
         });
 
@@ -1734,284 +1793,306 @@ $.extend(Curator.PopupInappropriate.prototype, {
 * ==================================================================
 */
 
+var PopupManager = function () {
+    function PopupManager(client) {
+        _classCallCheck(this, PopupManager);
 
-var PopupManager = function PopupManager (client) {
-    Curator.log("PopupManager->init ");
+        Curator.log("PopupManager->init ");
 
-    this.client = client;
-    this.templateId='#popup-wrapper-template';
+        this.client = client;
+        this.templateId = '#popup-wrapper-template';
 
-    this.$wrapper = Curator.Template.render(this.templateId, {});
-    this.$popupContainer = this.$wrapper.find('.crt-popup-container');
-    this.$underlay = this.$wrapper.find('.crt-popup-underlay');
+        this.$wrapper = Curator.Template.render(this.templateId, {});
+        this.$popupContainer = this.$wrapper.find('.crt-popup-container');
+        this.$underlay = this.$wrapper.find('.crt-popup-underlay');
 
-    $('body').append(this.$wrapper);
-    this.$underlay.click(this.onUnderlayClick.bind(this));
-    //this.$popupContainer.click(this.onUnderlayClick.bind(this));
-
-};
-
-PopupManager.prototype.showPopup = function showPopup (post) {
-        var this$1 = this;
-
-    if (this.popup) {
-        this.popup.hide(function () {
-            this$1.popup.destroy();
-            this$1.showPopup2(post);
-        });
-    } else {
-        this.showPopup2(post);
+        $('body').append(this.$wrapper);
+        this.$underlay.click(this.onUnderlayClick.bind(this));
+        //this.$popupContainer.click(this.onUnderlayClick.bind(this));
     }
 
-};
+    _createClass(PopupManager, [{
+        key: 'showPopup',
+        value: function showPopup(post) {
+            var _this10 = this;
 
-PopupManager.prototype.showPopup2 = function showPopup2 (post) {
-        var this$1 = this;
-
-    this.popup = new Curator.Popup(this, post, this.feed);
-    this.$popupContainer.append(this.popup.$popup);
-
-    this.$wrapper.show();
-
-    if (this.$underlay.css('display') !== 'block') {
-        this.$underlay.fadeIn();
-    }
-    this.popup.show();
-
-    $('body').addClass('crt-popup-visible');
-
-    this.currentPostNum = 0;
-    for(var i=0;i < this.posts.length;i++)
-    {
-        // console.log (post.json.id +":"+this.posts[i].id);
-        if (post.json.id == this$1.posts[i].id) {
-            this$1.currentPostNum = i;
-            Curator.log('Found post '+i);
-            break;
+            if (this.popup) {
+                this.popup.hide(function () {
+                    _this10.popup.destroy();
+                    _this10.showPopup2(post);
+                });
+            } else {
+                this.showPopup2(post);
+            }
         }
-    }
+    }, {
+        key: 'showPopup2',
+        value: function showPopup2(post) {
+            this.popup = new Curator.Popup(this, post, this.feed);
+            this.$popupContainer.append(this.popup.$popup);
 
-    this.client.track('popup:show');
-};
+            this.$wrapper.show();
 
-PopupManager.prototype.setPosts = function setPosts (posts) {
-    this.posts = posts;
-};
+            if (this.$underlay.css('display') !== 'block') {
+                this.$underlay.fadeIn();
+            }
+            this.popup.show();
 
-PopupManager.prototype.onClose = function onClose () {
-    this.hide();
-};
+            $('body').addClass('crt-popup-visible');
 
-PopupManager.prototype.onPrevious = function onPrevious () {
-    this.currentPostNum-=1;
-    this.currentPostNum = this.currentPostNum>=0?this.currentPostNum:this.posts.length-1; // loop back to start
+            this.currentPostNum = 0;
+            for (var i = 0; i < this.posts.length; i++) {
+                // console.log (post.json.id +":"+this.posts[i].id);
+                if (post.json.id == this.posts[i].id) {
+                    this.currentPostNum = i;
+                    Curator.log('Found post ' + i);
+                    break;
+                }
+            }
 
-    this.showPopup({json:this.posts[this.currentPostNum]});
-};
+            this.client.track('popup:show');
+        }
+    }, {
+        key: 'setPosts',
+        value: function setPosts(posts) {
+            this.posts = posts;
+        }
+    }, {
+        key: 'onClose',
+        value: function onClose() {
+            this.hide();
+        }
+    }, {
+        key: 'onPrevious',
+        value: function onPrevious() {
+            this.currentPostNum -= 1;
+            this.currentPostNum = this.currentPostNum >= 0 ? this.currentPostNum : this.posts.length - 1; // loop back to start
 
-PopupManager.prototype.onNext = function onNext () {
-    this.currentPostNum+=1;
-    this.currentPostNum = this.currentPostNum<this.posts.length?this.currentPostNum:0; // loop back to start
+            this.showPopup({ json: this.posts[this.currentPostNum] });
+        }
+    }, {
+        key: 'onNext',
+        value: function onNext() {
+            this.currentPostNum += 1;
+            this.currentPostNum = this.currentPostNum < this.posts.length ? this.currentPostNum : 0; // loop back to start
 
-    this.showPopup({json:this.posts[this.currentPostNum]});
-};
+            this.showPopup({ json: this.posts[this.currentPostNum] });
+        }
+    }, {
+        key: 'onUnderlayClick',
+        value: function onUnderlayClick(e) {
+            Curator.log('PopupManager->onUnderlayClick');
+            e.preventDefault();
 
-PopupManager.prototype.onUnderlayClick = function onUnderlayClick (e) {
-    Curator.log('PopupManager->onUnderlayClick');
-    e.preventDefault();
+            this.popup.hide(function () {
+                this.hide();
+            }.bind(this));
+        }
+    }, {
+        key: 'hide',
+        value: function hide() {
+            var _this11 = this;
 
-    this.popup.hide(function(){
-        this.hide();
-    }.bind(this));
-};
+            Curator.log('PopupManager->hide');
+            this.client.track('popup:hide');
+            $('body').removeClass('crt-popup-visible');
+            this.currentPostNum = 0;
+            this.popup = null;
+            this.$underlay.fadeOut(function () {
+                _this11.$underlay.css({ 'display': '', 'opacity': '' });
+                _this11.$wrapper.hide();
+            });
+        }
+    }, {
+        key: 'destroy',
+        value: function destroy() {
 
-PopupManager.prototype.hide = function hide () {
-        var this$1 = this;
+            this.$underlay.remove();
 
-    Curator.log('PopupManager->hide');
-    this.client.track('popup:hide');
-    $('body').removeClass('crt-popup-visible');
-    this.currentPostNum = 0;
-    this.popup = null;
-    this.$underlay.fadeOut(function () {
-        this$1.$underlay.css({'display':'','opacity':''});
-        this$1.$wrapper.hide();
-    });
-};
-    
-PopupManager.prototype.destroy = function destroy () {
+            delete this.$popup;
+            delete this.$underlay;
+        }
+    }]);
 
-    this.$underlay.remove();
+    return PopupManager;
+}();
 
-    delete this.$popup;
-    delete this.$underlay;
-};
-
-Curator.PopupManager = PopupManager; 
+Curator.PopupManager = PopupManager;
 /**
 * ==================================================================
 * Popup
 * ==================================================================
 */
 
+var Popup = function () {
+    function Popup(popupManager, post, feed) {
+        _classCallCheck(this, Popup);
 
-var Popup = function Popup (popupManager, post, feed) {
-    Curator.log("Popup->init ");
- 
-    this.popupManager = popupManager;
-    this.json = post.json;
-    this.feed = feed;
+        Curator.log("Popup->init ");
 
-    this.templateId='#popup-template';
-    this.videoPlaying=false;
+        this.popupManager = popupManager;
+        this.json = post.json;
+        this.feed = feed;
 
-    this.$popup = Curator.Template.render(this.templateId, this.json);
+        this.templateId = '#popup-template';
+        this.videoPlaying = false;
 
-    if (this.json.image) {
-        this.$popup.addClass('has-image');
-    }
+        this.$popup = Curator.Template.render(this.templateId, this.json);
 
-    if (this.json.video) {
-        this.$popup.addClass('has-video');
-    }
-
-    if (this.json.video && this.json.video.indexOf('youtu') >= 0 )
-    {
-        // youtube
-        this.$popup.find('video').remove();
-        // this.$popup.removeClass('has-image');
-
-        var youTubeId = Curator.StringUtils.youtubeVideoId(this.json.video);
-
-        var src = '<iframe id="ytplayer" type="text/html" width="615" height="615" \
-        src="https://www.youtube.com/embed/'+youTubeId+'?autoplay=0&rel=0&showinfo" \
-        frameborder="0"></iframe>';
-
-        this.$popup.find('.crt-video-container img').remove();
-        this.$popup.find('.crt-video-container a').remove();
-        this.$popup.find('.crt-video-container').append(src);
-
-    }
-
-
-    this.$popup.on('click',' .crt-close', this.onClose.bind(this));
-    this.$popup.on('click',' .crt-previous', this.onPrevious.bind(this));
-    this.$popup.on('click',' .crt-next', this.onNext.bind(this));
-    this.$popup.on('click',' .crt-play', this.onPlay.bind(this));
-    this.$popup.on('click','.crt-share-facebook',this.onShareFacebookClick.bind(this));
-    this.$popup.on('click','.crt-share-twitter',this.onShareTwitterClick.bind(this));
-};
-
-Popup.prototype.onShareFacebookClick = function onShareFacebookClick (ev) {
-    ev.preventDefault();
-    Curator.SocialFacebook.share(this.json);
-    this.widget.track('share:facebook');
-    return false;
-};
-
-Popup.prototype.onShareTwitterClick = function onShareTwitterClick (ev) {
-    ev.preventDefault();
-    Curator.SocialTwitter.share(this.json);
-    this.widget.track('share:twitter');
-    return false;
-};
-
-Popup.prototype.onClose = function onClose (e) {
-    e.preventDefault();
-    var that = this;
-    this.hide(function(){
-        that.popupManager.onClose();
-    });
-};
-
-Popup.prototype.onPrevious = function onPrevious (e) {
-    e.preventDefault();
-
-    this.popupManager.onPrevious();
-};
-
-Popup.prototype.onNext = function onNext (e) {
-    e.preventDefault();
-
-    this.popupManager.onNext();
-};
-
-Popup.prototype.onPlay = function onPlay (e) {
-    Curator.log('Popup->onPlay');
-    e.preventDefault();
-
-    this.videoPlaying = !this.videoPlaying;
-
-    if (this.videoPlaying) {
-        this.$popup.find('video')[0].play();
-        this.popupManager.client.track('video:play');
-    } else {
-        this.$popup.find('video')[0].pause();
-        this.popupManager.client.track('video:pause');
-    }
-
-    Curator.log(this.videoPlaying);
-
-    this.$popup.toggleClass('video-playing',this.videoPlaying );
-};
-
-Popup.prototype.show = function show () {
-    //
-    // let post = this.json;
-    // let mediaUrl = post.image,
-    // text = post.text;
-    //
-    // if (mediaUrl) {
-    // let $imageWrapper = that.$el.find('div.main-image-wrapper');
-    // this.loadMainImage(mediaUrl, $imageWrapper, ['main-image']);
-    // }
-    //
-    // let $socialIcon = this.$el.find('.social-icon');
-    // $socialIcon.attr('class', 'social-icon');
-    // $socialIcon.addClass(Curator.SOURCE_TYPES[post.sourceType]);
-    //
-    // //format the date
-    // let date = Curator.Utils.dateAsDayMonthYear(post.sourceCreateAt);
-    //
-    // this.$el.find('input.discovery-id').val(post.id);
-    // this.$el.find('div.full-name span').html(post.user_full_name);
-    // this.$el.find('div.username span').html('@' + post.user_screen_name);
-    // this.$el.find('div.date span').html(date);
-    // this.$el.find('div.love-indicator span').html(post.loves);
-    // this.$el.find('div.side-text span').html(text);
-    //
-    // this.wrapper.show();
-    this.$popup.fadeIn(function () {
-        // that.$popup.find('.crt-popup').animate({width:950}, function () {
-        // $('.popup .content').fadeIn('slow');
-        // });
-    });
-};
-    
-Popup.prototype.hide = function hide (callback) {
-    Curator.log('Popup->hide');
-    var that = this;
-    this.$popup.fadeOut(function(){
-        that.destroy();
-        callback ();
-    });
-};
-    
-Popup.prototype.destroy = function destroy () {
-    if (this.$popup && this.$popup.length) {
-        this.$popup.remove();
-
-        if (this.$popup.find('video').length) {
-            this.$popup.find('video')[0].pause();
-
+        if (this.json.image) {
+            this.$popup.addClass('has-image');
         }
+
+        if (this.json.video) {
+            this.$popup.addClass('has-video');
+        }
+
+        if (this.json.video && this.json.video.indexOf('youtu') >= 0) {
+            // youtube
+            this.$popup.find('video').remove();
+            // this.$popup.removeClass('has-image');
+
+            var youTubeId = Curator.StringUtils.youtubeVideoId(this.json.video);
+
+            var src = '<iframe id="ytplayer" type="text/html" width="615" height="615" \
+            src="https://www.youtube.com/embed/' + youTubeId + '?autoplay=0&rel=0&showinfo" \
+            frameborder="0"></iframe>';
+
+            this.$popup.find('.crt-video-container img').remove();
+            this.$popup.find('.crt-video-container a').remove();
+            this.$popup.find('.crt-video-container').append(src);
+        }
+
+        this.$popup.on('click', ' .crt-close', this.onClose.bind(this));
+        this.$popup.on('click', ' .crt-previous', this.onPrevious.bind(this));
+        this.$popup.on('click', ' .crt-next', this.onNext.bind(this));
+        this.$popup.on('click', ' .crt-play', this.onPlay.bind(this));
+        this.$popup.on('click', '.crt-share-facebook', this.onShareFacebookClick.bind(this));
+        this.$popup.on('click', '.crt-share-twitter', this.onShareTwitterClick.bind(this));
     }
 
-    delete this.$popup;
-};
+    _createClass(Popup, [{
+        key: 'onShareFacebookClick',
+        value: function onShareFacebookClick(ev) {
+            ev.preventDefault();
+            Curator.SocialFacebook.share(this.json);
+            this.widget.track('share:facebook');
+            return false;
+        }
+    }, {
+        key: 'onShareTwitterClick',
+        value: function onShareTwitterClick(ev) {
+            ev.preventDefault();
+            Curator.SocialTwitter.share(this.json);
+            this.widget.track('share:twitter');
+            return false;
+        }
+    }, {
+        key: 'onClose',
+        value: function onClose(e) {
+            e.preventDefault();
+            var that = this;
+            this.hide(function () {
+                that.popupManager.onClose();
+            });
+        }
+    }, {
+        key: 'onPrevious',
+        value: function onPrevious(e) {
+            e.preventDefault();
+
+            this.popupManager.onPrevious();
+        }
+    }, {
+        key: 'onNext',
+        value: function onNext(e) {
+            e.preventDefault();
+
+            this.popupManager.onNext();
+        }
+    }, {
+        key: 'onPlay',
+        value: function onPlay(e) {
+            Curator.log('Popup->onPlay');
+            e.preventDefault();
+
+            this.videoPlaying = !this.videoPlaying;
+
+            if (this.videoPlaying) {
+                this.$popup.find('video')[0].play();
+                this.popupManager.client.track('video:play');
+            } else {
+                this.$popup.find('video')[0].pause();
+                this.popupManager.client.track('video:pause');
+            }
+
+            Curator.log(this.videoPlaying);
+
+            this.$popup.toggleClass('video-playing', this.videoPlaying);
+        }
+    }, {
+        key: 'show',
+        value: function show() {
+            //
+            // let post = this.json;
+            // let mediaUrl = post.image,
+            //     text = post.text;
+            //
+            // if (mediaUrl) {
+            //     let $imageWrapper = that.$el.find('div.main-image-wrapper');
+            //     this.loadMainImage(mediaUrl, $imageWrapper, ['main-image']);
+            // }
+            //
+            // let $socialIcon = this.$el.find('.social-icon');
+            // $socialIcon.attr('class', 'social-icon');
+            // $socialIcon.addClass(Curator.SOURCE_TYPES[post.sourceType]);
+            //
+            // //format the date
+            // let date = Curator.Utils.dateAsDayMonthYear(post.sourceCreateAt);
+            //
+            // this.$el.find('input.discovery-id').val(post.id);
+            // this.$el.find('div.full-name span').html(post.user_full_name);
+            // this.$el.find('div.username span').html('@' + post.user_screen_name);
+            // this.$el.find('div.date span').html(date);
+            // this.$el.find('div.love-indicator span').html(post.loves);
+            // this.$el.find('div.side-text span').html(text);
+            //
+            // this.wrapper.show();
+            this.$popup.fadeIn(function () {
+                // that.$popup.find('.crt-popup').animate({width:950}, function () {
+                //     $('.popup .content').fadeIn('slow');
+                // });
+            });
+        }
+    }, {
+        key: 'hide',
+        value: function hide(callback) {
+            Curator.log('Popup->hide');
+            var that = this;
+            this.$popup.fadeOut(function () {
+                that.destroy();
+                callback();
+            });
+        }
+    }, {
+        key: 'destroy',
+        value: function destroy() {
+            if (this.$popup && this.$popup.length) {
+                this.$popup.remove();
+
+                if (this.$popup.find('video').length) {
+                    this.$popup.find('video')[0].pause();
+                }
+            }
+
+            delete this.$popup;
+        }
+    }]);
+
+    return Popup;
+}();
 
 Curator.Popup = Popup;
-
 
 /**
 * ==================================================================
@@ -2019,119 +2100,129 @@ Curator.Popup = Popup;
 * ==================================================================
 */
 
+var Post = function () {
+    function Post(postJson, options, widget) {
+        var _this12 = this;
 
-var Post = function Post (postJson, options, widget) {
-    var this$1 = this;
+        _classCallCheck(this, Post);
 
-    this.options = options;
-    this.widget = widget;
+        this.options = options;
+        this.widget = widget;
 
-    this.templateId = this.options.postTemplate;
+        this.templateId = this.options.postTemplate;
 
-    this.json = postJson;
-    this.$el = Curator.Template.render(this.templateId, postJson);
+        this.json = postJson;
+        this.$el = Curator.Template.render(this.templateId, postJson);
 
-    this.$el.find('.crt-share-facebook').click(this.onShareFacebookClick.bind(this));
-    this.$el.find('.crt-share-twitter').click(this.onShareTwitterClick.bind(this));
-    // this.$el.find('.crt-hitarea').click(this.onPostClick.bind(this));
-    this.$el.find('.crt-post-read-more-button').click(this.onReadMoreClick.bind(this));
-    // this.$el.on('click','.crt-post-text-body a',this.onLinkClick.bind(this));
-    this.$el.click(this.onPostClick.bind(this));
-    this.$post = this.$el.find('.crt-post');
-    this.$image = this.$el.find('.crt-post-image');
-    this.$imageContainer = this.$el.find('.crt-image-c');
-    this.$image.css({opacity:0});
+        this.$el.find('.crt-share-facebook').click(this.onShareFacebookClick.bind(this));
+        this.$el.find('.crt-share-twitter').click(this.onShareTwitterClick.bind(this));
+        // this.$el.find('.crt-hitarea').click(this.onPostClick.bind(this));
+        this.$el.find('.crt-post-read-more-button').click(this.onReadMoreClick.bind(this));
+        // this.$el.on('click','.crt-post-text-body a',this.onLinkClick.bind(this));
+        this.$el.click(this.onPostClick.bind(this));
+        this.$post = this.$el.find('.crt-post');
+        this.$image = this.$el.find('.crt-post-image');
+        this.$imageContainer = this.$el.find('.crt-image-c');
+        this.$image.css({ opacity: 0 });
 
-    if (this.json.image) {
-        this.$image.on('load', this.onImageLoaded.bind(this));
-        this.$image.on('error', this.onImageError.bind(this));
-    } else {
-        // no image ... call this.onImageLoaded
-        setTimeout(function () {
-            console.log('asdasd');
-            this$1.setHeight();
-        },100)
+        if (this.json.image) {
+            this.$image.on('load', this.onImageLoaded.bind(this));
+            this.$image.on('error', this.onImageError.bind(this));
+        } else {
+            // no image ... call this.onImageLoaded
+            setTimeout(function () {
+                console.log('asdasd');
+                _this12.setHeight();
+            }, 100);
+        }
+
+        if (this.json.image_width > 0) {
+            var p = this.json.image_height / this.json.image_width * 100;
+            this.$imageContainer.addClass('crt-image-responsive').css('padding-bottom', p + '%');
+        }
+
+        this.$image.data('dims', this.json.image_width + ':' + this.json.image_height);
+
+        this.$post = this.$el.find('.crt-post');
+
+        if (this.json.video) {
+            this.$post.addClass('has-video');
+        }
     }
 
-    if (this.json.image_width > 0) {
-        var p = (this.json.image_height/this.json.image_width)*100;
-        this.$imageContainer.addClass('crt-image-responsive')
-            .css('padding-bottom',p+'%')
-    }
+    _createClass(Post, [{
+        key: 'onShareFacebookClick',
+        value: function onShareFacebookClick(ev) {
+            ev.preventDefault();
+            Curator.SocialFacebook.share(this.json);
+            this.widget.track('share:facebook');
+            return false;
+        }
+    }, {
+        key: 'onShareTwitterClick',
+        value: function onShareTwitterClick(ev) {
+            ev.preventDefault();
+            Curator.SocialTwitter.share(this.json);
+            this.widget.track('share:twitter');
+            return false;
+        }
+    }, {
+        key: 'onPostClick',
+        value: function onPostClick(ev) {
 
-    this.$image.data('dims',this.json.image_width+':'+this.json.image_height);
+            var target = $(ev.target);
 
-    this.$post = this.$el.find('.crt-post');
+            if (target.is('a') && target.attr('href') !== '#') {
+                this.widget.track('click:link');
+            } else {
+                ev.preventDefault();
+                $(this).trigger('postClick', this, this.json, ev);
+            }
+        }
+    }, {
+        key: 'onImageLoaded',
+        value: function onImageLoaded() {
+            this.$image.animate({ opacity: 1 });
 
-    if (this.json.video) {
-        this.$post.addClass('has-video');
-    }
-};
+            this.setHeight();
+        }
+    }, {
+        key: 'onImageError',
+        value: function onImageError() {
+            // Unable to load image!!!
+            this.$image.hide();
 
-Post.prototype.onShareFacebookClick = function onShareFacebookClick (ev) {
-    ev.preventDefault();
-    Curator.SocialFacebook.share(this.json);
-    this.widget.track('share:facebook');
-    return false;
-};
+            this.setHeight();
+        }
+    }, {
+        key: 'setHeight',
+        value: function setHeight() {
+            var height = this.$post.height();
+            console.log(height);
+            if (this.options.maxHeight && this.options.maxHeight > 0 && height > this.options.maxHeight) {
+                this.$post.css({ maxHeight: this.options.maxHeight }).addClass('crt-post-max-height');
+            }
+        }
+    }, {
+        key: 'onReadMoreClick',
+        value: function onReadMoreClick(ev) {
+            ev.preventDefault();
+            this.widget.track('click:read-more');
+            $(this).trigger('postReadMoreClick', this, this.json, ev);
+        }
+    }]);
 
-Post.prototype.onShareTwitterClick = function onShareTwitterClick (ev) {
-    ev.preventDefault();
-    Curator.SocialTwitter.share(this.json);
-    this.widget.track('share:twitter');
-    return false;
-};
-
-Post.prototype.onPostClick = function onPostClick (ev) {
-
-    var target = $(ev.target);
-
-    if (target.is('a') && target.attr('href') !== '#') {
-        this.widget.track('click:link');
-    } else {
-        ev.preventDefault();
-        $(this).trigger('postClick', this, this.json, ev);
-    }
-
-};
-
-Post.prototype.onImageLoaded = function onImageLoaded () {
-    this.$image.animate({opacity:1});
-
-    this.setHeight();
-};
-
-Post.prototype.onImageError = function onImageError () {
-    // Unable to load image!!!
-    this.$image.hide();
-
-    this.setHeight();
-};
-
-Post.prototype.setHeight = function setHeight () {
-    var height = this.$post.height();
-    console.log(height);
-    if (this.options.maxHeight && this.options.maxHeight > 0 && height > this.options.maxHeight) {
-        this.$post
-            .css({maxHeight: this.options.maxHeight})
-            .addClass('crt-post-max-height');
-    }
-};
-
-Post.prototype.onReadMoreClick = function onReadMoreClick (ev) {
-    ev.preventDefault();
-    this.widget.track('click:read-more');
-    $(this).trigger('postReadMoreClick',this, this.json, ev);
-};
+    return Post;
+}();
 
 Curator.Post = Post;
 /* global FB */
 
 Curator.SocialFacebook = {
-    share: function (post) {
+    share: function share(post) {
         var obj = post;
         obj.url = Curator.Utils.postUrl(post);
-        var cb =  function(){};
+        var cb = function cb() {};
 
         // Disabling for now - doesn't work - seems to get error "Can't Load URL: The domain of this URL isn't
         // included in the app's domains"
@@ -2152,9 +2243,8 @@ Curator.SocialFacebook = {
     }
 };
 
-
 Curator.SocialPinterest = {
-    share: function (post) {
+    share: function share(post) {
         var obj = post;
         obj.url = Curator.Utils.postUrl(post);
         var url = "http://pinterest.com/pin/create/button/?url={{url}}&media={{image}}&description={{text}}";
@@ -2162,9 +2252,8 @@ Curator.SocialPinterest = {
     }
 };
 
-
 Curator.SocialTwitter = {
-    share: function (post) {
+    share: function share(post) {
         var obj = post;
         obj.url = Curator.Utils.postUrl(post);
 
@@ -2176,8 +2265,6 @@ Curator.SocialTwitter = {
         Curator.Utils.popup(url2, 'twitter', '600', '430', '0');
     }
 };
-
-
 
 Curator.Templates.postTemplate = ' \
 <div class="crt-post-c">\
@@ -2256,29 +2343,26 @@ Curator.Templates.popupTemplate = ' \
 Curator.Templates.popupUnderlayTemplate = '';
 
 Curator.Template = {
-    camelize: function (s) {
-        return s.replace (/(?:^|[-_])(\w)/g, function (_, c) {
-            return c ? c.toUpperCase () : '';
+    camelize: function camelize(s) {
+        return s.replace(/(?:^|[-_])(\w)/g, function (_, c) {
+            return c ? c.toUpperCase() : '';
         });
     },
-    render: function (templateId, data) {
+    render: function render(templateId, data) {
         var cam = this.camelize(templateId).substring(1);
         var source = '';
 
         // console.log (cam);
         // console.log (data);
 
-        if (Curator.Templates[cam] !== undefined)
-        {
+        if (Curator.Templates[cam] !== undefined) {
             source = Curator.Templates[cam];
-        } else if ($(templateId).length===1)
-        {
+        } else if ($(templateId).length === 1) {
             source = $(templateId).html();
         }
 
-        if (source === '')
-        {
-            throw new Error ('could not find template '+templateId+'('+cam+')');
+        if (source === '') {
+            throw new Error('could not find template ' + templateId + '(' + cam + ')');
         }
 
         var tmpl = window.parseTemplate(source, data);
@@ -2290,17 +2374,14 @@ Curator.Template = {
     }
 };
 
-
-
 Curator.Track = {
 
-    track : function (action)
-    {
+    track: function track(action) {
         $.ajax({
             url: this.getUrl('/posts'),
             dataType: 'json',
             data: params,
-            success: function (data) {
+            success: function success(data) {
                 Curator.log('Feed->_loadPosts success');
 
                 if (data.success) {
@@ -2319,7 +2400,7 @@ Curator.Track = {
                 }
                 that.loading = false;
             },
-            error: function (jqXHR, textStatus, errorThrown) {
+            error: function error(jqXHR, textStatus, errorThrown) {
                 Curator.log('Feed->_loadPosts fail');
                 Curator.log(textStatus);
                 Curator.log(errorThrown);
@@ -2332,37 +2413,32 @@ Curator.Track = {
         });
     },
 
-    getUrl : function (trail) {
-        return this.feedBase+'/'+this.options.feedId+trail;
+    getUrl: function getUrl(trail) {
+        return this.feedBase + '/' + this.options.feedId + trail;
     }
 };
 
-
-
 Curator.Utils = {
 
-    postUrl : function (post)
-    {
+    postUrl: function postUrl(post) {
 
         console.log(post.url);
 
-        if (post.url && post.url !== "" && post.url !== "''")
-        {
+        if (post.url && post.url !== "" && post.url !== "''") {
             // instagram
             return post.url;
         }
 
         console.log(post.url);
-        if (post.network_id+"" === "1")
-        {
+        if (post.network_id + "" === "1") {
             // twitter
-            return 'https://twitter.com/'+post.user_screen_name+'/status/'+post.source_identifier;
+            return 'https://twitter.com/' + post.user_screen_name + '/status/' + post.source_identifier;
         }
 
         return '';
     },
 
-    center : function (elementWidth, elementHeight, bound) {
+    center: function center(elementWidth, elementHeight, bound) {
         var s = window.screen,
             b = bound || {},
             bH = b.height || s.height,
@@ -2371,23 +2447,20 @@ Curator.Utils = {
             h = elementHeight;
 
         return {
-            top: (bH) ? (bH - h) / 2 : 0,
-            left: (bW) ? (bW - w) / 2 : 0
+            top: bH ? (bH - h) / 2 : 0,
+            left: bW ? (bW - w) / 2 : 0
         };
     },
 
-    popup :  function (mypage, myname, w, h, scroll) {
+    popup: function popup(mypage, myname, w, h, scroll) {
 
-        var
-            position = this.center(w, h),
-            settings = 'height=' + h + ',width=' + w + ',top=' + position.top +
-                ',left=' + position.left + ',scrollbars=' + scroll +
-                ',resizable';
+        var position = this.center(w, h),
+            settings = 'height=' + h + ',width=' + w + ',top=' + position.top + ',left=' + position.left + ',scrollbars=' + scroll + ',resizable';
 
         window.open(mypage, myname, settings);
     },
 
-    tinyparser : function (string, obj) {
+    tinyparser: function tinyparser(string, obj) {
 
         return string.replace(/\{\{(.*?)\}\}/g, function (a, b) {
             return obj && typeof obj[b] !== "undefined" ? encodeURIComponent(obj[b]) : "";
@@ -2395,19 +2468,18 @@ Curator.Utils = {
     }
 };
 
-
 Curator.DateUtils = {
     /**
      * Parse a date string in form DD/MM/YYYY HH:MM::SS - returns as UTC
      */
-    dateFromString: function (time) {
-        dtstr = time.replace(/\D/g," ");
+    dateFromString: function dateFromString(time) {
+        dtstr = time.replace(/\D/g, " ");
         var dtcomps = dtstr.split(" ");
 
         // modify month between 1 based ISO 8601 and zero based Date
         dtcomps[1]--;
 
-        var date = new Date(Date.UTC(dtcomps[0],dtcomps[1],dtcomps[2],dtcomps[3],dtcomps[4],dtcomps[5]));
+        var date = new Date(Date.UTC(dtcomps[0], dtcomps[1], dtcomps[2], dtcomps[3], dtcomps[4], dtcomps[5]));
 
         return date;
     },
@@ -2415,12 +2487,12 @@ Curator.DateUtils = {
     /**
      * Format the date as DD/MM/YYYY
      */
-    dateAsDayMonthYear: function (strEpoch) {
+    dateAsDayMonthYear: function dateAsDayMonthYear(strEpoch) {
         var myDate = new Date(parseInt(strEpoch, 10));
         // console.log(myDate.toGMTString()+"<br>"+myDate.toLocaleString());
 
         var day = myDate.getDate() + '';
-        var month = (myDate.getMonth() + 1) + '';
+        var month = myDate.getMonth() + 1 + '';
         var year = myDate.getFullYear() + '';
 
         day = day.length === 1 ? '0' + day : day;
@@ -2434,33 +2506,26 @@ Curator.DateUtils = {
     /**
      * Convert the date into a time array
      */
-    dateAsTimeArray: function (strEpoch) {
+    dateAsTimeArray: function dateAsTimeArray(strEpoch) {
         var myDate = new Date(parseInt(strEpoch, 10));
 
         var hours = myDate.getHours() + '';
         var mins = myDate.getMinutes() + '';
-        var ampm;
+        var ampm = void 0;
 
         if (hours >= 12) {
             ampm = 'PM';
             if (hours > 12) {
-                hours = (hours - 12) + '';
+                hours = hours - 12 + '';
             }
-        }
-        else {
+        } else {
             ampm = 'AM';
         }
 
         hours = hours.length === 1 ? '0' + hours : hours; //console.log(hours.length);
         mins = mins.length === 1 ? '0' + mins : mins; //console.log(mins);
 
-        var array = [
-            parseInt(hours.charAt(0), 10),
-            parseInt(hours.charAt(1), 10),
-            parseInt(mins.charAt(0), 10),
-            parseInt(mins.charAt(1), 10),
-            ampm
-        ];
+        var array = [parseInt(hours.charAt(0), 10), parseInt(hours.charAt(1), 10), parseInt(mins.charAt(0), 10), parseInt(mins.charAt(1), 10), ampm];
 
         return array;
     }
@@ -2468,336 +2533,351 @@ Curator.DateUtils = {
 
 Curator.StringUtils = {
 
-    twitterLinks : function (s)
-    {
-        s = s.replace(/[@]+[A-Za-z0-9-_]+/g, function(u) {
-            var username = u.replace("@","");
-            return Curator.StringUtils.url("https://twitter.com/"+username,u);
+    twitterLinks: function twitterLinks(s) {
+        s = s.replace(/[@]+[A-Za-z0-9-_]+/g, function (u) {
+            var username = u.replace("@", "");
+            return Curator.StringUtils.url("https://twitter.com/" + username, u);
         });
-        s = s.replace(/[#]+[A-Za-z0-9-_]+/g, function(t) {
-            var tag = t.replace("#","%23");
-            return Curator.StringUtils.url("https://twitter.com/search?q="+tag,t);
-        });
-
-        return s;
-    },
-
-    instagramLinks : function (s)
-    {
-        s = s.replace(/[@]+[A-Za-z0-9-_]+/g, function(u) {
-            var username = u.replace("@","");
-            return Curator.StringUtils.url("https://www.instagram.com/"+username+'/',u);
-        });
-        s = s.replace(/[#]+[A-Za-z0-9-_]+/g, function(t) {
-            var tag = t.replace("#","");
-            return Curator.StringUtils.url("https://www.instagram.com/explore/tags/"+tag+'/',t);
+        s = s.replace(/[#]+[A-Za-z0-9-_]+/g, function (t) {
+            var tag = t.replace("#", "%23");
+            return Curator.StringUtils.url("https://twitter.com/search?q=" + tag, t);
         });
 
         return s;
     },
 
-    facebookLinks : function (s)
-    {
-        s = s.replace(/[@]+[A-Za-z0-9-_]+/g, function(u) {
-            var username = u.replace("@","");
-            return Curator.StringUtils.url("https://www.facebook.com/"+username+'/',u);
+    instagramLinks: function instagramLinks(s) {
+        s = s.replace(/[@]+[A-Za-z0-9-_]+/g, function (u) {
+            var username = u.replace("@", "");
+            return Curator.StringUtils.url("https://www.instagram.com/" + username + '/', u);
         });
-        s = s.replace(/[#]+[A-Za-z0-9-_]+/g, function(t) {
-            var tag = t.replace("#","%23");
-            return Curator.StringUtils.url("https://www.facebook.com/search/top/?q="+tag,t);
+        s = s.replace(/[#]+[A-Za-z0-9-_]+/g, function (t) {
+            var tag = t.replace("#", "");
+            return Curator.StringUtils.url("https://www.instagram.com/explore/tags/" + tag + '/', t);
         });
 
         return s;
     },
 
-    linksToHref : function (s)
-    {
-        s = s.replace(/[A-Za-z]+:\/\/[A-Za-z0-9-_]+\.[A-Za-z0-9-_:%&~\?\/.=]+/g, function(url) {
+    facebookLinks: function facebookLinks(s) {
+        s = s.replace(/[@]+[A-Za-z0-9-_]+/g, function (u) {
+            var username = u.replace("@", "");
+            return Curator.StringUtils.url("https://www.facebook.com/" + username + '/', u);
+        });
+        s = s.replace(/[#]+[A-Za-z0-9-_]+/g, function (t) {
+            var tag = t.replace("#", "%23");
+            return Curator.StringUtils.url("https://www.facebook.com/search/top/?q=" + tag, t);
+        });
+
+        return s;
+    },
+
+    linksToHref: function linksToHref(s) {
+        s = s.replace(/[A-Za-z]+:\/\/[A-Za-z0-9-_]+\.[A-Za-z0-9-_:%&~\?\/.=]+/g, function (url) {
             return Curator.StringUtils.url(url);
         });
 
         return s;
     },
 
-    url : function (s,t) {
+    url: function url(s, t) {
         t = t || s;
-        return '<a href="'+s+'" target="_blank">'+t+'</a>';
+        return '<a href="' + s + '" target="_blank">' + t + '</a>';
     },
 
-    youtubeVideoId : function (url){
+    youtubeVideoId: function youtubeVideoId(url) {
         var regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#\&\?]*).*/;
         var match = url.match(regExp);
-        return (match&&match[7].length==11)? match[7] : false;
+
+        if (match && match[7].length == 11) {
+            return match[7];
+        } else {
+            // above doesn't work if video id starts with v
+            // eg https://www.youtube.com/embed/vDbr_EamBK4?autoplay=1
+
+            var _regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/))([^#\&\?]*).*/;
+            var match2 = url.match(_regExp);
+            if (match2 && match2[6].length == 11) {
+                return match2[6];
+            }
+        }
+
+        return false;
     }
 };
 
-
-
 Curator.Config.Waterfall = $.extend({}, Curator.Config.Defaults, {
-    scroll:'more',
+    scroll: 'more',
     waterfall: {
-        gridWidth:250,
-        animate:true,
-        animateSpeed:400
+        gridWidth: 250,
+        animate: true,
+        animateSpeed: 400
     }
 });
 
+var Waterfall = function (_Curator$Client) {
+    _inherits(Waterfall, _Curator$Client);
 
-var Waterfall = (function (superclass) {
-    function Waterfall (options) {
-        var this$1 = this;
+    function Waterfall(options) {
+        _classCallCheck(this, Waterfall);
 
-        superclass.call (this);
+        var _this13 = _possibleConstructorReturn(this, (Waterfall.__proto__ || Object.getPrototypeOf(Waterfall)).call(this));
 
-        this.setOptions (options,  Curator.Config.Waterfall);
+        _this13.setOptions(options, Curator.Config.Waterfall);
 
         Curator.log("Waterfall->init with options:");
-        Curator.log(this.options);
+        Curator.log(_this13.options);
 
-        if (this.init (this)) {
-            this.$scroll = $('<div class="crt-feed-scroll"></div>').appendTo(this.$container);
-            this.$feed = $('<div class="crt-feed"></div>').appendTo(this.$scroll);
-            this.$container.addClass('crt-feed-container');
+        if (_this13.init(_this13)) {
+            _this13.$scroll = $('<div class="crt-feed-scroll"></div>').appendTo(_this13.$container);
+            _this13.$feed = $('<div class="crt-feed"></div>').appendTo(_this13.$scroll);
+            _this13.$container.addClass('crt-feed-container');
 
-            if (this.options.scroll=='continuous') {
-                $(this.$scroll).scroll(function () {
-                    var height = this$1.$scroll.height();
-                    var cHeight = this$1.$feed.height();
-                    var scrollTop = this$1.$scroll.scrollTop();
+            if (_this13.options.scroll == 'continuous') {
+                $(_this13.$scroll).scroll(function () {
+                    var height = _this13.$scroll.height();
+                    var cHeight = _this13.$feed.height();
+                    var scrollTop = _this13.$scroll.scrollTop();
                     if (scrollTop >= cHeight - height) {
-                        this$1.loadMorePosts();
+                        _this13.loadMorePosts();
                     }
                 });
-            } else if (this.options.scroll=='none') {
+            } else if (_this13.options.scroll == 'none') {
                 // no scroll - use javascript to trigger loading
             } else {
                 // default to more
-                this.$more = $('<div class="crt-feed-more"><a href="#"><span>Load more</span></a></div>').appendTo(this.$scroll);
-                this.$more.find('a').on('click',function (ev) {
+                _this13.$more = $('<div class="crt-feed-more"><a href="#"><span>Load more</span></a></div>').appendTo(_this13.$scroll);
+                _this13.$more.find('a').on('click', function (ev) {
                     ev.preventDefault();
-                    this$1.loadMorePosts();
+                    _this13.loadMorePosts();
                 });
             }
 
-            this.$feed.waterfall({
-                selector:'.crt-post-c',
-                gutter:0,
-                width:this.options.waterfall.gridWidth,
-                animate:this.options.waterfall.animate,
+            _this13.$feed.waterfall({
+                selector: '.crt-post-c',
+                gutter: 0,
+                width: _this13.options.waterfall.gridWidth,
+                animate: _this13.options.waterfall.animate,
                 animationOptions: {
-                    speed: (this.options.waterfall.animateSpeed/2),
-                    duration: this.options.waterfall.animateSpeed
+                    speed: _this13.options.waterfall.animateSpeed / 2,
+                    duration: _this13.options.waterfall.animateSpeed
                 }
             });
 
             Curator.EventBus.on('crt:filter:change', function (event) {
-                this$1.$feed.find('.crt-post-c').remove();
+                _this13.$feed.find('.crt-post-c').remove();
             });
 
             // Load first set of posts
-            this.loadPosts(0);
+            _this13.loadPosts(0);
         }
+        return _this13;
     }
 
-    if ( superclass ) Waterfall.__proto__ = superclass;
-    Waterfall.prototype = Object.create( superclass && superclass.prototype );
-    Waterfall.prototype.constructor = Waterfall;
-
-    Waterfall.prototype.loadPosts = function loadPosts (page, clear) {
-        Curator.log('Waterfall->loadPage');
-        if (clear) {
-            this.$feed.find('.crt-post-c').remove();
-        }
-        this.feed.loadPosts(page);
-    };
-
-    Waterfall.prototype.loadMorePosts = function loadMorePosts () {
-        Curator.log('Waterfall->loadMorePosts');
-
-        this.feed.loadPosts(this.feed.currentPage+1);
-    };
-
-    Waterfall.prototype.onPostsLoaded = function onPostsLoaded (posts) {
-        Curator.log("Waterfall->onPostsLoaded");
-        Curator.log(posts);
-
-        var postElements = this.createPostElements (posts);
-
-        //this.$feed.append(postElements);
-        this.$feed.waterfall('append', postElements);
-
-        var that = this;
-        $.each(postElements,function (i) {
-            var post = this;
-            if (that.options.waterfall.showReadMore) {
-                post.find('.crt-post')
-                    .addClass('crt-post-show-read-more');
+    _createClass(Waterfall, [{
+        key: 'loadPosts',
+        value: function loadPosts(page, clear) {
+            Curator.log('Waterfall->loadPage');
+            if (clear) {
+                this.$feed.find('.crt-post-c').remove();
             }
-        });
-
-        this.popupManager.setPosts(posts);
-
-        this.loading = false;
-        this.options.onPostsLoaded (this, posts);
-    };
-
-    Waterfall.prototype.onPostsFailed = function onPostsFailed (data) {
-        this.loading = false;
-        this.$feed.html('<p style="text-align: center">'+data.message+'</p>');
-    };
-
-    Waterfall.prototype.destroy = function destroy () {
-        //this.$feed.slick('unslick');
-        this.$feed.remove();
-        this.$scroll.remove();
-        if (this.$more) {
-            this.$more.remove();
+            this.feed.loadPosts(page);
         }
-        this.$container.removeClass('crt-feed-container');
+    }, {
+        key: 'loadMorePosts',
+        value: function loadMorePosts() {
+            Curator.log('Waterfall->loadMorePosts');
 
-        delete this.$feed;
-        delete this.$scroll;
-        delete this.$container;
-        delete this.options ;
-        delete this.totalPostsLoaded;
-        delete this.loading;
-        delete this.allLoaded;
+            this.feed.loadPosts(this.feed.currentPage + 1);
+        }
+    }, {
+        key: 'onPostsLoaded',
+        value: function onPostsLoaded(posts) {
+            Curator.log("Waterfall->onPostsLoaded");
+            Curator.log(posts);
 
-        // TODO add code to cascade destroy down to Feed & Posts
-        // unregistering events etc
-        delete this.feed;
-    };
+            var postElements = this.createPostElements(posts);
+
+            //this.$feed.append(postElements);
+            this.$feed.waterfall('append', postElements);
+
+            var that = this;
+            $.each(postElements, function (i) {
+                var post = this;
+                if (that.options.waterfall.showReadMore) {
+                    post.find('.crt-post').addClass('crt-post-show-read-more');
+                }
+            });
+
+            this.popupManager.setPosts(posts);
+
+            this.loading = false;
+            this.options.onPostsLoaded(this, posts);
+        }
+    }, {
+        key: 'onPostsFailed',
+        value: function onPostsFailed(data) {
+            this.loading = false;
+            this.$feed.html('<p style="text-align: center">' + data.message + '</p>');
+        }
+    }, {
+        key: 'destroy',
+        value: function destroy() {
+            //this.$feed.slick('unslick');
+            this.$feed.remove();
+            this.$scroll.remove();
+            if (this.$more) {
+                this.$more.remove();
+            }
+            this.$container.removeClass('crt-feed-container');
+
+            delete this.$feed;
+            delete this.$scroll;
+            delete this.$container;
+            delete this.options;
+            delete this.totalPostsLoaded;
+            delete this.loading;
+            delete this.allLoaded;
+
+            // TODO add code to cascade destroy down to Feed & Posts
+            // unregistering events etc
+            delete this.feed;
+        }
+    }]);
 
     return Waterfall;
-}(Curator.Client));
-
+}(Curator.Client);
 
 Curator.Waterfall = Waterfall;
 
-
-
 Curator.Config.Carousel = $.extend({}, Curator.Config.Defaults, {
-    scroll:'more',
-    carousel:{
-        autoPlay:true,
-        autoLoad:true
-    },
+    scroll: 'more',
+    carousel: {
+        autoPlay: true,
+        autoLoad: true
+    }
 });
 
-var Carousel = (function (Client) {
-    function Carousel (options) {
-        Client.call (this);
+var Carousel = function (_Client) {
+    _inherits(Carousel, _Client);
 
-        this.setOptions (options,  Curator.Config.Carousel);
+    function Carousel(options) {
+        _classCallCheck(this, Carousel);
 
-        this.containerHeight=0;
-        this.loading=false;
-        this.posts=[];
-        this.firstLoad=true;
+        var _this14 = _possibleConstructorReturn(this, (Carousel.__proto__ || Object.getPrototypeOf(Carousel)).call(this));
+
+        _this14.setOptions(options, Curator.Config.Carousel);
+
+        _this14.containerHeight = 0;
+        _this14.loading = false;
+        _this14.posts = [];
+        _this14.firstLoad = true;
 
         Curator.log("Carousel->init with options:");
-        Curator.log(this.options);
+        Curator.log(_this14.options);
 
-        if (this.init (this)) {
+        if (_this14.init(_this14)) {
 
-            this.allLoaded = false;
+            _this14.allLoaded = false;
 
-             var that = this;
+            var _that = _this14;
 
             // this.$wrapper = $('<div class="crt-carousel-wrapper"></div>').appendTo(this.$container);
-            this.$feed = $('<div class="crt-feed"></div>').appendTo(this.$container);
-            this.$container.addClass('crt-carousel');
+            _this14.$feed = $('<div class="crt-feed"></div>').appendTo(_this14.$container);
+            _this14.$container.addClass('crt-carousel');
 
-            this.carousel = new window.CCarousel(this.$feed, this.options.carousel);
-            this.$feed.on('curatorCarousel:changed', function (event, carousel, currentSlide) {
-                console.log('curatorCarousel:changed '+currentSlide);
+            _this14.carousel = new window.CCarousel(_this14.$feed, _this14.options.carousel);
+            _this14.$feed.on('curatorCarousel:changed', function (event, carousel, currentSlide) {
+                console.log('curatorCarousel:changed ' + currentSlide);
                 // console.log('curatorCarousel:changed '+(that.feed.postsLoaded-carousel.PANES_VISIBLE));
                 // console.log(carousel.PANES_VISIBLE);
-                if (that.options.carousel.autoLoad) {
+                if (_that.options.carousel.autoLoad) {
                     // if (currentSlide >= that.feed.postsLoaded - carousel.PANES_VISIBLE) {
-                    that.loadMorePosts();
+                    _that.loadMorePosts();
                     // }
                 }
             });
 
             // load first set of posts
-            this.loadPosts(0);
+            _this14.loadPosts(0);
         }
+        return _this14;
     }
 
-    if ( Client ) Carousel.__proto__ = Client;
-    Carousel.prototype = Object.create( Client && Client.prototype );
-    Carousel.prototype.constructor = Carousel;
+    _createClass(Carousel, [{
+        key: 'loadMorePosts',
+        value: function loadMorePosts() {
+            Curator.log('Carousel->loadMorePosts');
 
-    Carousel.prototype.loadMorePosts = function loadMorePosts () {
-        Curator.log('Carousel->loadMorePosts');
-
-        if (this.feed.postCount > this.feed.postsLoaded) {
-            this.feed.loadPosts(this.feed.currentPage + 1);
+            if (this.feed.postCount > this.feed.postsLoaded) {
+                this.feed.loadPosts(this.feed.currentPage + 1);
+            }
         }
-    };
+    }, {
+        key: 'onPostsLoaded',
+        value: function onPostsLoaded(posts) {
+            Curator.log("Carousel->onPostsLoaded");
 
-    Carousel.prototype.onPostsLoaded = function onPostsLoaded (posts) {
-        Curator.log("Carousel->onPostsLoaded");
+            this.loading = false;
 
-        this.loading = false;
+            if (posts.length === 0) {
+                this.allLoaded = true;
+            } else {
+                var _that2 = this;
+                var $els = [];
+                $(posts).each(function (i) {
+                    var p = _that2.createPostElement(this);
+                    $els.push(p.$el);
 
-        if (posts.length === 0) {
-            this.allLoaded = true;
-        } else {
-             var that = this;
-             var $els = [];
-            $(posts).each(function(i){
-                var p = that.createPostElement(this);
-                $els.push(p.$el);
+                    if (_that2.options.animate && _that2.firstLoad) {
+                        p.$el.css({ opacity: 0 });
+                        setTimeout(function () {
+                            console.log(i);
+                            p.$el.css({ opacity: 0 }).animate({ opacity: 1 });
+                        }, i * 100);
+                    }
+                });
 
-                if (that.options.animate && that.firstLoad) {
-                    p.$el.css({opacity: 0});
-                    setTimeout(function () {
-                        console.log (i);
-                        p.$el.css({opacity: 0}).animate({opacity: 1});
-                    }, i * 100);
-                }
-            });
+                this.carousel.add($els);
+                this.carousel.update();
 
-            this.carousel.add($els);
-            this.carousel.update();
+                // that.$feed.c().trigger('add.owl.carousel',$(p.$el));
 
-            // that.$feed.c().trigger('add.owl.carousel',$(p.$el));
+                this.popupManager.setPosts(posts);
 
-            this.popupManager.setPosts(posts);
-
-            this.options.onPostsLoaded (this, posts);
+                this.options.onPostsLoaded(this, posts);
+            }
+            this.firstLoad = false;
         }
-        this.firstLoad = false;
-    };
-    
-    Carousel.prototype.onPostsFail = function onPostsFail (data) {
-        Curator.log("Carousel->onPostsFail");
-        this.loading = false;
-        this.$feed.html('<p style="text-align: center">'+data.message+'</p>');
-    };
+    }, {
+        key: 'onPostsFail',
+        value: function onPostsFail(data) {
+            Curator.log("Carousel->onPostsFail");
+            this.loading = false;
+            this.$feed.html('<p style="text-align: center">' + data.message + '</p>');
+        }
+    }, {
+        key: 'destroy',
+        value: function destroy() {
+            this.carousel.destroy();
+            this.$feed.remove();
+            this.$container.removeClass('crt-carousel');
 
-    Carousel.prototype.destroy = function destroy () {
-        this.carousel.destroy();
-        this.$feed.remove();
-        this.$container.removeClass('crt-carousel');
+            delete this.$feed;
+            delete this.$container;
+            delete this.options;
+            delete this.feed.postsLoaded;
+            delete this.loading;
+            delete this.allLoaded;
 
-        delete this.$feed;
-        delete this.$container;
-        delete this.options ;
-        delete this.feed.postsLoaded;
-        delete this.loading;
-        delete this.allLoaded;
-
-        // TODO add code to cascade destroy down to Feed & Posts
-        // unregistering events etc
-        delete this.feed;
-    };
+            // TODO add code to cascade destroy down to Feed & Posts
+            // unregistering events etc
+            delete this.feed;
+        }
+    }]);
 
     return Carousel;
-}(Client));
-
+}(Client);
 
 Curator.Carousel = Carousel;
 
@@ -2806,122 +2886,127 @@ Curator.Config.Panel = $.extend({}, Curator.Config.Defaults, {
         // speed: 500,
         autoPlay: true,
         autoLoad: true,
-        moveAmount:1,
-        fixedHeight:false,
-        infinite:true,
-        minWidth:2000
+        moveAmount: 1,
+        fixedHeight: false,
+        infinite: true,
+        minWidth: 2000
     }
 });
 
-var Panel = (function (superclass) {
-    function Panel  (options) {
-        var this$1 = this;
+var Panel = function (_Curator$Client2) {
+    _inherits(Panel, _Curator$Client2);
 
-        superclass.call (this);
+    function Panel(options) {
+        _classCallCheck(this, Panel);
 
-        this.setOptions (options,  Curator.Config.Panel);
+        var _this15 = _possibleConstructorReturn(this, (Panel.__proto__ || Object.getPrototypeOf(Panel)).call(this));
+
+        _this15.setOptions(options, Curator.Config.Panel);
 
         Curator.log("Panel->init with options:");
-        Curator.log(this.options);
+        Curator.log(_this15.options);
 
-        this.containerHeight=0;
-        this.loading=false;
-        this.feed=null;
-        this.$container=null;
-        this.$feed=null;
-        this.posts=[];
+        _this15.containerHeight = 0;
+        _this15.loading = false;
+        _this15.feed = null;
+        _this15.$container = null;
+        _this15.$feed = null;
+        _this15.posts = [];
 
-        if (this.init (this)) {
-            this.allLoaded = false;
+        if (_this15.init(_this15)) {
+            _this15.allLoaded = false;
 
-            this.$feed = $('<div class="crt-feed"></div>').appendTo(this.$container);
-            this.$container.addClass('crt-panel');
+            _this15.$feed = $('<div class="crt-feed"></div>').appendTo(_this15.$container);
+            _this15.$container.addClass('crt-panel');
 
-            if (this.options.panel.fixedHeight) {
-                this.$container.addClass('crt-panel-fixed-height');
+            if (_this15.options.panel.fixedHeight) {
+                _this15.$container.addClass('crt-panel-fixed-height');
             }
 
-            this.$feed.curatorCarousel(this.options.panel);
-            this.$feed.on('curatorCarousel:changed', function (event, carousel, currentSlide) {
-                if (!this$1.allLoaded && this$1.options.panel.autoLoad) {
-                    if (currentSlide >= this$1.feed.postsLoaded - 4) {
-                        this$1.loadMorePosts();
+            _this15.$feed.curatorCarousel(_this15.options.panel);
+            _this15.$feed.on('curatorCarousel:changed', function (event, carousel, currentSlide) {
+                if (!_this15.allLoaded && _this15.options.panel.autoLoad) {
+                    if (currentSlide >= _this15.feed.postsLoaded - 4) {
+                        _this15.loadMorePosts();
                     }
                 }
             });
 
             // load first set of posts
-            this.loadPosts(0);
+            _this15.loadPosts(0);
         }
+        return _this15;
     }
 
-    if ( superclass ) Panel.__proto__ = superclass;
-    Panel.prototype = Object.create( superclass && superclass.prototype );
-    Panel.prototype.constructor = Panel;
+    _createClass(Panel, [{
+        key: 'loadMorePosts',
+        value: function loadMorePosts() {
+            Curator.log('Carousel->loadMorePosts');
 
-    Panel.prototype.loadMorePosts = function loadMorePosts () {
-        Curator.log('Carousel->loadMorePosts');
-
-        this.feed.loadPosts(this.feed.currentPage+1);
-    };
-
-    Panel.prototype.onPostsLoaded = function onPostsLoaded (posts) {
-        Curator.log("Carousel->onPostsLoaded");
-
-        this.loading = false;
-
-        if (posts.length === 0) {
-            this.allLoaded = true;
-        } else {
-            var that = this;
-            var $els = [];
-            $(posts).each(function(){
-                var p = that.createPostElement(this);
-                $els.push(p.$el);
-            });
-
-            that.$feed.curatorCarousel('add',$els);
-            that.$feed.curatorCarousel('update');
-
-            this.popupManager.setPosts(posts);
-
-            this.options.onPostsLoaded (this, posts);
+            this.feed.loadPosts(this.feed.currentPage + 1);
         }
-    };
+    }, {
+        key: 'onPostsLoaded',
+        value: function onPostsLoaded(posts) {
+            Curator.log("Carousel->onPostsLoaded");
 
-    Panel.prototype.onPostsFail = function onPostsFail (data) {
-        Curator.log("Carousel->onPostsFail");
-        this.loading = false;
-        this.$feed.html('<p style="text-align: center">'+data.message+'</p>');
-    };
+            this.loading = false;
 
-    Panel.prototype.destroy = function destroy () {
-        this.$feed.curatorCarousel('destroy');
-        this.$feed.remove();
-        this.$container.removeClass('crt-panel');
+            if (posts.length === 0) {
+                this.allLoaded = true;
+            } else {
+                var _that3 = this;
+                var $els = [];
+                $(posts).each(function () {
+                    var p = _that3.createPostElement(this);
+                    $els.push(p.$el);
+                });
 
-        delete this.$feed;
-        delete this.$container;
-        delete this.options ;
-        delete this.feed.postsLoaded;
-        delete this.loading;
-        delete this.allLoaded;
+                _that3.$feed.curatorCarousel('add', $els);
+                _that3.$feed.curatorCarousel('update');
 
-        // TODO add code to cascade destroy down to Feed & Posts
-        // unregistering events etc
-        delete this.feed;
-    };
+                this.popupManager.setPosts(posts);
+
+                this.options.onPostsLoaded(this, posts);
+            }
+        }
+    }, {
+        key: 'onPostsFail',
+        value: function onPostsFail(data) {
+            Curator.log("Carousel->onPostsFail");
+            this.loading = false;
+            this.$feed.html('<p style="text-align: center">' + data.message + '</p>');
+        }
+    }, {
+        key: 'destroy',
+        value: function destroy() {
+            this.$feed.curatorCarousel('destroy');
+            this.$feed.remove();
+            this.$container.removeClass('crt-panel');
+
+            delete this.$feed;
+            delete this.$container;
+            delete this.options;
+            delete this.feed.postsLoaded;
+            delete this.loading;
+            delete this.allLoaded;
+
+            // TODO add code to cascade destroy down to Feed & Posts
+            // unregistering events etc
+            delete this.feed;
+        }
+    }]);
 
     return Panel;
-}(Curator.Client));
+}(Curator.Client);
 
 Curator.Panel = Panel;
 
 Curator.Config.Grid = $.extend({}, Curator.Config.Defaults, {
-    postTemplate:'#gridPostTemplate',
+    postTemplate: '#gridPostTemplate',
     grid: {
-        minWidth:200,
-        rows:3
+        minWidth: 200,
+        rows: 3
     }
 });
 
@@ -2960,222 +3045,228 @@ Curator.Templates.gridFeedTemplate = ' \
 </div>\
 <div class="crt-feed-more"><a href="#">Load more</a></div>';
 
+var Grid = function (_Client2) {
+    _inherits(Grid, _Client2);
 
-var Grid = (function (Client) {
-    function Grid  (options) {
-        Client.call (this);
+    function Grid(options) {
+        _classCallCheck(this, Grid);
 
-        this.setOptions (options,  Curator.Config.Grid);
+        var _this16 = _possibleConstructorReturn(this, (Grid.__proto__ || Object.getPrototypeOf(Grid)).call(this));
+
+        _this16.setOptions(options, Curator.Config.Grid);
 
         Curator.log("Grid->init with options:");
-        Curator.log(this.options);
+        Curator.log(_this16.options);
 
-        this.containerHeight=0;
-        this.loading=false;
-        this.feed=null;
-        this.$container=null;
-        this.$feed=null;
-        this.posts=[];
-        this.totalPostsLoaded=0;
-        this.allLoaded=false;
-        this.previousCol=0;
-        this.page=0;
-        this.rowsShowing=0;
+        _this16.containerHeight = 0;
+        _this16.loading = false;
+        _this16.feed = null;
+        _this16.$container = null;
+        _this16.$feed = null;
+        _this16.posts = [];
+        _this16.totalPostsLoaded = 0;
+        _this16.allLoaded = false;
+        _this16.previousCol = 0;
+        _this16.page = 0;
+        _this16.rowsShowing = 0;
 
-        if (this.init (this)) {
+        if (_this16.init(_this16)) {
 
             var tmpl = Curator.Template.render('#gridFeedTemplate', {});
-            this.$container.append(tmpl);
-            this.$feed = this.$container.find('.crt-feed');
-            this.$feedWindow = this.$container.find('.crt-feed-window');
-            this.$loadMore = this.$container.find('.crt-feed-more a');
+            _this16.$container.append(tmpl);
+            _this16.$feed = _this16.$container.find('.crt-feed');
+            _this16.$feedWindow = _this16.$container.find('.crt-feed-window');
+            _this16.$loadMore = _this16.$container.find('.crt-feed-more a');
 
-            this.$container.addClass('crt-grid');
+            _this16.$container.addClass('crt-grid');
 
-            var cols = Math.floor(this.$container.width()/this.options.grid.minWidth);
-            var postsNeeded = cols *  (this.options.grid.rows + 1); // get 1 extra row just in case
+            var cols = Math.floor(_this16.$container.width() / _this16.options.grid.minWidth);
+            var postsNeeded = cols * (_this16.options.grid.rows + 1); // get 1 extra row just in case
 
-            if (this.options.grid.showLoadMore) {
+            if (_this16.options.grid.showLoadMore) {
                 // this.$feed.css({
                 //     position:'absolute',
                 //     left:0,
                 //     top:0,
                 //     width:'100%'
                 // });
-                this.$feedWindow.css({
-                    'position':'relative'
+                _this16.$feedWindow.css({
+                    'position': 'relative'
                 });
                 // postsNeeded = cols *  (this.options.grid.rows * 2); //
-                this.$loadMore.click(this.onMoreClicked.bind(this))
+                _this16.$loadMore.click(_this16.onMoreClicked.bind(_this16));
             } else {
-                this.$loadMore.hide();
+                _this16.$loadMore.hide();
             }
 
-            this.rowsShowing = this.options.grid.rows;
+            _this16.rowsShowing = _this16.options.grid.rows;
 
-            this.feed.options.postsPerPage = postsNeeded;
-            this.loadPosts(0);
+            _this16.feed.options.postsPerPage = postsNeeded;
+            _this16.loadPosts(0);
         }
 
         var to = null;
-        var that = this;
-        $(window).resize(function(){
+        var that = _this16;
+        $(window).resize(function () {
             clearTimeout(to);
-            to = setTimeout(function(){
+            to = setTimeout(function () {
                 that.updateLayout();
-            },100);
+            }, 100);
         });
-        this.updateLayout ();
+        _this16.updateLayout();
 
-        $(window).on('curatorCssLoaded',function(){
+        $(window).on('curatorCssLoaded', function () {
             clearTimeout(to);
-            to = setTimeout(function(){
+            to = setTimeout(function () {
                 that.updateLayout();
-            },100);
+            }, 100);
         });
 
-        $(document).on('ready',function(){
+        $(document).on('ready', function () {
             clearTimeout(to);
-            to = setTimeout(function(){
+            to = setTimeout(function () {
                 that.updateLayout();
-            },100);
+            }, 100);
         });
+        return _this16;
     }
 
-    if ( Client ) Grid.__proto__ = Client;
-    Grid.prototype = Object.create( Client && Client.prototype );
-    Grid.prototype.constructor = Grid;
+    _createClass(Grid, [{
+        key: 'onPostsLoaded',
+        value: function onPostsLoaded(posts) {
+            Curator.log("Grid->onPostsLoaded");
 
-    Grid.prototype.onPostsLoaded = function onPostsLoaded (posts) {
-        Curator.log("Grid->onPostsLoaded");
+            this.loading = false;
 
-        this.loading = false;
+            if (posts.length === 0) {
+                this.allLoaded = true;
+            } else {
+                var _that4 = this;
+                var postElements = [];
+                $(posts).each(function (i) {
+                    var p = _that4.createPostElement.call(_that4, this);
+                    postElements.push(p.$el);
+                    _that4.$feed.append(p.$el);
 
-        if (posts.length === 0) {
-            this.allLoaded = true;
-        } else {
-            var that = this;
-            var postElements = [];
-            $(posts).each(function(i){
-                var p = that.createPostElement.call(that, this);
-                postElements.push(p.$el);
-                that.$feed.append(p.$el);
+                    if (_that4.options.animate) {
+                        p.$el.css({ opacity: 0 });
+                        setTimeout(function () {
+                            p.$el.css({ opacity: 0 }).animate({ opacity: 1 });
+                        }, i * 100);
+                    }
+                });
 
-                if (that.options.animate) {
-                    p.$el.css({opacity:0});
-                    setTimeout(function () {
-                        p.$el.css({opacity: 0}).animate({opacity: 1});
-                    }, i * 100);
-                }
-            });
+                this.popupManager.setPosts(posts);
 
-            this.popupManager.setPosts(posts);
+                this.options.onPostsLoaded(this, posts);
 
-            this.options.onPostsLoaded (this, posts);
+                this.updateHeight();
+            }
+        }
+    }, {
+        key: 'createPostElement',
+        value: function createPostElement(postJson) {
+            var post = new Curator.Post(postJson, this.options);
+            $(post).bind('postClick', $.proxy(this.onPostClick, this));
+
+            if (this.options.onPostCreated) {
+                this.options.onPostCreated(post);
+            }
+
+            return post;
+        }
+    }, {
+        key: 'onPostsFailed',
+        value: function onPostsFailed(data) {
+            Curator.log("Grid->onPostsFailed");
+            this.loading = false;
+            this.$feed.html('<p style="text-align: center">' + data.message + '</p>');
+        }
+    }, {
+        key: 'onPostClick',
+        value: function onPostClick(ev, post) {
+            this.popupManager.showPopup(post);
+        }
+    }, {
+        key: 'onMoreClicked',
+        value: function onMoreClicked(ev) {
+            ev.preventDefault();
+
+            this.rowsShowing = this.rowsShowing + this.options.grid.rows;
+
+            this.updateHeight(true);
+
+            this.feed.loadMore();
+        }
+    }, {
+        key: 'updateLayout',
+        value: function updateLayout() {
+            var cols = Math.floor(this.$container.width() / this.options.grid.minWidth);
+            var postsNeeded = cols * this.options.grid.rows;
+
+            this.$container.removeClass('crt-grid-col' + this.previousCol);
+            this.previousCol = cols;
+            this.$container.addClass('crt-grid-col' + this.previousCol);
+
+            if (postsNeeded > this.feed.postsLoaded) {
+                this.loadPosts(this.feed.currentPage + 1);
+            }
 
             this.updateHeight();
         }
-    };
+    }, {
+        key: 'updateHeight',
+        value: function updateHeight(animate) {
+            var postHeight = this.$container.find('.crt-post-c').width();
+            this.$feedWindow.css({ 'overflow': 'hidden' });
 
-    Grid.prototype.createPostElement = function createPostElement (postJson) {
-        var post = new Curator.Post(postJson, this.options);
-        $(post).bind('postClick',$.proxy(this.onPostClick, this));
-        
-        if (this.options.onPostCreated) {
-            this.options.onPostCreated (post);
-        }
+            var maxRows = Math.ceil(this.feed.postCount / this.previousCol);
+            var rows = this.rowsShowing < maxRows ? this.rowsShowing : maxRows;
 
-        return post;
-    };
-
-    Grid.prototype.onPostsFailed = function onPostsFailed (data) {
-        Curator.log("Grid->onPostsFailed");
-        this.loading = false;
-        this.$feed.html('<p style="text-align: center">'+data.message+'</p>');
-    };
-
-    Grid.prototype.onPostClick = function onPostClick (ev,post) {
-        this.popupManager.showPopup(post);
-    };
-
-    Grid.prototype.onMoreClicked = function onMoreClicked (ev) {
-        ev.preventDefault();
-
-        this.rowsShowing = this.rowsShowing + this.options.grid.rows;
-
-        this.updateHeight(true);
-
-        this.feed.loadMore();
-    };
-
-    Grid.prototype.updateLayout = function updateLayout ( ) {
-        var cols = Math.floor(this.$container.width()/this.options.grid.minWidth);
-        var postsNeeded = cols *  this.options.grid.rows;
-
-        this.$container.removeClass('crt-grid-col'+this.previousCol);
-        this.previousCol = cols;
-        this.$container.addClass('crt-grid-col'+this.previousCol);
-
-        if (postsNeeded > this.feed.postsLoaded) {
-            this.loadPosts(this.feed.currentPage+1);
-        }
-
-        this.updateHeight();
-    };
-
-    Grid.prototype.updateHeight = function updateHeight (animate) {
-        var postHeight = this.$container.find('.crt-post-c').width();
-        this.$feedWindow.css({'overflow':'hidden'});
-
-        var maxRows = Math.ceil(this.feed.postCount / this.previousCol);
-        var rows = this.rowsShowing < maxRows ? this.rowsShowing : maxRows;
-
-        if (animate) {
-            this.$feedWindow.animate({height:rows * postHeight});
-        } else {
-            this.$feedWindow.height(rows * postHeight);
-        }
-
-        if (this.options.grid.showLoadMore) {
-            if (this.rowsShowing >= maxRows) {
-                this.$loadMore.hide();
+            if (animate) {
+                this.$feedWindow.animate({ height: rows * postHeight });
             } else {
-                this.$loadMore.show();
+                this.$feedWindow.height(rows * postHeight);
+            }
+
+            if (this.options.grid.showLoadMore) {
+                if (this.rowsShowing >= maxRows) {
+                    this.$loadMore.hide();
+                } else {
+                    this.$loadMore.show();
+                }
             }
         }
-    };
+    }, {
+        key: 'destroy',
+        value: function destroy() {
+            this.$container.empty().removeClass('crt-grid').removeClass('crt-grid-col' + this.previousCol).css({ 'height': '', 'overflow': '' });
 
-    Grid.prototype.destroy = function destroy () {
-        this.$container.empty()
-            .removeClass('crt-grid')
-            .removeClass('crt-grid-col'+this.previousCol)
-            .css({'height':'','overflow':''});
+            delete this.$feed;
+            delete this.$container;
+            delete this.options;
+            delete this.totalPostsLoaded;
+            delete this.loading;
+            delete this.allLoaded;
 
-        delete this.$feed;
-        delete this.$container;
-        delete this.options ;
-        delete this.totalPostsLoaded;
-        delete this.loading;
-        delete this.allLoaded;
-
-        // TODO add code to cascade destroy down to Feed & Posts
-        // unregistering events etc
-        delete this.feed;
-    };
+            // TODO add code to cascade destroy down to Feed & Posts
+            // unregistering events etc
+            delete this.feed;
+        }
+    }]);
 
     return Grid;
-}(Client));
+}(Client);
 
 Curator.Grid = Grid;
 
 var widgetDefaults = {
-    feedId:'',
-    postsPerPage:12,
-    maxPosts:0,
-    apiEndpoint:'https://api.curator.io/v1',
-    onPostsLoaded:function(){}
+    feedId: '',
+    postsPerPage: 12,
+    maxPosts: 0,
+    apiEndpoint: 'https://api.curator.io/v1',
+    onPostsLoaded: function onPostsLoaded() {}
 };
-
 
 Curator.Custom = Curator.augment.extend(Curator.Client, {
     containerHeight: 0,
@@ -3183,17 +3274,17 @@ Curator.Custom = Curator.augment.extend(Curator.Client, {
     feed: null,
     $container: null,
     $feed: null,
-    posts:[],
-    totalPostsLoaded:0,
-    allLoaded:false,
+    posts: [],
+    totalPostsLoaded: 0,
+    allLoaded: false,
 
-    constructor: function (options) {
-        this.uber.setOptions.call (this, options,  widgetDefaults);
+    constructor: function constructor(options) {
+        this.uber.setOptions.call(this, options, widgetDefaults);
 
         Curator.log("Panel->init with options:");
         Curator.log(this.options);
 
-        if (this.uber.init.call (this)) {
+        if (this.uber.init.call(this)) {
             this.$feed = $('<div class="crt-feed"></div>').appendTo(this.$container);
             this.$container.addClass('crt-custom');
 
@@ -3201,7 +3292,7 @@ Curator.Custom = Curator.augment.extend(Curator.Client, {
         }
     },
 
-    onPostsLoaded: function (posts) {
+    onPostsLoaded: function onPostsLoaded(posts) {
         Curator.log("Custom->onPostsLoaded");
 
         this.loading = false;
@@ -3211,7 +3302,7 @@ Curator.Custom = Curator.augment.extend(Curator.Client, {
         } else {
             var that = this;
             var postElements = [];
-            $(posts).each(function(){
+            $(posts).each(function () {
                 var p = that.createPostElement(this);
                 postElements.push(p.$el);
                 that.$feed.append(p.$el);
@@ -3219,27 +3310,27 @@ Curator.Custom = Curator.augment.extend(Curator.Client, {
 
             this.popupManager.setPosts(posts);
 
-            this.options.onPostsLoaded (this, posts);
+            this.options.onPostsLoaded(this, posts);
         }
     },
 
-    onPostsFailed: function (data) {
+    onPostsFailed: function onPostsFailed(data) {
         Curator.log("Custom->onPostsFailed");
         this.loading = false;
-        this.$feed.html('<p style="text-align: center">'+data.message+'</p>');
+        this.$feed.html('<p style="text-align: center">' + data.message + '</p>');
     },
 
-    onPostClick: function (ev,post) {
+    onPostClick: function onPostClick(ev, post) {
         this.popupManager.showPopup(post);
     },
 
-    destroy : function () {
+    destroy: function destroy() {
         this.$feed.remove();
         this.$container.removeClass('crt-custom');
 
         delete this.$feed;
         delete this.$container;
-        delete this.options ;
+        delete this.options;
         delete this.totalPostsLoaded;
         delete this.loading;
         delete this.allLoaded;
@@ -3250,7 +3341,6 @@ Curator.Custom = Curator.augment.extend(Curator.Client, {
     }
 
 });
-
 
 	return Curator;
 }));
