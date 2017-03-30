@@ -169,6 +169,22 @@ body {
 
                 .crt-popup-text-container {
                     padding-right: 5px;
+                    
+                    /* These are technically the same, but use both */
+                    overflow-wrap: break-word;
+                    word-wrap: break-word;
+
+                    -ms-word-break: break-all;
+                    /* This is the dangerous one in WebKit, as it breaks things wherever */
+                    word-break: break-all;
+                    /* Instead use this non-standard one: */
+                    word-break: break-word;
+
+                    /* Adds a hyphen where the word breaks, if supported (No Blink) */
+                    -ms-hyphens: auto;
+                    -moz-hyphens: auto;
+                    -webkit-hyphens: auto;
+                    hyphens: auto;
                 }
 
                 @include scrollbars(6px, #ccc, #fff);
@@ -378,7 +394,22 @@ body {
 
 @media screen and (max-width:910px){
     .crt-popup-wrapper {
+
+        .crt-popup-container {
+            padding: 40px;
+        }
+
         .crt-popup {
+            .crt-previous,
+            .crt-next
+            {
+                right: -41px;
+                width: 40px;
+            }
+
+            .crt-previous {
+                left: -41px;
+            }
             .crt-popup-right {
                 position: relative;
                 width: auto;
@@ -399,6 +430,27 @@ body {
             }
             .crt-popup-left {
                 padding-right: 0;
+            }
+
+            &.has-image {
+                .crt-popup-right
+                {
+                    position: relative;
+                    width: auto;
+                    max-width: 600px;
+                    right: auto;
+                    height: auto;
+                    padding-bottom: 20px;
+
+                    .crt-popup-text {
+                        position: relative;
+                        top: auto;
+                        left: auto;
+                        right: auto;
+                        bottom: auto;
+                        max-height: 300px;
+                    }
+                }
             }
         }
     }

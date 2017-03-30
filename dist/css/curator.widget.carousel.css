@@ -491,7 +491,19 @@ body.crt-popup-visible {
         overflow-x: hidden;
         overflow-y: scroll; }
         .crt-popup-wrapper .crt-popup .crt-popup-right .crt-popup-text .crt-popup-text-container {
-          padding-right: 5px; }
+          padding-right: 5px;
+          /* These are technically the same, but use both */
+          overflow-wrap: break-word;
+          word-wrap: break-word;
+          -ms-word-break: break-all;
+          /* This is the dangerous one in WebKit, as it breaks things wherever */
+          word-break: break-all;
+          /* Instead use this non-standard one: */
+          word-break: break-word;
+          /* Adds a hyphen where the word breaks, if supported (No Blink) */
+          -ms-hyphens: auto;
+          -webkit-hyphens: auto;
+          hyphens: auto; }
         .crt-popup-wrapper .crt-popup .crt-popup-right .crt-popup-text::-webkit-scrollbar {
           width: 6px;
           height: 6px; }
@@ -656,6 +668,14 @@ body.crt-popup-visible {
       opacity: 0; }
 
 @media screen and (max-width: 910px) {
+  .crt-popup-wrapper .crt-popup-container {
+    padding: 40px; }
+  .crt-popup-wrapper .crt-popup .crt-previous,
+  .crt-popup-wrapper .crt-popup .crt-next {
+    right: -41px;
+    width: 40px; }
+  .crt-popup-wrapper .crt-popup .crt-previous {
+    left: -41px; }
   .crt-popup-wrapper .crt-popup .crt-popup-right {
     position: relative;
     width: auto;
@@ -671,7 +691,21 @@ body.crt-popup-visible {
       bottom: auto;
       max-height: 300px; }
   .crt-popup-wrapper .crt-popup .crt-popup-left {
-    padding-right: 0; } }
+    padding-right: 0; }
+  .crt-popup-wrapper .crt-popup.has-image .crt-popup-right {
+    position: relative;
+    width: auto;
+    max-width: 600px;
+    right: auto;
+    height: auto;
+    padding-bottom: 20px; }
+    .crt-popup-wrapper .crt-popup.has-image .crt-popup-right .crt-popup-text {
+      position: relative;
+      top: auto;
+      left: auto;
+      right: auto;
+      bottom: auto;
+      max-height: 300px; } }
 
 .crt-filter {
   margin: 5px;
