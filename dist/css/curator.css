@@ -752,7 +752,6 @@ body.crt-popup-visible {
     height: 100%; }
 
 .crt-feed-container {
-  min-width: 320px;
   min-height: 400px;
   position: relative; }
   .crt-feed-container .crt-logo {
