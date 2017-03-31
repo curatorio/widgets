@@ -433,5 +433,5 @@ gulp.task('scripts', [
     'scripts:nodep',
     'scripts:combined'
 ]);
-gulp.task('prod', ['styles:prod','scripts:prod']);
+gulp.task('prod', ['scripts:prod']);
 gulp.task('default', ['styles','scripts']);
