@@ -2677,7 +2677,11 @@ Curator.Config.Carousel = $.extend({}, Curator.Config.Defaults, {
 
 var Carousel = (function (Client) {
     function Carousel (options) {
+        var this$1 = this;
+
         Client.call (this);
+
+        options.postsPerPage = 60;
 
         this.setOptions (options,  Curator.Config.Carousel);
 
@@ -2693,21 +2697,19 @@ var Carousel = (function (Client) {
 
             this.allLoaded = false;
 
-             var that = this;
-
             // this.$wrapper = $('<div class="crt-carousel-wrapper"></div>').appendTo(this.$container);
             this.$feed = $('<div class="crt-feed"></div>').appendTo(this.$container);
             this.$container.addClass('crt-carousel');
 
             this.carousel = new window.CCarousel(this.$feed, this.options.carousel);
             this.$feed.on('curatorCarousel:changed', function (event, carousel, currentSlide) {
-                console.log('curatorCarousel:changed '+currentSlide);
+                // console.log('curatorCarousel:changed '+currentSlide);
                 // console.log('curatorCarousel:changed '+(that.feed.postsLoaded-carousel.PANES_VISIBLE));
                 // console.log(carousel.PANES_VISIBLE);
-                if (that.options.carousel.autoLoad) {
-                    // if (currentSlide >= that.feed.postsLoaded - carousel.PANES_VISIBLE) {
-                    that.loadMorePosts();
-                    // }
+                if (this$1.options.carousel.autoLoad) {
+                    if (currentSlide >= this$1.feed.postsLoaded - carousel.PANES_VISIBLE) {
+                        this$1.loadMorePosts();
+                    }
                 }
             });
 

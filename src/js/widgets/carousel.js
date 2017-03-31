@@ -13,6 +13,8 @@ class Carousel extends Client {
     constructor (options) {
         super ();
 
+        options.postsPerPage = 60;
+
         this.setOptions (options,  Curator.Config.Carousel);
 
         this.containerHeight=0;
@@ -27,21 +29,19 @@ class Carousel extends Client {
 
             this.allLoaded = false;
 
-             let that = this;
-
             // this.$wrapper = $('<div class="crt-carousel-wrapper"></div>').appendTo(this.$container);
             this.$feed = $('<div class="crt-feed"></div>').appendTo(this.$container);
             this.$container.addClass('crt-carousel');
 
             this.carousel = new window.CCarousel(this.$feed, this.options.carousel);
-            this.$feed.on('curatorCarousel:changed', function (event, carousel, currentSlide) {
-                console.log('curatorCarousel:changed '+currentSlide);
+            this.$feed.on('curatorCarousel:changed', (event, carousel, currentSlide) => {
+                // console.log('curatorCarousel:changed '+currentSlide);
                 // console.log('curatorCarousel:changed '+(that.feed.postsLoaded-carousel.PANES_VISIBLE));
                 // console.log(carousel.PANES_VISIBLE);
-                if (that.options.carousel.autoLoad) {
-                    // if (currentSlide >= that.feed.postsLoaded - carousel.PANES_VISIBLE) {
-                    that.loadMorePosts();
-                    // }
+                if (this.options.carousel.autoLoad) {
+                    if (currentSlide >= this.feed.postsLoaded - carousel.PANES_VISIBLE) {
+                        this.loadMorePosts();
+                    }
                 }
             });
 
