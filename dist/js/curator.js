@@ -190,7 +190,7 @@
         }
         else {
             boxes = this.gridArr;
-            appendCount = $(this.gridArr).size();
+            appendCount = $(this.gridArr).length;
         }
 
         // push out the items to the columns
@@ -373,12 +373,12 @@
             gridArr.push(value);
             gridArrAppend.push(value);
         });
-        this._renderGrid('append', items, $(items).size());
+        this._renderGrid('append', items, $(items).length);
     };
 
     WaterfallRender.prototype.prepend = function prepend (items) {
         this.ifCallback = false;
-        this._renderGrid('prepend', items, $(items).size());
+        this._renderGrid('prepend', items, $(items).length);
         this.ifCallback = true;
     };
 
