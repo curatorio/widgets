@@ -1,0 +1,42 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <link href="../dist/css/curator.css" rel="stylesheet" />
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="css/example.css" rel="stylesheet"/>
+    <style type="text/css">
+        #curator-feed {
+            padding: 0 100px;
+            width:auto;
+        }
+    </style>
+</head>
+<body>
+<h1>Curator.io Examples</h1>
+<h2>Waterfall Widget</h2>
+<p class="center"><a href="index.html">Examples</a></p>
+<div id="curator-feed">
+    <a href="https://curator.io" target="_blank" class="crt-logo">Powered by Curator.io</a>
+</div>
+
+<script type="text/javascript" src="js/vendor/jquery.min.js"></script>
+<script type="text/javascript" src="../dist/js/curator.js"></script>
+<script type="text/javascript">
+    // While you're testing
+    Curator.debug = true;
+
+    // Change FEED_ID to your unique FEED_ID
+    var widget = new Curator.Carousel({
+        container:'#curator-feed',
+        feedId:"927447a8-2d33-4b3f-939b-ddc414ff",
+        carousel : {
+            autoPlay:false,
+            minWidth:400
+        }
+    });
+</script>
+</body>
+</html>
+

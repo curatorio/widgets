@@ -17,7 +17,7 @@ CDN hosted Curator.io Widgets are a great way to get up and running quickly:
 In your `<head>` add:
 
 ```html
-<link rel="stylesheet" type="text/css" href="//cdn.curator.io/1.4/css/curator.css"/>
+<link rel="stylesheet" type="text/css" href="//cdn.curator.io/1.5/css/curator.css"/>
 ```
 
 In your ```<body>``` where you want the feed to appear:
@@ -29,7 +29,7 @@ In your ```<body>``` where you want the feed to appear:
 Then, before your closing ```<body>``` tag add:
 
 ```html
-<script type="text/javascript" src="//cdn.curator.io/1.4/js/curator.js"></script>
+<script type="text/javascript" src="//cdn.curator.io/1.5/js/curator.js"></script>
 <script type="text/javascript">
 	// While you're testing
     Curator.debug = true;
@@ -99,7 +99,8 @@ var widget = new Curator.Carousel({
     // ...
     carousel:{
        autoPlay:true,    // carousel will auto rotate
-       autoLoad:true     // carusel will auto load new when it reaches the end of the current page of posts
+       autoLoad:true,    // carusel will auto load new when it reaches the end of the current page of posts
+       minWidth:250      // the minimum width of the post, used when calculating responsive post width
     }
 });
 ```
@@ -140,9 +141,10 @@ For example:
 
 Curator.Templates.postTemplate = ' \
 <div class="crt-post-c">\
+    <div class="crt-post-bg"></div> \
     <div class="crt-post post<%=id%> crt-post-<%=this.networkIcon()%>"> \
         <div class="crt-post-header"> \
-            <span class="social-icon"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \
+            <span class="crt-social-icon"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \
             <img src="<%=user_image%>"  /> \
             <div class="crt-post-name">\
             <div class="crt-post-fullname"><%=user_full_name%></div>\
@@ -150,9 +152,9 @@ Curator.Templates.postTemplate = ' \
             </div> \
         </div> \
         <div class="crt-post-content"> \
-            <div class="image crt-hitarea crt-post-content-image <%=this.contentImageClasses()%>" > \
-                <img src="<%=image%>" class="crt-post-image" /> \
-                <a href="javascript:;" class="crt-play"><i class="play"></i></a> \
+            <div class="crt-image crt-hitarea crt-post-content-image <%=this.contentImageClasses()%>" > \
+                <div class="crt-image-c"><img src="<%=image%>" class="crt-post-image" /></div> \
+                <span class="crt-play"><i class="crt-play-icon"></i></span> \
             </div> \
             <div class="text crt-post-content-text <%=this.contentTextClasses()%>"> \
                 <div class="crt-post-text-body"><%=this.parseText(text)%></div> \
