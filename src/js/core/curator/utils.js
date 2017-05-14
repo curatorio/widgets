@@ -215,6 +215,17 @@ Curator.StringUtils = {
         }
 
         return false;
+    },
+
+    filterHtml : function (html) {
+        try {
+            let div = document.createElement("div");
+            div.innerHTML = html;
+            let text = div.textContent || div.innerText || "";
+            return text;
+        } catch (e) {
+            return html;
+        }
     }
 };
 

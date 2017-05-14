@@ -4,6 +4,7 @@ Curator.SocialFacebook = {
     share: function (post) {
         let obj = post;
         obj.url = Curator.Utils.postUrl(post);
+        obj.cleanText = Curator.StringUtils.filterHtml(post.text);
         let cb =  function(){};
 
         // Disabling for now - doesn't work - seems to get error "Can't Load URL: The domain of this URL isn't
@@ -15,10 +16,10 @@ Curator.SocialFacebook = {
                 link: obj.url,
                 picture: obj.image,
                 name: obj.user_screen_name,
-                description: obj.text
+                description: obj.cleanText
             }, cb);
         } else {
-            let url = "https://www.facebook.com/sharer/sharer.php?u={{url}}&d={{text}}";
+            let url = "https://www.facebook.com/sharer/sharer.php?u={{url}}&d={{cleanText}}";
             let url2 = Curator.Utils.tinyparser(url, obj);
             Curator.Utils.popup(url2, 'twitter', '600', '430', '0');
         }
