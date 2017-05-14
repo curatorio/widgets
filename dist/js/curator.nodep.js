@@ -3497,7 +3497,20 @@ var Popup = function Popup (popupManager, post, feed) {
         this.$popup.find('.crt-video-container img').remove();
         this.$popup.find('.crt-video-container a').remove();
         this.$popup.find('.crt-video-container').append(src);
+    } else if (this.json.video && this.json.video.indexOf('vimeo') >= 0 )
+    {
+        // youtube
+        this.$popup.find('video').remove();
+        // this.$popup.removeClass('has-image');
 
+        var vimeoId = Curator.StringUtils.vimeoVideoId(this.json.video);
+
+        if (vimeoId) {
+            var src$1 = '<iframe src="https://player.vimeo.com/video/' + vimeoId + '?color=ffffff&title=0&byline=0&portrait=0" width="615" height="615" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>';
+            this.$popup.find('.crt-video-container img').remove();
+            this.$popup.find('.crt-video-container a').remove();
+            this.$popup.find('.crt-video-container').append(src$1);
+        }
     }
 
 
@@ -4097,6 +4110,19 @@ Curator.StringUtils = {
             if (match2 && match2[6].length==11) {
                 return match2[6];
             }
+        }
+
+        return false;
+    },
+
+    vimeoVideoId : function (url){
+        var regExp = /(?:www\.|player\.)?vimeo.com\/(?:channels\/(?:\w+\/)?|groups\/(?:[^\/]*)\/videos\/|album\/(?:\d+)\/video\/|video\/|)(\d+)(?:[a-zA-Z0-9_\-]+)?/;
+        var match = url.match(regExp);
+
+        console.log (match);
+
+        if (match && match.length>=2) {
+            return match[1];
         }
 
         return false;

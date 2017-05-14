@@ -202,6 +202,19 @@ Curator.StringUtils = {
         }
 
         return false;
+    },
+
+    vimeoVideoId : function (url){
+        let regExp = /(?:www\.|player\.)?vimeo.com\/(?:channels\/(?:\w+\/)?|groups\/(?:[^\/]*)\/videos\/|album\/(?:\d+)\/video\/|video\/|)(\d+)(?:[a-zA-Z0-9_\-]+)?/;
+        let match = url.match(regExp);
+
+        console.log (match);
+
+        if (match && match.length>=2) {
+            return match[1];
+        }
+
+        return false;
     }
 };
 

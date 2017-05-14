@@ -42,7 +42,20 @@ class Popup {
             this.$popup.find('.crt-video-container img').remove();
             this.$popup.find('.crt-video-container a').remove();
             this.$popup.find('.crt-video-container').append(src);
+        } else if (this.json.video && this.json.video.indexOf('vimeo') >= 0 )
+        {
+            // youtube
+            this.$popup.find('video').remove();
+            // this.$popup.removeClass('has-image');
 
+            let vimeoId = Curator.StringUtils.vimeoVideoId(this.json.video);
+
+            if (vimeoId) {
+                let src = '<iframe src="https://player.vimeo.com/video/' + vimeoId + '?color=ffffff&title=0&byline=0&portrait=0" width="615" height="615" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>';
+                this.$popup.find('.crt-video-container img').remove();
+                this.$popup.find('.crt-video-container a').remove();
+                this.$popup.find('.crt-video-container').append(src);
+            }
         }
 
 
