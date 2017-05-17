@@ -1,8 +1,10 @@
 
-class Client {
+class Client extends EventBus {
 
     constructor () {
         Curator.log('Client->construct');
+
+        super ();
     }
 
     setOptions (options, defaults) {
@@ -48,7 +50,7 @@ class Client {
     }
 
     createFilter () {
-        if (this.options.filter && this.options.filter.show) {
+        if (this.options.filter && (this.options.filter.showNetworks || this.options.filter.showSources)) {
             this.filter = new Curator.Filter(this);
         }
     }

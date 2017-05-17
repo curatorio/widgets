@@ -812,8 +812,11 @@ var Curator = {
             onPostsLoaded: function () {
             },
             filter: {
-                show: false,
-                label: 'Show:'
+                showNetworks: false,
+                networksLabel: 'Networks:',
+
+                showSources: false,
+                sourcesLabel: 'Sources:',
             }
         }
     }
@@ -1296,124 +1299,139 @@ Curator.EventBus = new EventBus();
 
 
 
-var Client = function Client () {
-    Curator.log('Client->construct');
-};
+var Client = (function (EventBus) {
+    function Client () {
+        Curator.log('Client->construct');
 
-Client.prototype.setOptions = function setOptions (options, defaults) {
-
-    this.options = $.extend(true,{}, defaults, options);
-
-    if (options.debug) {
-        Curator.debug = true;
+        EventBus.call (this);
     }
 
-    // Curator.log(this.options);
+    if ( EventBus ) Client.__proto__ = EventBus;
+    Client.prototype = Object.create( EventBus && EventBus.prototype );
+    Client.prototype.constructor = Client;
 
-    return true;
-};
+    Client.prototype.setOptions = function setOptions (options, defaults) {
 
-Client.prototype.init = function init () {
+        this.options = $.extend(true,{}, defaults, options);
 
-    if (!Curator.checkContainer(this.options.container)) {
-        return false;
-    }
+        if (options.debug) {
+            Curator.debug = true;
+        }
 
-    this.$container = $(this.options.container);
+        // Curator.log(this.options);
 
-    this.createFeed();
-    this.createFilter();
-    this.createPopupManager();
+        return true;
+    };
 
-    return true;
-};
+    Client.prototype.init = function init () {
 
-Client.prototype.createFeed = function createFeed () {
+        if (!Curator.checkContainer(this.options.container)) {
+            return false;
+        }
+
+        this.$container = $(this.options.container);
+
+        this.createFeed();
+        this.createFilter();
+        this.createPopupManager();
+
+        return true;
+    };
+
+    Client.prototype.createFeed = function createFeed () {
         var this$1 = this;
 
-    this.feed = new Curator.Feed (this);
-    this.feed.on('postsLoaded', function (event) {
-        this$1.onPostsLoaded(event.target);
-    });
-    this.feed.on('postsFailed', function (event) {
-        this$1.onPostsFail(event.target);
-    });
-};
+        this.feed = new Curator.Feed (this);
+        this.feed.on('postsLoaded', function (event) {
+            this$1.onPostsLoaded(event.target);
+        });
+        this.feed.on('postsFailed', function (event) {
+            this$1.onPostsFail(event.target);
+        });
+    };
 
-Client.prototype.createPopupManager = function createPopupManager () {
-    this.popupManager = new Curator.PopupManager(this);
-};
+    Client.prototype.createPopupManager = function createPopupManager () {
+        this.popupManager = new Curator.PopupManager(this);
+    };
 
-Client.prototype.createFilter = function createFilter () {
-    if (this.options.filter && this.options.filter.show) {
-        this.filter = new Curator.Filter(this);
-    }
-};
-
-Client.prototype.loadPosts = function loadPosts (page) {
-    this.feed.loadPosts(page);
-};
-
-Client.prototype.createPostElements = function createPostElements (posts)
-{
-    var that = this;
-    var postElements = [];
-    $(posts).each(function(){
-        var p = that.createPostElement(this);
-        postElements.push(p.$el);
-    });
-    return postElements;
-};
-
-Client.prototype.createPostElement = function createPostElement (postJson) {
-    var post = new Curator.Post(postJson, this.options, this);
-    $(post).bind('postClick',this.onPostClick.bind(this));
-    $(post).bind('postReadMoreClick',this.onPostClick.bind(this));
-
-    if (this.options.onPostCreated) {
-        this.options.onPostCreated (post);
-    }
-
-    return post;
-};
-
-Client.prototype.onPostsLoaded = function onPostsLoaded (event) {
-    Curator.log('Client->onPostsLoaded');
-    Curator.log(event.target);
-};
-
-Client.prototype.onPostsFail = function onPostsFail (event) {
-    Curator.log('Client->onPostsLoadedFail');
-    Curator.log(event.target);
-};
-
-Client.prototype.onPostClick = function onPostClick (ev,post) {
-    this.popupManager.showPopup(post);
-};
-
-Client.prototype.track = function track (a) {
-    Curator.log('Feed->track '+a);
-
-    Curator.ajax(
-        this.getUrl('/track/'+this.options.feedId),
-        {a:a},
-        function (data) {
-            Curator.log('Feed->track success');
-            Curator.log(data);
-        },
-        function (jqXHR, textStatus, errorThrown) {
-            Curator.log('Feed->_loadPosts fail');
-            Curator.log(textStatus);
-            Curator.log(errorThrown);
+    Client.prototype.createFilter = function createFilter () {
+        if (this.options.filter && (this.options.filter.showNetworks || this.options.filter.showSources)) {
+            this.filter = new Curator.Filter(this);
         }
-    );
-};
+    };
 
-Client.prototype.getUrl = function getUrl (trail) {
-    return this.options.apiEndpoint+trail;
-};
+    Client.prototype.loadPosts = function loadPosts (page) {
+        this.feed.loadPosts(page);
+    };
+
+    Client.prototype.createPostElements = function createPostElements (posts)
+    {
+        var that = this;
+        var postElements = [];
+        $(posts).each(function(){
+            var p = that.createPostElement(this);
+            postElements.push(p.$el);
+        });
+        return postElements;
+    };
+
+    Client.prototype.createPostElement = function createPostElement (postJson) {
+        var post = new Curator.Post(postJson, this.options, this);
+        $(post).bind('postClick',this.onPostClick.bind(this));
+        $(post).bind('postReadMoreClick',this.onPostClick.bind(this));
+
+        if (this.options.onPostCreated) {
+            this.options.onPostCreated (post);
+        }
+
+        return post;
+    };
+
+    Client.prototype.onPostsLoaded = function onPostsLoaded (event) {
+        Curator.log('Client->onPostsLoaded');
+        Curator.log(event.target);
+    };
+
+    Client.prototype.onPostsFail = function onPostsFail (event) {
+        Curator.log('Client->onPostsLoadedFail');
+        Curator.log(event.target);
+    };
+
+    Client.prototype.onPostClick = function onPostClick (ev,post) {
+        this.popupManager.showPopup(post);
+    };
+
+    Client.prototype.track = function track (a) {
+        Curator.log('Feed->track '+a);
+
+        Curator.ajax(
+            this.getUrl('/track/'+this.options.feedId),
+            {a:a},
+            function (data) {
+                Curator.log('Feed->track success');
+                Curator.log(data);
+            },
+            function (jqXHR, textStatus, errorThrown) {
+                Curator.log('Feed->_loadPosts fail');
+                Curator.log(textStatus);
+                Curator.log(errorThrown);
+            }
+        );
+    };
+
+    Client.prototype.getUrl = function getUrl (trail) {
+        return this.options.apiEndpoint+trail;
+    };
+
+    return Client;
+}(EventBus));
 
 Curator.Client = Client;
+
+
+Curator.Events = {
+    FEED_LOADED :'feed:loaded'
+};
 $.support.cors = true;
 
 var defaults = {
@@ -1507,6 +1525,7 @@ var Feed = (function (EventBus) {
                     this$1.posts = this$1.posts.concat(data.posts);
                     this$1.networks = data.networks;
 
+                    this$1.client.trigger(Curator.Events.FEED_LOADED, data);
                     this$1.trigger('postsLoaded',data.posts);
                 } else {
                     this$1.trigger('postsFailed',data.posts);
@@ -1585,34 +1604,31 @@ Curator.Feed = Feed;
 */
 
 
-Curator.Templates.filterTemplate = ' <div class="crt-filter"> \
-<div class="crt-filter-network">\
-<label>Show:</label> \
-<ul class="networks">\
-</ul>\
-</div> \
-</div>';
-
 var Filter = function Filter (client) {
     var this$1 = this;
 
     Curator.log('Filter->construct');
 
     this.client = client;
+    this.options = client.options;
 
     this.$filter = Curator.Template.render('#filterTemplate', {});
-    this.$filterNetworks =  this.$filter.find('.networks');
+    this.$filterNetworks =  this.$filter.find('.crt-filter-networks');
+    this.$filterNetworksUl =  this.$filter.find('.crt-filter-networks ul');
+    this.$filterSources =  this.$filter.find('.crt-filter-sources');
+    this.$filterSourcesUl =  this.$filter.find('.crt-filter-sources ul');
 
     this.client.$container.append(this.$filter);
 
-    this.$filter.find('.crt-filter-network label').text(this.client.options.filter.label);
+    this.$filterNetworks.find('label').text(this.client.options.filter.networksLabel);
+    this.$filterSources.find('label').text(this.client.options.filter.sourcesLabel);
 
-    this.$filter.on('click','.crt-filter-network a',function (ev){
+    this.$filter.on('click','.crt-filter-networks a',function (ev){
         ev.preventDefault();
         var t = $(ev.target);
         var networkId = t.data('network');
 
-        this$1.$filter.find('.crt-filter-network li').removeClass('active');
+        this$1.$filter.find('.crt-filter-networks li').removeClass('active');
         t.parent().addClass('active');
 
         Curator.EventBus.trigger('crt:filter:change');
@@ -1624,22 +1640,67 @@ var Filter = function Filter (client) {
         }
     });
 
-    this.client.feed.on('postsLoaded', function (event) {
+    this.$filter.on('click','.crt-filter-sources a',function (ev){
+        ev.preventDefault();
+        var t = $(ev.target);
+        var sourceId = t.data('source');
+
+        this$1.$filter.find('.crt-filter-sources li').removeClass('active');
+        t.parent().addClass('active');
+
+        Curator.EventBus.trigger('crt:filter:change');
+
+        if (sourceId) {
+            this$1.client.feed.loadPosts(0, {source_id:sourceId});
+        } else {
+            this$1.client.feed.loadPosts(0, {});
+        }
+    });
+
+    this.client.on(Curator.Events.FEED_LOADED, function (event) {
         this$1.onPostsLoaded(event.target);
     });
 };
 
-Filter.prototype.onPostsLoaded = function onPostsLoaded () {
+Filter.prototype.onPostsLoaded = function onPostsLoaded (data) {
         var this$1 = this;
 
+
     if (!this.filtersLoaded) {
-        this.$filterNetworks.append('<li class="active"><a href="#" data-network="0"> All</a></li>');
 
-        for (var i = 0, list = this.client.feed.networks; i < list.length; i += 1) {
-            var id = list[i];
+        if (this.options.filter.showNetworks) {
+            this.$filterNetworksUl.append('<li class="crt-filter-label"><label>'+this.client.options.filter.networksLabel+'</label></li>');
+            this.$filterNetworksUl.append('<li class="active"><a href="#" data-network="0"> All</a></li>');
 
-                var network = Curator.Networks[id];
-            this$1.$filterNetworks.append('<li><a href="#" data-network="' + id + '"><i class="' + network.icon + '"></i> ' + network.name + '</a></li>');
+            for (var i = 0, list = data.networks; i < list.length; i += 1) {
+                var id = list[i];
+
+                    var network = Curator.Networks[id];
+                if (network) {
+                    this$1.$filterNetworksUl.append('<li><a href="#" data-network="' + id + '"><i class="' + network.icon + '"></i> ' + network.name + '</a></li>');
+                } else {
+                    console.log(id);
+                }
+            }
+        } else {
+            this.$filterNetworks.hide();
+        }
+
+        if (this.options.filter.showSources) {
+            this.$filterSourcesUl.append('<li class="crt-filter-label"><label>'+this.client.options.filter.sourcesLabel+'</label></li>');
+            this.$filterSourcesUl.append('<li class="active"><a href="#" data-source="0"> All</a></li>');
+            for (var i$1 = 0, list$1 = data.sources; i$1 < list$1.length; i$1 += 1) {
+                var source = list$1[i$1];
+
+                    var network$1 = Curator.Networks[source.network_id];
+                if (network$1) {
+                    this$1.$filterSourcesUl.append('<li><a href="#" data-source="' + source.id + '"><i class="' + network$1.icon + '"></i> ' + source.name + '</a></li>');
+                } else {
+                    console.log(source.network_id);
+                }
+            }
+        } else {
+            this.$filterSources.hide();
         }
 
         this.filtersLoaded = true;
@@ -2169,6 +2230,7 @@ Curator.SocialFacebook = {
     share: function (post) {
         var obj = post;
         obj.url = Curator.Utils.postUrl(post);
+        obj.cleanText = Curator.StringUtils.filterHtml(post.text);
         var cb =  function(){};
 
         // Disabling for now - doesn't work - seems to get error "Can't Load URL: The domain of this URL isn't
@@ -2180,10 +2242,10 @@ Curator.SocialFacebook = {
                 link: obj.url,
                 picture: obj.image,
                 name: obj.user_screen_name,
-                description: obj.text
+                description: obj.cleanText
             }, cb);
         } else {
-            var url = "https://www.facebook.com/sharer/sharer.php?u={{url}}&d={{text}}";
+            var url = "https://www.facebook.com/sharer/sharer.php?u={{url}}&d={{cleanText}}";
             var url2 = Curator.Utils.tinyparser(url, obj);
             Curator.Utils.popup(url2, 'twitter', '600', '430', '0');
         }
@@ -2205,8 +2267,10 @@ Curator.SocialTwitter = {
     share: function (post) {
         var obj = post;
         obj.url = Curator.Utils.postUrl(post);
+        obj.cleanText = Curator.StringUtils.filterHtml(post.text);
 
-        var url = "http://twitter.com/share?url={{url}}&text={{text}}&hashtags={{hashtags}}";
+        var url = "http://twitter.com/share?url={{url}}&text={{cleanText}}&hashtags={{hashtags}}";
+        console.log (url);
         var url2 = Curator.Utils.tinyparser(url, obj);
         // console.log(obj);
         // console.log(url);
@@ -2292,6 +2356,17 @@ Curator.Templates.popupTemplate = ' \
 </div>';
 
 Curator.Templates.popupUnderlayTemplate = '';
+
+
+
+Curator.Templates.filterTemplate = ' <div class="crt-filter"> \
+<div class="crt-filter-networks">\
+<ul class="crt-networks"> </ul>\
+</div> \
+<div class="crt-filter-sources">\
+<ul class="crt-sources"> </ul>\
+</div> \
+</div>';
 
 Curator.Template = {
     camelize: function (s) {
@@ -2546,6 +2621,17 @@ Curator.StringUtils = {
         }
 
         return false;
+    },
+
+    filterHtml : function (html) {
+        try {
+            var div = document.createElement("div");
+            div.innerHTML = html;
+            var text = div.textContent || div.innerText || "";
+            return text;
+        } catch (e) {
+            return html;
+        }
     }
 };
 

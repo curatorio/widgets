@@ -77,6 +77,17 @@ Curator.Templates.popupTemplate = ' \
 
 Curator.Templates.popupUnderlayTemplate = '';
 
+
+
+Curator.Templates.filterTemplate = ' <div class="crt-filter"> \
+<div class="crt-filter-networks">\
+<ul class="crt-networks"> </ul>\
+</div> \
+<div class="crt-filter-sources">\
+<ul class="crt-sources"> </ul>\
+</div> \
+</div>';
+
 Curator.Template = {
     camelize: function (s) {
         return s.replace (/(?:^|[-_])(\w)/g, function (_, c) {

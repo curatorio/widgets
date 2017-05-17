@@ -100,8 +100,11 @@ let Curator = {
             onPostsLoaded: function () {
             },
             filter: {
-                show: false,
-                label: 'Show:'
+                showNetworks: false,
+                networksLabel: 'Networks:',
+
+                showSources: false,
+                sourcesLabel: 'Sources:',
             }
         }
     }

@@ -3,9 +3,11 @@
 	padding: 5px;
 	text-align: center;
 
-	.crt-filter-network {
+	.crt-filter-networks,
+	.crt-filter-sources {
 		position: relative;
 		display: block;
+		margin-bottom: 3px;
 
 		ul {
 			display: inline-block;
@@ -46,8 +48,8 @@
 		}
 
 		.crt-filter-label {
-			text-transform: uppercase;
-
+			//text-transform: uppercase;
+			margin: 0 5px;
 		}
 	}
 }

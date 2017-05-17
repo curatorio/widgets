@@ -711,17 +711,22 @@ body.crt-popup-visible {
   margin: 5px;
   padding: 5px;
   text-align: center; }
-  .crt-filter .crt-filter-network {
+  .crt-filter .crt-filter-networks,
+  .crt-filter .crt-filter-sources {
     position: relative;
-    display: block; }
-    .crt-filter .crt-filter-network ul {
+    display: block;
+    margin-bottom: 3px; }
+    .crt-filter .crt-filter-networks ul,
+    .crt-filter .crt-filter-sources ul {
       display: inline-block;
       margin: 0;
       padding: 0;
       background-color: #efefef; }
-      .crt-filter .crt-filter-network ul li {
+      .crt-filter .crt-filter-networks ul li,
+      .crt-filter .crt-filter-sources ul li {
         display: inline-block; }
-        .crt-filter .crt-filter-network ul li a {
+        .crt-filter .crt-filter-networks ul li a,
+        .crt-filter .crt-filter-sources ul li a {
           display: block;
           padding: 7px 10px;
           text-decoration: none;
@@ -729,15 +734,19 @@ body.crt-popup-visible {
           line-height: 1.2em;
           color: #707070;
           transition: background-color 0.3s linear; }
-          .crt-filter .crt-filter-network ul li a i {
+          .crt-filter .crt-filter-networks ul li a i,
+          .crt-filter .crt-filter-sources ul li a i {
             margin-left: -5px; }
-          .crt-filter .crt-filter-network ul li a:hover {
+          .crt-filter .crt-filter-networks ul li a:hover,
+          .crt-filter .crt-filter-sources ul li a:hover {
             text-decoration: none;
             background-color: rgba(0, 0, 0, 0.1); }
-        .crt-filter .crt-filter-network ul li.active a {
+        .crt-filter .crt-filter-networks ul li.active a,
+        .crt-filter .crt-filter-sources ul li.active a {
           background-color: #cccccc; }
-    .crt-filter .crt-filter-network .crt-filter-label {
-      text-transform: uppercase; }
+    .crt-filter .crt-filter-networks .crt-filter-label,
+    .crt-filter .crt-filter-sources .crt-filter-label {
+      margin: 0 5px; }
 
 .crt-image-responsive {
   position: relative;

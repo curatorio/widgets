@@ -86,6 +86,7 @@ class Feed extends EventBus {
                     this.posts = this.posts.concat(data.posts);
                     this.networks = data.networks;
 
+                    this.client.trigger(Curator.Events.FEED_LOADED, data);
                     this.trigger('postsLoaded',data.posts);
                 } else {
                     this.trigger('postsFailed',data.posts);
