@@ -117,6 +117,13 @@ class Client extends EventBus {
     getUrl (trail) {
         return this.options.apiEndpoint+trail;
     }
+
+    destroy () {
+        if (this.filter) {
+            this.filter.destroy()
+        }
+    }
 }
+
 
 Curator.Client = Client;

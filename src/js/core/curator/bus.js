@@ -87,6 +87,8 @@ class EventBus {
         }
         return str;
     }
+
+    // do we need to destroy the listeners
 }
 
 Curator.EventBus = new EventBus();

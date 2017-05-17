@@ -32,7 +32,7 @@ class Filter {
             this.$filter.find('.crt-filter-networks li').removeClass('active');
             t.parent().addClass('active');
 
-            Curator.EventBus.trigger('crt:filter:change');
+            this.client.trigger(Curator.Events.FILTER_CHANGED);
 
             if (networkId) {
                 this.client.feed.loadPosts(0, {network_id: networkId});
@@ -49,7 +49,7 @@ class Filter {
             this.$filter.find('.crt-filter-sources li').removeClass('active');
             t.parent().addClass('active');
 
-            Curator.EventBus.trigger('crt:filter:change');
+            this.client.trigger(Curator.Events.FILTER_CHANGED);
 
             if (sourceId) {
                 this.client.feed.loadPosts(0, {source_id:sourceId});
@@ -100,6 +100,10 @@ class Filter {
 
             this.filtersLoaded = true;
         }
+    }
+
+    destroy () {
+        this.$filter.remove();
     }
 }
 

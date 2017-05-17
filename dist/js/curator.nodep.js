@@ -3003,14 +3003,22 @@ var Client = (function (EventBus) {
         return this.options.apiEndpoint+trail;
     };
 
+    Client.prototype.destroy = function destroy () {
+        if (this.filter) {
+            this.filter.destroy()
+        }
+    };
+
     return Client;
 }(EventBus));
+
 
 Curator.Client = Client;
 
 
 Curator.Events = {
-    FEED_LOADED :'feed:loaded'
+    FEED_LOADED :'crt:feed:loaded',
+    FILTER_CHANGED :'crt:filter:changed'
 };
 $.support.cors = true;
 
@@ -3211,7 +3219,7 @@ var Filter = function Filter (client) {
         this$1.$filter.find('.crt-filter-networks li').removeClass('active');
         t.parent().addClass('active');
 
-        Curator.EventBus.trigger('crt:filter:change');
+        this$1.client.trigger(Curator.Events.FILTER_CHANGED);
 
         if (networkId) {
             this$1.client.feed.loadPosts(0, {network_id: networkId});
@@ -3228,7 +3236,7 @@ var Filter = function Filter (client) {
         this$1.$filter.find('.crt-filter-sources li').removeClass('active');
         t.parent().addClass('active');
 
-        Curator.EventBus.trigger('crt:filter:change');
+        this$1.client.trigger(Curator.Events.FILTER_CHANGED);
 
         if (sourceId) {
             this$1.client.feed.loadPosts(0, {source_id:sourceId});
@@ -3285,6 +3293,10 @@ Filter.prototype.onPostsLoaded = function onPostsLoaded (data) {
 
         this.filtersLoaded = true;
     }
+};
+
+Filter.prototype.destroy = function destroy () {
+    this.$filter.remove();
 };
 
 Curator.Filter = Filter;
@@ -4274,7 +4286,7 @@ var Waterfall = (function (superclass) {
                 }
             });
 
-            Curator.EventBus.on('crt:filter:change', function (event) {
+            this.on(Curator.Events.FILTER_CHANGED, function (event) {
                 this$1.$feed.find('.crt-post-c').remove();
             });
 
@@ -4331,6 +4343,9 @@ var Waterfall = (function (superclass) {
 
     Waterfall.prototype.destroy = function destroy () {
         //this.$feed.slick('unslick');
+
+        superclass.prototype.destroy.call(this);
+
         this.$feed.remove();
         this.$scroll.remove();
         if (this.$more) {

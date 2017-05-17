@@ -55,7 +55,7 @@ class Waterfall extends Curator.Client {
                 }
             });
 
-            Curator.EventBus.on('crt:filter:change', event => {
+            this.on(Curator.Events.FILTER_CHANGED, event => {
                 this.$feed.find('.crt-post-c').remove();
             });
 
@@ -108,6 +108,9 @@ class Waterfall extends Curator.Client {
 
     destroy  () {
         //this.$feed.slick('unslick');
+
+        super.destroy();
+
         this.$feed.remove();
         this.$scroll.remove();
         if (this.$more) {
