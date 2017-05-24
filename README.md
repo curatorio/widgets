@@ -77,6 +77,22 @@ var widget = new Curator.Panel({
 
 ## Customisation
 
+### Default Options
+
+```js
+var widget = new Curator.Watterfall({    
+    feedId:'ABC123',                 // FEED_ID to load
+    postsPerPage:12,                 // number of posts per page
+    debug: false,                    // turn debugging on or off
+    filter: {
+        showNetworks: false,         // show Networks filter bar
+        networksLabel: 'Networks:',  // Networks filter bar label
+        showSources: false,          // show Sources filter bar
+        sourcesLabel: 'Sources:',    // Sources filter bar label
+    }
+});
+```
+
 ### Widget Options
 
 Each of the widgets can be passed a set of options to customise the widget
