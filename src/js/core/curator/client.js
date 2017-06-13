@@ -5,6 +5,8 @@ class Client extends EventBus {
         Curator.log('Client->construct');
 
         super ();
+
+        this.id = Curator.Utils.uId ();
     }
 
     setOptions (options, defaults) {

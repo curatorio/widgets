@@ -2884,6 +2884,8 @@ var Client = (function (EventBus) {
         Curator.log('Client->construct');
 
         EventBus.call (this);
+
+        this.id = Curator.Utils.uId ();
     }
 
     if ( EventBus ) Client.__proto__ = EventBus;
@@ -3998,12 +4000,8 @@ Curator.Template = {
 
 
 Curator.Utils = {
-
     postUrl : function (post)
     {
-
-        console.log(post.url);
-
         if (post.url && post.url !== "" && post.url !== "''")
         {
             // instagram
@@ -4020,7 +4018,7 @@ Curator.Utils = {
         return '';
     },
 
-    center : function (elementWidth, elementHeight, bound) {
+    center: function center (elementWidth, elementHeight, bound) {
         var s = window.screen,
             b = bound || {},
             bH = b.height || s.height,
@@ -4034,10 +4032,9 @@ Curator.Utils = {
         };
     },
 
-    popup :  function (mypage, myname, w, h, scroll) {
+    popup: function popup (mypage, myname, w, h, scroll) {
 
-        var
-            position = this.center(w, h),
+        var position = this.center(w, h),
             settings = 'height=' + h + ',width=' + w + ',top=' + position.top +
                 ',left=' + position.left + ',scrollbars=' + scroll +
                 ',resizable';
@@ -4045,20 +4042,40 @@ Curator.Utils = {
         window.open(mypage, myname, settings);
     },
 
-    tinyparser : function (string, obj) {
-
+    tinyparser: function tinyparser (string, obj) {
         return string.replace(/\{\{(.*?)\}\}/g, function (a, b) {
             return obj && typeof obj[b] !== "undefined" ? encodeURIComponent(obj[b]) : "";
         });
+    },
+
+    debounce: function debounce (func, wait, immediate) {
+        var timeout;
+        return function() {
+            var context = this, args = arguments;
+            var later = function() {
+                timeout = null;
+                if (!immediate) func.apply(context, args);
+            };
+            var callNow = immediate && !timeout;
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+            if (callNow) func.apply(context, args);
+        };
+    },
+
+    uId: function uId () {
+        // Math.random should be unique because of its seeding algorithm.
+        // Convert it to base 36 (numbers + letters), and grab the first 9 characters
+        // after the decimal.
+        return '_' + Math.random().toString(36).substr(2, 9);
     }
 };
-
 
 Curator.DateUtils = {
     /**
      * Parse a date string in form DD/MM/YYYY HH:MM::SS - returns as UTC
      */
-    dateFromString: function (time) {
+    dateFromString: function dateFromString(time) {
         dtstr = time.replace(/\D/g," ");
         var dtcomps = dtstr.split(" ");
 
@@ -4073,7 +4090,7 @@ Curator.DateUtils = {
     /**
      * Format the date as DD/MM/YYYY
      */
-    dateAsDayMonthYear: function (strEpoch) {
+    dateAsDayMonthYear: function dateAsDayMonthYear(strEpoch) {
         var myDate = new Date(parseInt(strEpoch, 10));
         // console.log(myDate.toGMTString()+"<br>"+myDate.toLocaleString());
 
@@ -4092,7 +4109,7 @@ Curator.DateUtils = {
     /**
      * Convert the date into a time array
      */
-    dateAsTimeArray: function (strEpoch) {
+    dateAsTimeArray: function dateAsTimeArray(strEpoch) {
         var myDate = new Date(parseInt(strEpoch, 10));
 
         var hours = myDate.getHours() + '';
@@ -4126,7 +4143,7 @@ Curator.DateUtils = {
 
 Curator.StringUtils = {
 
-    twitterLinks : function (s)
+    twitterLinks: function twitterLinks (s)
     {
         s = s.replace(/[@]+[A-Za-z0-9-_]+/g, function(u) {
             var username = u.replace("@","");
@@ -4140,7 +4157,7 @@ Curator.StringUtils = {
         return s;
     },
 
-    instagramLinks : function (s)
+    instagramLinks: function instagramLinks (s)
     {
         s = s.replace(/[@]+[A-Za-z0-9-_]+/g, function(u) {
             var username = u.replace("@","");
@@ -4154,7 +4171,7 @@ Curator.StringUtils = {
         return s;
     },
 
-    facebookLinks : function (s)
+    facebookLinks: function facebookLinks (s)
     {
         s = s.replace(/[@]+[A-Za-z0-9-_]+/g, function(u) {
             var username = u.replace("@","");
@@ -4168,7 +4185,7 @@ Curator.StringUtils = {
         return s;
     },
 
-    linksToHref : function (s)
+    linksToHref: function linksToHref (s)
     {
         s = s.replace(/[A-Za-z]+:\/\/[A-Za-z0-9-_]+\.[A-Za-z0-9-_:%&~\?\/.=]+/g, function(url) {
             return Curator.StringUtils.url(url);
@@ -4177,12 +4194,12 @@ Curator.StringUtils = {
         return s;
     },
 
-    url : function (s,t) {
+    url: function url (s,t) {
         t = t || s;
         return '<a href="'+s+'" target="_blank">'+t+'</a>';
     },
 
-    youtubeVideoId : function (url){
+    youtubeVideoId: function youtubeVideoId (url){
         var regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#\&\?]*).*/;
         var match = url.match(regExp);
 
@@ -4202,7 +4219,7 @@ Curator.StringUtils = {
         return false;
     },
 
-    vimeoVideoId : function (url){
+    vimeoVideoId: function vimeoVideoId (url) {
         var regExp = /(?:www\.|player\.)?vimeo.com\/(?:channels\/(?:\w+\/)?|groups\/(?:[^\/]*)\/videos\/|album\/(?:\d+)\/video\/|video\/|)(\d+)(?:[a-zA-Z0-9_\-]+)?/;
         var match = url.match(regExp);
 
@@ -4215,7 +4232,7 @@ Curator.StringUtils = {
         return false;
     },
 
-    filterHtml : function (html) {
+    filterHtml: function filterHtml (html) {
         try {
             var div = document.createElement("div");
             div.innerHTML = html;
@@ -4226,8 +4243,6 @@ Curator.StringUtils = {
         }
     }
 };
-
-
 
 Curator.Config.Waterfall = $.extend({}, Curator.Config.Defaults, {
     scroll:'more',
@@ -4717,34 +4732,42 @@ var Grid = (function (Client) {
             this.loadPosts(0);
         }
 
-        var to = null;
-        var that = this;
-        $(window).resize(function(){
-            clearTimeout(to);
-            to = setTimeout(function(){
-                that.updateLayout();
-            },100);
-        });
+        this.createHandlers();
+
         this.updateLayout ();
-
-        $(window).on('curatorCssLoaded',function(){
-            clearTimeout(to);
-            to = setTimeout(function(){
-                that.updateLayout();
-            },100);
-        });
-
-        $(document).on('ready',function(){
-            clearTimeout(to);
-            to = setTimeout(function(){
-                that.updateLayout();
-            },100);
-        });
     }
 
     if ( Client ) Grid.__proto__ = Client;
     Grid.prototype = Object.create( Client && Client.prototype );
     Grid.prototype.constructor = Grid;
+
+    Grid.prototype.createHandlers = function createHandlers () {
+        var this$1 = this;
+
+        var id = this.id;
+
+        $(window).on('resize.'+id, function () {
+            this$1.updateLayout();
+        });
+
+        $(window).on('curatorCssLoaded.'+id, function () {
+            this$1.updateLayout();
+        });
+
+        $(document).on('ready.'+id, function () {
+            this$1.updateLayout();
+        });
+    };
+
+    Grid.prototype.destroyHandlers = function destroyHandlers () {
+        var id = this.id;
+
+        $(window).off('resize.'+id);
+
+        $(window).off('curatorCssLoaded.'+id);
+
+        $(document).off('ready.'+id);
+    };
 
     Grid.prototype.onPostsLoaded = function onPostsLoaded (posts) {
         Curator.log("Grid->onPostsLoaded");
@@ -4809,18 +4832,22 @@ var Grid = (function (Client) {
     };
 
     Grid.prototype.updateLayout = function updateLayout ( ) {
-        var cols = Math.floor(this.$container.width()/this.options.grid.minWidth);
-        var postsNeeded = cols *  this.options.grid.rows;
+        var this$1 = this;
 
-        this.$container.removeClass('crt-grid-col'+this.previousCol);
-        this.previousCol = cols;
-        this.$container.addClass('crt-grid-col'+this.previousCol);
+        Curator.Utils.debounce(function () {
+            var cols = Math.floor(this$1.$container.width()/this$1.options.grid.minWidth);
+            var postsNeeded = cols *  this$1.options.grid.rows;
 
-        if (postsNeeded > this.feed.postsLoaded) {
-            this.loadPosts(this.feed.currentPage+1);
-        }
+            this$1.$container.removeClass('crt-grid-col'+this$1.previousCol);
+            this$1.previousCol = cols;
+            this$1.$container.addClass('crt-grid-col'+this$1.previousCol);
 
-        this.updateHeight();
+            if (postsNeeded > this$1.feed.postsLoaded) {
+                this$1.loadPosts(this$1.feed.currentPage+1);
+            }
+
+            this$1.updateHeight();
+        });
     };
 
     Grid.prototype.updateHeight = function updateHeight (animate) {
@@ -4846,6 +4873,8 @@ var Grid = (function (Client) {
     };
 
     Grid.prototype.destroy = function destroy () {
+        this.destroyHandlers();
+
         this.$container.empty()
             .removeClass('crt-grid')
             .removeClass('crt-grid-col'+this.previousCol)

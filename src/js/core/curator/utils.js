@@ -1,11 +1,7 @@
 
 Curator.Utils = {
-
     postUrl : function (post)
     {
-
-        console.log(post.url);
-
         if (post.url && post.url !== "" && post.url !== "''")
         {
             // instagram
@@ -22,7 +18,7 @@ Curator.Utils = {
         return '';
     },
 
-    center : function (elementWidth, elementHeight, bound) {
+    center (elementWidth, elementHeight, bound) {
         let s = window.screen,
             b = bound || {},
             bH = b.height || s.height,
@@ -36,10 +32,9 @@ Curator.Utils = {
         };
     },
 
-    popup :  function (mypage, myname, w, h, scroll) {
+    popup (mypage, myname, w, h, scroll) {
 
-        var
-            position = this.center(w, h),
+        let position = this.center(w, h),
             settings = 'height=' + h + ',width=' + w + ',top=' + position.top +
                 ',left=' + position.left + ',scrollbars=' + scroll +
                 ',resizable';
@@ -47,20 +42,40 @@ Curator.Utils = {
         window.open(mypage, myname, settings);
     },
 
-    tinyparser : function (string, obj) {
-
+    tinyparser (string, obj) {
         return string.replace(/\{\{(.*?)\}\}/g, function (a, b) {
             return obj && typeof obj[b] !== "undefined" ? encodeURIComponent(obj[b]) : "";
         });
+    },
+
+    debounce (func, wait, immediate) {
+        let timeout;
+        return function() {
+            let context = this, args = arguments;
+            let later = function() {
+                timeout = null;
+                if (!immediate) func.apply(context, args);
+            };
+            let callNow = immediate && !timeout;
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+            if (callNow) func.apply(context, args);
+        };
+    },
+
+    uId () {
+        // Math.random should be unique because of its seeding algorithm.
+        // Convert it to base 36 (numbers + letters), and grab the first 9 characters
+        // after the decimal.
+        return '_' + Math.random().toString(36).substr(2, 9);
     }
 };
-
 
 Curator.DateUtils = {
     /**
      * Parse a date string in form DD/MM/YYYY HH:MM::SS - returns as UTC
      */
-    dateFromString: function (time) {
+    dateFromString(time) {
         dtstr = time.replace(/\D/g," ");
         let dtcomps = dtstr.split(" ");
 
@@ -75,7 +90,7 @@ Curator.DateUtils = {
     /**
      * Format the date as DD/MM/YYYY
      */
-    dateAsDayMonthYear: function (strEpoch) {
+    dateAsDayMonthYear(strEpoch) {
         let myDate = new Date(parseInt(strEpoch, 10));
         // console.log(myDate.toGMTString()+"<br>"+myDate.toLocaleString());
 
@@ -94,7 +109,7 @@ Curator.DateUtils = {
     /**
      * Convert the date into a time array
      */
-    dateAsTimeArray: function (strEpoch) {
+    dateAsTimeArray(strEpoch) {
         let myDate = new Date(parseInt(strEpoch, 10));
 
         let hours = myDate.getHours() + '';
@@ -128,7 +143,7 @@ Curator.DateUtils = {
 
 Curator.StringUtils = {
 
-    twitterLinks : function (s)
+    twitterLinks (s)
     {
         s = s.replace(/[@]+[A-Za-z0-9-_]+/g, function(u) {
             let username = u.replace("@","");
@@ -142,7 +157,7 @@ Curator.StringUtils = {
         return s;
     },
 
-    instagramLinks : function (s)
+    instagramLinks (s)
     {
         s = s.replace(/[@]+[A-Za-z0-9-_]+/g, function(u) {
             let username = u.replace("@","");
@@ -156,7 +171,7 @@ Curator.StringUtils = {
         return s;
     },
 
-    facebookLinks : function (s)
+    facebookLinks (s)
     {
         s = s.replace(/[@]+[A-Za-z0-9-_]+/g, function(u) {
             let username = u.replace("@","");
@@ -170,7 +185,7 @@ Curator.StringUtils = {
         return s;
     },
 
-    linksToHref : function (s)
+    linksToHref (s)
     {
         s = s.replace(/[A-Za-z]+:\/\/[A-Za-z0-9-_]+\.[A-Za-z0-9-_:%&~\?\/.=]+/g, function(url) {
             return Curator.StringUtils.url(url);
@@ -179,12 +194,12 @@ Curator.StringUtils = {
         return s;
     },
 
-    url : function (s,t) {
+    url (s,t) {
         t = t || s;
         return '<a href="'+s+'" target="_blank">'+t+'</a>';
     },
 
-    youtubeVideoId : function (url){
+    youtubeVideoId (url){
         let regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#\&\?]*).*/;
         let match = url.match(regExp);
 
@@ -204,7 +219,7 @@ Curator.StringUtils = {
         return false;
     },
 
-    vimeoVideoId : function (url){
+    vimeoVideoId (url) {
         let regExp = /(?:www\.|player\.)?vimeo.com\/(?:channels\/(?:\w+\/)?|groups\/(?:[^\/]*)\/videos\/|album\/(?:\d+)\/video\/|video\/|)(\d+)(?:[a-zA-Z0-9_\-]+)?/;
         let match = url.match(regExp);
 
@@ -217,7 +232,7 @@ Curator.StringUtils = {
         return false;
     },
 
-    filterHtml : function (html) {
+    filterHtml (html) {
         try {
             let div = document.createElement("div");
             div.innerHTML = html;
@@ -228,4 +243,3 @@ Curator.StringUtils = {
         }
     }
 };
-

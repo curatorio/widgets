@@ -99,29 +99,35 @@ class Grid extends Client {
             this.loadPosts(0);
         }
 
-        let to = null;
-        let that = this;
-        $(window).resize(function(){
-            clearTimeout(to);
-            to = setTimeout(function(){
-                that.updateLayout();
-            },100);
-        });
+        this.createHandlers();
+
         this.updateLayout ();
+    }
 
-        $(window).on('curatorCssLoaded',function(){
-            clearTimeout(to);
-            to = setTimeout(function(){
-                that.updateLayout();
-            },100);
+    createHandlers () {
+        let id = this.id;
+
+        $(window).on('resize.'+id, () => {
+            this.updateLayout();
         });
 
-        $(document).on('ready',function(){
-            clearTimeout(to);
-            to = setTimeout(function(){
-                that.updateLayout();
-            },100);
+        $(window).on('curatorCssLoaded.'+id, () => {
+            this.updateLayout();
         });
+
+        $(document).on('ready.'+id, () => {
+            this.updateLayout();
+        });
+    }
+
+    destroyHandlers () {
+        let id = this.id;
+
+        $(window).off('resize.'+id);
+
+        $(window).off('curatorCssLoaded.'+id);
+
+        $(document).off('ready.'+id);
     }
 
     onPostsLoaded (posts) {
@@ -187,18 +193,20 @@ class Grid extends Client {
     }
 
     updateLayout ( ) {
-        let cols = Math.floor(this.$container.width()/this.options.grid.minWidth);
-        let postsNeeded = cols *  this.options.grid.rows;
+        Curator.Utils.debounce(() => {
+            let cols = Math.floor(this.$container.width()/this.options.grid.minWidth);
+            let postsNeeded = cols *  this.options.grid.rows;
 
-        this.$container.removeClass('crt-grid-col'+this.previousCol);
-        this.previousCol = cols;
-        this.$container.addClass('crt-grid-col'+this.previousCol);
+            this.$container.removeClass('crt-grid-col'+this.previousCol);
+            this.previousCol = cols;
+            this.$container.addClass('crt-grid-col'+this.previousCol);
 
-        if (postsNeeded > this.feed.postsLoaded) {
-            this.loadPosts(this.feed.currentPage+1);
-        }
+            if (postsNeeded > this.feed.postsLoaded) {
+                this.loadPosts(this.feed.currentPage+1);
+            }
 
-        this.updateHeight();
+            this.updateHeight();
+        });
     }
 
     updateHeight (animate) {
@@ -224,6 +232,8 @@ class Grid extends Client {
     }
 
     destroy () {
+        this.destroyHandlers();
+
         this.$container.empty()
             .removeClass('crt-grid')
             .removeClass('crt-grid-col'+this.previousCol)
