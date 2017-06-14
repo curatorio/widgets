@@ -89,6 +89,9 @@ class Panel extends Curator.Client {
     }
 
     destroy   () {
+
+        super.destroy();
+
         this.$feed.curatorCarousel('destroy');
         this.$feed.remove();
         this.$container.removeClass('crt-panel');

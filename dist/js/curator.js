@@ -961,6 +961,11 @@ EventBus.prototype.getEvents = function getEvents () {
     return str;
 };
 
+EventBus.prototype.destroy = function destroy () {
+    // Might be a bit simplistic!!!
+    this.listeners = {};
+};
+
 Curator.EventBus = new EventBus();
 
 (function($) {
@@ -1306,6 +1311,7 @@ var Client = (function (EventBus) {
         EventBus.call (this);
 
         this.id = Curator.Utils.uId ();
+        Curator.log('id='+this.id);
     }
 
     if ( EventBus ) Client.__proto__ = EventBus;
@@ -1426,8 +1432,15 @@ var Client = (function (EventBus) {
     };
 
     Client.prototype.destroy = function destroy () {
+        Curator.log('Client->destroy');
+        if (this.feed) {
+            this.feed.destroy()
+        }
         if (this.filter) {
             this.filter.destroy()
+        }
+        if (this.popupManager) {
+            this.popupManager.destroy()
         }
     };
 
@@ -1466,7 +1479,7 @@ var Feed = (function (EventBus) {
 
         Curator.log ('Feed->init with options');
 
-        this.client = client;
+        this.widget = client;
 
         this.posts = [];
         this.currentPage = 0;
@@ -1474,7 +1487,7 @@ var Feed = (function (EventBus) {
         this.postCount = 0;
         this.loading = false;
 
-        this.options = this.client.options;
+        this.options = this.widget.options;
 
         this.feedBase = this.options.apiEndpoint+'/feed';
     }
@@ -1535,7 +1548,7 @@ var Feed = (function (EventBus) {
                     this$1.posts = this$1.posts.concat(data.posts);
                     this$1.networks = data.networks;
 
-                    this$1.client.trigger(Curator.Events.FEED_LOADED, data);
+                    this$1.widget.trigger(Curator.Events.FEED_LOADED, data);
                     this$1.trigger('postsLoaded',data.posts);
                 } else {
                     this$1.trigger('postsFailed',data.posts);
@@ -1601,6 +1614,10 @@ var Feed = (function (EventBus) {
 
     Feed.prototype.getUrl = function getUrl (trail) {
         return this.feedBase+'/'+this.options.feedId+trail;
+    };
+
+    Feed.prototype.destroy = function destroy () {
+        EventBus.prototype.destroy.call(this);
     };
 
     return Feed;
@@ -2777,6 +2794,7 @@ var Waterfall = (function (superclass) {
     };
 
     Waterfall.prototype.destroy = function destroy () {
+        Curator.log('Waterfall->destroy');
         //this.$feed.slick('unslick');
 
         superclass.prototype.destroy.call(this);
@@ -2914,6 +2932,8 @@ var Carousel = (function (Client) {
     };
 
     Carousel.prototype.destroy = function destroy () {
+        Client.prototype.destroy.call(this);
+
         this.carousel.destroy();
         this.$feed.remove();
         this.$container.removeClass('crt-carousel');
@@ -3031,6 +3051,9 @@ var Panel = (function (superclass) {
     };
 
     Panel.prototype.destroy = function destroy () {
+
+        superclass.prototype.destroy.call(this);
+
         this.$feed.curatorCarousel('destroy');
         this.$feed.remove();
         this.$container.removeClass('crt-panel');
@@ -3293,6 +3316,8 @@ var Grid = (function (Client) {
     };
 
     Grid.prototype.destroy = function destroy () {
+        Client.prototype.destroy.call(this);
+
         this.destroyHandlers();
 
         this.$container.empty()
@@ -3385,6 +3410,8 @@ var Custom = (function (superclass) {
     };
 
     Custom.prototype.destroy = function destroy () {
+        superclass.prototype.destroy.call(this);
+
         this.$feed.remove();
         this.$container.removeClass('crt-custom');
 

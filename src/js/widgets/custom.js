@@ -63,6 +63,8 @@ class Custom extends Curator.Client {
     }
 
     destroy  () {
+        super.destroy();
+
         this.$feed.remove();
         this.$container.removeClass('crt-custom');
 

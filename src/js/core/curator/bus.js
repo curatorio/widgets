@@ -88,7 +88,10 @@ class EventBus {
         return str;
     }
 
-    // do we need to destroy the listeners
+    destroy () {
+        // Might be a bit simplistic!!!
+        this.listeners = {};
+    }
 }
 
 Curator.EventBus = new EventBus();

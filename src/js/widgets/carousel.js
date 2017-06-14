@@ -100,6 +100,8 @@ class Carousel extends Client {
     }
 
     destroy  () {
+        super.destroy();
+
         this.carousel.destroy();
         this.$feed.remove();
         this.$container.removeClass('crt-carousel');

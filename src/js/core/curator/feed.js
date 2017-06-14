@@ -23,7 +23,7 @@ class Feed extends EventBus {
 
         Curator.log ('Feed->init with options');
 
-        this.client = client;
+        this.widget = client;
 
         this.posts = [];
         this.currentPage = 0;
@@ -31,7 +31,7 @@ class Feed extends EventBus {
         this.postCount = 0;
         this.loading = false;
 
-        this.options = this.client.options;
+        this.options = this.widget.options;
 
         this.feedBase = this.options.apiEndpoint+'/feed';
     }
@@ -86,7 +86,7 @@ class Feed extends EventBus {
                     this.posts = this.posts.concat(data.posts);
                     this.networks = data.networks;
 
-                    this.client.trigger(Curator.Events.FEED_LOADED, data);
+                    this.widget.trigger(Curator.Events.FEED_LOADED, data);
                     this.trigger('postsLoaded',data.posts);
                 } else {
                     this.trigger('postsFailed',data.posts);
@@ -152,6 +152,10 @@ class Feed extends EventBus {
 
     getUrl (trail) {
         return this.feedBase+'/'+this.options.feedId+trail;
+    }
+
+    destroy () {
+        super.destroy();
     }
 }
 

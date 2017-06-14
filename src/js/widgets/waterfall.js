@@ -107,6 +107,7 @@ class Waterfall extends Curator.Client {
     }
 
     destroy  () {
+        Curator.log('Waterfall->destroy');
         //this.$feed.slick('unslick');
 
         super.destroy();

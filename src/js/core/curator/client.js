@@ -7,6 +7,7 @@ class Client extends EventBus {
         super ();
 
         this.id = Curator.Utils.uId ();
+        Curator.log('id='+this.id);
     }
 
     setOptions (options, defaults) {
@@ -121,8 +122,15 @@ class Client extends EventBus {
     }
 
     destroy () {
+        Curator.log('Client->destroy');
+        if (this.feed) {
+            this.feed.destroy()
+        }
         if (this.filter) {
             this.filter.destroy()
+        }
+        if (this.popupManager) {
+            this.popupManager.destroy()
         }
     }
 }

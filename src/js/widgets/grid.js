@@ -232,6 +232,8 @@ class Grid extends Client {
     }
 
     destroy () {
+        super.destroy();
+
         this.destroyHandlers();
 
         this.$container.empty()
