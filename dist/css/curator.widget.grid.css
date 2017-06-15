@@ -622,7 +622,7 @@ body.crt-popup-visible {
       position: absolute;
       top: 10px;
       right: 10px;
-      z-index: 1; }
+      z-index: 10; }
     .crt-popup-wrapper .crt-popup .crt-previous,
     .crt-popup-wrapper .crt-popup .crt-next {
       position: absolute;
