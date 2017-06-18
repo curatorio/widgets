@@ -91,6 +91,17 @@ const umdRequireSlick = {
 };
 
 
+const bubleError = function(err) {
+    console.log('[Buble ERROR]');
+    console.log(err.fileName + ( err.loc ? '( '+err.loc.line+', '+err.loc.column+' ): ' : ': '));
+    console.log('error: ' + err.message + '\n');
+    console.log(err.codeFrame);
+    notify({ message: err.message });
+
+    this.emit('end');
+};
+
+
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 // CSS / SCSS
 
@@ -355,7 +366,7 @@ gulp.task('scripts:combined', function() {
     ])
     .pipe(concat('curator.js'))
     .pipe(buble(bubleConfig))
-    .on('error', console.error.bind(console))
+    .on('error', bubleError)
     .pipe(wrap({ src: srcJs+'templates/default.js'}))
     .pipe(gulp.dest(destJs))
     .pipe(notify({ message: 'scripts:combined task complete' }));
@@ -379,7 +390,7 @@ gulp.task('scripts:nodep', function() {
         ])
         .pipe(concat('curator.nodep.js'))
         .pipe(buble(bubleConfig))
-        .on('error', console.error.bind(console))
+        .on('error', bubleError)
         .pipe(addsrc.prepend([
             srcJs+'widgets/_vendor/zepto.js',
             srcJs+'widgets/_vendor/zepto.scope.js',

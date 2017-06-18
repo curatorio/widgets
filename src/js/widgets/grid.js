@@ -1,39 +1,10 @@
 Curator.Config.Grid = $.extend({}, Curator.Config.Defaults, {
-    postTemplate:'#gridPostTemplate',
+    templatePost:'#v2-grid-post-template',
     grid: {
         minWidth:200,
         rows:3
     }
 });
-
-Curator.Templates.gridPostTemplate = ' \
-<div class="crt-post-c">\
-    <div class="crt-post post<%=id%> <%=this.contentImageClasses()%> <%=this.contentTextClasses()%>"> \
-        <div class="crt-post-content"> \
-            <div class="crt-hitarea" > \
-                <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer" /> \
-                <div class="crt-post-content-image" style="background-image: url(<%=image%>);"> </div> \
-                <div class="crt-post-content-text-c"> \
-                    <div class="crt-post-content-text"> \
-                        <%=this.parseText(text)%> \
-                    </div> \
-                </div> \
-                <a href="javascript:;" class="crt-play"><i class="crt-play-icon"></i></a> \
-                <span class="crt-social-icon crt-social-icon-normal"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \
-                <div class="crt-post-hover">\
-                    <div class="crt-post-header"> \
-                        <img src="<%=user_image%>"  /> \
-                        <div class="crt-post-name"><span><%=user_full_name%></span><br/><a href="<%=this.userUrl()%>" target="_blank">@<%=user_screen_name%></a></div> \
-                    </div> \
-                    <div class="crt-post-hover-text"> \
-                        <%=this.parseText(text)%> \
-                    </div> \
-                    <span class="crt-social-icon crt-social-icon-hover"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \
-                </div> \
-            </div> \
-        </div> \
-    </div>\
-</div>';
 
 Curator.Templates.gridFeedTemplate = ' \
 <div class="crt-feed-window">\
@@ -162,7 +133,7 @@ class Grid extends Client {
     }
 
     createPostElement (postJson) {
-        let post = new Curator.Post(postJson, this.options);
+        let post = new Curator.Post(postJson, this.options, this);
         $(post).bind('postClick',$.proxy(this.onPostClick, this));
         
         if (this.options.onPostCreated) {

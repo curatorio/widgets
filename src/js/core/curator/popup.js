@@ -14,10 +14,10 @@ class Popup {
         this.json = post.json;
         this.feed = feed;
 
-        this.templateId='#popup-template';
+        let templateId = this.popupManager.client.options.templatePopup;
         this.videoPlaying=false;
 
-        this.$popup = Curator.Template.render(this.templateId, this.json);
+        this.$popup = Curator.Template.render(templateId, this.json);
 
         if (this.json.image) {
             this.$popup.addClass('has-image');

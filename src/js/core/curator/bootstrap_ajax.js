@@ -13,6 +13,9 @@ Curator.ajax = function (url, params, success, fail) {
     if (pp) {
         url = url.substr(pp+3);
     }
+
+    // if not https: or http: (eg file:) default to https:
+    p = p != 'https:' && p != 'http:' ? 'https:' : p;
     url = p+'//'+url;
 
     if (params) {

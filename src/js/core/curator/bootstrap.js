@@ -96,7 +96,9 @@ let Curator = {
             postsPerPage:12,
             maxPosts:0,
             debug: false,
-            postTemplate:'#post-template',
+            templatePost:'#v2-post-template',
+            templatePopup:'#v1-popup-template',
+            templatePopupWrapper:'#v1-Popup-wrapper-template',
             onPostsLoaded: function () {
             },
             filter: {

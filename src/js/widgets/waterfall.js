@@ -2,7 +2,7 @@
 Curator.Config.Waterfall = $.extend({}, Curator.Config.Defaults, {
     scroll:'more',
     waterfall: {
-        gridWidth:250,
+        gridWidth:300,
         animate:true,
         animateSpeed:400
     }

@@ -17,34 +17,17 @@
 <script type="text/javascript" src="../dist/js/curator.nodep.js"></script>
 <script type="text/javascript">
 
-    console.log (Zepto);
     // While you're testing
     Curator.debug = true;
 
     var config = {
         container:'#curator-feed',
-        feedId:"6dab8d1e-abe9-4fb7-8475-99ab8d5e"
+        theme:'V2',
+        feedId:"8558f0f9-043f-4bd9-bad1-037cf10a"
     };
-
-    config = {
-        container: '#curator-feed',
-        feedId: '6c93417f-50b9-4cbd-8db0-72956a2d',
-        apiEndpoint: 'https://api.curator.io/v1'
-    };
-    Zepto.extend(config, {
-        "type": "Waterfall",
-        "maxHeight": 0,
-        "colours": {"headerBg": "#ffffff", "headerText": "#292929", "bodyBg": "#ffffff", "bodyText": "#3e3e3e"},
-        "postsPerPage": 13,
-        "waterfall": {"maxHeight": 0, "gridWidth": 350, "showReadMore": false, "animate": true},
-        "grid": {"minWidth": 200, "showLoadMore": false, "rows": 3},
-        "carousel": {"autoPlay": true, "minWidth": 200},
-        "panel": {},
-        "dependencyMode": false
-    });
 
     // Change FEED_ID to your unique FEED_ID
-    var widget = Curator.loadWidget(config);
+    var widget = new Curator.Waterfall(config);
 </script>
 </body>
 </html>

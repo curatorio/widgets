@@ -13,10 +13,10 @@ class Post {
         this.options = options;
         this.widget = widget;
 
-        this.templateId = this.options.postTemplate;
+        let templateId = this.widget.options.templatePost;
 
         this.json = postJson;
-        this.$el = Curator.Template.render(this.templateId, postJson);
+        this.$el = Curator.Template.render(templateId, postJson);
 
         this.$el.find('.crt-share-facebook').click(this.onShareFacebookClick.bind(this));
         this.$el.find('.crt-share-twitter').click(this.onShareTwitterClick.bind(this));

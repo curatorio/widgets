@@ -11,16 +11,14 @@ class PopupManager {
         Curator.log("PopupManager->init ");
 
         this.client = client;
-        this.templateId='#popup-wrapper-template';
+        let templateId = this.client.options.templatePopupWrapper;
 
-        this.$wrapper = Curator.Template.render(this.templateId, {});
+        this.$wrapper = Curator.Template.render(templateId, {});
         this.$popupContainer = this.$wrapper.find('.crt-popup-container');
         this.$underlay = this.$wrapper.find('.crt-popup-underlay');
 
         $('body').append(this.$wrapper);
         this.$underlay.click(this.onUnderlayClick.bind(this));
-        //this.$popupContainer.click(this.onUnderlayClick.bind(this));
-
     }
 
     showPopup (post) {
