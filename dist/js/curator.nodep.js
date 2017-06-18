@@ -2388,9 +2388,9 @@ var Curator = {
             postsPerPage:12,
             maxPosts:0,
             debug: false,
-            templatePost:'#v2-post-template',
-            templatePopup:'#v1-popup-template',
-            templatePopupWrapper:'#v1-Popup-wrapper-template',
+            templatePost:'v2-post',
+            templatePopup:'v1-popup',
+            templatePopupWrapper:'v1-popup-wrapper',
             onPostsLoaded: function () {
             },
             filter: {
@@ -3893,6 +3893,100 @@ Curator.SocialTwitter = {
     }
 };
 
+var gridPostTemplate = ' \
+<div class="crt-post-c">\
+    <div class="crt-post post<%=id%> <%=this.contentImageClasses()%> <%=this.contentTextClasses()%>"> \
+        <div class="crt-post-content"> \
+            <div class="crt-hitarea" > \
+                <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer" /> \
+                <div class="crt-post-content-image" style="background-image: url(<%=image%>);"> </div> \
+                <div class="crt-post-content-text-c"> \
+                    <div class="crt-post-content-text"> \
+                        <%=this.parseText(text)%> \
+                    </div> \
+                </div> \
+                <a href="javascript:;" class="crt-play"><i class="crt-play-icon"></i></a> \
+                <span class="crt-social-icon crt-social-icon-normal"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \
+                <div class="crt-post-hover">\
+                    <div class="crt-post-header"> \
+                        <img src="<%=user_image%>"  /> \
+                        <div class="crt-post-name"><span><%=user_full_name%></span><br/><a href="<%=this.userUrl()%>" target="_blank">@<%=user_screen_name%></a></div> \
+                    </div> \
+                    <div class="crt-post-hover-text"> \
+                        <%=this.parseText(text)%> \
+                    </div> \
+                    <span class="crt-social-icon crt-social-icon-hover"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \
+                </div> \
+            </div> \
+        </div> \
+    </div>\
+</div>';
+
+
+var v2GridFeedTemple = ' \
+<div class="crt-feed-window">\
+    <div class="crt-feed"></div>\
+</div>\
+<div class="crt-feed-more"><a href="#">Load more</a></div>';
+
+
+var v2GridPostTemplate = ' \
+<div class="crt-grid-post crt-grid-post-v2 crt-post-<%=id%> <%=this.contentImageClasses()%> <%=this.contentTextClasses()%>"> \
+    <div class="crt-post-c"> \
+        <div class="crt-post-content"> \
+            <div class="crt-hitarea" > \
+                <div class="crt-post-normal">\
+                    <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer" /> \
+                    <div class="crt-post-content-image" style="background-image: url(<%=image%>);"> </div> \
+                    <a href="javascript:;" class="crt-play"><i class="crt-play-icon"></i></a> \
+                    <span class="crt-social-icon crt-social-icon-normal"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \
+                </div>\
+                <div class="crt-post-hover">\
+                    <div class="crt-post-header"> \
+                        <span class="crt-social-icon"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \
+                        <div class="crt-post-fullname"><a href="<%=this.userUrl()%>" target="_blank"><%=user_full_name%></a></div>\
+                    </div> \
+                    <div class="crt-post-content-text"> \
+                        <%=this.parseText(text)%> \
+                    </div> \
+                    <div class="crt-post-read-more"><a href="#" class="crt-post-read-more-button">Read more</a> </div> \
+                    <div class="crt-post-footer">\
+                        <img class="crt-post-userimage" src="<%=user_image%>" /> \
+                        <span class="crt-post-username"><a href="<%=this.userUrl()%>" target="_blank">@<%=user_screen_name%></a></span>\
+                        <span class="crt-date"><%=this.prettyDate(source_created_at)%></span> \
+                        <div class="crt-post-share"><span class="ctr-share-hint"></span><a href="#" class="crt-share-facebook"><i class="crt-icon-facebook"></i></a>  <a href="#" class="crt-share-twitter"><i class="crt-icon-twitter"></i></a></div>\
+                    </div> \
+                </div> \
+            </div> \
+        </div> \
+    </div>\
+</div>';
+
+
+var v2PostTemple = ' \
+<div class="crt-post-v2 crt-post crt-post-<%=this.networkIcon()%> <%=this.contentTextClasses()%>  <%=this.contentImageClasses()%>" data-post="<%=id%>"> \
+    <div class="crt-post-c">\
+        <div class="crt-image crt-hitarea crt-post-content-image" > \
+            <div class="crt-image-c"><img src="<%=image%>" class="crt-post-image" /></div> \
+            <span class="crt-play"><i class="crt-play-icon"></i></span> \
+        </div> \
+        <div class="crt-post-header"> \
+            <span class="crt-social-icon"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \
+            <div class="crt-post-fullname"><a href="<%=this.userUrl()%>" target="_blank"><%=user_full_name%></a></div>\
+        </div> \
+        <div class="text crt-post-content-text"> \
+            <%=this.parseText(text)%> \
+        </div> \
+        <div class="crt-post-read-more"><a href="#" class="crt-post-read-more-button">Read more</a> </div> \
+        <div class="crt-post-footer">\
+            <img class="crt-post-userimage" src="<%=user_image%>" /> \
+            <span class="crt-post-username"><a href="<%=this.userUrl()%>" target="_blank">@<%=user_screen_name%></a></span>\
+            <span class="crt-date"><%=this.prettyDate(source_created_at)%></span> \
+            <div class="crt-post-share"><span class="ctr-share-hint"></span><a href="#" class="crt-share-facebook"><i class="crt-icon-facebook"></i></a>  <a href="#" class="crt-share-twitter"><i class="crt-icon-twitter"></i></a></div>\
+        </div> \
+    </div> \
+</div>';
+
 
 
 var postTemplate = ' \
@@ -3921,36 +4015,6 @@ var postTemplate = ' \
             <div class="crt-post-share"><span class="ctr-share-hint"></span><a href="#" class="crt-share-facebook"><i class="crt-icon-facebook"></i></a>  <a href="#" class="crt-share-twitter"><i class="crt-icon-twitter"></i></a></div>\
         </div> \
         <div class="crt-post-read-more"><a href="#" class="crt-post-read-more-button">Read more</a> </div> \
-    </div>\
-</div>';
-
-
-var gridPostTemplate = ' \
-<div class="crt-post-c">\
-    <div class="crt-post post<%=id%> <%=this.contentImageClasses()%> <%=this.contentTextClasses()%>"> \
-        <div class="crt-post-content"> \
-            <div class="crt-hitarea" > \
-                <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer" /> \
-                <div class="crt-post-content-image" style="background-image: url(<%=image%>);"> </div> \
-                <div class="crt-post-content-text-c"> \
-                    <div class="crt-post-content-text"> \
-                        <%=this.parseText(text)%> \
-                    </div> \
-                </div> \
-                <a href="javascript:;" class="crt-play"><i class="crt-play-icon"></i></a> \
-                <span class="crt-social-icon crt-social-icon-normal"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \
-                <div class="crt-post-hover">\
-                    <div class="crt-post-header"> \
-                        <img src="<%=user_image%>"  /> \
-                        <div class="crt-post-name"><span><%=user_full_name%></span><br/><a href="<%=this.userUrl()%>" target="_blank">@<%=user_screen_name%></a></div> \
-                    </div> \
-                    <div class="crt-post-hover-text"> \
-                        <%=this.parseText(text)%> \
-                    </div> \
-                    <span class="crt-social-icon crt-social-icon-hover"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \
-                </div> \
-            </div> \
-        </div> \
     </div>\
 </div>';
 
@@ -4012,65 +4076,40 @@ var filterTemplate = ' <div class="crt-filter"> \
 
 // V2
 
-var v2PostTemple = ' \
-<div class="crt-post-v2 crt-post crt-post-<%=this.networkIcon()%>" data-post="<%=id%>"> \
-    <div class="crt-image crt-hitarea crt-post-content-image <%=this.contentImageClasses()%>" > \
-        <div class="crt-image-c"><img src="<%=image%>" class="crt-post-image" /></div> \
-        <span class="crt-play"><i class="crt-play-icon"></i></span> \
-    </div> \
-    <div class="crt-post-header"> \
-        <span class="crt-social-icon"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \
-        <div class="crt-post-fullname"><%=user_full_name%></div>\
-    </div> \
-    <div class="text crt-post-content-text <%=this.contentTextClasses()%>"> \
-        <div class="crt-post-text-body"><%=this.parseText(text)%></div> \
-    </div> \
-    <div class="crt-post-read-more"><a href="#" class="crt-post-read-more-button">Read more</a> </div> \
-    <div class="crt-post-footer">\
-        <img src="<%=user_image%>" /> \
-        <a href="<%=this.userUrl()%>" target="_blank">@<%=user_screen_name%></a>\
-        <span class="crt-date"><%=this.prettyDate(source_created_at)%></span> \
-        <div class="crt-post-share"><span class="ctr-share-hint"></span><a href="#" class="crt-share-facebook"><i class="crt-icon-facebook"></i></a>  <a href="#" class="crt-share-twitter"><i class="crt-icon-twitter"></i></a></div>\
-    </div> \
-</div>';
-
 Curator.Templates = {
-    v1PostTemplate            : postTemplate,
-    v1FilterTemplate          : filterTemplate,
-    v1PopupTemplate           : popupTemplate,
-    v1PopupUnderlayTemplate   : popupUnderlayTemplate,
-    v1PopupWrapperTemplate    : popupWrapperTemplate,
-    v1GridPostTemplate        : gridPostTemplate,
-    v2PostTemplate            : v2PostTemple,
+    'v1-post'            : postTemplate,
+    'v1-filter'          : filterTemplate,
+    'v1-popup'           : popupTemplate,
+    'v1-popup-underlay'  : popupUnderlayTemplate,
+    'v1-popup-wrapper'   : popupWrapperTemplate,
+    'v1-grid-post'       : gridPostTemplate,
 
-    v2FilterTemplate          : filterTemplate,
-    v2PopupTemplate           : popupTemplate,
-    v2PopupUnderlayTemplate   : popupUnderlayTemplate,
-    v2PopupWrapperTemplate    : popupWrapperTemplate,
-    v2GridPostTemplate        : gridPostTemplate,
+    // V2
+    'v2-post'            : v2PostTemple,
+    'v2-filter'          : filterTemplate,
+    'v2-popup'           : popupTemplate,
+    'v2-popup-underlay'  : popupUnderlayTemplate,
+    'v2-popup-wrapper'   : popupWrapperTemplate,
+
+    'v2-grid-post'       : v2GridPostTemplate,
+    'v2-grid-feed'       : v2GridFeedTemple,
 };
 
 Curator.Template = {
-    camelize: function (s) {
-        return s.replace (/(?:^|[-_])(\w)/g, function (_, c) {
-            return c ? c.toUpperCase () : '';
-        });
-    },
     render: function (templateId, data) {
-        var cam = this.camelize(templateId).substring(1);
         var source = '';
 
-        if (Curator.Templates[cam] !== undefined)
-        {
-            source = Curator.Templates[cam];
-        } else if ($(templateId).length===1)
+        if ($('#'+templateId).length===1)
         {
             source = $(templateId).html();
+        } else if (Curator.Templates[templateId] !== undefined)
+        {
+            source = Curator.Templates[templateId];
         }
 
         if (source === '')
         {
-            throw new Error ('Could not find template '+templateId+' ('+cam+')');
+            throw new Error ('Could not find template '+templateId);
         }
 
         var tmpl = window.parseTemplate(source, data);
@@ -4227,6 +4266,12 @@ Curator.DateUtils = {
 };
 
 Curator.StringUtils = {
+
+    camelize: function (s) {
+        return s.replace (/(?:^|[-_])(\w)/g, function (_, c) {
+            return c ? c.toUpperCase () : '';
+        });
+    },
 
     twitterLinks: function twitterLinks (s)
     {
@@ -4724,18 +4769,13 @@ var Panel = (function (superclass) {
 Curator.Panel = Panel;
 
 Curator.Config.Grid = $.extend({}, Curator.Config.Defaults, {
-    templatePost:'#v2-grid-post-template',
+    templatePost:'v2-grid-post',
+    templateFeed:'v2-grid-feed',
     grid: {
         minWidth:200,
         rows:3
     }
 });
-
-Curator.Templates.gridFeedTemplate = ' \
-<div class="crt-feed-window">\
-    <div class="crt-feed"></div>\
-</div>\
-<div class="crt-feed-more"><a href="#">Load more</a></div>';
 
 
 var Grid = (function (Client) {
@@ -4761,7 +4801,7 @@ var Grid = (function (Client) {
 
         if (this.init (this)) {
 
-            var tmpl = Curator.Template.render('#gridFeedTemplate', {});
+            var tmpl = Curator.Template.render(this.options.templateFeed, {});
             this.$container.append(tmpl);
             this.$feed = this.$container.find('.crt-feed');
             this.$feedWindow = this.$container.find('.crt-feed-window');

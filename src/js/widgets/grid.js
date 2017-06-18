@@ -1,16 +1,11 @@
 Curator.Config.Grid = $.extend({}, Curator.Config.Defaults, {
-    templatePost:'#v2-grid-post-template',
+    templatePost:'v2-grid-post',
+    templateFeed:'v2-grid-feed',
     grid: {
         minWidth:200,
         rows:3
     }
 });
-
-Curator.Templates.gridFeedTemplate = ' \
-<div class="crt-feed-window">\
-    <div class="crt-feed"></div>\
-</div>\
-<div class="crt-feed-more"><a href="#">Load more</a></div>';
 
 
 class Grid extends Client {
@@ -37,7 +32,7 @@ class Grid extends Client {
 
         if (this.init (this)) {
 
-            let tmpl = Curator.Template.render('#gridFeedTemplate', {});
+            let tmpl = Curator.Template.render(this.options.templateFeed, {});
             this.$container.append(tmpl);
             this.$feed = this.$container.find('.crt-feed');
             this.$feedWindow = this.$container.find('.crt-feed-window');

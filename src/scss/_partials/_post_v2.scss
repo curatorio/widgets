@@ -5,79 +5,46 @@
 * ==================================================================
  */
 
-
 .crt-post-v2 {
     &.crt-post {
-        .crt-feed-container & {
-            margin: 0 12px 24px;
-            width: auto;
-            float: none;
-        }
 
         float: left;
-        position: relative;
-        overflow: hidden;
         z-index: 1;
         box-shadow: 0px 2px 30px $color-v2-post-shadow;
         border-radius: $post-border-radius;
-        background-color: $color-v2-post-background;
         border: 1px solid $color-v2-post-border;
+
+        .crt-post-c {
+            position: relative;
+            overflow: hidden;
+            background-color: $color-v2-post-background;
+        }
 
         a {
             transition: color 0.2s linear;
         }
 
-        .crt-post-footer {
+        .crt-post-content-image {
+            max-height: 400px;
+            overflow: hidden;
             position: relative;
-            height: 40px;
-            line-height: 40px;
-            text-align: center;
-            border-top: 1px solid $color-v2-post-border;
 
-            img {
-                position: absolute;
-                top:10px;
-                left:10px;
-                width: 24px;
-                border-radius: 50%;
+            .text {
+                display: none;
+            }
+            IMG {
+                width: 100%;
+            }
+
+            .crt-play-icon {
+                display: none;
             }
         }
-
-        .crt-post-header {
-            @extend .crt-clearfix;
-            color: $color-post-header-text;
-            position: relative;
-            text-align: center;
-
-            .crt-social-icon {
-                display: block;
-                margin-bottom: 12px;
-                i {
-                    display: inline-block;
-                    font-size: 24px;
-                    color: $color-post-icon-text;
-
-                    &.crt-icon-twitter {
-                        font-size: 26px;
-                        margin-left: 6px;
-                    }
-                }
-            }
-
-            .crt-post-fullname {
-                overflow: hidden;
-                white-space: nowrap;
-                text-overflow: ellipsis;
-                display: block;
-                margin-bottom: 6px;
-            }
-        }
-
 
         .crt-post-content-text {
             padding-left: 17px;
             padding-right: 17px;
-            padding-bottom: 16px;
+            padding-bottom: 28px;
             color: $color-post-text;
             font-size: $font-size-post-text;
             line-height: $line-height-post-text;
@@ -93,73 +60,6 @@
 
             .crt-image {
                 display: none;
-            }
-        }
-
-        .crt-post-content-image {
-            max-height: 400px;
-            overflow: hidden;
-            position: relative;
-            margin-bottom: 28px;
-
-            .text {
-                display: none;
-            }
-            IMG {
-                width: 100%;
-            }
-
-            .crt-play-icon {
-                display: none;
-            }
-        }
-
-        .crt-post-content-image-hidden {
-            display: none;
-        }
-
-        .crt-post-content-text-hidden {
-            display: none;
-        }
-
-        .crt-date {
-            margin-top: 0;
-            opacity: 0.5;
-            line-height: .9em;
-            font-size: .9em;
-        }
-
-        .crt-post-share {
-            float: right;
-            margin-right: 10px;
-            font-size: .9em;
-            color: $color-post-share-text;
-            //background-color: $color-post-share-bg;
-            text-align: right;
-            box-shadow: none;
-
-            a {
-                display: inline-block;
-                color: $color-post-share-text;
-                opacity: 0.5;
-                transition: opacity .3s linear;
-
-                &:hover {
-                    opacity: 1;
-                }
-
-                i {
-                    font-size: 1.1em;
-                    display: inline-block;
-                    vertical-align: top;
-                    &:before {
-                        margin: 0 0 0 5px;
-                    }
-                    &.crt-icon-twitter {
-                        font-size: 1.1em;
-                        margin-top: 0em;
-                    }
-                }
             }
         }
 
@@ -205,7 +105,6 @@
         }
 
         &.has-video {
-
             .crt-play-icon {
                 display: block;
             }
@@ -257,7 +156,6 @@
                 background: -ms-linear-gradient(top, rgba(0, 0, 0, 0) 0%, $gradEnd $gradEndStop);
                 background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, $gradEnd $gradEndStop);
                 filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#000000', endColorstr='#000000', GradientType=0);
-
             }
         }
     }

@@ -143,6 +143,12 @@ Curator.DateUtils = {
 
 Curator.StringUtils = {
 
+    camelize: function (s) {
+        return s.replace (/(?:^|[-_])(\w)/g, function (_, c) {
+            return c ? c.toUpperCase () : '';
+        });
+    },
+
     twitterLinks (s)
     {
         s = s.replace(/[@]+[A-Za-z0-9-_]+/g, function(u) {

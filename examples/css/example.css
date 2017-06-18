@@ -2,6 +2,10 @@
 body {
     /*font-family: 'Tahoma',Arial,sans-serif;*/
     /*font-size: 100%;*/
+
+    /*background-color: #efefef;*/
+    background-color: #000000;
+    /*background-color: #ffffff;*/
 }
 h1,h2 {
     text-align: center;
