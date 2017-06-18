@@ -4796,6 +4796,9 @@ var Grid = (function (Client) {
 
         this.createHandlers();
 
+        // Debounce wrapper ...
+        this.updateLayout = Curator.Utils.debounce(this.updateLayout, 20);
+
         this.updateLayout ();
     }
 
@@ -4804,21 +4807,13 @@ var Grid = (function (Client) {
     Grid.prototype.constructor = Grid;
 
     Grid.prototype.createHandlers = function createHandlers () {
-        var this$1 = this;
-
         var id = this.id;
 
-        $(window).on('resize.'+id, function () {
-            this$1.updateLayout();
-        });
+        $(window).on('resize.'+id, this.updateLayout.bind(this));
 
-        $(window).on('curatorCssLoaded.'+id, function () {
-            this$1.updateLayout();
-        });
+        $(window).on('curatorCssLoaded.'+id, this.updateLayout.bind(this));
 
-        $(document).on('ready.'+id, function () {
-            this$1.updateLayout();
-        });
+        $(document).on('ready.'+id, this.updateLayout.bind(this));
     };
 
     Grid.prototype.destroyHandlers = function destroyHandlers () {
@@ -4894,22 +4889,20 @@ var Grid = (function (Client) {
     };
 
     Grid.prototype.updateLayout = function updateLayout ( ) {
-        var this$1 = this;
+        // Curator.log("Grid->updateLayout ");
 
-        Curator.Utils.debounce(function () {
-            var cols = Math.floor(this$1.$container.width()/this$1.options.grid.minWidth);
-            var postsNeeded = cols *  this$1.options.grid.rows;
+        var cols = Math.floor(this.$container.width()/this.options.grid.minWidth);
+        var postsNeeded = cols *  this.options.grid.rows;
 
-            this$1.$container.removeClass('crt-grid-col'+this$1.previousCol);
-            this$1.previousCol = cols;
-            this$1.$container.addClass('crt-grid-col'+this$1.previousCol);
+        this.$container.removeClass('crt-grid-col'+this.previousCol);
+        this.previousCol = cols;
+        this.$container.addClass('crt-grid-col'+this.previousCol);
 
-            if (postsNeeded > this$1.feed.postsLoaded) {
-                this$1.loadPosts(this$1.feed.currentPage+1);
-            }
+        if (postsNeeded > this.feed.postsLoaded) {
+            this.loadPosts(this.feed.currentPage+1);
+        }
 
-            this$1.updateHeight();
-        });
+        this.updateHeight();
     };
 
     Grid.prototype.updateHeight = function updateHeight (animate) {

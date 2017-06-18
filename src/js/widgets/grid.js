@@ -72,23 +72,20 @@ class Grid extends Client {
 
         this.createHandlers();
 
+        // Debounce wrapper ...
+        this.updateLayout = Curator.Utils.debounce(this.updateLayout, 20);
+
         this.updateLayout ();
     }
 
     createHandlers () {
         let id = this.id;
 
-        $(window).on('resize.'+id, () => {
-            this.updateLayout();
-        });
+        $(window).on('resize.'+id, this.updateLayout.bind(this));
 
-        $(window).on('curatorCssLoaded.'+id, () => {
-            this.updateLayout();
-        });
+        $(window).on('curatorCssLoaded.'+id, this.updateLayout.bind(this));
 
-        $(document).on('ready.'+id, () => {
-            this.updateLayout();
-        });
+        $(document).on('ready.'+id, this.updateLayout.bind(this));
     }
 
     destroyHandlers () {
@@ -164,20 +161,20 @@ class Grid extends Client {
     }
 
     updateLayout ( ) {
-        Curator.Utils.debounce(() => {
-            let cols = Math.floor(this.$container.width()/this.options.grid.minWidth);
-            let postsNeeded = cols *  this.options.grid.rows;
+        // Curator.log("Grid->updateLayout ");
 
-            this.$container.removeClass('crt-grid-col'+this.previousCol);
-            this.previousCol = cols;
-            this.$container.addClass('crt-grid-col'+this.previousCol);
+        let cols = Math.floor(this.$container.width()/this.options.grid.minWidth);
+        let postsNeeded = cols *  this.options.grid.rows;
 
-            if (postsNeeded > this.feed.postsLoaded) {
-                this.loadPosts(this.feed.currentPage+1);
-            }
+        this.$container.removeClass('crt-grid-col'+this.previousCol);
+        this.previousCol = cols;
+        this.$container.addClass('crt-grid-col'+this.previousCol);
 
-            this.updateHeight();
-        });
+        if (postsNeeded > this.feed.postsLoaded) {
+            this.loadPosts(this.feed.currentPage+1);
+        }
+
+        this.updateHeight();
     }
 
     updateHeight (animate) {
