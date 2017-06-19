@@ -99,7 +99,7 @@ gulp.task('scripts:all', () =>  {
         .pipe(concat('curator.js'))
         .pipe(wrap({ src: src+'umd-templates/all.js'}))
         .pipe(gulp.dest(destJs))
-        .pipe(notify({ message: 'scripts:nodep task complete' }));
+        .pipe(notify({ message: 'scripts:all task complete' }));
 });
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -126,7 +126,7 @@ gulp.task('scripts:core', () =>  {
         .pipe(concat('curator.core.js'))
         .pipe(wrap({ src: src+'umd-templates/core.js'}))
         .pipe(gulp.dest(destJs))
-        .pipe(notify({ message: 'scripts:combined task complete' }));
+        .pipe(notify({ message: 'scripts:core task complete' }));
 });
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

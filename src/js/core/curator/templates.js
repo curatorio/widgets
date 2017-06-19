@@ -113,7 +113,7 @@ Curator.Template = {
 
         if ($('#'+templateId).length===1)
         {
-            source = $(templateId).html();
+            source = $('#'+templateId).html();
         } else if (Curator.Templates[templateId] !== undefined)
         {
             source = Curator.Templates[templateId];
