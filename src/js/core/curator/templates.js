@@ -124,7 +124,7 @@ Curator.Template = {
             throw new Error ('Could not find template '+templateId);
         }
 
-        let tmpl = window.parseTemplate(source, data);
+        let tmpl = Curator.render(source, data);
         if ($.parseHTML) {
             // breaks with jquery < 1.8
             tmpl = $.parseHTML(tmpl);

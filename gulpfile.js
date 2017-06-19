@@ -2,7 +2,6 @@
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 // Configuration
 
-
 const dest        = "dist/";
 const destCss     = dest+"css/";
 const destJs      = dest+"js/";
@@ -16,7 +15,9 @@ const watchPaths  = [
     'tests/**/*.html',
     'tests/**/*.css',
     'tests/**/*.js',
-    'examples/**/*.html'
+    'examples/**/*.html',
+    'examples/js/*.js',
+    'examples/css/*.css',
 ];
 
 const jsHintConfig = {
@@ -27,6 +28,16 @@ const bubleConfig = {
     transforms: {
         dangerousForOf: true
     }
+};
+
+function bubleError (err) {
+    console.log('[Buble ERROR]');
+    console.log(err.fileName + ( err.loc ? '( '+err.loc.line+', '+err.loc.column+' ): ' : ': '));
+    console.log('error: ' + err.message + '\n');
+    console.log(err.codeFrame);
+    notify({ message: err.message });
+
+    this.emit('end');
 };
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -48,64 +59,11 @@ const gulp = require('gulp'),
     jshint = require('gulp-jshint'),
     buble = require('gulp-buble');
 
-const umdTemplate = ";(function(root, factory) {\n\
-if (typeof define === 'function' && define.amd) {\n\
-    // Cheeky wrapper to add root to the factory call\n\
-    const factoryWrap = function () { \n\
-        const argsCopy = [].slice.call(arguments); \n\
-        argsCopy.unshift(root);\n\
-        return factory.apply(this, argsCopy); \n\
-    };\n\
-    define(<%= amd %>, factoryWrap);\n\
-} else if (typeof exports === 'object') {\n\
-    module.exports = factory(root, <%= cjs %>);\n\
-} else {\n\
-    root.<%= namespace %> = factory(root, <%= global %>);\n\
-}\n\
-}(this, function(root, <%= param %>) {\n\
-<%= contents %>\n\
-    return <%= exports %>;\n\
-}));\n";
-
-
-const umdRequireJQuery = {
-    name: 'jQuery',
-    amd: 'jquery',
-    cjs: 'jquery',
-    global: 'jQuery',
-    param: 'jQuery'
-};
-const umdRequireCurator = {
-    name: 'Curator',
-    amd: 'curator',
-    cjs: 'curator',
-    global: 'Curator',
-    param: 'Curator'
-};
-const umdRequireSlick = {
-    name: 'slick',
-    amd: 'slick',
-    cjs: 'slick',
-    global: 'slick',
-    param: 'slick'
-};
-
-
-const bubleError = function(err) {
-    console.log('[Buble ERROR]');
-    console.log(err.fileName + ( err.loc ? '( '+err.loc.line+', '+err.loc.column+' ): ' : ': '));
-    console.log('error: ' + err.message + '\n');
-    console.log(err.codeFrame);
-    notify({ message: err.message });
-
-    this.emit('end');
-};
-
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 // CSS / SCSS
 
-gulp.task('styles', function() {
+gulp.task('styles', () =>  {
     return gulp.src(srcScss+'*.scss')
         .pipe(sass({ style: 'expanded' }).on('error', sass.logError))
         .pipe(autoprefixer('last 2 version', 'safari 5', 'ie 8', 'ie 9', 'opera 12.1', 'ios 6', 'android 4'))
@@ -114,242 +72,41 @@ gulp.task('styles', function() {
 });
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-// Core files
+// Scripts
 
-gulp.task('scripts:core', function() {
+gulp.task('scripts:all', () =>  {
     return gulp.src([
+            srcJs+'widgets/_vendor/smartresize.js',
+            srcJs+'widgets/_vendor/waterfall-renderer.js',
+            srcJs+'widgets/_vendor/carousel.js',
             srcJs+'core/_vendor/*.js',
-            srcJs+'core/**/*.js'
-        ])
-        .pipe(concat('curator.core.js'))
-        .pipe(umd({
-            dependencies: function(file) {
-                return [
-                    umdRequireJQuery
-                ];
-            },
-            exports: function(file) {
-                return 'Curator';
-            },
-            namespace: function(file) {
-                return 'Curator';
-            },
-            templateSource:umdTemplate
-        }))
-
-        .pipe(jshint())
-        .pipe(jshint.reporter('jshint-stylish', { verbose: true }))
-        //.pipe(jshint.reporter('fail')) 
-
-        .pipe(gulp.dest(destJs))
-
-        .pipe(notify({ message: 'scripts:core task complete' }));
-});
-
-// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-// Widget Waterfall
-
-gulp.task('scripts:waterfall', ['scripts:core'], function() {
-    return gulp.src([
-            srcJs+'widgets/waterfall.js'
-        ])
-        .pipe(concat('curator.waterfall.js'))
-        .pipe(umd({
-            dependencies: function(file) {
-                return [
-                    umdRequireJQuery,
-                    umdRequireCurator
-                ];
-            },
-            exports: function(file) {
-                return 'Client';
-            },
-            namespace: function(file) {
-                return 'Curator.Waterfall';
-            },
-            templateSource:umdTemplate
-        }))
-        .pipe(jshint())
-        .pipe(jshint.reporter('jshint-stylish', { verbose: true }))
-        
-        // Save Curator.Waterfall
-        .pipe(gulp.dest(destJs))
-
-        // Save our widget - combines Curator, Curator.Waterfall and Grid-a-licious
-        .pipe(addsrc.prepend([
-            srcJs+'widgets/_vendor/jquery.grid-a-licious.js',
-            destJs+'curator.core.js'
-        ]))
-        .pipe(concat('curator.widget.waterfall.js'))
-        .pipe(gulp.dest(destJs))
-
-        .pipe(notify({ message: 'scripts:widget:waterfall task complete' }));
-});
-
-// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-// Widget Carousel
-
-gulp.task('scripts:carousel', ['scripts:core'], function() {
-    return gulp.src([
-            srcJs+'widgets/carousel.js'
-        ])
-        .pipe(concat('curator.carousel.js'))
-        .pipe(umd({
-            dependencies: function(file) {
-                return [
-                    umdRequireJQuery,
-                    umdRequireCurator,
-                    umdRequireSlick
-                ];
-            },
-            exports: function(file) {
-                return 'Client';
-            },
-            namespace: function(file) {
-                return 'Curator.Carousel';
-            },
-            templateSource:umdTemplate
-        }))
-        .pipe(jshint())
-        .pipe(jshint.reporter('jshint-stylish', { verbose: true }))
-
-        // Save Curator.Carousel
-        .pipe(gulp.dest(destJs))
-
-        // Save our widget - combines Curator, Curator.Carousel and Slick
-        .pipe(addsrc.prepend([
-            srcJs+'widgets/_vendor/slick.js',
-            destJs+'curator.core.js'
-        ]))
-        .pipe(concat('curator.widget.carousel.js'))
-        .pipe(gulp.dest(destJs))
-        
-        .pipe(notify({ message: 'scripts:widget:carousel task complete' }));
-});
-
-// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-// Widget Panel
-
-gulp.task('scripts:panel', ['scripts:core'], function() {
-    return gulp.src([
-            srcJs+'widgets/panel.js'
-        ])
-        .pipe(concat('curator.panel.js'))
-        .pipe(umd({
-            dependencies: function(file) {
-                return [
-                    umdRequireJQuery,
-                    umdRequireCurator,
-                    umdRequireSlick
-                ];
-            },
-            exports: function(file) {
-                return 'Client';
-            },
-            namespace: function(file) {
-                return 'Curator.Panel';
-            },
-            templateSource:umdTemplate
-        }))
-        .pipe(jshint())
-        .pipe(jshint.reporter('jshint-stylish', { verbose: true }))
-
-        // Save Curator.Panel
-        .pipe(gulp.dest(destJs))
-
-        // Save our widget - combines Curator, Curator.Panel and Slick
-        .pipe(addsrc.prepend([
-            srcJs+'widgets/_vendor/slick.js',
-            destJs+'curator.core.js'
-        ]))
-        .pipe(concat('curator.widget.panel.js'))
-        .pipe(gulp.dest(destJs))
-
-        .pipe(notify({ message: 'scripts:widget:panel task complete' }));
-});
-
-// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-// Widget Grid
-
-gulp.task('scripts:grid', ['scripts:core'], function() {
-    return gulp.src([
-        srcJs+'widgets/grid.js'
-    ])
-        .pipe(concat('curator.grid.js'))
-        .pipe(umd({
-            dependencies: function(file) {
-                return [
-                    umdRequireJQuery,
-                    umdRequireCurator
-                ];
-            },
-            exports: function(file) {
-                return 'Client';
-            },
-            namespace: function(file) {
-                return 'Curator.Grid';
-            },
-            templateSource:umdTemplate
-        }))
-        .pipe(jshint())
-        .pipe(jshint.reporter('jshint-stylish', { verbose: true }))
-
-        // Save Curator.Waterfall
-        .pipe(gulp.dest(destJs))
-
-        // Save our widget - combines Curator, Curator.Waterfall and Grid-a-licious
-        .pipe(addsrc.prepend([
-            destJs+'curator.core.js'
-        ]))
-        .pipe(concat('curator.widget.grid.js'))
-        .pipe(gulp.dest(destJs))
-
-        .pipe(notify({ message: 'scripts:widget:grid task complete' }));
-});
-
-// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-// Widget Custom
-
-gulp.task('scripts:custom', ['scripts:core'], function() {
-    return gulp.src([
+            srcJs+'core/**/*.js',
+            srcJs+'widgets/waterfall.js',
+            srcJs+'widgets/carousel.js',
+            srcJs+'widgets/panel.js',
+            srcJs+'widgets/grid.js',
             srcJs+'widgets/custom.js'
         ])
-        .pipe(concat('curator.custom.js'))
-        .pipe(umd({
-            dependencies: function(file) {
-                return [
-                    umdRequireJQuery,
-                    umdRequireCurator
-                ];
-            },
-            exports: function(file) {
-                return 'Client';
-            },
-            namespace: function(file) {
-                return 'Curator.Custom';
-            },
-            templateSource:umdTemplate
-        }))
-        .pipe(jshint())
-        .pipe(jshint.reporter('jshint-stylish', { verbose: true }))
-
-        // Save Curator.Custom
-        .pipe(gulp.dest(destJs))
-
-        // Save our widget - combines Curator and Curator.Custom
+        .pipe(buble(bubleConfig))
+        .on('error', bubleError)
         .pipe(addsrc.prepend([
-            destJs+'curator.core.js'
+            srcJs+'widgets/_vendor/zepto.js',
+            srcJs+'widgets/_vendor/zepto.scope.js',
+            srcJs+'widgets/_vendor/zepto.animate.js',
+            srcJs+'widgets/_vendor/zepto.extend.js',
+            srcJs+'widgets/_vendor/zepto.fxmethods.js',
         ]))
-        .pipe(concat('curator.widget.custom.js'))
+        .pipe(concat('curator.js'))
+        .pipe(wrap({ src: src+'umd-templates/all.js'}))
         .pipe(gulp.dest(destJs))
-
-        .pipe(notify({ message: 'scripts:widget:custom task complete' }));
+        .pipe(notify({ message: 'scripts:nodep task complete' }));
 });
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-// Widgets Combined
+// Scripts - without Zepto
+// - requires jQuery or Zepto
 
-gulp.task('scripts:combined', function() {
+gulp.task('scripts:core', () =>  {
     return gulp.src([
         srcJs+'widgets/_vendor/smartresize.js',
         srcJs+'widgets/_vendor/waterfall-renderer.js',
@@ -364,51 +121,19 @@ gulp.task('scripts:combined', function() {
         srcJs+'widgets/grid.js',
         srcJs+'widgets/custom.js'
     ])
-    .pipe(concat('curator.js'))
-    .pipe(buble(bubleConfig))
-    .on('error', bubleError)
-    .pipe(wrap({ src: srcJs+'templates/default.js'}))
-    .pipe(gulp.dest(destJs))
-    .pipe(notify({ message: 'scripts:combined task complete' }));
-});
-
-// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-// Widgets Combined
-
-gulp.task('scripts:nodep', function() {
-    return gulp.src([
-            srcJs+'widgets/_vendor/smartresize.js',
-            srcJs+'widgets/_vendor/waterfall-renderer.js',
-            srcJs+'widgets/_vendor/carousel.js',
-            srcJs+'core/_vendor/*.js',
-            srcJs+'core/**/*.js',
-            srcJs+'widgets/waterfall.js',
-            srcJs+'widgets/carousel.js',
-            srcJs+'widgets/panel.js',
-            srcJs+'widgets/grid.js',
-            srcJs+'widgets/custom.js'
-        ])
-        .pipe(concat('curator.nodep.js'))
         .pipe(buble(bubleConfig))
         .on('error', bubleError)
-        .pipe(addsrc.prepend([
-            srcJs+'widgets/_vendor/zepto.js',
-            srcJs+'widgets/_vendor/zepto.scope.js',
-            srcJs+'widgets/_vendor/zepto.animate.js',
-            srcJs+'widgets/_vendor/zepto.extend.js',
-            srcJs+'widgets/_vendor/zepto.fxmethods.js',
-        ]))
-        .pipe(concat('curator.nodep.js'))
-        .pipe(wrap({ src: srcJs+'templates/nodep.js'}))
+        .pipe(concat('curator.core.js'))
+        .pipe(wrap({ src: src+'umd-templates/core.js'}))
         .pipe(gulp.dest(destJs))
-        .pipe(notify({ message: 'scripts:nodep task complete' }));
+        .pipe(notify({ message: 'scripts:combined task complete' }));
 });
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 // Scripts Production
 
-gulp.task('scripts:prod', function() {
-    return gulp.src([destJs+'curator.js',destJs+'curator.nodep.js'])
+gulp.task('scripts:prod', ['scripts'], () =>  {
+    return gulp.src([destJs+'curator.js',destJs+'curator.core.js'])
         .pipe(jshint.reporter('default'))
         .pipe(gulp.dest(destJs))
         .pipe(rename({suffix: '.min'}))
@@ -420,7 +145,7 @@ gulp.task('scripts:prod', function() {
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 // Watch
 
-gulp.task('watch', function() {
+gulp.task('watch', () =>  {
     console.log ('Watching: '+srcScss+'*.scss');
     gulp.watch(srcScss+'/**/*.scss', ['styles']);
 
@@ -437,12 +162,8 @@ gulp.task('watch', function() {
 
 gulp.task('dev', ['watch']);
 gulp.task('scripts', [
-    // 'scripts:waterfall',
-    // 'scripts:carousel',
-    // 'scripts:panel',
-    // 'scripts:custom',
-    'scripts:nodep',
-    'scripts:combined'
+    'scripts:all',
+    'scripts:core'
 ]);
 gulp.task('prod', ['scripts:prod']);
 gulp.task('default', ['styles','scripts']);

@@ -45,11 +45,11 @@
             display: block;
             text-align: center;
             padding: 20px;
-            border-radius: 4px;
+            border-radius: 0;
             //text-transform: uppercase;
             text-decoration: none;
+            border: 1px solid $color-v2-post-border;
             box-shadow: 0px 2px 30px $color-v2-post-shadow;
-
         }
     }
 }

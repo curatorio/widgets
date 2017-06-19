@@ -4,21 +4,25 @@ body {
     /*font-size: 100%;*/
 
     /*background-color: #efefef;*/
-    background-color: #000000;
+    /*background-color: #000000;*/
     /*background-color: #ffffff;*/
 }
+
 h1,h2 {
     text-align: center;
 }
+
 .crt-logo {
-//display: none;
+    /*display: none;*/
 }
+
 .center {
     text-align: center;
 }
+
 #curator-feed {
    // max-width:1200px;
-    margin:0 auto;
+    margin:0 auto 100px;
     width: 100%;
 }
 
@@ -40,4 +44,26 @@ h1,h2 {
 
 .pagination a.selected {
     background-color: #b2b2b2;
+}
+
+.example-panel {
+    position: fixed;
+    top:20px;
+    right:20px;
+    background-color: #efefef;
+    border: 1px solid  #b2b2b2;
+    min-width: 220px;
+    min-height: 100px;
+}
+
+.example-panel ul {
+    list-style: none;
+    display: block;
+    margin: 0;
+    padding: 0;
+}
+
+.example-panel ul li {
+    padding:5px 10px;
+    margin: 0;
 }

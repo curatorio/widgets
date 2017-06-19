@@ -143,9 +143,9 @@
         }
     };
 
-    root.parseTemplate = function(str, data) {
+    Curator.render = function(str, data) {
         /// <summary>
-        /// Client side template parser that uses &lt;#= #&gt; and &lt;# code #&gt; expressions.
+        /// Client side template parser that uses <%= %> and <% code %> expressions.
         /// and # # code blocks for template expansion.
         /// NOTE: chokes on single quotes in the document in some situations
         ///       use &amp;rsquo; for literals in text and avoid any single quote
@@ -187,3 +187,6 @@
         return " # ERROR: " + err + " # ";
     };
 })();
+
+
+
