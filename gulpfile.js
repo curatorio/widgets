@@ -76,25 +76,20 @@ gulp.task('styles', () =>  {
 
 gulp.task('scripts:all', () =>  {
     return gulp.src([
-            srcJs+'widgets/_vendor/smartresize.js',
-            srcJs+'widgets/_vendor/waterfall-renderer.js',
-            srcJs+'widgets/_vendor/carousel.js',
-            srcJs+'core/_vendor/*.js',
+            srcJs+'libraries/*.js',
+            srcJs+'core/bootstrap.js',
             srcJs+'core/**/*.js',
-            srcJs+'widgets/waterfall.js',
-            srcJs+'widgets/carousel.js',
-            srcJs+'widgets/panel.js',
-            srcJs+'widgets/grid.js',
+            srcJs+'widgets/*.js',
             srcJs+'widgets/custom.js'
         ])
         .pipe(buble(bubleConfig))
         .on('error', bubleError)
         .pipe(addsrc.prepend([
-            srcJs+'widgets/_vendor/zepto.js',
-            srcJs+'widgets/_vendor/zepto.scope.js',
-            srcJs+'widgets/_vendor/zepto.animate.js',
-            srcJs+'widgets/_vendor/zepto.extend.js',
-            srcJs+'widgets/_vendor/zepto.fxmethods.js',
+            srcJs+'_zepto/zepto.js',
+            srcJs+'_zepto/zepto.scope.js',
+            srcJs+'_zepto/zepto.animate.js',
+            srcJs+'_zepto/zepto.extend.js',
+            srcJs+'_zepto/zepto.fxmethods.js',
         ]))
         .pipe(concat('curator.js'))
         .pipe(wrap({ src: src+'umd-templates/all.js'}))
@@ -108,19 +103,12 @@ gulp.task('scripts:all', () =>  {
 
 gulp.task('scripts:core', () =>  {
     return gulp.src([
-        srcJs+'widgets/_vendor/smartresize.js',
-        srcJs+'widgets/_vendor/waterfall-renderer.js',
-        srcJs+'widgets/_vendor/carousel.js',
-        // srcJs+'widgets/_vendor/owl.carousel.js',
-        // srcJs+'widgets/_vendor/slick.js',
-        srcJs+'core/_vendor/*.js',
-        srcJs+'core/**/*.js',
-        srcJs+'widgets/waterfall.js',
-        srcJs+'widgets/carousel.js',
-        srcJs+'widgets/panel.js',
-        srcJs+'widgets/grid.js',
-        srcJs+'widgets/custom.js'
-    ])
+            srcJs+'libraries/*.js',
+            srcJs+'core/bootstrap.js',
+            srcJs+'core/**/*.js',
+            srcJs+'widgets/*.js',
+            srcJs+'widgets/custom.js'
+        ])
         .pipe(buble(bubleConfig))
         .on('error', bubleError)
         .pipe(concat('curator.core.js'))

@@ -19,31 +19,463 @@
 		return false;
 	}
 
-	// Debouncing function from John Hann
-// http://unscriptable.com/index.php/2009/03/20/debouncing-javascript-methods/
-// Copy pasted from http://paulirish.com/2009/throttled-smartresize-jquery-event-handler/
+	var arrayFill = function (array, value, start, end) {
 
-(function ($, sr) {
-    var debounce = function (func, threshold, execAsap) {
-        var timeout;
-        return function debounced() {
-            var obj = this,
-                args = arguments;
+    if (!Array.isArray(array)) {
+        throw new TypeError('array is not a Array');
+    }
 
-            function delayed() {
-                if (!execAsap) func.apply(obj, args);
-                timeout = null;
+    var length = array.length;
+    start = parseInt(start, 10) || 0;
+    end = end === undefined ? length : (parseInt(end, 10) || 0);
+
+    var i;
+    var l;
+
+    if (start < 0) {
+        i = Math.max(length + start, 0);
+    } else {
+        i = Math.min(start, length);
+    }
+
+    if (end < 0) {
+        l = Math.max(length + end, 0);
+    } else {
+        l = Math.min(end, length);
+    }
+
+    for (; i < l; i++) {
+        array[i] = value;
+    }
+
+    return array;
+};
+
+
+if (!Array.prototype.fill) {
+    Array.prototype.fill = function (value, start, end) {
+        return arrayFill(this, value, start, end);
+    };
+}
+/**
+ * Props to https://github.com/yanatan16/nanoajax
+ */
+
+(function(global){
+    // Best place to find information on XHR features is:
+    // https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest
+
+    var reqfields = [
+        'responseType', 'withCredentials', 'timeout', 'onprogress'
+    ];
+
+    function nanoajax (params, callback) {
+        // Any variable used more than once is var'd here because
+        // minification will munge the variables whereas it can't munge
+        // the object access.
+        var headers = params.headers || {}
+            , body = params.body
+            , method = params.method || (body ? 'POST' : 'GET')
+            , called = false
+
+        var req = getRequest(params.cors)
+
+        function cb(statusCode, responseText) {
+            return function () {
+                if (!called) {
+                    callback(req.status === undefined ? statusCode : req.status,
+                        req.status === 0 ? "Error" : (req.response || req.responseText || responseText),
+                        req)
+                    called = true
+                }
             }
-            if (timeout) clearTimeout(timeout);
-            else if (execAsap) func.apply(obj, args);
+        }
 
-            timeout = setTimeout(delayed, threshold || 150);
-        };
-    };
-    $.fn[sr] = function (fn) {
-        return fn ? this.bind('resize', debounce(fn)) : this.trigger(sr);
-    };
-})($, 'smartresize');
+        req.open(method, params.url, true)
+
+        var success = req.onload = cb(200)
+        req.onreadystatechange = function () {
+            if (req.readyState === 4) success()
+        }
+        req.onerror = cb(null, 'Error')
+        req.ontimeout = cb(null, 'Timeout')
+        req.onabort = cb(null, 'Abort')
+
+        if (body) {
+            setDefault(headers, 'X-Requested-With', 'XMLHttpRequest')
+
+            if (!global.FormData || !(body instanceof global.FormData)) {
+                setDefault(headers, 'Content-Type', 'application/x-www-form-urlencoded')
+            }
+        }
+
+        for (var i = 0, len = reqfields.length, field; i < len; i++) {
+            field = reqfields[i]
+            if (params[field] !== undefined)
+                req[field] = params[field]
+        }
+
+        for (var field$1 in headers)
+            req.setRequestHeader(field$1, headers[field$1])
+
+        req.send(body)
+
+        return req
+    }
+
+    function getRequest(cors) {
+        // XDomainRequest is only way to do CORS in IE 8 and 9
+        // But XDomainRequest isn't standards-compatible
+        // Notably, it doesn't allow cookies to be sent or set by servers
+        // IE 10+ is standards-compatible in its XMLHttpRequest
+        // but IE 10 can still have an XDomainRequest object, so we don't want to use it
+        if (cors && global.XDomainRequest && !/MSIE 1/.test(navigator.userAgent))
+            return new XDomainRequest
+        if (global.XMLHttpRequest)
+            return new XMLHttpRequest
+    }
+
+    function setDefault(obj, key, value) {
+        obj[key] = obj[key] || value
+    }
+
+    global.nanoajax = nanoajax;
+})(this);
+
+(function($) {
+	// Default styling
+
+	var defaults = {
+		circular: false,
+		speed: 5000,
+		duration: 700,
+		minWidth: 250,
+		panesVisible: null,
+		moveAmount: 0,
+		autoPlay: false,
+		useCss : true
+	};
+
+	if ($.zepto) {
+		defaults.easing = 'ease-in-out';
+	}
+	// console.log (defaults);
+
+	var css = {
+		viewport: {
+			'width': '100%', // viewport needs to be fluid
+			// 'overflow': 'hidden',
+			'position': 'relative'
+		},
+
+		pane_stage: {
+			'width': '100%', // viewport needs to be fluid
+			'overflow': 'hidden',
+			'position': 'relative',
+            'height':0
+		},
+
+		pane_slider: {
+			'width': '0%', // will be set to (number of panes * 100)
+			'list-style': 'none',
+			'position': 'relative',
+			'overflow': 'hidden',
+			'padding': '0',
+			'left':'0'
+		},
+
+		pane: {
+			'width': '0%', // will be set to (100 / number of images)
+			'position': 'relative',
+			'float': 'left'
+		}
+	};
+
+	var Carousel = function Carousel (container, options) {
+		var this$1 = this;
+
+		Curator.log('Carousel->construct');
+
+            this.current_position=0;
+            this.animating=false;
+            this.timeout=null;
+            this.FAKE_NUM=0;
+            this.PANES_VISIBLE=0;
+
+		this.options = $.extend([], defaults, options);
+
+		this.$viewport = $(container); // <div> slider, known as $viewport
+
+            this.$panes = this.$viewport.children();
+            this.$panes.detach();
+
+		this.$pane_stage = $('<div class="ctr-carousel-stage"></div>').appendTo(this.$viewport);
+		this.$pane_slider = $('<div class="ctr-carousel-slider"></div>').appendTo(this.$pane_stage);
+
+		// this.$pane_slider.append(this.$panes);
+
+		this.$viewport.css(css.viewport); // set css on viewport
+		this.$pane_slider.css( css.pane_slider ); // set css on pane slider
+		this.$pane_stage.css( css.pane_stage ); // set css on pane slider
+
+            this.addControls();
+            this.update ();
+
+		$(window).smartresize(function () {
+			this$1.resize();
+			this$1.move (this$1.current_position, true);
+
+			// reset animation timer
+			if (this$1.options.autoPlay) {
+				this$1.animate();
+			}
+		})
+	};
+
+	Carousel.prototype.update = function update () {
+		this.$panes = this.$pane_slider.children(); // <li> list items, known as $panes
+		this.NUM_PANES = this.options.circular ? (this.$panes.length + 1) : this.$panes.length;
+
+		if (this.NUM_PANES > 0) {
+			this.resize();
+			this.move (this.current_position, true);
+
+			if (!this.animating) {
+				if (this.options.autoPlay) {
+					this.animate();
+				}
+			}
+		}
+	};
+
+	Carousel.prototype.add = function add ($els) {
+		var $panes = [];
+            //
+            // $.each($els,(i, $pane)=> {
+            //     let p = $pane.wrapAll('<div class="crt-carousel-col"></div>').parent();
+            //     $panes.push(p)
+            // });
+
+		this.$pane_slider.append($els);
+		this.$panes = this.$pane_slider.children();
+	};
+
+	Carousel.prototype.resize = function resize () {
+			var this$1 = this;
+
+		var PANE_WRAPPER_WIDTH = this.options.infinite ? ((this.NUM_PANES+1) * 100) + '%' : (this.NUM_PANES * 100) + '%'; // % width of slider (total panes * 100)
+
+		this.$pane_slider.css({width: PANE_WRAPPER_WIDTH}); // set css on pane slider
+
+		this.VIEWPORT_WIDTH = this.$viewport.width();
+
+		if (this.options.panesVisible) {
+			// TODO - change to check if it's a function or a number
+			this.PANES_VISIBLE = this.options.panesVisible();
+			this.PANE_WIDTH = (this.VIEWPORT_WIDTH / this.PANES_VISIBLE);
+		} else {
+			this.PANES_VISIBLE = this.VIEWPORT_WIDTH < this.options.minWidth ? 1 : Math.floor(this.VIEWPORT_WIDTH / this.options.minWidth);
+			this.PANE_WIDTH = (this.VIEWPORT_WIDTH / this.PANES_VISIBLE);
+		}
+
+		if (this.options.infinite) {
+
+			this.$panes.filter('.crt-clone').remove();
+
+			for(var i = this.NUM_PANES-1; i > this.NUM_PANES - 1 - this.PANES_VISIBLE; i--)
+			{
+				// console.log(i);
+				var first = this$1.$panes.eq(i).clone();
+				first.addClass('crt-clone');
+				first.css('opacity','1');
+				// Should probably move this out to an event
+				first.find('.crt-post-image').css({opacity:1});
+				this$1.$pane_slider.prepend(first);
+				this$1.FAKE_NUM = this$1.PANES_VISIBLE;
+			}
+			this.$panes = this.$pane_slider.children();
+
+		}
+
+		this.$panes.each(function (index, pane) {
+			$(pane).css( $.extend(css.pane, {width: this$1.PANE_WIDTH+'px'}) );
+		});
+	};
+
+	Carousel.prototype.destroy = function destroy () {
+
+	};
+
+	Carousel.prototype.animate = function animate () {
+			var this$1 = this;
+
+		this.animating = true;
+		clearTimeout(this.timeout);
+		this.timeout = setTimeout(function () {
+			this$1.next();
+		}, this.options.speed);
+	};
+
+	Carousel.prototype.next = function next () {
+		var move = this.options.moveAmount ? this.options.moveAmount : this.PANES_VISIBLE ;
+		this.move(this.current_position + move, false);
+	};
+
+	Carousel.prototype.prev = function prev () {
+		var move = this.options.moveAmount ? this.options.moveAmount : this.PANES_VISIBLE ;
+		this.move(this.current_position - move, false);
+	};
+
+	Carousel.prototype.move = function move (i, noAnimate) {
+			var this$1 = this;
+
+		// console.log(i);
+
+		this.current_position = i;
+
+		var maxPos = this.NUM_PANES - this.PANES_VISIBLE;
+
+		// if (this.options.infinite)
+		// {
+		// let mod = this.NUM_PANES % this.PANES_VISIBLE;
+		// }
+
+		if (this.current_position < 0) {
+			this.current_position = 0;
+		} else if (this.current_position > maxPos) {
+			this.current_position = maxPos;
+		}
+
+		var curIncFake = (this.FAKE_NUM + this.current_position);
+		var left = curIncFake * this.PANE_WIDTH;
+		// console.log('move');
+		// console.log(curIncFake);
+		var panesInView = this.PANES_VISIBLE;
+		var max = this.options.infinite ? (this.PANE_WIDTH * this.NUM_PANES) : (this.PANE_WIDTH * this.NUM_PANES) - this.VIEWPORT_WIDTH;
+
+
+		this.currentLeft = left;
+
+		//console.log(left+":"+max);
+
+		if (left < 0) {
+			this.currentLeft = 0;
+		} else if (left > max) {
+			this.currentLeft = max;
+		} else {
+			this.currentLeft = left;
+		}
+
+		if (noAnimate) {
+			this.$pane_slider.css(
+				{
+					left: ((0 - this.currentLeft) + 'px')
+				});
+                this.moveComplete();
+		} else {
+			var options = {
+				duration: this.options.duration,
+				complete: function () {
+					this$1.moveComplete();
+				}
+			};
+			if (this.options.easing) {
+				options.easing = this.options.easing;
+			}
+			this.$pane_slider.animate(
+				{
+					left: ((0 - this.currentLeft) + 'px')
+				},
+				options
+			);
+		}
+	};
+
+	Carousel.prototype.moveComplete = function moveComplete () {
+			var this$1 = this;
+
+		// console.log ('moveComplete');
+		// console.log (this.current_position);
+		// console.log (this.NUM_PANES - this.PANES_VISIBLE);
+		if (this.options.infinite && (this.current_position >= (this.NUM_PANES - this.PANES_VISIBLE))) {
+			// console.log('IIIII');
+			// infinite and we're off the end!
+			// re-e-wind, the crowd says 'bo selecta!'
+			this.$pane_slider.css({left:0});
+			this.current_position = 0 - this.PANES_VISIBLE;
+			this.currentLeft = 0;
+		}
+
+		setTimeout(function () {
+                var paneMaxHieght = 0;
+                for (var i=this$1.current_position;i<this$1.current_position + this$1.PANES_VISIBLE;i++)
+                {
+                var p = $(this$1.$panes[i]).children('.crt-post');
+                    var h = p.height();
+                    if (h > paneMaxHieght) {
+                        paneMaxHieght = h;
+                    }
+                }
+            this$1.$pane_stage.animate({height:paneMaxHieght},300);
+            }, 50);
+
+		this.$viewport.trigger('curatorCarousel:changed', [this, this.current_position]);
+
+		if (this.options.autoPlay) {
+			this.animate();
+		}
+	};
+
+	Carousel.prototype.addControls = function addControls () {
+		this.$viewport.append('<button type="button" data-role="none" class="crt-panel-prev crt-panel-arrow" aria-label="Previous" role="button" aria-disabled="false">Previous</button>');
+		this.$viewport.append('<button type="button" data-role="none" class="crt-panel-next crt-panel-arrow" aria-label="Next" role="button" aria-disabled="false">Next</button>');
+
+		this.$viewport.on('click','.crt-panel-prev', this.prev.bind(this));
+		this.$viewport.on('click','.crt-panel-next', this.next.bind(this));
+	};
+
+	Carousel.prototype.method = function method () {
+		var m = arguments[0];
+		// let args = (arguments.length === 1 ? [arguments[0]] : Array.apply(null, arguments));
+		if (m == 'update') {
+			this.update();
+		} else if (m == 'add') {
+			this.add(arguments[1]);
+		} else if (m == 'destroy') {
+			this.destroy();
+		} else {
+
+		}
+	};
+
+	var carousels = {};
+	function rand () {
+		return Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5);
+	}
+
+	$.extend($.fn, { 
+		curatorCarousel: function (options) {
+			var args = (arguments.length === 1 ? [arguments[0]] : Array.apply(null, arguments));
+
+			$.each(this, function(index, item) {
+				var id = $(item).data('carousel');
+
+				if (carousels[id]) {
+					carousels[id].method.apply(carousels[id], args);
+				} else {
+					id = rand();
+					carousels[id] = new Carousel(item, options);
+					$(item).data('carousel', id);
+				}
+			});
+
+			return this;
+		}
+	});
+
+	window.CCarousel = Carousel;
+})($);
+
 
 /**
  * Based on the awesome jQuery Grid-A-Licious(tm)
@@ -398,128 +830,32 @@
 
 })($);
 
-var arrayFill = function (array, value, start, end) {
+// Debouncing function from John Hann
+// http://unscriptable.com/index.php/2009/03/20/debouncing-javascript-methods/
+// Copy pasted from http://paulirish.com/2009/throttled-smartresize-jquery-event-handler/
 
-    if (!Array.isArray(array)) {
-        throw new TypeError('array is not a Array');
-    }
+(function ($, sr) {
+    var debounce = function (func, threshold, execAsap) {
+        var timeout;
+        return function debounced() {
+            var obj = this,
+                args = arguments;
 
-    var length = array.length;
-    start = parseInt(start, 10) || 0;
-    end = end === undefined ? length : (parseInt(end, 10) || 0);
+            function delayed() {
+                if (!execAsap) func.apply(obj, args);
+                timeout = null;
+            }
+            if (timeout) clearTimeout(timeout);
+            else if (execAsap) func.apply(obj, args);
 
-    var i;
-    var l;
-
-    if (start < 0) {
-        i = Math.max(length + start, 0);
-    } else {
-        i = Math.min(start, length);
-    }
-
-    if (end < 0) {
-        l = Math.max(length + end, 0);
-    } else {
-        l = Math.min(end, length);
-    }
-
-    for (; i < l; i++) {
-        array[i] = value;
-    }
-
-    return array;
-};
-
-
-if (!Array.prototype.fill) {
-    Array.prototype.fill = function (value, start, end) {
-        return arrayFill(this, value, start, end);
+            timeout = setTimeout(delayed, threshold || 150);
+        };
     };
-}
-/**
- * Props to https://github.com/yanatan16/nanoajax
- */
+    $.fn[sr] = function (fn) {
+        return fn ? this.bind('resize', debounce(fn)) : this.trigger(sr);
+    };
+})($, 'smartresize');
 
-(function(global){
-    // Best place to find information on XHR features is:
-    // https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest
-
-    var reqfields = [
-        'responseType', 'withCredentials', 'timeout', 'onprogress'
-    ];
-
-    function nanoajax (params, callback) {
-        // Any variable used more than once is var'd here because
-        // minification will munge the variables whereas it can't munge
-        // the object access.
-        var headers = params.headers || {}
-            , body = params.body
-            , method = params.method || (body ? 'POST' : 'GET')
-            , called = false
-
-        var req = getRequest(params.cors)
-
-        function cb(statusCode, responseText) {
-            return function () {
-                if (!called) {
-                    callback(req.status === undefined ? statusCode : req.status,
-                        req.status === 0 ? "Error" : (req.response || req.responseText || responseText),
-                        req)
-                    called = true
-                }
-            }
-        }
-
-        req.open(method, params.url, true)
-
-        var success = req.onload = cb(200)
-        req.onreadystatechange = function () {
-            if (req.readyState === 4) success()
-        }
-        req.onerror = cb(null, 'Error')
-        req.ontimeout = cb(null, 'Timeout')
-        req.onabort = cb(null, 'Abort')
-
-        if (body) {
-            setDefault(headers, 'X-Requested-With', 'XMLHttpRequest')
-
-            if (!global.FormData || !(body instanceof global.FormData)) {
-                setDefault(headers, 'Content-Type', 'application/x-www-form-urlencoded')
-            }
-        }
-
-        for (var i = 0, len = reqfields.length, field; i < len; i++) {
-            field = reqfields[i]
-            if (params[field] !== undefined)
-                req[field] = params[field]
-        }
-
-        for (var field$1 in headers)
-            req.setRequestHeader(field$1, headers[field$1])
-
-        req.send(body)
-
-        return req
-    }
-
-    function getRequest(cors) {
-        // XDomainRequest is only way to do CORS in IE 8 and 9
-        // But XDomainRequest isn't standards-compatible
-        // Notably, it doesn't allow cookies to be sent or set by servers
-        // IE 10+ is standards-compatible in its XMLHttpRequest
-        // but IE 10 can still have an XDomainRequest object, so we don't want to use it
-        if (cors && global.XDomainRequest && !/MSIE 1/.test(navigator.userAgent))
-            return new XDomainRequest
-        if (global.XMLHttpRequest)
-            return new XMLHttpRequest
-    }
-
-    function setDefault(obj, key, value) {
-        obj[key] = obj[key] || value
-    }
-
-    global.nanoajax = nanoajax;
-})(this);
 // Test $ exists
 
 var Curator = {
@@ -782,342 +1118,6 @@ EventBus.prototype.destroy = function destroy () {
 };
 
 Curator.EventBus = new EventBus();
-
-(function($) {
-	// Default styling
-
-	var defaults = {
-		circular: false,
-		speed: 5000,
-		duration: 700,
-		minWidth: 250,
-		panesVisible: null,
-		moveAmount: 0,
-		autoPlay: false,
-		useCss : true
-	};
-
-	if ($.zepto) {
-		defaults.easing = 'ease-in-out';
-	}
-	// console.log (defaults);
-
-	var css = {
-		viewport: {
-			'width': '100%', // viewport needs to be fluid
-			// 'overflow': 'hidden',
-			'position': 'relative'
-		},
-
-		pane_stage: {
-			'width': '100%', // viewport needs to be fluid
-			'overflow': 'hidden',
-			'position': 'relative',
-            'height':0
-		},
-
-		pane_slider: {
-			'width': '0%', // will be set to (number of panes * 100)
-			'list-style': 'none',
-			'position': 'relative',
-			'overflow': 'hidden',
-			'padding': '0',
-			'left':'0'
-		},
-
-		pane: {
-			'width': '0%', // will be set to (100 / number of images)
-			'position': 'relative',
-			'float': 'left'
-		}
-	};
-
-	var Carousel = function Carousel (container, options) {
-		var this$1 = this;
-
-		Curator.log('Carousel->construct');
-
-            this.current_position=0;
-            this.animating=false;
-            this.timeout=null;
-            this.FAKE_NUM=0;
-            this.PANES_VISIBLE=0;
-
-		this.options = $.extend([], defaults, options);
-
-		this.$viewport = $(container); // <div> slider, known as $viewport
-
-            this.$panes = this.$viewport.children();
-            this.$panes.detach();
-
-		this.$pane_stage = $('<div class="ctr-carousel-stage"></div>').appendTo(this.$viewport);
-		this.$pane_slider = $('<div class="ctr-carousel-slider"></div>').appendTo(this.$pane_stage);
-
-		// this.$pane_slider.append(this.$panes);
-
-		this.$viewport.css(css.viewport); // set css on viewport
-		this.$pane_slider.css( css.pane_slider ); // set css on pane slider
-		this.$pane_stage.css( css.pane_stage ); // set css on pane slider
-
-            this.addControls();
-            this.update ();
-
-		$(window).smartresize(function () {
-			this$1.resize();
-			this$1.move (this$1.current_position, true);
-
-			// reset animation timer
-			if (this$1.options.autoPlay) {
-				this$1.animate();
-			}
-		})
-	};
-
-	Carousel.prototype.update = function update () {
-		this.$panes = this.$pane_slider.children(); // <li> list items, known as $panes
-		this.NUM_PANES = this.options.circular ? (this.$panes.length + 1) : this.$panes.length;
-
-		if (this.NUM_PANES > 0) {
-			this.resize();
-			this.move (this.current_position, true);
-
-			if (!this.animating) {
-				if (this.options.autoPlay) {
-					this.animate();
-				}
-			}
-		}
-	};
-
-	Carousel.prototype.add = function add ($els) {
-		var $panes = [];
-            //
-            // $.each($els,(i, $pane)=> {
-            //     let p = $pane.wrapAll('<div class="crt-carousel-col"></div>').parent();
-            //     $panes.push(p)
-            // });
-
-		this.$pane_slider.append($els);
-		this.$panes = this.$pane_slider.children();
-	};
-
-	Carousel.prototype.resize = function resize () {
-			var this$1 = this;
-
-		var PANE_WRAPPER_WIDTH = this.options.infinite ? ((this.NUM_PANES+1) * 100) + '%' : (this.NUM_PANES * 100) + '%'; // % width of slider (total panes * 100)
-
-		this.$pane_slider.css({width: PANE_WRAPPER_WIDTH}); // set css on pane slider
-
-		this.VIEWPORT_WIDTH = this.$viewport.width();
-
-		if (this.options.panesVisible) {
-			// TODO - change to check if it's a function or a number
-			this.PANES_VISIBLE = this.options.panesVisible();
-			this.PANE_WIDTH = (this.VIEWPORT_WIDTH / this.PANES_VISIBLE);
-		} else {
-			this.PANES_VISIBLE = this.VIEWPORT_WIDTH < this.options.minWidth ? 1 : Math.floor(this.VIEWPORT_WIDTH / this.options.minWidth);
-			this.PANE_WIDTH = (this.VIEWPORT_WIDTH / this.PANES_VISIBLE);
-		}
-
-		if (this.options.infinite) {
-
-			this.$panes.filter('.crt-clone').remove();
-
-			for(var i = this.NUM_PANES-1; i > this.NUM_PANES - 1 - this.PANES_VISIBLE; i--)
-			{
-				// console.log(i);
-				var first = this$1.$panes.eq(i).clone();
-				first.addClass('crt-clone');
-				first.css('opacity','1');
-				// Should probably move this out to an event
-				first.find('.crt-post-image').css({opacity:1});
-				this$1.$pane_slider.prepend(first);
-				this$1.FAKE_NUM = this$1.PANES_VISIBLE;
-			}
-			this.$panes = this.$pane_slider.children();
-
-		}
-
-		this.$panes.each(function (index, pane) {
-			$(pane).css( $.extend(css.pane, {width: this$1.PANE_WIDTH+'px'}) );
-		});
-	};
-
-	Carousel.prototype.destroy = function destroy () {
-
-	};
-
-	Carousel.prototype.animate = function animate () {
-			var this$1 = this;
-
-		this.animating = true;
-		clearTimeout(this.timeout);
-		this.timeout = setTimeout(function () {
-			this$1.next();
-		}, this.options.speed);
-	};
-
-	Carousel.prototype.next = function next () {
-		var move = this.options.moveAmount ? this.options.moveAmount : this.PANES_VISIBLE ;
-		this.move(this.current_position + move, false);
-	};
-
-	Carousel.prototype.prev = function prev () {
-		var move = this.options.moveAmount ? this.options.moveAmount : this.PANES_VISIBLE ;
-		this.move(this.current_position - move, false);
-	};
-
-	Carousel.prototype.move = function move (i, noAnimate) {
-			var this$1 = this;
-
-		// console.log(i);
-
-		this.current_position = i;
-
-		var maxPos = this.NUM_PANES - this.PANES_VISIBLE;
-
-		// if (this.options.infinite)
-		// {
-		// let mod = this.NUM_PANES % this.PANES_VISIBLE;
-		// }
-
-		if (this.current_position < 0) {
-			this.current_position = 0;
-		} else if (this.current_position > maxPos) {
-			this.current_position = maxPos;
-		}
-
-		var curIncFake = (this.FAKE_NUM + this.current_position);
-		var left = curIncFake * this.PANE_WIDTH;
-		// console.log('move');
-		// console.log(curIncFake);
-		var panesInView = this.PANES_VISIBLE;
-		var max = this.options.infinite ? (this.PANE_WIDTH * this.NUM_PANES) : (this.PANE_WIDTH * this.NUM_PANES) - this.VIEWPORT_WIDTH;
-
-
-		this.currentLeft = left;
-
-		//console.log(left+":"+max);
-
-		if (left < 0) {
-			this.currentLeft = 0;
-		} else if (left > max) {
-			this.currentLeft = max;
-		} else {
-			this.currentLeft = left;
-		}
-
-		if (noAnimate) {
-			this.$pane_slider.css(
-				{
-					left: ((0 - this.currentLeft) + 'px')
-				});
-                this.moveComplete();
-		} else {
-			var options = {
-				duration: this.options.duration,
-				complete: function () {
-					this$1.moveComplete();
-				}
-			};
-			if (this.options.easing) {
-				options.easing = this.options.easing;
-			}
-			this.$pane_slider.animate(
-				{
-					left: ((0 - this.currentLeft) + 'px')
-				},
-				options
-			);
-		}
-	};
-
-	Carousel.prototype.moveComplete = function moveComplete () {
-			var this$1 = this;
-
-		// console.log ('moveComplete');
-		// console.log (this.current_position);
-		// console.log (this.NUM_PANES - this.PANES_VISIBLE);
-		if (this.options.infinite && (this.current_position >= (this.NUM_PANES - this.PANES_VISIBLE))) {
-			// console.log('IIIII');
-			// infinite and we're off the end!
-			// re-e-wind, the crowd says 'bo selecta!'
-			this.$pane_slider.css({left:0});
-			this.current_position = 0 - this.PANES_VISIBLE;
-			this.currentLeft = 0;
-		}
-
-		setTimeout(function () {
-                var paneMaxHieght = 0;
-                for (var i=this$1.current_position;i<this$1.current_position + this$1.PANES_VISIBLE;i++)
-                {
-                var p = $(this$1.$panes[i]).children('.crt-post');
-                    var h = p.height();
-                    if (h > paneMaxHieght) {
-                        paneMaxHieght = h;
-                    }
-                }
-            this$1.$pane_stage.animate({height:paneMaxHieght},300);
-            }, 50);
-
-		this.$viewport.trigger('curatorCarousel:changed', [this, this.current_position]);
-
-		if (this.options.autoPlay) {
-			this.animate();
-		}
-	};
-
-	Carousel.prototype.addControls = function addControls () {
-		this.$viewport.append('<button type="button" data-role="none" class="crt-panel-prev crt-panel-arrow" aria-label="Previous" role="button" aria-disabled="false">Previous</button>');
-		this.$viewport.append('<button type="button" data-role="none" class="crt-panel-next crt-panel-arrow" aria-label="Next" role="button" aria-disabled="false">Next</button>');
-
-		this.$viewport.on('click','.crt-panel-prev', this.prev.bind(this));
-		this.$viewport.on('click','.crt-panel-next', this.next.bind(this));
-	};
-
-	Carousel.prototype.method = function method () {
-		var m = arguments[0];
-		// let args = (arguments.length === 1 ? [arguments[0]] : Array.apply(null, arguments));
-		if (m == 'update') {
-			this.update();
-		} else if (m == 'add') {
-			this.add(arguments[1]);
-		} else if (m == 'destroy') {
-			this.destroy();
-		} else {
-
-		}
-	};
-
-	var carousels = {};
-	function rand () {
-		return Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5);
-	}
-
-	$.extend($.fn, { 
-		curatorCarousel: function (options) {
-			var args = (arguments.length === 1 ? [arguments[0]] : Array.apply(null, arguments));
-
-			$.each(this, function(index, item) {
-				var id = $(item).data('carousel');
-
-				if (carousels[id]) {
-					carousels[id].method.apply(carousels[id], args);
-				} else {
-					id = rand();
-					carousels[id] = new Carousel(item, options);
-					$(item).data('carousel', id);
-				}
-			});
-
-			return this;
-		}
-	});
-
-	window.CCarousel = Carousel;
-})($);
-
-
 
 var Client = (function (EventBus) {
     function Client () {
@@ -2524,7 +2524,7 @@ Curator.Template = {
 
         if ($('#'+templateId).length===1)
         {
-            source = $(templateId).html();
+            source = $('#'+templateId).html();
         } else if (Curator.Templates[templateId] !== undefined)
         {
             source = Curator.Templates[templateId];
@@ -2797,150 +2797,6 @@ Curator.StringUtils = {
     }
 };
 
-Curator.Config.Waterfall = $.extend({}, Curator.Config.Defaults, {
-    scroll:'more',
-    waterfall: {
-        gridWidth:300,
-        animate:true,
-        animateSpeed:400
-    }
-});
-
-
-var Waterfall = (function (superclass) {
-    function Waterfall (options) {
-        var this$1 = this;
-
-        superclass.call (this);
-
-        this.setOptions (options,  Curator.Config.Waterfall);
-
-        Curator.log("Waterfall->init with options:");
-        Curator.log(this.options);
-
-        if (this.init (this)) {
-            this.$scroll = $('<div class="crt-feed-scroll"></div>').appendTo(this.$container);
-            this.$feed = $('<div class="crt-feed"></div>').appendTo(this.$scroll);
-            this.$container.addClass('crt-feed-container');
-
-            if (this.options.scroll=='continuous') {
-                $(this.$scroll).scroll(function () {
-                    var height = this$1.$scroll.height();
-                    var cHeight = this$1.$feed.height();
-                    var scrollTop = this$1.$scroll.scrollTop();
-                    if (scrollTop >= cHeight - height) {
-                        this$1.loadMorePosts();
-                    }
-                });
-            } else if (this.options.scroll=='none') {
-                // no scroll - use javascript to trigger loading
-            } else {
-                // default to more
-                this.$more = $('<div class="crt-feed-more"><a href="#"><span>Load more</span></a></div>').appendTo(this.$scroll);
-                this.$more.find('a').on('click',function (ev) {
-                    ev.preventDefault();
-                    this$1.loadMorePosts();
-                });
-            }
-
-            this.$feed.waterfall({
-                selector:'.crt-post-c',
-                gutter:0,
-                width:this.options.waterfall.gridWidth,
-                animate:this.options.waterfall.animate,
-                animationOptions: {
-                    speed: (this.options.waterfall.animateSpeed/2),
-                    duration: this.options.waterfall.animateSpeed
-                }
-            });
-
-            this.on(Curator.Events.FILTER_CHANGED, function (event) {
-                this$1.$feed.find('.crt-post-c').remove();
-            });
-
-            // Load first set of posts
-            this.loadPosts(0);
-        }
-    }
-
-    if ( superclass ) Waterfall.__proto__ = superclass;
-    Waterfall.prototype = Object.create( superclass && superclass.prototype );
-    Waterfall.prototype.constructor = Waterfall;
-
-    Waterfall.prototype.loadPosts = function loadPosts (page, clear) {
-        Curator.log('Waterfall->loadPage');
-        if (clear) {
-            this.$feed.find('.crt-post-c').remove();
-        }
-        this.feed.loadPosts(page);
-    };
-
-    Waterfall.prototype.loadMorePosts = function loadMorePosts () {
-        Curator.log('Waterfall->loadMorePosts');
-
-        this.feed.loadPosts(this.feed.currentPage+1);
-    };
-
-    Waterfall.prototype.onPostsLoaded = function onPostsLoaded (posts) {
-        Curator.log("Waterfall->onPostsLoaded");
-
-        var postElements = this.createPostElements (posts);
-
-        //this.$feed.append(postElements);
-        this.$feed.waterfall('append', postElements);
-
-        var that = this;
-        $.each(postElements,function (i) {
-            var post = this;
-            if (that.options.waterfall.showReadMore) {
-                post.find('.crt-post')
-                    .addClass('crt-post-show-read-more');
-            }
-        });
-
-        this.popupManager.setPosts(posts);
-
-        this.loading = false;
-        this.options.onPostsLoaded (this, posts);
-    };
-
-    Waterfall.prototype.onPostsFailed = function onPostsFailed (data) {
-        this.loading = false;
-        this.$feed.html('<p style="text-align: center">'+data.message+'</p>');
-    };
-
-    Waterfall.prototype.destroy = function destroy () {
-        Curator.log('Waterfall->destroy');
-        //this.$feed.slick('unslick');
-
-        superclass.prototype.destroy.call(this);
-
-        this.$feed.remove();
-        this.$scroll.remove();
-        if (this.$more) {
-            this.$more.remove();
-        }
-        this.$container.removeClass('crt-feed-container');
-
-        delete this.$feed;
-        delete this.$scroll;
-        delete this.$container;
-        delete this.options ;
-        delete this.totalPostsLoaded;
-        delete this.loading;
-        delete this.allLoaded;
-
-        // TODO add code to cascade destroy down to Feed & Posts
-        // unregistering events etc
-        delete this.feed;
-    };
-
-    return Waterfall;
-}(Curator.Client));
-
-
-Curator.Waterfall = Waterfall;
-
 
 
 Curator.Config.Carousel = $.extend({}, Curator.Config.Defaults, {
@@ -3072,28 +2928,13 @@ var Carousel = (function (Client) {
 
 Curator.Carousel = Carousel;
 
-Curator.Config.Panel = $.extend({}, Curator.Config.Defaults, {
-    panel: {
-        // speed: 500,
-        autoPlay: true,
-        autoLoad: true,
-        moveAmount:1,
-        fixedHeight:false,
-        infinite:true,
-        minWidth:2000
-    }
+Curator.Config.Custom = $.extend({}, Curator.Config.Defaults, {
 });
 
-var Panel = (function (superclass) {
-    function Panel  (options) {
-        var this$1 = this;
 
+var Custom = (function (superclass) {
+    function Custom  (options) {
         superclass.call (this);
-
-        this.setOptions (options,  Curator.Config.Panel);
-
-        Curator.log("Panel->init with options:");
-        Curator.log(this.options);
 
         this.containerHeight=0;
         this.loading=false;
@@ -3101,43 +2942,28 @@ var Panel = (function (superclass) {
         this.$container=null;
         this.$feed=null;
         this.posts=[];
+        this.totalPostsLoaded=0;
+        this.allLoaded=false;
+
+        this.setOptions (options,  Curator.Config.Custom);
+
+        Curator.log("Panel->init with options:");
+        Curator.log(this.options);
 
         if (this.init (this)) {
-            this.allLoaded = false;
-
             this.$feed = $('<div class="crt-feed"></div>').appendTo(this.$container);
-            this.$container.addClass('crt-panel');
+            this.$container.addClass('crt-custom');
 
-            if (this.options.panel.fixedHeight) {
-                this.$container.addClass('crt-panel-fixed-height');
-            }
-
-            this.$feed.curatorCarousel(this.options.panel);
-            this.$feed.on('curatorCarousel:changed', function (event, carousel, currentSlide) {
-                if (!this$1.allLoaded && this$1.options.panel.autoLoad) {
-                    if (currentSlide >= this$1.feed.postsLoaded - 4) {
-                        this$1.loadMorePosts();
-                    }
-                }
-            });
-
-            // load first set of posts
             this.loadPosts(0);
         }
     }
 
-    if ( superclass ) Panel.__proto__ = superclass;
-    Panel.prototype = Object.create( superclass && superclass.prototype );
-    Panel.prototype.constructor = Panel;
+    if ( superclass ) Custom.__proto__ = superclass;
+    Custom.prototype = Object.create( superclass && superclass.prototype );
+    Custom.prototype.constructor = Custom;
 
-    Panel.prototype.loadMorePosts = function loadMorePosts () {
-        Curator.log('Carousel->loadMorePosts');
-
-        this.feed.loadPosts(this.feed.currentPage+1);
-    };
-
-    Panel.prototype.onPostsLoaded = function onPostsLoaded (posts) {
-        Curator.log("Carousel->onPostsLoaded");
+    Custom.prototype.onPostsLoaded = function onPostsLoaded (posts) {
+        Curator.log("Custom->onPostsLoaded");
 
         this.loading = false;
 
@@ -3145,14 +2971,12 @@ var Panel = (function (superclass) {
             this.allLoaded = true;
         } else {
             var that = this;
-            var $els = [];
+            var postElements = [];
             $(posts).each(function(){
                 var p = that.createPostElement(this);
-                $els.push(p.$el);
+                postElements.push(p.$el);
+                that.$feed.append(p.$el);
             });
-
-            that.$feed.curatorCarousel('add',$els);
-            that.$feed.curatorCarousel('update');
 
             this.popupManager.setPosts(posts);
 
@@ -3160,24 +2984,26 @@ var Panel = (function (superclass) {
         }
     };
 
-    Panel.prototype.onPostsFail = function onPostsFail (data) {
-        Curator.log("Carousel->onPostsFail");
+    Custom.prototype.onPostsFailed = function onPostsFailed (data) {
+        Curator.log("Custom->onPostsFailed");
         this.loading = false;
         this.$feed.html('<p style="text-align: center">'+data.message+'</p>');
     };
 
-    Panel.prototype.destroy = function destroy () {
+    Custom.prototype.onPostClick = function onPostClick (ev,post) {
+        this.popupManager.showPopup(post);
+    };
 
+    Custom.prototype.destroy = function destroy () {
         superclass.prototype.destroy.call(this);
 
-        this.$feed.curatorCarousel('destroy');
         this.$feed.remove();
-        this.$container.removeClass('crt-panel');
+        this.$container.removeClass('crt-custom');
 
         delete this.$feed;
         delete this.$container;
         delete this.options ;
-        delete this.feed.postsLoaded;
+        delete this.totalPostsLoaded;
         delete this.loading;
         delete this.allLoaded;
 
@@ -3186,10 +3012,8 @@ var Panel = (function (superclass) {
         delete this.feed;
     };
 
-    return Panel;
+    return Custom;
 }(Curator.Client));
-
-Curator.Panel = Panel;
 
 Curator.Config.Grid = $.extend({}, Curator.Config.Defaults, {
     templatePost:'v2-grid-post',
@@ -3418,13 +3242,28 @@ var Grid = (function (Client) {
 Curator.Grid = Grid;
 
 
-Curator.Config.Custom = $.extend({}, Curator.Config.Defaults, {
+Curator.Config.Panel = $.extend({}, Curator.Config.Defaults, {
+    panel: {
+        // speed: 500,
+        autoPlay: true,
+        autoLoad: true,
+        moveAmount:1,
+        fixedHeight:false,
+        infinite:true,
+        minWidth:2000
+    }
 });
 
+var Panel = (function (superclass) {
+    function Panel  (options) {
+        var this$1 = this;
 
-var Custom = (function (superclass) {
-    function Custom  (options) {
         superclass.call (this);
+
+        this.setOptions (options,  Curator.Config.Panel);
+
+        Curator.log("Panel->init with options:");
+        Curator.log(this.options);
 
         this.containerHeight=0;
         this.loading=false;
@@ -3432,28 +3271,43 @@ var Custom = (function (superclass) {
         this.$container=null;
         this.$feed=null;
         this.posts=[];
-        this.totalPostsLoaded=0;
-        this.allLoaded=false;
-
-        this.setOptions (options,  Curator.Config.Custom);
-
-        Curator.log("Panel->init with options:");
-        Curator.log(this.options);
 
         if (this.init (this)) {
-            this.$feed = $('<div class="crt-feed"></div>').appendTo(this.$container);
-            this.$container.addClass('crt-custom');
+            this.allLoaded = false;
 
+            this.$feed = $('<div class="crt-feed"></div>').appendTo(this.$container);
+            this.$container.addClass('crt-panel');
+
+            if (this.options.panel.fixedHeight) {
+                this.$container.addClass('crt-panel-fixed-height');
+            }
+
+            this.$feed.curatorCarousel(this.options.panel);
+            this.$feed.on('curatorCarousel:changed', function (event, carousel, currentSlide) {
+                if (!this$1.allLoaded && this$1.options.panel.autoLoad) {
+                    if (currentSlide >= this$1.feed.postsLoaded - 4) {
+                        this$1.loadMorePosts();
+                    }
+                }
+            });
+
+            // load first set of posts
             this.loadPosts(0);
         }
     }
 
-    if ( superclass ) Custom.__proto__ = superclass;
-    Custom.prototype = Object.create( superclass && superclass.prototype );
-    Custom.prototype.constructor = Custom;
+    if ( superclass ) Panel.__proto__ = superclass;
+    Panel.prototype = Object.create( superclass && superclass.prototype );
+    Panel.prototype.constructor = Panel;
 
-    Custom.prototype.onPostsLoaded = function onPostsLoaded (posts) {
-        Curator.log("Custom->onPostsLoaded");
+    Panel.prototype.loadMorePosts = function loadMorePosts () {
+        Curator.log('Carousel->loadMorePosts');
+
+        this.feed.loadPosts(this.feed.currentPage+1);
+    };
+
+    Panel.prototype.onPostsLoaded = function onPostsLoaded (posts) {
+        Curator.log("Carousel->onPostsLoaded");
 
         this.loading = false;
 
@@ -3461,12 +3315,14 @@ var Custom = (function (superclass) {
             this.allLoaded = true;
         } else {
             var that = this;
-            var postElements = [];
+            var $els = [];
             $(posts).each(function(){
                 var p = that.createPostElement(this);
-                postElements.push(p.$el);
-                that.$feed.append(p.$el);
+                $els.push(p.$el);
             });
+
+            that.$feed.curatorCarousel('add',$els);
+            that.$feed.curatorCarousel('update');
 
             this.popupManager.setPosts(posts);
 
@@ -3474,23 +3330,165 @@ var Custom = (function (superclass) {
         }
     };
 
-    Custom.prototype.onPostsFailed = function onPostsFailed (data) {
-        Curator.log("Custom->onPostsFailed");
+    Panel.prototype.onPostsFail = function onPostsFail (data) {
+        Curator.log("Carousel->onPostsFail");
         this.loading = false;
         this.$feed.html('<p style="text-align: center">'+data.message+'</p>');
     };
 
-    Custom.prototype.onPostClick = function onPostClick (ev,post) {
-        this.popupManager.showPopup(post);
+    Panel.prototype.destroy = function destroy () {
+
+        superclass.prototype.destroy.call(this);
+
+        this.$feed.curatorCarousel('destroy');
+        this.$feed.remove();
+        this.$container.removeClass('crt-panel');
+
+        delete this.$feed;
+        delete this.$container;
+        delete this.options ;
+        delete this.feed.postsLoaded;
+        delete this.loading;
+        delete this.allLoaded;
+
+        // TODO add code to cascade destroy down to Feed & Posts
+        // unregistering events etc
+        delete this.feed;
     };
 
-    Custom.prototype.destroy = function destroy () {
+    return Panel;
+}(Curator.Client));
+
+Curator.Panel = Panel;
+
+
+Curator.Config.Waterfall = $.extend({}, Curator.Config.Defaults, {
+    scroll:'more',
+    waterfall: {
+        gridWidth:300,
+        animate:true,
+        animateSpeed:400
+    }
+});
+
+
+var Waterfall = (function (superclass) {
+    function Waterfall (options) {
+        var this$1 = this;
+
+        superclass.call (this);
+
+        this.setOptions (options,  Curator.Config.Waterfall);
+
+        Curator.log("Waterfall->init with options:");
+        Curator.log(this.options);
+
+        if (this.init (this)) {
+            this.$scroll = $('<div class="crt-feed-scroll"></div>').appendTo(this.$container);
+            this.$feed = $('<div class="crt-feed"></div>').appendTo(this.$scroll);
+            this.$container.addClass('crt-feed-container');
+
+            if (this.options.scroll=='continuous') {
+                $(this.$scroll).scroll(function () {
+                    var height = this$1.$scroll.height();
+                    var cHeight = this$1.$feed.height();
+                    var scrollTop = this$1.$scroll.scrollTop();
+                    if (scrollTop >= cHeight - height) {
+                        this$1.loadMorePosts();
+                    }
+                });
+            } else if (this.options.scroll=='none') {
+                // no scroll - use javascript to trigger loading
+            } else {
+                // default to more
+                this.$more = $('<div class="crt-feed-more"><a href="#"><span>Load more</span></a></div>').appendTo(this.$scroll);
+                this.$more.find('a').on('click',function (ev) {
+                    ev.preventDefault();
+                    this$1.loadMorePosts();
+                });
+            }
+
+            this.$feed.waterfall({
+                selector:'.crt-post-c',
+                gutter:0,
+                width:this.options.waterfall.gridWidth,
+                animate:this.options.waterfall.animate,
+                animationOptions: {
+                    speed: (this.options.waterfall.animateSpeed/2),
+                    duration: this.options.waterfall.animateSpeed
+                }
+            });
+
+            this.on(Curator.Events.FILTER_CHANGED, function (event) {
+                this$1.$feed.find('.crt-post-c').remove();
+            });
+
+            // Load first set of posts
+            this.loadPosts(0);
+        }
+    }
+
+    if ( superclass ) Waterfall.__proto__ = superclass;
+    Waterfall.prototype = Object.create( superclass && superclass.prototype );
+    Waterfall.prototype.constructor = Waterfall;
+
+    Waterfall.prototype.loadPosts = function loadPosts (page, clear) {
+        Curator.log('Waterfall->loadPage');
+        if (clear) {
+            this.$feed.find('.crt-post-c').remove();
+        }
+        this.feed.loadPosts(page);
+    };
+
+    Waterfall.prototype.loadMorePosts = function loadMorePosts () {
+        Curator.log('Waterfall->loadMorePosts');
+
+        this.feed.loadPosts(this.feed.currentPage+1);
+    };
+
+    Waterfall.prototype.onPostsLoaded = function onPostsLoaded (posts) {
+        Curator.log("Waterfall->onPostsLoaded");
+
+        var postElements = this.createPostElements (posts);
+
+        //this.$feed.append(postElements);
+        this.$feed.waterfall('append', postElements);
+
+        var that = this;
+        $.each(postElements,function (i) {
+            var post = this;
+            if (that.options.waterfall.showReadMore) {
+                post.find('.crt-post')
+                    .addClass('crt-post-show-read-more');
+            }
+        });
+
+        this.popupManager.setPosts(posts);
+
+        this.loading = false;
+        this.options.onPostsLoaded (this, posts);
+    };
+
+    Waterfall.prototype.onPostsFailed = function onPostsFailed (data) {
+        this.loading = false;
+        this.$feed.html('<p style="text-align: center">'+data.message+'</p>');
+    };
+
+    Waterfall.prototype.destroy = function destroy () {
+        Curator.log('Waterfall->destroy');
+        //this.$feed.slick('unslick');
+
         superclass.prototype.destroy.call(this);
 
         this.$feed.remove();
-        this.$container.removeClass('crt-custom');
+        this.$scroll.remove();
+        if (this.$more) {
+            this.$more.remove();
+        }
+        this.$container.removeClass('crt-feed-container');
 
         delete this.$feed;
+        delete this.$scroll;
         delete this.$container;
         delete this.options ;
         delete this.totalPostsLoaded;
@@ -3502,8 +3500,11 @@ var Custom = (function (superclass) {
         delete this.feed;
     };
 
-    return Custom;
+    return Waterfall;
 }(Curator.Client));
+
+
+Curator.Waterfall = Waterfall;
 
 
 	return Curator;
