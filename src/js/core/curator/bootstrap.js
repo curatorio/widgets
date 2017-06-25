@@ -97,6 +97,7 @@ let Curator = {
             maxPosts:0,
             debug: false,
             postTemplate:'#post-template',
+            showPopupOnClick:true,
             onPostsLoaded: function () {
             },
             filter: {

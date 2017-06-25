@@ -96,7 +96,9 @@ class Client extends EventBus {
     }
 
     onPostClick (ev,post) {
-        this.popupManager.showPopup(post);
+        if (this.options.showPopupOnClick) {
+            this.popupManager.showPopup(post);
+        }
     }
 
     track (a) {
