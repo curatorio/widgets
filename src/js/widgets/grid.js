@@ -58,11 +58,11 @@ class Grid extends Client {
         this.$container=null;
         this.$feed=null;
         this.posts=[];
+        this.previousCol=0;
+
+        this.rowsMax = 0;
         this.totalPostsLoaded=0;
         this.allLoaded=false;
-        this.previousCol=0;
-        this.page=0;
-        this.rowsShowing=0;
 
         if (this.init (this)) {
 
@@ -73,9 +73,6 @@ class Grid extends Client {
             this.$loadMore = this.$container.find('.crt-feed-more a');
 
             this.$container.addClass('crt-grid');
-
-            let cols = Math.floor(this.$container.width()/this.options.grid.minWidth);
-            let postsNeeded = cols *  (this.options.grid.rows + 1); // get 1 extra row just in case
 
             if (this.options.grid.showLoadMore) {
                 // this.$feed.css({
@@ -93,28 +90,86 @@ class Grid extends Client {
                 this.$loadMore.hide();
             }
 
-            this.rowsShowing = this.options.grid.rows;
+            this.createHandlers();
 
-            this.feed.options.postsPerPage = postsNeeded;
-            this.loadPosts(0);
+            // Debounce wrapper ...
+
+            // This triggers post loading
+            this.rowsMax = this.options.grid.rows;
+            this.updateLayout ();
+        }
+    }
+
+    loadPosts () {
+        console.log ('LOAD POSTS CALLED!!!?!?!!?!?!');
+    }
+
+    updateLayout ( ) {
+        // Curator.log("Grid->updateLayout ");
+
+        let cols = Math.floor(this.$container.width()/this.options.grid.minWidth);
+
+        // set col layout
+        this.$container.removeClass('crt-grid-col'+this.previousCol);
+        this.previousCol = cols;
+        this.$container.addClass('crt-grid-col'+this.previousCol);
+
+        // figure out if we need more posts
+        let postsNeeded = cols *  (this.rowsMax + 1);
+        // console.log ('postNeeded '+postsNeeded);
+        // console.log ('this.feed.postsLoaded '+this.feed.postsLoaded);
+        if (postsNeeded > this.feed.postsLoaded && !this.feed.allPostsLoaded) {
+            let limit = postsNeeded - this.feed.postsLoaded;
+
+            let params = {
+                limit : limit
+            };
+
+            if (this.feed.pagination && this.feed.pagination.after) {
+                params.after = this.feed.pagination.after;
+            }
+
+            // console.log (params);
+
+            this.feed._loadPosts(params);
+        } else {
+            this.updateHeight(false);
+        }
+    }
+
+    updateHeight (animate) {
+        let postHeight = this.$container.find('.crt-post-c').width();
+        this.$feedWindow.css({'overflow':'hidden'});
+
+        let maxRows = Math.ceil(this.feed.postCount / this.previousCol);
+        let rows = this.rowsMax < maxRows ? this.rowsMax : maxRows;
+
+        if (animate) {
+            this.$feedWindow.animate({height:rows * postHeight});
+        } else {
+            this.$feedWindow.height(rows * postHeight);
         }
 
-        this.createHandlers();
-
-        // Debounce wrapper ...
-        this.updateLayout = Curator.Utils.debounce(this.updateLayout, 20);
-
-        this.updateLayout ();
+        if (this.options.grid.showLoadMore) {
+            if (this.feed.allPostsLoaded) {
+                this.$loadMore.hide();
+            } else {
+                this.$loadMore.show();
+            }
+        }
     }
 
     createHandlers () {
         let id = this.id;
+        let updateLayoutDebounced = Curator.Utils.debounce( () => {
+            this.updateLayout ();
+        }, 100);
 
-        $(window).on('resize.'+id, this.updateLayout.bind(this));
+        $(window).on('resize.'+id, updateLayoutDebounced);
 
-        $(window).on('curatorCssLoaded.'+id, this.updateLayout.bind(this));
+        $(window).on('curatorCssLoaded.'+id, updateLayoutDebounced);
 
-        $(document).on('ready.'+id, this.updateLayout.bind(this));
+        $(document).on('ready.'+id, updateLayoutDebounced);
     }
 
     destroyHandlers () {
@@ -154,7 +209,7 @@ class Grid extends Client {
 
             this.options.onPostsLoaded (this, posts);
 
-            this.updateHeight();
+            this.updateHeight(true);
         }
     }
 
@@ -182,50 +237,9 @@ class Grid extends Client {
     onMoreClicked (ev) {
         ev.preventDefault();
 
-        this.rowsShowing = this.rowsShowing + this.options.grid.rows;
+        this.rowsMax ++;
 
-        this.updateHeight(true);
-
-        this.feed.loadMore();
-    }
-
-    updateLayout ( ) {
-        // Curator.log("Grid->updateLayout ");
-
-        let cols = Math.floor(this.$container.width()/this.options.grid.minWidth);
-        let postsNeeded = cols *  this.options.grid.rows;
-
-        this.$container.removeClass('crt-grid-col'+this.previousCol);
-        this.previousCol = cols;
-        this.$container.addClass('crt-grid-col'+this.previousCol);
-
-        if (postsNeeded > this.feed.postsLoaded) {
-            this.loadPosts(this.feed.currentPage+1);
-        }
-
-        this.updateHeight();
-    }
-
-    updateHeight (animate) {
-        let postHeight = this.$container.find('.crt-post-c').width();
-        this.$feedWindow.css({'overflow':'hidden'});
-
-        let maxRows = Math.ceil(this.feed.postCount / this.previousCol);
-        let rows = this.rowsShowing < maxRows ? this.rowsShowing : maxRows;
-
-        if (animate) {
-            this.$feedWindow.animate({height:rows * postHeight});
-        } else {
-            this.$feedWindow.height(rows * postHeight);
-        }
-
-        if (this.options.grid.showLoadMore) {
-            if (this.rowsShowing >= maxRows) {
-                this.$loadMore.hide();
-            } else {
-                this.$loadMore.show();
-            }
-        }
+        this.updateLayout();
     }
 
     destroy () {
