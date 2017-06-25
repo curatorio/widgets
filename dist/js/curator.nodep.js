@@ -4777,8 +4777,8 @@ var Grid = (function (Client) {
 
     Grid.prototype.updateLayout = function updateLayout ( ) {
         // Curator.log("Grid->updateLayout ");
-
         var cols = Math.floor(this.$container.width()/this.options.grid.minWidth);
+        cols = cols < 1 ? 1 : cols;
 
         // set col layout
         this.$container.removeClass('crt-grid-col'+this.previousCol);
@@ -4800,7 +4800,7 @@ var Grid = (function (Client) {
                 params.after = this.feed.pagination.after;
             }
 
-            console.log (params);
+            // console.log (params);
 
             this.feed._loadPosts(params);
         } else {

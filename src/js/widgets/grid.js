@@ -106,8 +106,8 @@ class Grid extends Client {
 
     updateLayout ( ) {
         // Curator.log("Grid->updateLayout ");
-
         let cols = Math.floor(this.$container.width()/this.options.grid.minWidth);
+        cols = cols < 1 ? 1 : cols;
 
         // set col layout
         this.$container.removeClass('crt-grid-col'+this.previousCol);

@@ -928,7 +928,9 @@ body.crt-popup-visible {
       top: 0;
       left: 0;
       width: 100%;
-      height: 100%; }
+      height: 100%;
+      max-height: none;
+      max-width: none; }
     .crt-grid .crt-post .crt-social-icon-normal {
       color: #ffffff; }
     .crt-grid .crt-post .crt-social-icon {
