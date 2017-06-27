@@ -45,6 +45,10 @@ class Post {
                 .css('padding-bottom',p+'%')
         }
 
+        if (this.json.url.indexOf('http') !== 0) {
+            this.$el.find('.crt-post-share').hide ();
+        }
+
         this.$image.data('dims',this.json.image_width+':'+this.json.image_height);
 
         this.$post = this.$el.find('.crt-post');
