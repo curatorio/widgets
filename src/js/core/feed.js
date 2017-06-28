@@ -30,6 +30,8 @@ class Feed extends EventBus {
         this.postsLoaded = 0;
         this.postCount = 0;
         this.loading = false;
+        this.allPostsLoaded = false;
+        this.pagination = null;
 
         this.options = this.widget.options;
 
@@ -83,8 +85,14 @@ class Feed extends EventBus {
                     this.postCount = data.postCount;
                     this.postsLoaded += data.posts.length;
 
+                    this.allPostsLoaded = this.postsLoaded >= this.postCount;
+
                     this.posts = this.posts.concat(data.posts);
                     this.networks = data.networks;
+
+                    if (data.pagination) {
+                        this.pagination = data.pagination;
+                    }
 
                     this.widget.trigger(Curator.Events.FEED_LOADED, data);
                     this.trigger('postsLoaded',data.posts);

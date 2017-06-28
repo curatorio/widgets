@@ -2478,27 +2478,6 @@ var Curator = {
         }
     },
 
-    loadCSS: function (config) {
-        try {
-            var sheet = Curator.createSheet(config);
-
-            var headerBgs = '.crt-post .crt-post-header, .crt-post .crt-post-header .social-icon';
-            var headerTexts = '.crt-post .crt-post-header, .crt-post .crt-post-share, .crt-post .crt-post-header .crt-post-name a, .crt-post .crt-post-share a, .crt-post .crt-post-header .social-icon i';
-            var bodyBgs = '.crt-post';
-            var bodyTexts = '.crt-post .crt-post-content-text';
-
-            // add new rules
-            Curator.addCSSRule(sheet, headerBgs, 'background-color:' + config.colours.headerBg);
-            Curator.addCSSRule(sheet, headerTexts, 'color:' + config.colours.headerText);
-            Curator.addCSSRule(sheet, bodyBgs, 'background-color:' + config.colours.bodyBg);
-            Curator.addCSSRule(sheet, bodyTexts, 'color:' + config.colours.bodyText);
-        }
-        catch (err) {
-            console.log('CURATOR UNABLE TO LOAD CSS');
-            console.log(err.message);
-        }
-    },
-
     addCSSRule: function (sheet, selector, rules, index) {
         if ('insertRule' in sheet) {
             sheet.insertRule(selector + '{' + rules + '}', 0);
@@ -2516,11 +2495,7 @@ var Curator = {
         return style.sheet;
     },
 
-    loadWidget: function (config, template) {
-        if (template) {
-            Curator.Templates.postTemplate = template;
-        }
-
+    loadWidget: function (config) {
         var ConstructorClass = window.Curator[config.type];
         window.curatorWidget = new ConstructorClass(config);
     },
@@ -2533,11 +2508,11 @@ var Curator = {
             feedId:'',
             postsPerPage:12,
             maxPosts:0,
-            debug: false,
             templatePost:'v2-post',
             templatePopup:'v1-popup',
             templatePopupWrapper:'v1-popup-wrapper',
             onPostsLoaded: function () {
+
             },
             filter: {
                 showNetworks: false,
@@ -2801,7 +2776,9 @@ var Client = (function (EventBus) {
     };
 
     Client.prototype.onPostClick = function onPostClick (ev,post) {
-        this.popupManager.showPopup(post);
+        if (this.options.showPopupOnClick) {
+            this.popupManager.showPopup(post);
+        }
     };
 
     Client.prototype.track = function track (a) {
@@ -2881,6 +2858,8 @@ var Feed = (function (EventBus) {
         this.postsLoaded = 0;
         this.postCount = 0;
         this.loading = false;
+        this.allPostsLoaded = false;
+        this.pagination = null;
 
         this.options = this.widget.options;
 
@@ -2940,8 +2919,14 @@ var Feed = (function (EventBus) {
                     this$1.postCount = data.postCount;
                     this$1.postsLoaded += data.posts.length;
 
+                    this$1.allPostsLoaded = this$1.postsLoaded >= this$1.postCount;
+
                     this$1.posts = this$1.posts.concat(data.posts);
                     this$1.networks = data.networks;
+
+                    if (data.pagination) {
+                        this$1.pagination = data.pagination;
+                    }
 
                     this$1.widget.trigger(Curator.Events.FEED_LOADED, data);
                     this$1.trigger('postsLoaded',data.posts);
@@ -3581,6 +3566,10 @@ var Post = function Post (postJson, options, widget) {
         var p = (this.json.image_height/this.json.image_width)*100;
         this.$imageContainer.addClass('crt-image-responsive')
             .css('padding-bottom',p+'%')
+    }
+
+    if (this.json.url.indexOf('http') !== 0) {
+        this.$el.find('.crt-post-share').hide ();
     }
 
     this.$image.data('dims',this.json.image_width+':'+this.json.image_height);
@@ -4620,11 +4609,11 @@ var Grid = (function (Client) {
         this.$container=null;
         this.$feed=null;
         this.posts=[];
+        this.previousCol=0;
+
+        this.rowsMax = 0;
         this.totalPostsLoaded=0;
         this.allLoaded=false;
-        this.previousCol=0;
-        this.page=0;
-        this.rowsShowing=0;
 
         if (this.init (this)) {
 
@@ -4635,9 +4624,6 @@ var Grid = (function (Client) {
             this.$loadMore = this.$container.find('.crt-feed-more a');
 
             this.$container.addClass('crt-grid');
-
-            var cols = Math.floor(this.$container.width()/this.options.grid.minWidth);
-            var postsNeeded = cols *  (this.options.grid.rows + 1); // get 1 extra row just in case
 
             if (this.options.grid.showLoadMore) {
                 // this.$feed.css({
@@ -4655,32 +4641,92 @@ var Grid = (function (Client) {
                 this.$loadMore.hide();
             }
 
-            this.rowsShowing = this.options.grid.rows;
+            this.createHandlers();
 
-            this.feed.options.postsPerPage = postsNeeded;
-            this.loadPosts(0);
+            // Debounce wrapper ...
+
+            // This triggers post loading
+            this.rowsMax = this.options.grid.rows;
+            this.updateLayout ();
         }
-
-        this.createHandlers();
-
-        // Debounce wrapper ...
-        this.updateLayout = Curator.Utils.debounce(this.updateLayout, 20);
-
-        this.updateLayout ();
     }
 
     if ( Client ) Grid.__proto__ = Client;
     Grid.prototype = Object.create( Client && Client.prototype );
     Grid.prototype.constructor = Grid;
 
+    Grid.prototype.loadPosts = function loadPosts () {
+        console.log ('LOAD POSTS CALLED!!!?!?!!?!?!');
+    };
+
+    Grid.prototype.updateLayout = function updateLayout ( ) {
+        // Curator.log("Grid->updateLayout ");
+        var cols = Math.floor(this.$container.width()/this.options.grid.minWidth);
+        cols = cols < 1 ? 1 : cols;
+
+        // set col layout
+        this.$container.removeClass('crt-grid-col'+this.previousCol);
+        this.previousCol = cols;
+        this.$container.addClass('crt-grid-col'+this.previousCol);
+
+        // figure out if we need more posts
+        var postsNeeded = cols *  (this.rowsMax + 1);
+        // console.log ('postNeeded '+postsNeeded);
+        // console.log ('this.feed.postsLoaded '+this.feed.postsLoaded);
+        if (postsNeeded > this.feed.postsLoaded && !this.feed.allPostsLoaded) {
+            var limit = postsNeeded - this.feed.postsLoaded;
+
+            var params = {
+                limit : limit
+            };
+
+            if (this.feed.pagination && this.feed.pagination.after) {
+                params.after = this.feed.pagination.after;
+            }
+
+            // console.log (params);
+
+            this.feed._loadPosts(params);
+        } else {
+            this.updateHeight(false);
+        }
+    };
+
+    Grid.prototype.updateHeight = function updateHeight (animate) {
+        var postHeight = this.$container.find('.crt-post-c').width();
+        this.$feedWindow.css({'overflow':'hidden'});
+
+        var maxRows = Math.ceil(this.feed.postCount / this.previousCol);
+        var rows = this.rowsMax < maxRows ? this.rowsMax : maxRows;
+
+        if (animate) {
+            this.$feedWindow.animate({height:rows * postHeight});
+        } else {
+            this.$feedWindow.height(rows * postHeight);
+        }
+
+        if (this.options.grid.showLoadMore) {
+            if (this.feed.allPostsLoaded) {
+                this.$loadMore.hide();
+            } else {
+                this.$loadMore.show();
+            }
+        }
+    };
+
     Grid.prototype.createHandlers = function createHandlers () {
+        var this$1 = this;
+
         var id = this.id;
+        var updateLayoutDebounced = Curator.Utils.debounce( function () {
+            this$1.updateLayout ();
+        }, 100);
 
-        $(window).on('resize.'+id, this.updateLayout.bind(this));
+        $(window).on('resize.'+id, updateLayoutDebounced);
 
-        $(window).on('curatorCssLoaded.'+id, this.updateLayout.bind(this));
+        $(window).on('curatorCssLoaded.'+id, updateLayoutDebounced);
 
-        $(document).on('ready.'+id, this.updateLayout.bind(this));
+        $(document).on('ready.'+id, updateLayoutDebounced);
     };
 
     Grid.prototype.destroyHandlers = function destroyHandlers () {
@@ -4720,7 +4766,7 @@ var Grid = (function (Client) {
 
             this.options.onPostsLoaded (this, posts);
 
-            this.updateHeight();
+            this.updateHeight(true);
         }
     };
 
@@ -4748,50 +4794,9 @@ var Grid = (function (Client) {
     Grid.prototype.onMoreClicked = function onMoreClicked (ev) {
         ev.preventDefault();
 
-        this.rowsShowing = this.rowsShowing + this.options.grid.rows;
+        this.rowsMax ++;
 
-        this.updateHeight(true);
-
-        this.feed.loadMore();
-    };
-
-    Grid.prototype.updateLayout = function updateLayout ( ) {
-        // Curator.log("Grid->updateLayout ");
-
-        var cols = Math.floor(this.$container.width()/this.options.grid.minWidth);
-        var postsNeeded = cols *  this.options.grid.rows;
-
-        this.$container.removeClass('crt-grid-col'+this.previousCol);
-        this.previousCol = cols;
-        this.$container.addClass('crt-grid-col'+this.previousCol);
-
-        if (postsNeeded > this.feed.postsLoaded) {
-            this.loadPosts(this.feed.currentPage+1);
-        }
-
-        this.updateHeight();
-    };
-
-    Grid.prototype.updateHeight = function updateHeight (animate) {
-        var postHeight = this.$container.find('.crt-post-c').width();
-        this.$feedWindow.css({'overflow':'hidden'});
-
-        var maxRows = Math.ceil(this.feed.postCount / this.previousCol);
-        var rows = this.rowsShowing < maxRows ? this.rowsShowing : maxRows;
-
-        if (animate) {
-            this.$feedWindow.animate({height:rows * postHeight});
-        } else {
-            this.$feedWindow.height(rows * postHeight);
-        }
-
-        if (this.options.grid.showLoadMore) {
-            if (this.rowsShowing >= maxRows) {
-                this.$loadMore.hide();
-            } else {
-                this.$loadMore.show();
-            }
-        }
+        this.updateLayout();
     };
 
     Grid.prototype.destroy = function destroy () {

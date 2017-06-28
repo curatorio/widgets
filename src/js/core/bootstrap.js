@@ -40,27 +40,6 @@ let Curator = {
         }
     },
 
-    loadCSS: function (config) {
-        try {
-            let sheet = Curator.createSheet(config);
-
-            let headerBgs = '.crt-post .crt-post-header, .crt-post .crt-post-header .social-icon';
-            let headerTexts = '.crt-post .crt-post-header, .crt-post .crt-post-share, .crt-post .crt-post-header .crt-post-name a, .crt-post .crt-post-share a, .crt-post .crt-post-header .social-icon i';
-            let bodyBgs = '.crt-post';
-            let bodyTexts = '.crt-post .crt-post-content-text';
-
-            // add new rules
-            Curator.addCSSRule(sheet, headerBgs, 'background-color:' + config.colours.headerBg);
-            Curator.addCSSRule(sheet, headerTexts, 'color:' + config.colours.headerText);
-            Curator.addCSSRule(sheet, bodyBgs, 'background-color:' + config.colours.bodyBg);
-            Curator.addCSSRule(sheet, bodyTexts, 'color:' + config.colours.bodyText);
-        }
-        catch (err) {
-            console.log('CURATOR UNABLE TO LOAD CSS');
-            console.log(err.message);
-        }
-    },
-
     addCSSRule: function (sheet, selector, rules, index) {
         if ('insertRule' in sheet) {
             sheet.insertRule(selector + '{' + rules + '}', 0);
@@ -78,11 +57,7 @@ let Curator = {
         return style.sheet;
     },
 
-    loadWidget: function (config, template) {
-        if (template) {
-            Curator.Templates.postTemplate = template;
-        }
-
+    loadWidget: function (config) {
         let ConstructorClass = window.Curator[config.type];
         window.curatorWidget = new ConstructorClass(config);
     },
@@ -95,11 +70,11 @@ let Curator = {
             feedId:'',
             postsPerPage:12,
             maxPosts:0,
-            debug: false,
             templatePost:'v2-post',
             templatePopup:'v1-popup',
             templatePopupWrapper:'v1-popup-wrapper',
             onPostsLoaded: function () {
+
             },
             filter: {
                 showNetworks: false,
