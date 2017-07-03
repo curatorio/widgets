@@ -7,6 +7,9 @@ Curator.SocialFacebook = {
         obj.cleanText = Curator.StringUtils.filterHtml(post.text);
         let cb =  function(){};
 
+        if (obj.url.indexOf('http') !== 0) {
+            obj.url = obj.image;
+        }
         // Disabling for now - doesn't work - seems to get error "Can't Load URL: The domain of this URL isn't
         // included in the app's domains"
         let useJSSDK = false; // window.FB
