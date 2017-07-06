@@ -11,7 +11,7 @@ Curator.Config.Panel = $.extend({}, Curator.Config.Defaults, {
     }
 });
 
-class Panel extends Curator.Client {
+class Panel extends Widget {
 
     constructor  (options) {
         super ();

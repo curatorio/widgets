@@ -8,7 +8,7 @@ Curator.Config.Grid = $.extend({}, Curator.Config.Defaults, {
 });
 
 
-class Grid extends Client {
+class Grid extends Widget {
 
     constructor  (options) {
         super ();

@@ -9,7 +9,7 @@ Curator.Config.Waterfall = $.extend({}, Curator.Config.Defaults, {
 });
 
 
-class Waterfall extends Curator.Client {
+class Waterfall extends Widget {
 
     constructor (options) {
         super ();
@@ -24,7 +24,7 @@ class Waterfall extends Curator.Client {
             this.$feed = $('<div class="crt-feed"></div>').appendTo(this.$scroll);
             this.$container.addClass('crt-feed-container');
 
-            if (this.options.scroll=='continuous') {
+            if (this.options.scroll === 'continuous') {
                 $(this.$scroll).scroll(() => {
                     let height = this.$scroll.height();
                     let cHeight = this.$feed.height();
@@ -33,7 +33,7 @@ class Waterfall extends Curator.Client {
                         this.loadMorePosts();
                     }
                 });
-            } else if (this.options.scroll=='none') {
+            } else if (this.options.scroll === 'none') {
                 // no scroll - use javascript to trigger loading
             } else {
                 // default to more

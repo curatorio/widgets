@@ -31,7 +31,10 @@ class Feed extends EventBus {
         this.postCount = 0;
         this.loading = false;
         this.allPostsLoaded = false;
-        this.pagination = null;
+        this.pagination = {
+            after:null,
+            before:null
+        };
 
         this.options = this.widget.options;
 

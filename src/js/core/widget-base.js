@@ -1,8 +1,8 @@
 
-class Client extends EventBus {
+class Widget extends EventBus {
 
     constructor () {
-        Curator.log('Client->construct');
+        Curator.log('Widget->construct');
 
         super ();
 
@@ -86,12 +86,12 @@ class Client extends EventBus {
     }
 
     onPostsLoaded (event) {
-        Curator.log('Client->onPostsLoaded');
+        Curator.log('Widget->onPostsLoaded');
         Curator.log(event.target);
     }
 
     onPostsFail (event) {
-        Curator.log('Client->onPostsLoadedFail');
+        Curator.log('Widget->onPostsLoadedFail');
         Curator.log(event.target);
     }
 
@@ -124,7 +124,7 @@ class Client extends EventBus {
     }
 
     destroy () {
-        Curator.log('Client->destroy');
+        Curator.log('Widget->destroy');
         if (this.feed) {
             this.feed.destroy()
         }
@@ -138,4 +138,4 @@ class Client extends EventBus {
 }
 
 
-Curator.Client = Client;
+Curator.Widget = Widget;

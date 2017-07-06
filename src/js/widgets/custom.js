@@ -3,7 +3,7 @@ Curator.Config.Custom = $.extend({}, Curator.Config.Defaults, {
 });
 
 
-class Custom extends Curator.Client {
+class Custom extends Widget {
 
     constructor  (options) {
         super ();

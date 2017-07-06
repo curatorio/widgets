@@ -8,7 +8,7 @@ Curator.Config.Carousel = $.extend({}, Curator.Config.Defaults, {
     },
 });
 
-class Carousel extends Client {
+class Carousel extends Widget {
 
     constructor (options) {
         super ();
