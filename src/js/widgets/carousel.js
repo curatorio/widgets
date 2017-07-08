@@ -30,10 +30,10 @@ class Carousel extends Widget {
             this.allLoaded = false;
 
             // this.$wrapper = $('<div class="crt-carousel-wrapper"></div>').appendTo(this.$container);
-            this.$feed = $('<div class="crt-feed"></div>').appendTo(this.$container);
+            this.$feed = $('<div class="crt-carousel-feed"></div>').appendTo(this.$container);
             this.$container.addClass('crt-carousel');
 
-            this.carousel = new window.CCarousel(this.$feed, this.options.carousel);
+            this.carousel = new Curator.UI.Carousel(this.$feed, this.options.carousel);
             this.$feed.on('curatorCarousel:changed', (event, carousel, currentSlide) => {
                 // console.log('curatorCarousel:changed '+currentSlide);
                 // console.log('curatorCarousel:changed '+(that.feed.postsLoaded-carousel.PANES_VISIBLE));

@@ -842,14 +842,14 @@ body.crt-popup-visible {
  */
 .crt-post-v2.crt-post {
   float: left;
-  z-index: 1;
-  box-shadow: 0px 2px 30px transparent;
-  border-radius: 0px;
-  border: 1px solid rgba(0, 0, 0, 0.1); }
+  z-index: 1; }
   .crt-post-v2.crt-post .crt-post-c {
     position: relative;
     overflow: hidden;
-    background-color: #ffffff; }
+    background-color: #ffffff;
+    box-shadow: 0px 2px 30px transparent;
+    border-radius: 0px;
+    border: 1px solid rgba(0, 0, 0, 0.1); }
   .crt-post-v2.crt-post a {
     transition: color 0.2s linear; }
   .crt-post-v2.crt-post .crt-post-content-image {

@@ -44,7 +44,7 @@ class Waterfall extends Widget {
                 });
             }
 
-            this.$feed.waterfall({
+            this.ui = new Curator.UI.Waterfall({
                 selector:'.crt-post-c',
                 gutter:0,
                 width:this.options.waterfall.gridWidth,
@@ -53,7 +53,7 @@ class Waterfall extends Widget {
                     speed: (this.options.waterfall.animateSpeed/2),
                     duration: this.options.waterfall.animateSpeed
                 }
-            });
+            },this.$feed);
 
             this.on(Curator.Events.FILTER_CHANGED, event => {
                 this.$feed.find('.crt-post-c').remove();
@@ -76,7 +76,7 @@ class Waterfall extends Widget {
         let postElements = this.createPostElements (posts);
 
         //this.$feed.append(postElements);
-        this.$feed.waterfall('append', postElements);
+        this.ui.append(postElements);
 
         let that = this;
         $.each(postElements,function (i) {
@@ -107,6 +107,8 @@ class Waterfall extends Widget {
         //this.$feed.slick('unslick');
 
         super.destroy();
+
+        this.ui.destroy ();
 
         this.$feed.remove();
         this.$scroll.remove();

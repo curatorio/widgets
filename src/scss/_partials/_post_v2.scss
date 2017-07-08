@@ -10,14 +10,14 @@
 
         float: left;
         z-index: 1;
-        box-shadow: 0px 2px 30px $color-v2-post-shadow;
-        border-radius: $post-border-radius;
-        border: 1px solid $color-v2-post-border;
 
         .crt-post-c {
             position: relative;
             overflow: hidden;
             background-color: $color-v2-post-background;
+            box-shadow: 0px 2px 30px $color-v2-post-shadow;
+            border-radius: $post-border-radius;
+            border: 1px solid $color-v2-post-border;
         }
 
         a {

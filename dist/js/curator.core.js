@@ -141,695 +141,6 @@ if (!Array.prototype.fill) {
 
     global.nanoajax = nanoajax;
 })(this);
-
-(function($) {
-	// Default styling
-
-	var defaults = {
-		circular: false,
-		speed: 5000,
-		duration: 700,
-		minWidth: 250,
-		panesVisible: null,
-		moveAmount: 0,
-		autoPlay: false,
-		useCss : true
-	};
-
-	if ($.zepto) {
-		defaults.easing = 'ease-in-out';
-	}
-	// console.log (defaults);
-
-	var css = {
-		viewport: {
-			'width': '100%', // viewport needs to be fluid
-			// 'overflow': 'hidden',
-			'position': 'relative'
-		},
-
-		pane_stage: {
-			'width': '100%', // viewport needs to be fluid
-			'overflow': 'hidden',
-			'position': 'relative',
-            'height':0
-		},
-
-		pane_slider: {
-			'width': '0%', // will be set to (number of panes * 100)
-			'list-style': 'none',
-			'position': 'relative',
-			'overflow': 'hidden',
-			'padding': '0',
-			'left':'0'
-		},
-
-		pane: {
-			'width': '0%', // will be set to (100 / number of images)
-			'position': 'relative',
-			'float': 'left'
-		}
-	};
-
-	var Carousel = function Carousel (container, options) {
-		var this$1 = this;
-
-		Curator.log('Carousel->construct');
-
-            this.current_position=0;
-            this.animating=false;
-            this.timeout=null;
-            this.FAKE_NUM=0;
-            this.PANES_VISIBLE=0;
-
-		this.options = $.extend([], defaults, options);
-
-		this.$viewport = $(container); // <div> slider, known as $viewport
-
-            this.$panes = this.$viewport.children();
-            this.$panes.detach();
-
-		this.$pane_stage = $('<div class="ctr-carousel-stage"></div>').appendTo(this.$viewport);
-		this.$pane_slider = $('<div class="ctr-carousel-slider"></div>').appendTo(this.$pane_stage);
-
-		// this.$pane_slider.append(this.$panes);
-
-		this.$viewport.css(css.viewport); // set css on viewport
-		this.$pane_slider.css( css.pane_slider ); // set css on pane slider
-		this.$pane_stage.css( css.pane_stage ); // set css on pane slider
-
-            this.addControls();
-            this.update ();
-
-		$(window).smartresize(function () {
-			this$1.resize();
-			this$1.move (this$1.current_position, true);
-
-			// reset animation timer
-			if (this$1.options.autoPlay) {
-				this$1.animate();
-			}
-		})
-	};
-
-	Carousel.prototype.update = function update () {
-		this.$panes = this.$pane_slider.children(); // <li> list items, known as $panes
-		this.NUM_PANES = this.options.circular ? (this.$panes.length + 1) : this.$panes.length;
-
-		if (this.NUM_PANES > 0) {
-			this.resize();
-			this.move (this.current_position, true);
-
-			if (!this.animating) {
-				if (this.options.autoPlay) {
-					this.animate();
-				}
-			}
-		}
-	};
-
-	Carousel.prototype.add = function add ($els) {
-		var $panes = [];
-            //
-            // $.each($els,(i, $pane)=> {
-            //     let p = $pane.wrapAll('<div class="crt-carousel-col"></div>').parent();
-            //     $panes.push(p)
-            // });
-
-		this.$pane_slider.append($els);
-		this.$panes = this.$pane_slider.children();
-	};
-
-	Carousel.prototype.resize = function resize () {
-			var this$1 = this;
-
-		var PANE_WRAPPER_WIDTH = this.options.infinite ? ((this.NUM_PANES+1) * 100) + '%' : (this.NUM_PANES * 100) + '%'; // % width of slider (total panes * 100)
-
-		this.$pane_slider.css({width: PANE_WRAPPER_WIDTH}); // set css on pane slider
-
-		this.VIEWPORT_WIDTH = this.$viewport.width();
-
-		if (this.options.panesVisible) {
-			// TODO - change to check if it's a function or a number
-			this.PANES_VISIBLE = this.options.panesVisible();
-			this.PANE_WIDTH = (this.VIEWPORT_WIDTH / this.PANES_VISIBLE);
-		} else {
-			this.PANES_VISIBLE = this.VIEWPORT_WIDTH < this.options.minWidth ? 1 : Math.floor(this.VIEWPORT_WIDTH / this.options.minWidth);
-			this.PANE_WIDTH = (this.VIEWPORT_WIDTH / this.PANES_VISIBLE);
-		}
-
-		if (this.options.infinite) {
-
-			this.$panes.filter('.crt-clone').remove();
-
-			for(var i = this.NUM_PANES-1; i > this.NUM_PANES - 1 - this.PANES_VISIBLE; i--)
-			{
-				// console.log(i);
-				var first = this$1.$panes.eq(i).clone();
-				first.addClass('crt-clone');
-				first.css('opacity','1');
-				// Should probably move this out to an event
-				first.find('.crt-post-image').css({opacity:1});
-				this$1.$pane_slider.prepend(first);
-				this$1.FAKE_NUM = this$1.PANES_VISIBLE;
-			}
-			this.$panes = this.$pane_slider.children();
-
-		}
-
-		this.$panes.each(function (index, pane) {
-			$(pane).css( $.extend(css.pane, {width: this$1.PANE_WIDTH+'px'}) );
-		});
-	};
-
-	Carousel.prototype.destroy = function destroy () {
-
-	};
-
-	Carousel.prototype.animate = function animate () {
-			var this$1 = this;
-
-		this.animating = true;
-		clearTimeout(this.timeout);
-		this.timeout = setTimeout(function () {
-			this$1.next();
-		}, this.options.speed);
-	};
-
-	Carousel.prototype.next = function next () {
-		var move = this.options.moveAmount ? this.options.moveAmount : this.PANES_VISIBLE ;
-		this.move(this.current_position + move, false);
-	};
-
-	Carousel.prototype.prev = function prev () {
-		var move = this.options.moveAmount ? this.options.moveAmount : this.PANES_VISIBLE ;
-		this.move(this.current_position - move, false);
-	};
-
-	Carousel.prototype.move = function move (i, noAnimate) {
-			var this$1 = this;
-
-		// console.log(i);
-
-		this.current_position = i;
-
-		var maxPos = this.NUM_PANES - this.PANES_VISIBLE;
-
-		// if (this.options.infinite)
-		// {
-		// let mod = this.NUM_PANES % this.PANES_VISIBLE;
-		// }
-
-		if (this.current_position < 0) {
-			this.current_position = 0;
-		} else if (this.current_position > maxPos) {
-			this.current_position = maxPos;
-		}
-
-		var curIncFake = (this.FAKE_NUM + this.current_position);
-		var left = curIncFake * this.PANE_WIDTH;
-		// console.log('move');
-		// console.log(curIncFake);
-		var panesInView = this.PANES_VISIBLE;
-		var max = this.options.infinite ? (this.PANE_WIDTH * this.NUM_PANES) : (this.PANE_WIDTH * this.NUM_PANES) - this.VIEWPORT_WIDTH;
-
-
-		this.currentLeft = left;
-
-		//console.log(left+":"+max);
-
-		if (left < 0) {
-			this.currentLeft = 0;
-		} else if (left > max) {
-			this.currentLeft = max;
-		} else {
-			this.currentLeft = left;
-		}
-
-		if (noAnimate) {
-			this.$pane_slider.css(
-				{
-					left: ((0 - this.currentLeft) + 'px')
-				});
-                this.moveComplete();
-		} else {
-			var options = {
-				duration: this.options.duration,
-				complete: function () {
-					this$1.moveComplete();
-				}
-			};
-			if (this.options.easing) {
-				options.easing = this.options.easing;
-			}
-			this.$pane_slider.animate(
-				{
-					left: ((0 - this.currentLeft) + 'px')
-				},
-				options
-			);
-		}
-	};
-
-	Carousel.prototype.moveComplete = function moveComplete () {
-			var this$1 = this;
-
-		// console.log ('moveComplete');
-		// console.log (this.current_position);
-		// console.log (this.NUM_PANES - this.PANES_VISIBLE);
-		if (this.options.infinite && (this.current_position >= (this.NUM_PANES - this.PANES_VISIBLE))) {
-			// console.log('IIIII');
-			// infinite and we're off the end!
-			// re-e-wind, the crowd says 'bo selecta!'
-			this.$pane_slider.css({left:0});
-			this.current_position = 0 - this.PANES_VISIBLE;
-			this.currentLeft = 0;
-		}
-
-		setTimeout(function () {
-                var paneMaxHieght = 0;
-                for (var i=this$1.current_position;i<this$1.current_position + this$1.PANES_VISIBLE;i++)
-                {
-                var p = $(this$1.$panes[i]).children('.crt-post');
-                    var h = p.height();
-                    if (h > paneMaxHieght) {
-                        paneMaxHieght = h;
-                    }
-                }
-            this$1.$pane_stage.animate({height:paneMaxHieght},300);
-            }, 50);
-
-		this.$viewport.trigger('curatorCarousel:changed', [this, this.current_position]);
-
-		if (this.options.autoPlay) {
-			this.animate();
-		}
-	};
-
-	Carousel.prototype.addControls = function addControls () {
-		this.$viewport.append('<button type="button" data-role="none" class="crt-panel-prev crt-panel-arrow" aria-label="Previous" role="button" aria-disabled="false">Previous</button>');
-		this.$viewport.append('<button type="button" data-role="none" class="crt-panel-next crt-panel-arrow" aria-label="Next" role="button" aria-disabled="false">Next</button>');
-
-		this.$viewport.on('click','.crt-panel-prev', this.prev.bind(this));
-		this.$viewport.on('click','.crt-panel-next', this.next.bind(this));
-	};
-
-	Carousel.prototype.method = function method () {
-		var m = arguments[0];
-		// let args = (arguments.length === 1 ? [arguments[0]] : Array.apply(null, arguments));
-		if (m == 'update') {
-			this.update();
-		} else if (m == 'add') {
-			this.add(arguments[1]);
-		} else if (m == 'destroy') {
-			this.destroy();
-		} else {
-
-		}
-	};
-
-	var carousels = {};
-	function rand () {
-		return Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5);
-	}
-
-	$.extend($.fn, { 
-		curatorCarousel: function (options) {
-			var args = (arguments.length === 1 ? [arguments[0]] : Array.apply(null, arguments));
-
-			$.each(this, function(index, item) {
-				var id = $(item).data('carousel');
-
-				if (carousels[id]) {
-					carousels[id].method.apply(carousels[id], args);
-				} else {
-					id = rand();
-					carousels[id] = new Carousel(item, options);
-					$(item).data('carousel', id);
-				}
-			});
-
-			return this;
-		}
-	});
-
-	window.CCarousel = Carousel;
-})($);
-
-
-/**
- * Based on the awesome jQuery Grid-A-Licious(tm)
- *
- * Terms of Use - jQuery Grid-A-Licious(tm)
- * under the MIT (http://www.opensource.org/licenses/mit-license.php) License.
- *
- * Original Version Copyright 2008-2012 Andreas Pihlström (Suprb). All rights reserved.
- * (http://suprb.com/apps/gridalicious/)
- *
- */
-
-(function ($) {
-
-    var defaultSettings = {
-        selector: '.item',
-        width: 225,
-        gutter: 20,
-        animate: false,
-        animationOptions: {
-            speed: 200,
-            duration: 300,
-            effect: 'fadeInOnAppear',
-            queue: true,
-            complete: function () {}
-        }
-    };
-
-    var WaterfallRender = function WaterfallRender (options, element) {
-        this.element = $(element);
-        this._init(options);
-    };
-
-    WaterfallRender.prototype._init = function _init (options) {
-        var container = this;
-        this.name = this._setName(5);
-        this.gridArr = [];
-        this.gridArrAppend = [];
-        this.gridArrPrepend = [];
-        this.setArr = false;
-        this.setGrid = false;
-        this.cols = 0;
-        this.itemCount = 0;
-        this.isPrepending = false;
-        this.appendCount = 0;
-        this.resetCount = true;
-        this.ifCallback = true;
-        this.box = this.element;
-        this.boxWidth = this.box.width();
-        this.options = $.extend(true, {}, defaultSettings, options);
-        this.gridArr = $.makeArray(this.box.find(this.options.selector));
-        this.isResizing = false;
-        this.w = 0;
-        this.boxArr = [];
-
-        // this.offscreenRender = $('<div class="grid-rendered"></div>').appendTo('body');
-
-        // build columns
-        this._setCols();
-        // build grid
-        this._renderGrid('append');
-        // add class 'gridalicious' to container
-        $(this.box).addClass('gridalicious');
-        // add smartresize
-        $(window).smartresize(function () {
-            container.resize();
-        });
-    };
-
-    WaterfallRender.prototype._setName = function _setName (length, current) {
-        current = current ? current : '';
-        return length ? this._setName(--length, "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz".charAt(Math.floor(Math.random() * 60)) + current) : current;
-    };
-
-    WaterfallRender.prototype._setCols = function _setCols () {
-            var this$1 = this;
-
-        // calculate columns
-        this.cols = Math.floor(this.box.width() / this.options.width);
-        //If Cols lower than 1, the grid disappears
-        if (this.cols < 1) { this.cols = 1; }
-        diff = (this.box.width() - (this.cols * this.options.width) - this.options.gutter) / this.cols;
-        w = (this.options.width + diff) / this.box.width() * 100;
-        this.w = w;
-        this.colHeights = new Array (this.cols);
-        this.colHeights.fill(0);
-        this.colItems = new Array (this.cols);
-        this.colItems.fill([]);
-
-        // add columns to box
-        for (var i = 0; i < this.cols; i++) {
-            var div = $('<div></div>').addClass('galcolumn').attr('id', 'item' + i + this$1.name).css({
-                'width': w + '%',
-                'paddingLeft': this$1.options.gutter,
-                'paddingBottom': this$1.options.gutter,
-                'float': 'left',
-                '-webkit-box-sizing': 'border-box',
-                '-moz-box-sizing': 'border-box',
-                '-o-box-sizing': 'border-box',
-                'box-sizing': 'border-box'
-            });
-            this$1.box.append(div);
-        }
-    };
-
-    WaterfallRender.prototype._renderGrid = function _renderGrid (method, arr, count, prepArray) {
-            var this$1 = this;
-
-        var items = [];
-        var boxes = [];
-        var prependArray = [];
-        var itemCount = 0;
-        var appendCount = this.appendCount;
-        var gutter = this.options.gutter;
-        var cols = this.cols;
-        var name = this.name;
-        var i = 0;
-        var w = $('.galcolumn').width();
-
-        // if arr
-        if (arr) {
-            boxes = arr;
-            // if append
-            if (method == "append") {
-                // get total of items to append
-                appendCount += count;
-                // set itemCount to last count of appened items
-                itemCount = this.appendCount;
-            }
-            // if prepend
-            if (method == "prepend") {
-                // set itemCount
-                this.isPrepending = true;
-                itemCount = Math.round(count % cols);
-                if (itemCount <= 0) itemCount = cols;
-            }
-            // called by _updateAfterPrepend()
-            if (method == "renderAfterPrepend") {
-                // get total of items that was previously prepended
-                appendCount += count;
-                // set itemCount by counting previous prepended items
-                itemCount = count;
-            }
-        }
-        else {
-            boxes = this.gridArr;
-            appendCount = $(this.gridArr).length;
-        }
-
-        // push out the items to the columns
-        for (var i$2 = 0, list = boxes; i$2 < list.length; i$2 += 1) {
-            var item = list[i$2];
-
-                var width = '100%';
-
-            // if you want something not to be "responsive", add the class "not-responsive" to the selector container
-            if (item.hasClass('not-responsive')) {
-                width = 'auto';
-            }
-
-            item.css({
-                'zoom': '1',
-                'filter': 'alpha(opacity=0)',
-                'opacity': '0'
-            });
-
-            // find shortest col
-            var shortestCol = 0;
-            for (var i$1=1; i$1 < this.colHeights.length;i$1++) {
-                if (this$1.colHeights[i$1] < this$1.colHeights[shortestCol]) {
-                    shortestCol = i$1;
-                }
-            }
-
-            // prepend or append to shortest column
-            if (method == 'prepend') {
-                $("#item" + shortestCol + name).prepend(item);
-                items.push(item);
-
-            } else {
-                $("#item" + shortestCol + name).append(item);
-                items.push(item);
-                if (appendCount >= cols) {
-                    appendCount = (appendCount - cols);
-                }
-            }
-
-            // update col heights
-            this$1.colItems[shortestCol].push(item);
-            this$1.colHeights[shortestCol] += item.height();
-        }
-
-        this.appendCount = appendCount;
-
-        if (method == "append" || method == "prepend") {
-            if (method == "prepend") {
-                // render old items and reverse the new items
-                this._updateAfterPrepend(this.gridArr, boxes);
-            }
-            this._renderItem(items);
-            this.isPrepending = false;
-        } else {
-            this._renderItem(this.gridArr);
-        }
-    };
-
-    WaterfallRender.prototype._collectItems = function _collectItems () {
-        var collection = [];
-        $(this.box).find(this.options.selector).each(function (i) {
-            collection.push($(this));
-        });
-        return collection;
-    };
-
-    WaterfallRender.prototype._renderItem = function _renderItem (items) {
-
-        var speed = this.options.animationOptions.speed;
-        var effect = this.options.animationOptions.effect;
-        var duration = this.options.animationOptions.duration;
-        var queue = this.options.animationOptions.queue;
-        var animate = this.options.animate;
-        var complete = this.options.animationOptions.complete;
-
-        var i = 0;
-        var t = 0;
-
-        // animate
-        if (animate === true && !this.isResizing) {
-
-            // fadeInOnAppear
-            if (queue === true && effect == "fadeInOnAppear") {
-                if (this.isPrepending) items.reverse();
-                $.each(items, function (index, value) {
-                    setTimeout(function () {
-                        $(value).animate({
-                            opacity: '1.0'
-                        }, duration);
-                        t++;
-                        if (t == items.length) {
-                            complete.call(undefined, items)
-                        }
-                    }, i * speed);
-                    i++;
-                });
-            } else if (queue === false && effect == "fadeInOnAppear") {
-                if (this.isPrepending) items.reverse();
-                $.each(items, function (index, value) {
-                    $(value).animate({
-                        opacity: '1.0'
-                    }, duration);
-                    t++;
-                    if (t == items.length) {
-                        if (this.ifCallback) {
-                            complete.call(undefined, items);
-                        }
-                    }
-                });
-            }
-
-            // no effect but queued
-            if (queue === true && !effect) {
-                $.each(items, function (index, value) {
-                    $(value).css({
-                        'opacity': '1',
-                        'filter': 'alpha(opacity=100)'
-                    });
-                    t++;
-                    if (t == items.length) {
-                        if (this.ifCallback) {
-                            complete.call(undefined, items);
-                        }
-                    }
-                });
-            }
-
-            // don not animate & no queue
-        } else {
-            $.each(items, function (index, value) {
-                $(value).css({
-                    'opacity': '1',
-                    'filter': 'alpha(opacity=100)'
-                });
-            });
-            if (this.ifCallback) {
-                complete.call(items);
-            }
-        }
-    };
-
-    WaterfallRender.prototype._updateAfterPrepend = function _updateAfterPrepend (prevItems, newItems) {
-        var gridArr = this.gridArr;
-        // add new items to gridArr
-        $.each(newItems, function (index, value) {
-            gridArr.unshift(value);
-        });
-        this.gridArr = gridArr;
-    };
-
-    WaterfallRender.prototype.resize = function resize () {
-        if (this.box.width() === this.boxWidth) {
-            return;
-        }
-
-        var newCols = Math.floor(this.box.width() / this.options.width);
-        if (this.cols === newCols) {
-            // nothings changed yet
-            return;
-        }
-
-        // delete columns in box
-        this.box.find($('.galcolumn')).remove();
-        // build columns
-        this._setCols();
-        // build grid
-        this.ifCallback = false;
-        this.isResizing = true;
-        this._renderGrid('append');
-        this.ifCallback = true;
-        this.isResizing = false;
-        this.boxWidth = this.box.width();
-    };
-
-    WaterfallRender.prototype.append = function append (items) {
-        var gridArr = this.gridArr;
-        var gridArrAppend = this.gridArrPrepend;
-        $.each(items, function (index, value) {
-            gridArr.push(value);
-            gridArrAppend.push(value);
-        });
-        this._renderGrid('append', items, $(items).length);
-    };
-
-    WaterfallRender.prototype.prepend = function prepend (items) {
-        this.ifCallback = false;
-        this._renderGrid('prepend', items, $(items).length);
-        this.ifCallback = true;
-    };
-
-    $.fn.waterfall = function (options, e) {
-        if (typeof options === 'string') {
-            this.each(function () {
-                var container = $.data(this, 'WaterfallRender');
-                container[options].apply(container, [e]);
-            });
-        } else {
-            this.each(function () {
-                $.data(this, 'WaterfallRender', new WaterfallRender(options, this));
-            });
-        }
-        return this;
-    }
-
-})($);
-
 // Debouncing function from John Hann
 // http://unscriptable.com/index.php/2009/03/20/debouncing-javascript-methods/
 // Copy pasted from http://paulirish.com/2009/throttled-smartresize-jquery-event-handler/
@@ -2420,6 +1731,598 @@ Curator.Template = {
 };
 
 
+Curator.UI = {};
+Curator.UI.CarouselSettings = {
+	circular: false,
+	speed: 5000,
+	duration: 700,
+	minWidth: 250,
+	panesVisible: null,
+	moveAmount: 0,
+	autoPlay: false,
+	useCss : true
+};
+
+if ($.zepto) {
+	Curator.UI.CarouselSettings.easing = 'ease-in-out';
+}
+
+var CarouselUI = function CarouselUI (container, options) {
+	Curator.log('CarouselUI->construct');
+
+	this.current_position=0;
+	this.animating=false;
+	this.timeout=null;
+	this.FAKE_NUM=0;
+	this.PANES_VISIBLE=0;
+
+	this.options = $.extend({}, Curator.UI.CarouselSettings, options);
+
+	this.$viewport = $(container); // <div> slider, known as $viewport
+
+	this.$panes = this.$viewport.children();
+	this.$panes.detach();
+
+	this.$stage = $('<div class="ctr-carousel-stage"></div>').appendTo(this.$viewport);
+	this.$pane_slider = $('<div class="ctr-carousel-slider"></div>').appendTo(this.$stage);
+
+	this.addControls();
+	this.createHandlers();
+        this.update ();
+};
+
+    CarouselUI.prototype.createHandlers = function createHandlers () {
+        var this$1 = this;
+
+        var id = this.id;
+        var updateLayoutDebounced = Curator.Utils.debounce( function () {
+            this$1.updateLayout ();
+        }, 100);
+
+        $(window).on('resize.'+id, updateLayoutDebounced);
+    };
+
+    CarouselUI.prototype.destroyHandlers = function destroyHandlers () {
+        var id = this.id;
+
+        $(window).off('resize.'+id);
+        // $(window).off('curatorCssLoaded.'+id);
+        // $(document).off('ready.'+id);
+    };
+
+CarouselUI.prototype.update = function update () {
+        Curator.log('CarouselUI->update ');
+	this.$panes = this.$pane_slider.children(); // <li> list items, known as $panes
+	this.NUM_PANES = this.options.circular ? (this.$panes.length + 1) : this.$panes.length;
+
+	if (this.NUM_PANES > 0) {
+		this.resize();
+		this.move (this.current_position, true);
+
+		if (!this.animating) {
+			if (this.options.autoPlay) {
+				this.animate();
+			}
+		}
+	}
+};
+
+CarouselUI.prototype.add = function add ($els) {
+        Curator.log('CarouselUI->add '+$els.length);
+
+	this.$pane_slider.append($els);
+	this.$panes = this.$pane_slider.children();
+};
+
+CarouselUI.prototype.resize = function resize () {
+		var this$1 = this;
+
+	var PANE_WRAPPER_WIDTH = this.options.infinite ? ((this.NUM_PANES+1) * 100) + '%' : (this.NUM_PANES * 100) + '%'; // % width of slider (total panes * 100)
+
+	this.$pane_slider.css({width: PANE_WRAPPER_WIDTH}); // set css on pane slider
+
+	this.VIEWPORT_WIDTH = this.$viewport.width();
+
+	if (this.options.panesVisible) {
+		// TODO - change to check if it's a function or a number
+		this.PANES_VISIBLE = this.options.panesVisible();
+		this.PANE_WIDTH = (this.VIEWPORT_WIDTH / this.PANES_VISIBLE);
+	} else {
+		this.PANES_VISIBLE = this.VIEWPORT_WIDTH < this.options.minWidth ? 1 : Math.floor(this.VIEWPORT_WIDTH / this.options.minWidth);
+		this.PANE_WIDTH = (this.VIEWPORT_WIDTH / this.PANES_VISIBLE);
+	}
+
+	if (this.options.infinite) {
+
+		this.$panes.filter('.crt-clone').remove();
+
+		for(var i = this.NUM_PANES-1; i > this.NUM_PANES - 1 - this.PANES_VISIBLE; i--)
+		{
+			// console.log(i);
+			var first = this$1.$panes.eq(i).clone();
+			first.addClass('crt-clone');
+			first.css('opacity','1');
+			// Should probably move this out to an event
+			first.find('.crt-post-image').css({opacity:1});
+			this$1.$pane_slider.prepend(first);
+			this$1.FAKE_NUM = this$1.PANES_VISIBLE;
+		}
+		this.$panes = this.$pane_slider.children();
+
+	}
+
+	this.$panes.each(function (index, pane) {
+		$(pane).css( {width: this$1.PANE_WIDTH+'px'});
+	});
+};
+
+CarouselUI.prototype.updateLayout = function updateLayout () {
+        this.resize();
+        this.move (this.current_position, true);
+
+        // reset animation timer
+        if (this.options.autoPlay) {
+            this.animate();
+        }
+};
+
+CarouselUI.prototype.animate = function animate () {
+		var this$1 = this;
+
+	this.animating = true;
+	clearTimeout(this.timeout);
+	this.timeout = setTimeout(function () {
+		this$1.next();
+	}, this.options.speed);
+};
+
+CarouselUI.prototype.next = function next () {
+	var move = this.options.moveAmount ? this.options.moveAmount : this.PANES_VISIBLE ;
+	this.move(this.current_position + move, false);
+};
+
+CarouselUI.prototype.prev = function prev () {
+	var move = this.options.moveAmount ? this.options.moveAmount : this.PANES_VISIBLE ;
+	this.move(this.current_position - move, false);
+};
+
+CarouselUI.prototype.move = function move (i, noAnimate) {
+		var this$1 = this;
+
+	this.current_position = i;
+
+	var maxPos = this.NUM_PANES - this.PANES_VISIBLE;
+
+	if (this.current_position < 0) {
+		this.current_position = 0;
+	} else if (this.current_position > maxPos) {
+		this.current_position = maxPos;
+	}
+
+	var curIncFake = (this.FAKE_NUM + this.current_position);
+	var left = curIncFake * this.PANE_WIDTH;
+	var max = this.options.infinite ? (this.PANE_WIDTH * this.NUM_PANES) : (this.PANE_WIDTH * this.NUM_PANES) - this.VIEWPORT_WIDTH;
+
+	this.currentLeft = left;
+
+	if (left < 0) {
+		this.currentLeft = 0;
+	} else if (left > max) {
+		this.currentLeft = max;
+	} else {
+		this.currentLeft = left;
+	}
+
+	if (noAnimate) {
+		this.$pane_slider.css(
+			{
+				left: ((0 - this.currentLeft) + 'px')
+			});
+		this.moveComplete();
+	} else {
+		var options = {
+			duration: this.options.duration,
+			complete: function () {
+				this$1.moveComplete();
+			}
+		};
+		if (this.options.easing) {
+			options.easing = this.options.easing;
+		}
+		this.$pane_slider.animate(
+			{
+				left: ((0 - this.currentLeft) + 'px')
+			},
+			options
+		);
+	}
+};
+
+CarouselUI.prototype.moveComplete = function moveComplete () {
+		var this$1 = this;
+
+	if (this.options.infinite && (this.current_position >= (this.NUM_PANES - this.PANES_VISIBLE))) {
+		// infinite and we're off the end!
+		// re-e-wind, the crowd says 'bo selecta!'
+		this.$pane_slider.css({left:0});
+		this.current_position = 0 - this.PANES_VISIBLE;
+		this.currentLeft = 0;
+	}
+
+	setTimeout(function () {
+		var paneMaxHieght = 0;
+		for (var i=this$1.current_position;i<this$1.current_position + this$1.PANES_VISIBLE;i++)
+		{
+			var h = $(this$1.$panes[i]).height();
+			if (h > paneMaxHieght) {
+				paneMaxHieght = h;
+			}
+		}
+		this$1.$stage.animate({height:paneMaxHieght},300);
+	}, 50);
+
+	this.$viewport.trigger('curatorCarousel:changed', [this, this.current_position]);
+
+	if (this.options.autoPlay) {
+		this.animate();
+	}
+};
+
+CarouselUI.prototype.addControls = function addControls () {
+	this.$viewport.append('<button type="button" data-role="none" class="crt-panel-prev crt-panel-arrow" aria-label="Previous" role="button" aria-disabled="false">Previous</button>');
+	this.$viewport.append('<button type="button" data-role="none" class="crt-panel-next crt-panel-arrow" aria-label="Next" role="button" aria-disabled="false">Next</button>');
+
+	this.$viewport.on('click','.crt-panel-prev', this.prev.bind(this));
+	this.$viewport.on('click','.crt-panel-next', this.next.bind(this));
+};
+
+    CarouselUI.prototype.destroy = function destroy () {
+        this.destroyHandlers ()
+    };
+
+
+Curator.UI.Carousel = CarouselUI;
+/**
+ * Based on the awesome jQuery Grid-A-Licious(tm)
+ *
+ * Terms of Use - jQuery Grid-A-Licious(tm)
+ * under the MIT (http://www.opensource.org/licenses/mit-license.php) License.
+ *
+ * Original Version Copyright 2008-2012 Andreas Pihlström (Suprb). All rights reserved.
+ * (http://suprb.com/apps/gridalicious/)
+ *
+ */
+
+Curator.UI.WaterfallSettings = {
+    selector: '.item',
+    width: 225,
+    gutter: 20,
+    animate: false,
+    animationOptions: {
+        speed: 200,
+        duration: 300,
+        effect: 'fadeInOnAppear',
+        queue: true,
+        complete: function () {
+        }
+    }
+};
+
+var WaterfallUI = function WaterfallUI(options, element) {
+    this.element = $(element);
+
+    var container = this;
+    this.name = this._setName(5);
+    this.gridArr = [];
+    this.gridArrAppend = [];
+    this.gridArrPrepend = [];
+    this.setArr = false;
+    this.setGrid = false;
+    this.cols = 0;
+    this.itemCount = 0;
+    this.isPrepending = false;
+    this.appendCount = 0;
+    this.resetCount = true;
+    this.ifCallback = true;
+    this.box = this.element;
+    this.boxWidth = this.box.width();
+    this.options = $.extend(true, {}, Curator.UI.WaterfallSettings, options);
+    this.gridArr = $.makeArray(this.box.find(this.options.selector));
+    this.isResizing = false;
+    this.w = 0;
+    this.boxArr = [];
+
+    // this.offscreenRender = $('<div class="grid-rendered"></div>').appendTo('body');
+
+    // build columns
+    this._setCols();
+    // build grid
+    this._renderGrid('append');
+    // add class 'gridalicious' to container
+    $(this.box).addClass('gridalicious');
+    // add smartresize
+    $(window).smartresize(function () {
+        container.resize();
+    });
+};
+
+WaterfallUI.prototype._setName = function _setName (length, current) {
+    current = current ? current : '';
+    return length ? this._setName(--length, "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz".charAt(Math.floor(Math.random() * 60)) + current) : current;
+};
+
+WaterfallUI.prototype._setCols = function _setCols () {
+        var this$1 = this;
+
+    // calculate columns
+    this.cols = Math.floor(this.box.width() / this.options.width);
+    //If Cols lower than 1, the grid disappears
+    if (this.cols < 1) {
+        this.cols = 1;
+    }
+    diff = (this.box.width() - (this.cols * this.options.width) - this.options.gutter) / this.cols;
+    w = (this.options.width + diff) / this.box.width() * 100;
+    this.w = w;
+    this.colHeights = new Array(this.cols);
+    this.colHeights.fill(0);
+    this.colItems = new Array(this.cols);
+    this.colItems.fill([]);
+
+    // add columns to box
+    for (var i = 0; i < this.cols; i++) {
+        var div = $('<div></div>').addClass('galcolumn').attr('id', 'item' + i + this$1.name).css({
+            'width': w + '%',
+            'paddingLeft': this$1.options.gutter,
+            'paddingBottom': this$1.options.gutter,
+            'float': 'left',
+            '-webkit-box-sizing': 'border-box',
+            '-moz-box-sizing': 'border-box',
+            '-o-box-sizing': 'border-box',
+            'box-sizing': 'border-box'
+        });
+        this$1.box.append(div);
+    }
+};
+
+WaterfallUI.prototype._renderGrid = function _renderGrid (method, arr, count, prepArray) {
+        var this$1 = this;
+
+    var items = [];
+    var boxes = [];
+    var prependArray = [];
+    var itemCount = 0;
+    var appendCount = this.appendCount;
+    var gutter = this.options.gutter;
+    var cols = this.cols;
+    var name = this.name;
+    var i = 0;
+    var w = $('.galcolumn').width();
+
+    // if arr
+    if (arr) {
+        boxes = arr;
+        // if append
+        if (method == "append") {
+            // get total of items to append
+            appendCount += count;
+            // set itemCount to last count of appened items
+            itemCount = this.appendCount;
+        }
+        // if prepend
+        if (method == "prepend") {
+            // set itemCount
+            this.isPrepending = true;
+            itemCount = Math.round(count % cols);
+            if (itemCount <= 0) itemCount = cols;
+        }
+        // called by _updateAfterPrepend()
+        if (method == "renderAfterPrepend") {
+            // get total of items that was previously prepended
+            appendCount += count;
+            // set itemCount by counting previous prepended items
+            itemCount = count;
+        }
+    }
+    else {
+        boxes = this.gridArr;
+        appendCount = $(this.gridArr).length;
+    }
+
+    // push out the items to the columns
+    for (var i$2 = 0, list = boxes; i$2 < list.length; i$2 += 1) {
+        var item = list[i$2];
+
+            var width = '100%';
+
+        // if you want something not to be "responsive", add the class "not-responsive" to the selector container
+        if (item.hasClass('not-responsive')) {
+            width = 'auto';
+        }
+
+        item.css({
+            'zoom': '1',
+            'filter': 'alpha(opacity=0)',
+            'opacity': '0'
+        });
+
+        // find shortest col
+        var shortestCol = 0;
+        for (var i$1 = 1; i$1 < this.colHeights.length; i$1++) {
+            if (this$1.colHeights[i$1] < this$1.colHeights[shortestCol]) {
+                shortestCol = i$1;
+            }
+        }
+
+        // prepend or append to shortest column
+        if (method == 'prepend') {
+            $("#item" + shortestCol + name).prepend(item);
+            items.push(item);
+
+        } else {
+            $("#item" + shortestCol + name).append(item);
+            items.push(item);
+            if (appendCount >= cols) {
+                appendCount = (appendCount - cols);
+            }
+        }
+
+        // update col heights
+        this$1.colItems[shortestCol].push(item);
+        this$1.colHeights[shortestCol] += item.height();
+    }
+
+    this.appendCount = appendCount;
+
+    if (method == "append" || method == "prepend") {
+        if (method == "prepend") {
+            // render old items and reverse the new items
+            this._updateAfterPrepend(this.gridArr, boxes);
+        }
+        this._renderItem(items);
+        this.isPrepending = false;
+    } else {
+        this._renderItem(this.gridArr);
+    }
+};
+
+WaterfallUI.prototype._collectItems = function _collectItems () {
+    var collection = [];
+    $(this.box).find(this.options.selector).each(function (i) {
+        collection.push($(this));
+    });
+    return collection;
+};
+
+WaterfallUI.prototype._renderItem = function _renderItem (items) {
+
+    var speed = this.options.animationOptions.speed;
+    var effect = this.options.animationOptions.effect;
+    var duration = this.options.animationOptions.duration;
+    var queue = this.options.animationOptions.queue;
+    var animate = this.options.animate;
+    var complete = this.options.animationOptions.complete;
+
+    var i = 0;
+    var t = 0;
+
+    // animate
+    if (animate === true && !this.isResizing) {
+
+        // fadeInOnAppear
+        if (queue === true && effect == "fadeInOnAppear") {
+            if (this.isPrepending) items.reverse();
+            $.each(items, function (index, value) {
+                setTimeout(function () {
+                    $(value).animate({
+                        opacity: '1.0'
+                    }, duration);
+                    t++;
+                    if (t == items.length) {
+                        complete.call(undefined, items)
+                    }
+                }, i * speed);
+                i++;
+            });
+        } else if (queue === false && effect == "fadeInOnAppear") {
+            if (this.isPrepending) items.reverse();
+            $.each(items, function (index, value) {
+                $(value).animate({
+                    opacity: '1.0'
+                }, duration);
+                t++;
+                if (t == items.length) {
+                    if (this.ifCallback) {
+                        complete.call(undefined, items);
+                    }
+                }
+            });
+        }
+
+        // no effect but queued
+        if (queue === true && !effect) {
+            $.each(items, function (index, value) {
+                $(value).css({
+                    'opacity': '1',
+                    'filter': 'alpha(opacity=100)'
+                });
+                t++;
+                if (t == items.length) {
+                    if (this.ifCallback) {
+                        complete.call(undefined, items);
+                    }
+                }
+            });
+        }
+
+        // don not animate & no queue
+    } else {
+        $.each(items, function (index, value) {
+            $(value).css({
+                'opacity': '1',
+                'filter': 'alpha(opacity=100)'
+            });
+        });
+        if (this.ifCallback) {
+            complete.call(items);
+        }
+    }
+};
+
+WaterfallUI.prototype._updateAfterPrepend = function _updateAfterPrepend (prevItems, newItems) {
+    var gridArr = this.gridArr;
+    // add new items to gridArr
+    $.each(newItems, function (index, value) {
+        gridArr.unshift(value);
+    });
+    this.gridArr = gridArr;
+};
+
+WaterfallUI.prototype.resize = function resize () {
+    if (this.box.width() === this.boxWidth) {
+        return;
+    }
+
+    var newCols = Math.floor(this.box.width() / this.options.width);
+    if (this.cols === newCols) {
+        // nothings changed yet
+        return;
+    }
+
+    // delete columns in box
+    this.box.find($('.galcolumn')).remove();
+    // build columns
+    this._setCols();
+    // build grid
+    this.ifCallback = false;
+    this.isResizing = true;
+    this._renderGrid('append');
+    this.ifCallback = true;
+    this.isResizing = false;
+    this.boxWidth = this.box.width();
+};
+
+WaterfallUI.prototype.append = function append (items) {
+    var gridArr = this.gridArr;
+    var gridArrAppend = this.gridArrPrepend;
+    $.each(items, function (index, value) {
+        gridArr.push(value);
+        gridArrAppend.push(value);
+    });
+    this._renderGrid('append', items, $(items).length);
+};
+
+WaterfallUI.prototype.prepend = function prepend (items) {
+    this.ifCallback = false;
+    this._renderGrid('prepend', items, $(items).length);
+    this.ifCallback = true;
+};
+
+WaterfallUI.prototype.destroy = function destroy () {
+
+};
+
+
+Curator.UI.Waterfall = WaterfallUI;
 
 Curator.Utils = {
     postUrl : function (post)
@@ -2853,10 +2756,10 @@ var Carousel = (function (Widget) {
             this.allLoaded = false;
 
             // this.$wrapper = $('<div class="crt-carousel-wrapper"></div>').appendTo(this.$container);
-            this.$feed = $('<div class="crt-feed"></div>').appendTo(this.$container);
+            this.$feed = $('<div class="crt-carousel-feed"></div>').appendTo(this.$container);
             this.$container.addClass('crt-carousel');
 
-            this.carousel = new window.CCarousel(this.$feed, this.options.carousel);
+            this.carousel = new Curator.UI.Carousel(this.$feed, this.options.carousel);
             this.$feed.on('curatorCarousel:changed', function (event, carousel, currentSlide) {
                 // console.log('curatorCarousel:changed '+currentSlide);
                 // console.log('curatorCarousel:changed '+(that.feed.postsLoaded-carousel.PANES_VISIBLE));
@@ -3447,7 +3350,7 @@ var Waterfall = (function (Widget) {
                 });
             }
 
-            this.$feed.waterfall({
+            this.ui = new Curator.UI.Waterfall({
                 selector:'.crt-post-c',
                 gutter:0,
                 width:this.options.waterfall.gridWidth,
@@ -3456,7 +3359,7 @@ var Waterfall = (function (Widget) {
                     speed: (this.options.waterfall.animateSpeed/2),
                     duration: this.options.waterfall.animateSpeed
                 }
-            });
+            },this.$feed);
 
             this.on(Curator.Events.FILTER_CHANGED, function (event) {
                 this$1.$feed.find('.crt-post-c').remove();
@@ -3483,7 +3386,7 @@ var Waterfall = (function (Widget) {
         var postElements = this.createPostElements (posts);
 
         //this.$feed.append(postElements);
-        this.$feed.waterfall('append', postElements);
+        this.ui.append(postElements);
 
         var that = this;
         $.each(postElements,function (i) {
@@ -3514,6 +3417,8 @@ var Waterfall = (function (Widget) {
         //this.$feed.slick('unslick');
 
         Widget.prototype.destroy.call(this);
+
+        this.ui.destroy ();
 
         this.$feed.remove();
         this.$scroll.remove();

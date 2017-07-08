@@ -11,28 +11,37 @@
         width:100%;
     }
 
-    .crt-feed {
+    .crt-carousel-feed {
         width:100%;
+        position: relative;
         //@extend .crt-clearfix;
 
-        background-color: $color-feed-bg;
         -webkit-font-smoothing:antialiased;
     }
 
-    .crt-post-c {
-        width: auto;
 
-        .crt-post {
-            width: auto;
+    .crt-post {
+        width: 100%;
+        padding: 0 10px;
+        .crt-post-c {
+            width: 100%;
         }
     }
 
     .ctr-carousel-stage {
-        //border: 1px solid red;
+        width: 100%;
+        overflow: hidden;
+        position: relative;
     }
 
     .ctr-carousel-slider {
-        display: flex !important;
+        width: 0%;
+        list-style: none;
+        position: relative;
+        overflow: hidden;
+        padding: 0;
+        left:0;
+        display: block;
 
         .crt-post-c {
             //display: flex !important;
