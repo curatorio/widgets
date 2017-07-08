@@ -171,27 +171,22 @@ class CarouselUI {
 		} else {
 			this.currentLeft = left;
 		}
+        let x = (0 - this.currentLeft);
 
 		if (noAnimate) {
-			this.$pane_slider.css(
-				{
-					left: ((0 - this.currentLeft) + 'px')
-				});
+			this.$pane_slider.css({'transform': 'translate3d('+x+'px, 0px, 0px)'});
 			this.moveComplete();
 		} else {
 			let options = {
 				duration: this.options.duration,
-				complete: () => {
-					this.moveComplete();
-				}
+				complete: this.moveComplete.bind(this),
+				// easing:'asd'
 			};
 			if (this.options.easing) {
 				options.easing = this.options.easing;
 			}
 			this.$pane_slider.animate(
-				{
-					left: ((0 - this.currentLeft) + 'px')
-				},
+				{'transform': 'translate3d('+x+'px, 0px, 0px)'},
 				options
 			);
 		}
@@ -201,7 +196,7 @@ class CarouselUI {
 		if (this.options.infinite && (this.current_position >= (this.NUM_PANES - this.PANES_VISIBLE))) {
 			// infinite and we're off the end!
 			// re-e-wind, the crowd says 'bo selecta!'
-			this.$pane_slider.css({left:0});
+			this.$pane_slider.css({'transform': 'translate3d(0px, 0px, 0px)'});
 			this.current_position = 0 - this.PANES_VISIBLE;
 			this.currentLeft = 0;
 		}

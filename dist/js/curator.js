@@ -3154,24 +3154,28 @@ var v2GridPostTemplate = ' \
 
 var v2PostTemple = ' \
 <div class="crt-post-v2 crt-post crt-post-<%=this.networkIcon()%> <%=this.contentTextClasses()%>  <%=this.contentImageClasses()%>" data-post="<%=id%>"> \
-    <div class="crt-post-c">\
-        <div class="crt-image crt-hitarea crt-post-content-image" > \
-            <div class="crt-image-c"><img src="<%=image%>" class="crt-post-image" /></div> \
-            <span class="crt-play"><i class="crt-play-icon"></i></span> \
-        </div> \
-        <div class="crt-post-header"> \
-            <span class="crt-social-icon"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \
-            <div class="crt-post-fullname"><a href="<%=this.userUrl()%>" target="_blank"><%=user_full_name%></a></div>\
-        </div> \
-        <div class="text crt-post-content-text"> \
-            <%=this.parseText(text)%> \
-        </div> \
-        <div class="crt-post-read-more"><a href="#" class="crt-post-read-more-button">Read more</a> </div> \
-        <div class="crt-post-footer">\
-            <img class="crt-post-userimage" src="<%=user_image%>" /> \
-            <span class="crt-post-username"><a href="<%=this.userUrl()%>" target="_blank">@<%=user_screen_name%></a></span>\
-            <span class="crt-date"><%=this.prettyDate(source_created_at)%></span> \
-            <div class="crt-post-share"><span class="ctr-share-hint"></span><a href="#" class="crt-share-facebook"><i class="crt-icon-facebook"></i></a>  <a href="#" class="crt-share-twitter"><i class="crt-icon-twitter"></i></a></div>\
+    <div class="crt-post-border">\
+        <div class="crt-post-c">\
+            <div class="crt-post-content">\
+                <div class="crt-image crt-hitarea crt-post-content-image" > \
+                    <div class="crt-image-c"><img src="<%=image%>" class="crt-post-image" /></div> \
+                    <span class="crt-play"><i class="crt-play-icon"></i></span> \
+                </div> \
+                <div class="crt-post-header"> \
+                    <span class="crt-social-icon"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \
+                    <div class="crt-post-fullname"><a href="<%=this.userUrl()%>" target="_blank"><%=user_full_name%></a></div>\
+                </div> \
+                <div class="text crt-post-content-text"> \
+                    <%=this.parseText(text)%> \
+                </div> \
+                <div class="crt-post-read-more"><a href="#" class="crt-post-read-more-button">Read more</a> </div> \
+            </div> \
+            <div class="crt-post-footer">\
+                <img class="crt-post-userimage" src="<%=user_image%>" /> \
+                <span class="crt-post-username"><a href="<%=this.userUrl()%>" target="_blank">@<%=user_screen_name%></a></span>\
+                <span class="crt-date"><%=this.prettyDate(source_created_at)%></span> \
+                <div class="crt-post-share"><span class="ctr-share-hint"></span><a href="#" class="crt-share-facebook"><i class="crt-icon-facebook"></i></a>  <a href="#" class="crt-share-twitter"><i class="crt-icon-twitter"></i></a></div>\
+            </div> \
         </div> \
     </div> \
 </div>';
@@ -3467,8 +3471,6 @@ CarouselUI.prototype.prev = function prev () {
 };
 
 CarouselUI.prototype.move = function move (i, noAnimate) {
-		var this$1 = this;
-
 	this.current_position = i;
 
 	var maxPos = this.NUM_PANES - this.PANES_VISIBLE;
@@ -3492,27 +3494,22 @@ CarouselUI.prototype.move = function move (i, noAnimate) {
 	} else {
 		this.currentLeft = left;
 	}
+        var x = (0 - this.currentLeft);
 
 	if (noAnimate) {
-		this.$pane_slider.css(
-			{
-				left: ((0 - this.currentLeft) + 'px')
-			});
+		this.$pane_slider.css({'transform': 'translate3d('+x+'px, 0px, 0px)'});
 		this.moveComplete();
 	} else {
 		var options = {
 			duration: this.options.duration,
-			complete: function () {
-				this$1.moveComplete();
-			}
+			complete: this.moveComplete.bind(this),
+			// easing:'asd'
 		};
 		if (this.options.easing) {
 			options.easing = this.options.easing;
 		}
 		this.$pane_slider.animate(
-			{
-				left: ((0 - this.currentLeft) + 'px')
-			},
+			{'transform': 'translate3d('+x+'px, 0px, 0px)'},
 			options
 		);
 	}
@@ -3524,7 +3521,7 @@ CarouselUI.prototype.moveComplete = function moveComplete () {
 	if (this.options.infinite && (this.current_position >= (this.NUM_PANES - this.PANES_VISIBLE))) {
 		// infinite and we're off the end!
 		// re-e-wind, the crowd says 'bo selecta!'
-		this.$pane_slider.css({left:0});
+		this.$pane_slider.css({'transform': 'translate3d(0px, 0px, 0px)'});
 		this.current_position = 0 - this.PANES_VISIBLE;
 		this.currentLeft = 0;
 	}

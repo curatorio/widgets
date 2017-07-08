@@ -53,8 +53,8 @@
 }
 
 
-$width:30px;
-$height:50px;
+$width:60px;
+$height:60px;
 
 .crt-panel-next,
 .crt-panel-prev {
@@ -74,13 +74,18 @@ $height:50px;
     width: $width;
     height: $height;
     z-index: 100;
+    background-color: rgba(151, 152, 172, 0.27);
+
+    border-radius: 50%;
+
 
     &:before {
-        color: #000000;
-        font-size: 35px;
+        color: #ffffff;
+        //color: #000000;
+        font-size: 20px;
         font-family: 'crt-icon';
         line-height: 1;
-        opacity: .75;
+        opacity: 1;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
     }
@@ -88,16 +93,18 @@ $height:50px;
 
 .crt-panel-prev {
     left: 0-$width;
+    @extend .crt-icon-left-open-big;
 
     &:before {
-        content: '\e804';
+        margin-left: -3px;
     }
 }
 
 .crt-panel-next {
     right: 0-$width;
+    @extend .crt-icon-right-open-big;
 
     &:before {
-        content: '\e803'; // right-arrow
+        margin-left: 3px;
     }
 }
