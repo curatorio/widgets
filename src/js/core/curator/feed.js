@@ -1,20 +1,4 @@
-$.support.cors = true;
 
-let defaults = {
-    postsPerPage:24,
-    feedId:'xxx',
-    feedParams:{},
-    debug:false,
-    apiEndpoint:'https://api.curator.io/v1',
-    onPostsLoaded:function(data){
-        Curator.log('Feed->onPostsLoaded');
-        Curator.log(data);
-    },
-    onPostsFail:function(data) {
-        Curator.log('Feed->onPostsFail failed with message');
-        Curator.log(data.message);
-    }
-};
 
 class Feed extends EventBus {
 
@@ -34,6 +18,9 @@ class Feed extends EventBus {
         this.pagination = null;
 
         this.options = this.widget.options;
+
+        this.params = this.options.feedParams || {};
+        this.params.limit = this.options.postsPerPage;
 
         this.feedBase = this.options.apiEndpoint+'/feed';
     }
@@ -66,6 +53,47 @@ class Feed extends EventBus {
         $.extend(params,this.options.feedParams, paramsIn);
 
         params.offset = this.posts.length;
+
+        this._loadPosts (params);
+    }
+
+    /**
+     * First load - get's the most recent posts.
+     * @param params - set parameters to send to API
+     * @returns {boolean}
+     */
+    load (params) {
+        Curator.log ('Feed->load '+this.loading);
+
+        if (this.loading) {
+            return false;
+        }
+        this.currentPage = 0;
+
+        let loadPostParams = $.extend(this.params, params);
+
+        this._loadPosts (loadPostParams);
+    }
+
+    /**
+     * Loads posts after the current set
+     * @returns {boolean}
+     */
+    loadAfter () {
+        Curator.log ('Feed->loadAfter '+this.loading);
+
+        if (this.loading) {
+            return false;
+        }
+        this.currentPage = 0;
+
+        let params = $.extend({},this.params);
+
+        // TODO should we check we have after?
+        if (this.pagination && this.pagination.after) {
+            params.after = this.pagination.after;
+            delete params.before;
+        }
 
         this._loadPosts (params);
     }

@@ -24,7 +24,7 @@ class Waterfall extends Curator.Client {
             this.$feed = $('<div class="crt-feed"></div>').appendTo(this.$scroll);
             this.$container.addClass('crt-feed-container');
 
-            if (this.options.scroll=='continuous') {
+            if (this.options.scroll === 'continuous') {
                 $(this.$scroll).scroll(() => {
                     let height = this.$scroll.height();
                     let cHeight = this.$feed.height();
@@ -33,7 +33,7 @@ class Waterfall extends Curator.Client {
                         this.loadMorePosts();
                     }
                 });
-            } else if (this.options.scroll=='none') {
+            } else if (this.options.scroll === 'none') {
                 // no scroll - use javascript to trigger loading
             } else {
                 // default to more
@@ -60,22 +60,14 @@ class Waterfall extends Curator.Client {
             });
 
             // Load first set of posts
-            this.loadPosts(0);
+            this.feed.load();
         }
-    }
-
-    loadPosts  (page, clear) {
-        Curator.log('Waterfall->loadPage');
-        if (clear) {
-            this.$feed.find('.crt-post-c').remove();
-        }
-        this.feed.loadPosts(page);
     }
 
     loadMorePosts  () {
         Curator.log('Waterfall->loadMorePosts');
 
-        this.feed.loadPosts(this.feed.currentPage+1);
+        this.feed.loadAfter();
     }
 
     onPostsLoaded (posts) {
@@ -94,6 +86,10 @@ class Waterfall extends Curator.Client {
                     .addClass('crt-post-show-read-more');
             }
         });
+
+        if (this.feed.allPostsLoaded) {
+            this.$more.hide();
+        }
 
         this.popupManager.setPosts(posts);
 

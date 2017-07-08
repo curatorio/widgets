@@ -1458,23 +1458,7 @@ Curator.Events = {
     FEED_LOADED :'crt:feed:loaded',
     FILTER_CHANGED :'crt:filter:changed'
 };
-$.support.cors = true;
 
-var defaults = {
-    postsPerPage:24,
-    feedId:'xxx',
-    feedParams:{},
-    debug:false,
-    apiEndpoint:'https://api.curator.io/v1',
-    onPostsLoaded:function(data){
-        Curator.log('Feed->onPostsLoaded');
-        Curator.log(data);
-    },
-    onPostsFail:function(data) {
-        Curator.log('Feed->onPostsFail failed with message');
-        Curator.log(data.message);
-    }
-};
 
 var Feed = (function (EventBus) {
     function Feed(client) {
@@ -1493,6 +1477,9 @@ var Feed = (function (EventBus) {
         this.pagination = null;
 
         this.options = this.widget.options;
+
+        this.params = this.options.feedParams || {};
+        this.params.limit = this.options.postsPerPage;
 
         this.feedBase = this.options.apiEndpoint+'/feed';
     }
@@ -1529,6 +1516,47 @@ var Feed = (function (EventBus) {
         $.extend(params,this.options.feedParams, paramsIn);
 
         params.offset = this.posts.length;
+
+        this._loadPosts (params);
+    };
+
+    /**
+     * First load - get's the most recent posts.
+     * @param params - set parameters to send to API
+     * @returns {boolean}
+     */
+    Feed.prototype.load = function load (params) {
+        Curator.log ('Feed->load '+this.loading);
+
+        if (this.loading) {
+            return false;
+        }
+        this.currentPage = 0;
+
+        var loadPostParams = $.extend(this.params, params);
+
+        this._loadPosts (loadPostParams);
+    };
+
+    /**
+     * Loads posts after the current set
+     * @returns {boolean}
+     */
+    Feed.prototype.loadAfter = function loadAfter () {
+        Curator.log ('Feed->loadAfter '+this.loading);
+
+        if (this.loading) {
+            return false;
+        }
+        this.currentPage = 0;
+
+        var params = $.extend({},this.params);
+
+        // TODO should we check we have after?
+        if (this.pagination && this.pagination.after) {
+            params.after = this.pagination.after;
+            delete params.before;
+        }
 
         this._loadPosts (params);
     };
@@ -2279,6 +2307,9 @@ Curator.SocialFacebook = {
         obj.cleanText = Curator.StringUtils.filterHtml(post.text);
         var cb =  function(){};
 
+        if (obj.url.indexOf('http') !== 0) {
+            obj.url = obj.image;
+        }
         // Disabling for now - doesn't work - seems to get error "Can't Load URL: The domain of this URL isn't
         // included in the app's domains"
         var useJSSDK = false; // window.FB
@@ -2722,7 +2753,7 @@ var Waterfall = (function (superclass) {
             this.$feed = $('<div class="crt-feed"></div>').appendTo(this.$scroll);
             this.$container.addClass('crt-feed-container');
 
-            if (this.options.scroll=='continuous') {
+            if (this.options.scroll === 'continuous') {
                 $(this.$scroll).scroll(function () {
                     var height = this$1.$scroll.height();
                     var cHeight = this$1.$feed.height();
@@ -2731,7 +2762,7 @@ var Waterfall = (function (superclass) {
                         this$1.loadMorePosts();
                     }
                 });
-            } else if (this.options.scroll=='none') {
+            } else if (this.options.scroll === 'none') {
                 // no scroll - use javascript to trigger loading
             } else {
                 // default to more
@@ -2758,7 +2789,7 @@ var Waterfall = (function (superclass) {
             });
 
             // Load first set of posts
-            this.loadPosts(0);
+            this.feed.load();
         }
     }
 
@@ -2766,18 +2797,10 @@ var Waterfall = (function (superclass) {
     Waterfall.prototype = Object.create( superclass && superclass.prototype );
     Waterfall.prototype.constructor = Waterfall;
 
-    Waterfall.prototype.loadPosts = function loadPosts (page, clear) {
-        Curator.log('Waterfall->loadPage');
-        if (clear) {
-            this.$feed.find('.crt-post-c').remove();
-        }
-        this.feed.loadPosts(page);
-    };
-
     Waterfall.prototype.loadMorePosts = function loadMorePosts () {
         Curator.log('Waterfall->loadMorePosts');
 
-        this.feed.loadPosts(this.feed.currentPage+1);
+        this.feed.loadAfter();
     };
 
     Waterfall.prototype.onPostsLoaded = function onPostsLoaded (posts) {
@@ -2796,6 +2819,10 @@ var Waterfall = (function (superclass) {
                     .addClass('crt-post-show-read-more');
             }
         });
+
+        if (this.feed.allPostsLoaded) {
+            this.$more.hide();
+        }
 
         this.popupManager.setPosts(posts);
 
