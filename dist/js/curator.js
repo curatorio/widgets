@@ -2674,176 +2674,12 @@ EventBus.prototype.destroy = function destroy () {
 
 Curator.EventBus = new EventBus();
 
-var Client = (function (EventBus) {
-    function Client () {
-        Curator.log('Client->construct');
-
-        EventBus.call (this);
-
-        this.id = Curator.Utils.uId ();
-        Curator.log('id='+this.id);
-    }
-
-    if ( EventBus ) Client.__proto__ = EventBus;
-    Client.prototype = Object.create( EventBus && EventBus.prototype );
-    Client.prototype.constructor = Client;
-
-    Client.prototype.setOptions = function setOptions (options, defaults) {
-
-        this.options = $.extend(true,{}, defaults, options);
-
-        if (options.debug) {
-            Curator.debug = true;
-        }
-
-        // Curator.log(this.options);
-
-        return true;
-    };
-
-    Client.prototype.init = function init () {
-
-        if (!Curator.checkContainer(this.options.container)) {
-            return false;
-        }
-
-        this.$container = $(this.options.container);
-
-        this.createFeed();
-        this.createFilter();
-        this.createPopupManager();
-
-        return true;
-    };
-
-    Client.prototype.createFeed = function createFeed () {
-        var this$1 = this;
-
-        this.feed = new Curator.Feed (this);
-        this.feed.on('postsLoaded', function (event) {
-            this$1.onPostsLoaded(event.target);
-        });
-        this.feed.on('postsFailed', function (event) {
-            this$1.onPostsFail(event.target);
-        });
-    };
-
-    Client.prototype.createPopupManager = function createPopupManager () {
-        this.popupManager = new Curator.PopupManager(this);
-    };
-
-    Client.prototype.createFilter = function createFilter () {
-        if (this.options.filter && (this.options.filter.showNetworks || this.options.filter.showSources)) {
-            this.filter = new Curator.Filter(this);
-        }
-    };
-
-    Client.prototype.loadPosts = function loadPosts (page) {
-        this.feed.loadPosts(page);
-    };
-
-    Client.prototype.createPostElements = function createPostElements (posts)
-    {
-        var that = this;
-        var postElements = [];
-        $(posts).each(function(){
-            var p = that.createPostElement(this);
-            postElements.push(p.$el);
-        });
-        return postElements;
-    };
-
-    Client.prototype.createPostElement = function createPostElement (postJson) {
-        var post = new Curator.Post(postJson, this.options, this);
-        $(post).bind('postClick',this.onPostClick.bind(this));
-        $(post).bind('postReadMoreClick',this.onPostClick.bind(this));
-
-        if (this.options.onPostCreated) {
-            this.options.onPostCreated (post);
-        }
-
-        return post;
-    };
-
-    Client.prototype.onPostsLoaded = function onPostsLoaded (event) {
-        Curator.log('Client->onPostsLoaded');
-        Curator.log(event.target);
-    };
-
-    Client.prototype.onPostsFail = function onPostsFail (event) {
-        Curator.log('Client->onPostsLoadedFail');
-        Curator.log(event.target);
-    };
-
-    Client.prototype.onPostClick = function onPostClick (ev,post) {
-        if (this.options.showPopupOnClick) {
-            this.popupManager.showPopup(post);
-        }
-    };
-
-    Client.prototype.track = function track (a) {
-        Curator.log('Feed->track '+a);
-
-        Curator.ajax(
-            this.getUrl('/track/'+this.options.feedId),
-            {a:a},
-            function (data) {
-                Curator.log('Feed->track success');
-                Curator.log(data);
-            },
-            function (jqXHR, textStatus, errorThrown) {
-                Curator.log('Feed->_loadPosts fail');
-                Curator.log(textStatus);
-                Curator.log(errorThrown);
-            }
-        );
-    };
-
-    Client.prototype.getUrl = function getUrl (trail) {
-        return this.options.apiEndpoint+trail;
-    };
-
-    Client.prototype.destroy = function destroy () {
-        Curator.log('Client->destroy');
-        if (this.feed) {
-            this.feed.destroy()
-        }
-        if (this.filter) {
-            this.filter.destroy()
-        }
-        if (this.popupManager) {
-            this.popupManager.destroy()
-        }
-    };
-
-    return Client;
-}(EventBus));
-
-
-Curator.Client = Client;
-
 
 Curator.Events = {
     FEED_LOADED :'crt:feed:loaded',
     FILTER_CHANGED :'crt:filter:changed'
 };
-$.support.cors = true;
 
-var defaults = {
-    postsPerPage:24,
-    feedId:'xxx',
-    feedParams:{},
-    debug:false,
-    apiEndpoint:'https://api.curator.io/v1',
-    onPostsLoaded:function(data){
-        Curator.log('Feed->onPostsLoaded');
-        Curator.log(data);
-    },
-    onPostsFail:function(data) {
-        Curator.log('Feed->onPostsFail failed with message');
-        Curator.log(data.message);
-    }
-};
 
 var Feed = (function (EventBus) {
     function Feed(client) {
@@ -2859,9 +2695,15 @@ var Feed = (function (EventBus) {
         this.postCount = 0;
         this.loading = false;
         this.allPostsLoaded = false;
-        this.pagination = null;
+        this.pagination = {
+            after:null,
+            before:null
+        };
 
         this.options = this.widget.options;
+
+        this.params = this.options.feedParams || {};
+        this.params.limit = this.options.postsPerPage;
 
         this.feedBase = this.options.apiEndpoint+'/feed';
     }
@@ -2898,6 +2740,47 @@ var Feed = (function (EventBus) {
         $.extend(params,this.options.feedParams, paramsIn);
 
         params.offset = this.posts.length;
+
+        this._loadPosts (params);
+    };
+
+    /**
+     * First load - get's the most recent posts.
+     * @param params - set parameters to send to API
+     * @returns {boolean}
+     */
+    Feed.prototype.load = function load (params) {
+        Curator.log ('Feed->load '+this.loading);
+
+        if (this.loading) {
+            return false;
+        }
+        this.currentPage = 0;
+
+        var loadPostParams = $.extend(this.params, params);
+
+        this._loadPosts (loadPostParams);
+    };
+
+    /**
+     * Loads posts after the current set
+     * @returns {boolean}
+     */
+    Feed.prototype.loadAfter = function loadAfter () {
+        Curator.log ('Feed->loadAfter '+this.loading);
+
+        if (this.loading) {
+            return false;
+        }
+        this.currentPage = 0;
+
+        var params = $.extend({},this.params);
+
+        // TODO should we check we have after?
+        if (this.pagination && this.pagination.after) {
+            params.after = this.pagination.after;
+            delete params.before;
+        }
 
         this._loadPosts (params);
     };
@@ -3839,6 +3722,9 @@ Curator.SocialFacebook = {
         obj.cleanText = Curator.StringUtils.filterHtml(post.text);
         var cb =  function(){};
 
+        if (obj.url.indexOf('http') !== 0) {
+            obj.url = obj.image;
+        }
         // Disabling for now - doesn't work - seems to get error "Can't Load URL: The domain of this URL isn't
         // included in the app's domains"
         var useJSSDK = false; // window.FB
@@ -4367,6 +4253,154 @@ Curator.StringUtils = {
 };
 
 
+var Widget = (function (EventBus) {
+    function Widget () {
+        Curator.log('Widget->construct');
+
+        EventBus.call (this);
+
+        this.id = Curator.Utils.uId ();
+        Curator.log('id='+this.id);
+    }
+
+    if ( EventBus ) Widget.__proto__ = EventBus;
+    Widget.prototype = Object.create( EventBus && EventBus.prototype );
+    Widget.prototype.constructor = Widget;
+
+    Widget.prototype.setOptions = function setOptions (options, defaults) {
+
+        this.options = $.extend(true,{}, defaults, options);
+
+        if (options.debug) {
+            Curator.debug = true;
+        }
+
+        // Curator.log(this.options);
+
+        return true;
+    };
+
+    Widget.prototype.init = function init () {
+
+        if (!Curator.checkContainer(this.options.container)) {
+            return false;
+        }
+
+        this.$container = $(this.options.container);
+
+        this.createFeed();
+        this.createFilter();
+        this.createPopupManager();
+
+        return true;
+    };
+
+    Widget.prototype.createFeed = function createFeed () {
+        var this$1 = this;
+
+        this.feed = new Curator.Feed (this);
+        this.feed.on('postsLoaded', function (event) {
+            this$1.onPostsLoaded(event.target);
+        });
+        this.feed.on('postsFailed', function (event) {
+            this$1.onPostsFail(event.target);
+        });
+    };
+
+    Widget.prototype.createPopupManager = function createPopupManager () {
+        this.popupManager = new Curator.PopupManager(this);
+    };
+
+    Widget.prototype.createFilter = function createFilter () {
+        if (this.options.filter && (this.options.filter.showNetworks || this.options.filter.showSources)) {
+            this.filter = new Curator.Filter(this);
+        }
+    };
+
+    Widget.prototype.loadPosts = function loadPosts (page) {
+        this.feed.loadPosts(page);
+    };
+
+    Widget.prototype.createPostElements = function createPostElements (posts)
+    {
+        var that = this;
+        var postElements = [];
+        $(posts).each(function(){
+            var p = that.createPostElement(this);
+            postElements.push(p.$el);
+        });
+        return postElements;
+    };
+
+    Widget.prototype.createPostElement = function createPostElement (postJson) {
+        var post = new Curator.Post(postJson, this.options, this);
+        $(post).bind('postClick',this.onPostClick.bind(this));
+        $(post).bind('postReadMoreClick',this.onPostClick.bind(this));
+
+        if (this.options.onPostCreated) {
+            this.options.onPostCreated (post);
+        }
+
+        return post;
+    };
+
+    Widget.prototype.onPostsLoaded = function onPostsLoaded (event) {
+        Curator.log('Widget->onPostsLoaded');
+        Curator.log(event.target);
+    };
+
+    Widget.prototype.onPostsFail = function onPostsFail (event) {
+        Curator.log('Widget->onPostsLoadedFail');
+        Curator.log(event.target);
+    };
+
+    Widget.prototype.onPostClick = function onPostClick (ev,post) {
+        if (this.options.showPopupOnClick) {
+            this.popupManager.showPopup(post);
+        }
+    };
+
+    Widget.prototype.track = function track (a) {
+        Curator.log('Feed->track '+a);
+
+        Curator.ajax(
+            this.getUrl('/track/'+this.options.feedId),
+            {a:a},
+            function (data) {
+                Curator.log('Feed->track success');
+                Curator.log(data);
+            },
+            function (jqXHR, textStatus, errorThrown) {
+                Curator.log('Feed->_loadPosts fail');
+                Curator.log(textStatus);
+                Curator.log(errorThrown);
+            }
+        );
+    };
+
+    Widget.prototype.getUrl = function getUrl (trail) {
+        return this.options.apiEndpoint+trail;
+    };
+
+    Widget.prototype.destroy = function destroy () {
+        Curator.log('Widget->destroy');
+        if (this.feed) {
+            this.feed.destroy()
+        }
+        if (this.filter) {
+            this.filter.destroy()
+        }
+        if (this.popupManager) {
+            this.popupManager.destroy()
+        }
+    };
+
+    return Widget;
+}(EventBus));
+
+
+Curator.Widget = Widget;
+
 
 Curator.Config.Carousel = $.extend({}, Curator.Config.Defaults, {
     scroll:'more',
@@ -4376,11 +4410,11 @@ Curator.Config.Carousel = $.extend({}, Curator.Config.Defaults, {
     },
 });
 
-var Carousel = (function (Client) {
+var Carousel = (function (Widget) {
     function Carousel (options) {
         var this$1 = this;
 
-        Client.call (this);
+        Widget.call (this);
 
         options.postsPerPage = 60;
 
@@ -4419,8 +4453,8 @@ var Carousel = (function (Client) {
         }
     }
 
-    if ( Client ) Carousel.__proto__ = Client;
-    Carousel.prototype = Object.create( Client && Client.prototype );
+    if ( Widget ) Carousel.__proto__ = Widget;
+    Carousel.prototype = Object.create( Widget && Widget.prototype );
     Carousel.prototype.constructor = Carousel;
 
     Carousel.prototype.loadMorePosts = function loadMorePosts () {
@@ -4473,7 +4507,7 @@ var Carousel = (function (Client) {
     };
 
     Carousel.prototype.destroy = function destroy () {
-        Client.prototype.destroy.call(this);
+        Widget.prototype.destroy.call(this);
 
         this.carousel.destroy();
         this.$feed.remove();
@@ -4492,7 +4526,7 @@ var Carousel = (function (Client) {
     };
 
     return Carousel;
-}(Client));
+}(Widget));
 
 
 Curator.Carousel = Carousel;
@@ -4501,9 +4535,9 @@ Curator.Config.Custom = $.extend({}, Curator.Config.Defaults, {
 });
 
 
-var Custom = (function (superclass) {
+var Custom = (function (Widget) {
     function Custom  (options) {
-        superclass.call (this);
+        Widget.call (this);
 
         this.containerHeight=0;
         this.loading=false;
@@ -4527,8 +4561,8 @@ var Custom = (function (superclass) {
         }
     }
 
-    if ( superclass ) Custom.__proto__ = superclass;
-    Custom.prototype = Object.create( superclass && superclass.prototype );
+    if ( Widget ) Custom.__proto__ = Widget;
+    Custom.prototype = Object.create( Widget && Widget.prototype );
     Custom.prototype.constructor = Custom;
 
     Custom.prototype.onPostsLoaded = function onPostsLoaded (posts) {
@@ -4564,7 +4598,7 @@ var Custom = (function (superclass) {
     };
 
     Custom.prototype.destroy = function destroy () {
-        superclass.prototype.destroy.call(this);
+        Widget.prototype.destroy.call(this);
 
         this.$feed.remove();
         this.$container.removeClass('crt-custom');
@@ -4582,7 +4616,7 @@ var Custom = (function (superclass) {
     };
 
     return Custom;
-}(Curator.Client));
+}(Widget));
 
 Curator.Config.Grid = $.extend({}, Curator.Config.Defaults, {
     templatePost:'v2-grid-post',
@@ -4594,9 +4628,9 @@ Curator.Config.Grid = $.extend({}, Curator.Config.Defaults, {
 });
 
 
-var Grid = (function (Client) {
+var Grid = (function (Widget) {
     function Grid  (options) {
-        Client.call (this);
+        Widget.call (this);
 
         this.setOptions (options,  Curator.Config.Grid);
 
@@ -4651,8 +4685,8 @@ var Grid = (function (Client) {
         }
     }
 
-    if ( Client ) Grid.__proto__ = Client;
-    Grid.prototype = Object.create( Client && Client.prototype );
+    if ( Widget ) Grid.__proto__ = Widget;
+    Grid.prototype = Object.create( Widget && Widget.prototype );
     Grid.prototype.constructor = Grid;
 
     Grid.prototype.loadPosts = function loadPosts () {
@@ -4800,7 +4834,7 @@ var Grid = (function (Client) {
     };
 
     Grid.prototype.destroy = function destroy () {
-        Client.prototype.destroy.call(this);
+        Widget.prototype.destroy.call(this);
 
         this.destroyHandlers();
 
@@ -4822,7 +4856,7 @@ var Grid = (function (Client) {
     };
 
     return Grid;
-}(Client));
+}(Widget));
 
 Curator.Grid = Grid;
 
@@ -4839,11 +4873,11 @@ Curator.Config.Panel = $.extend({}, Curator.Config.Defaults, {
     }
 });
 
-var Panel = (function (superclass) {
+var Panel = (function (Widget) {
     function Panel  (options) {
         var this$1 = this;
 
-        superclass.call (this);
+        Widget.call (this);
 
         this.setOptions (options,  Curator.Config.Panel);
 
@@ -4881,8 +4915,8 @@ var Panel = (function (superclass) {
         }
     }
 
-    if ( superclass ) Panel.__proto__ = superclass;
-    Panel.prototype = Object.create( superclass && superclass.prototype );
+    if ( Widget ) Panel.__proto__ = Widget;
+    Panel.prototype = Object.create( Widget && Widget.prototype );
     Panel.prototype.constructor = Panel;
 
     Panel.prototype.loadMorePosts = function loadMorePosts () {
@@ -4923,7 +4957,7 @@ var Panel = (function (superclass) {
 
     Panel.prototype.destroy = function destroy () {
 
-        superclass.prototype.destroy.call(this);
+        Widget.prototype.destroy.call(this);
 
         this.$feed.curatorCarousel('destroy');
         this.$feed.remove();
@@ -4942,7 +4976,7 @@ var Panel = (function (superclass) {
     };
 
     return Panel;
-}(Curator.Client));
+}(Widget));
 
 Curator.Panel = Panel;
 
@@ -4957,11 +4991,11 @@ Curator.Config.Waterfall = $.extend({}, Curator.Config.Defaults, {
 });
 
 
-var Waterfall = (function (superclass) {
+var Waterfall = (function (Widget) {
     function Waterfall (options) {
         var this$1 = this;
 
-        superclass.call (this);
+        Widget.call (this);
 
         this.setOptions (options,  Curator.Config.Waterfall);
 
@@ -4973,7 +5007,7 @@ var Waterfall = (function (superclass) {
             this.$feed = $('<div class="crt-feed"></div>').appendTo(this.$scroll);
             this.$container.addClass('crt-feed-container');
 
-            if (this.options.scroll=='continuous') {
+            if (this.options.scroll === 'continuous') {
                 $(this.$scroll).scroll(function () {
                     var height = this$1.$scroll.height();
                     var cHeight = this$1.$feed.height();
@@ -4982,7 +5016,7 @@ var Waterfall = (function (superclass) {
                         this$1.loadMorePosts();
                     }
                 });
-            } else if (this.options.scroll=='none') {
+            } else if (this.options.scroll === 'none') {
                 // no scroll - use javascript to trigger loading
             } else {
                 // default to more
@@ -5009,26 +5043,18 @@ var Waterfall = (function (superclass) {
             });
 
             // Load first set of posts
-            this.loadPosts(0);
+            this.feed.load();
         }
     }
 
-    if ( superclass ) Waterfall.__proto__ = superclass;
-    Waterfall.prototype = Object.create( superclass && superclass.prototype );
+    if ( Widget ) Waterfall.__proto__ = Widget;
+    Waterfall.prototype = Object.create( Widget && Widget.prototype );
     Waterfall.prototype.constructor = Waterfall;
-
-    Waterfall.prototype.loadPosts = function loadPosts (page, clear) {
-        Curator.log('Waterfall->loadPage');
-        if (clear) {
-            this.$feed.find('.crt-post-c').remove();
-        }
-        this.feed.loadPosts(page);
-    };
 
     Waterfall.prototype.loadMorePosts = function loadMorePosts () {
         Curator.log('Waterfall->loadMorePosts');
 
-        this.feed.loadPosts(this.feed.currentPage+1);
+        this.feed.loadAfter();
     };
 
     Waterfall.prototype.onPostsLoaded = function onPostsLoaded (posts) {
@@ -5048,6 +5074,10 @@ var Waterfall = (function (superclass) {
             }
         });
 
+        if (this.feed.allPostsLoaded) {
+            this.$more.hide();
+        }
+
         this.popupManager.setPosts(posts);
 
         this.loading = false;
@@ -5063,7 +5093,7 @@ var Waterfall = (function (superclass) {
         Curator.log('Waterfall->destroy');
         //this.$feed.slick('unslick');
 
-        superclass.prototype.destroy.call(this);
+        Widget.prototype.destroy.call(this);
 
         this.$feed.remove();
         this.$scroll.remove();
@@ -5086,7 +5116,7 @@ var Waterfall = (function (superclass) {
     };
 
     return Waterfall;
-}(Curator.Client));
+}(Widget));
 
 
 Curator.Waterfall = Waterfall;

@@ -60,22 +60,14 @@ class Waterfall extends Widget {
             });
 
             // Load first set of posts
-            this.loadPosts(0);
+            this.feed.load();
         }
-    }
-
-    loadPosts  (page, clear) {
-        Curator.log('Waterfall->loadPage');
-        if (clear) {
-            this.$feed.find('.crt-post-c').remove();
-        }
-        this.feed.loadPosts(page);
     }
 
     loadMorePosts  () {
         Curator.log('Waterfall->loadMorePosts');
 
-        this.feed.loadPosts(this.feed.currentPage+1);
+        this.feed.loadAfter();
     }
 
     onPostsLoaded (posts) {
@@ -94,6 +86,10 @@ class Waterfall extends Widget {
                     .addClass('crt-post-show-read-more');
             }
         });
+
+        if (this.feed.allPostsLoaded) {
+            this.$more.hide();
+        }
 
         this.popupManager.setPosts(posts);
 
