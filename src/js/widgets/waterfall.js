@@ -87,7 +87,7 @@ class Waterfall extends Curator.Client {
             }
         });
 
-        if (this.feed.allPostsLoaded) {
+        if (this.feed.allPostsLoaded && this.$more) {
             this.$more.hide();
         }
 

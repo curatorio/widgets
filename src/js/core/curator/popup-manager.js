@@ -88,9 +88,11 @@ class PopupManager {
         Curator.log('PopupManager->onUnderlayClick');
         e.preventDefault();
 
-        this.popup.hide(function(){
-            this.hide();
-        }.bind(this));
+        if (this.popup) {
+            this.popup.hide(function () {
+                this.hide();
+            }.bind(this));
+        }
     }
 
     hide () {
