@@ -18,7 +18,6 @@
         width:100%;
         @extend .crt-clearfix;
 
-        background-color: $color-feed-bg;
         -webkit-font-smoothing:antialiased;
     }
 
@@ -34,7 +33,7 @@
     }
 
     .crt-feed-more {
-        background-color: $color-feed-bg;
+        //background-color: $color-feed-bg;
         padding: 4px;
 
         a {

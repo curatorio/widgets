@@ -769,7 +769,6 @@ body.crt-popup-visible {
     width: 100%; }
   .crt-feed-container .crt-feed {
     width: 100%;
-    background-color: #ffffff;
     -webkit-font-smoothing: antialiased; }
   .crt-feed-container .crt-post-c {
     width: 100%;
@@ -777,7 +776,6 @@ body.crt-popup-visible {
     display: block;
     margin-bottom: 10px; }
   .crt-feed-container .crt-feed-more {
-    background-color: #ffffff;
     padding: 4px; }
     .crt-feed-container .crt-feed-more a {
       width: 150px;

@@ -70,6 +70,15 @@ class Waterfall extends Curator.Client {
         this.feed.loadAfter();
     }
 
+
+    loadPage  (page) {
+        Curator.log('Waterfall->loadPage');
+
+        this.$feed.find('.crt-post-c').remove();
+
+        this.feed.loadPosts(page);
+    }
+
     onPostsLoaded (posts) {
         Curator.log("Waterfall->onPostsLoaded");
 
