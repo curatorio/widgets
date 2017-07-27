@@ -231,6 +231,10 @@ var Curator = {
         window.curatorWidget = new ConstructorClass(config);
     },
 
+    loadCSS: function () {
+        // not used!
+    },
+
     Templates:{},
 
     Config:{
@@ -931,9 +935,11 @@ PopupManager.prototype.onUnderlayClick = function onUnderlayClick (e) {
     Curator.log('PopupManager->onUnderlayClick');
     e.preventDefault();
 
-    this.popup.hide(function(){
-        this.hide();
-    }.bind(this));
+    if (this.popup) {
+        this.popup.hide(function () {
+            this.hide();
+        }.bind(this));
+    }
 };
 
 PopupManager.prototype.hide = function hide () {
@@ -3377,6 +3383,15 @@ var Waterfall = (function (Widget) {
         this.feed.loadAfter();
     };
 
+
+    Waterfall.prototype.loadPage = function loadPage (page) {
+        Curator.log('Waterfall->loadPage');
+
+        this.$feed.find('.crt-post-c').remove();
+
+        this.feed.loadPosts(page);
+    };
+
     Waterfall.prototype.onPostsLoaded = function onPostsLoaded (posts) {
         Curator.log("Waterfall->onPostsLoaded");
 
@@ -3394,7 +3409,7 @@ var Waterfall = (function (Widget) {
             }
         });
 
-        if (this.feed.allPostsLoaded) {
+        if (this.feed.allPostsLoaded && this.$more) {
             this.$more.hide();
         }
 

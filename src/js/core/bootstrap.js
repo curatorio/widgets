@@ -62,6 +62,10 @@ let Curator = {
         window.curatorWidget = new ConstructorClass(config);
     },
 
+    loadCSS: function () {
+        // not used!
+    },
+
     Templates:{},
 
     Config:{
