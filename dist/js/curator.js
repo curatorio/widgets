@@ -1,402 +1,1603 @@
 ;(function(root, factory) {
-	if (typeof define === 'function' && define.amd) {
-		// Cheeky wrapper to add root to the factory call
-		var factoryWrap = function () {
-			var argsCopy = [].slice.call(arguments);
-			argsCopy.unshift(root);
-			return factory.apply(this, argsCopy);
-		};
-		define(['jquery', 'curator'], factoryWrap);
-	} else if (typeof exports === 'object') {
-		module.exports = factory(root, require('jquery'));
-	} else {
-		root.Curator = factory(root, root.jQuery || root.Zepto);
-	}
-}(this, function(root, $) {
+	// no amd or require code because this is supposed to run stand alone!
+	root.Curator = factory(window);
+}(this, function(root) {
+	/* Zepto v1.2.0 - zepto event ajax form ie - zeptojs.com/license */
 
-	if ($ == undefined) {
-		window.alert ("jQuery not found\n\nThe Curator Widget is running in dependency mode - this requires jQuery of Zepto. Try disabling DEPENDENCY MODE in the Admin on the Publish page." );
-		return false;
-	}
+var Zepto = (function() {
+  var undefined, key, $, classList, emptyArray = [], concat = emptyArray.concat, filter = emptyArray.filter, slice = emptyArray.slice,
+    document = window.document,
+    elementDisplay = {}, classCache = {},
+    cssNumber = { 'column-count': 1, 'columns': 1, 'font-weight': 1, 'line-height': 1,'opacity': 1, 'z-index': 1, 'zoom': 1 },
+    fragmentRE = /^\s*<(\w+|!)[^>]*>/,
+    singleTagRE = /^<(\w+)\s*\/?>(?:<\/\1>|)$/,
+    tagExpanderRE = /<(?!area|br|col|embed|hr|img|input|link|meta|param)(([\w:]+)[^>]*)\/>/ig,
+    rootNodeRE = /^(?:body|html)$/i,
+    capitalRE = /([A-Z])/g,
 
-	// Debouncing function from John Hann
-// http://unscriptable.com/index.php/2009/03/20/debouncing-javascript-methods/
-// Copy pasted from http://paulirish.com/2009/throttled-smartresize-jquery-event-handler/
+    // special attributes that should be get/set via method calls
+    methodAttributes = ['val', 'css', 'html', 'text', 'data', 'width', 'height', 'offset'],
 
-(function ($, sr) {
-    var debounce = function (func, threshold, execAsap) {
-        var timeout;
-        return function debounced() {
-            var obj = this,
-                args = arguments;
+    adjacencyOperators = [ 'after', 'prepend', 'before', 'append' ],
+    table = document.createElement('table'),
+    tableRow = document.createElement('tr'),
+    containers = {
+      'tr': document.createElement('tbody'),
+      'tbody': table, 'thead': table, 'tfoot': table,
+      'td': tableRow, 'th': tableRow,
+      '*': document.createElement('div')
+    },
+    readyRE = /complete|loaded|interactive/,
+    simpleSelectorRE = /^[\w-]*$/,
+    class2type = {},
+    toString = class2type.toString,
+    zepto = {},
+    camelize, uniq,
+    tempParent = document.createElement('div'),
+    propMap = {
+      'tabindex': 'tabIndex',
+      'readonly': 'readOnly',
+      'for': 'htmlFor',
+      'class': 'className',
+      'maxlength': 'maxLength',
+      'cellspacing': 'cellSpacing',
+      'cellpadding': 'cellPadding',
+      'rowspan': 'rowSpan',
+      'colspan': 'colSpan',
+      'usemap': 'useMap',
+      'frameborder': 'frameBorder',
+      'contenteditable': 'contentEditable'
+    },
+    isArray = Array.isArray ||
+      function(object){ return object instanceof Array }
 
-            function delayed() {
-                if (!execAsap) func.apply(obj, args);
-                timeout = null;
-            }
-            if (timeout) clearTimeout(timeout);
-            else if (execAsap) func.apply(obj, args);
+  zepto.matches = function(element, selector) {
+    if (!selector || !element || element.nodeType !== 1) return false
+    var matchesSelector = element.matches || element.webkitMatchesSelector ||
+                          element.mozMatchesSelector || element.oMatchesSelector ||
+                          element.matchesSelector
+    if (matchesSelector) return matchesSelector.call(element, selector)
+    // fall back to performing a selector:
+    var match, parent = element.parentNode, temp = !parent
+    if (temp) (parent = tempParent).appendChild(element)
+    match = ~zepto.qsa(parent, selector).indexOf(element)
+    temp && tempParent.removeChild(element)
+    return match
+  }
 
-            timeout = setTimeout(delayed, threshold || 150);
-        };
-    };
-    $.fn[sr] = function (fn) {
-        return fn ? this.bind('resize', debounce(fn)) : this.trigger(sr);
-    };
-})($, 'smartresize');
+  function type(obj) {
+    return obj == null ? String(obj) :
+      class2type[toString.call(obj)] || "object"
+  }
 
-/**
- * Based on the awesome jQuery Grid-A-Licious(tm)
- *
- * Terms of Use - jQuery Grid-A-Licious(tm)
- * under the MIT (http://www.opensource.org/licenses/mit-license.php) License.
- *
- * Original Version Copyright 2008-2012 Andreas Pihlström (Suprb). All rights reserved.
- * (http://suprb.com/apps/gridalicious/)
- *
- */
+  function isFunction(value) { return type(value) == "function" }
+  function isWindow(obj)     { return obj != null && obj == obj.window }
+  function isDocument(obj)   { return obj != null && obj.nodeType == obj.DOCUMENT_NODE }
+  function isObject(obj)     { return type(obj) == "object" }
+  function isPlainObject(obj) {
+    return isObject(obj) && !isWindow(obj) && Object.getPrototypeOf(obj) == Object.prototype
+  }
 
-(function ($) {
+  function likeArray(obj) {
+    var length = !!obj && 'length' in obj && obj.length,
+      type = $.type(obj)
 
-    var defaultSettings = {
-        selector: '.item',
-        width: 225,
-        gutter: 20,
-        animate: false,
-        animationOptions: {
-            speed: 200,
-            duration: 300,
-            effect: 'fadeInOnAppear',
-            queue: true,
-            complete: function () {}
-        }
-    };
+    return 'function' != type && !isWindow(obj) && (
+      'array' == type || length === 0 ||
+        (typeof length == 'number' && length > 0 && (length - 1) in obj)
+    )
+  }
 
-    var WaterfallRender = function WaterfallRender (options, element) {
-        this.element = $(element);
-        this._init(options);
-    };
+  function compact(array) { return filter.call(array, function(item){ return item != null }) }
+  function flatten(array) { return array.length > 0 ? $.fn.concat.apply([], array) : array }
+  camelize = function(str){ return str.replace(/-+(.)?/g, function(match, chr){ return chr ? chr.toUpperCase() : '' }) }
+  function dasherize(str) {
+    return str.replace(/::/g, '/')
+           .replace(/([A-Z]+)([A-Z][a-z])/g, '$1_$2')
+           .replace(/([a-z\d])([A-Z])/g, '$1_$2')
+           .replace(/_/g, '-')
+           .toLowerCase()
+  }
+  uniq = function(array){ return filter.call(array, function(item, idx){ return array.indexOf(item) == idx }) }
 
-    WaterfallRender.prototype._init = function _init (options) {
-        var container = this;
-        this.name = this._setName(5);
-        this.gridArr = [];
-        this.gridArrAppend = [];
-        this.gridArrPrepend = [];
-        this.setArr = false;
-        this.setGrid = false;
-        this.cols = 0;
-        this.itemCount = 0;
-        this.isPrepending = false;
-        this.appendCount = 0;
-        this.resetCount = true;
-        this.ifCallback = true;
-        this.box = this.element;
-        this.boxWidth = this.box.width();
-        this.options = $.extend(true, {}, defaultSettings, options);
-        this.gridArr = $.makeArray(this.box.find(this.options.selector));
-        this.isResizing = false;
-        this.w = 0;
-        this.boxArr = [];
+  function classRE(name) {
+    return name in classCache ?
+      classCache[name] : (classCache[name] = new RegExp('(^|\\s)' + name + '(\\s|$)'))
+  }
 
-        // this.offscreenRender = $('<div class="grid-rendered"></div>').appendTo('body');
+  function maybeAddPx(name, value) {
+    return (typeof value == "number" && !cssNumber[dasherize(name)]) ? value + "px" : value
+  }
 
-        // build columns
-        this._setCols();
-        // build grid
-        this._renderGrid('append');
-        // add class 'gridalicious' to container
-        $(this.box).addClass('gridalicious');
-        // add smartresize
-        $(window).smartresize(function () {
-            container.resize();
-        });
-    };
+  function defaultDisplay(nodeName) {
+    var element, display
+    if (!elementDisplay[nodeName]) {
+      element = document.createElement(nodeName)
+      document.body.appendChild(element)
+      display = getComputedStyle(element, '').getPropertyValue("display")
+      element.parentNode.removeChild(element)
+      display == "none" && (display = "block")
+      elementDisplay[nodeName] = display
+    }
+    return elementDisplay[nodeName]
+  }
 
-    WaterfallRender.prototype._setName = function _setName (length, current) {
-        current = current ? current : '';
-        return length ? this._setName(--length, "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz".charAt(Math.floor(Math.random() * 60)) + current) : current;
-    };
+  function children(element) {
+    return 'children' in element ?
+      slice.call(element.children) :
+      $.map(element.childNodes, function(node){ if (node.nodeType == 1) return node })
+  }
 
-    WaterfallRender.prototype._setCols = function _setCols () {
-            var this$1 = this;
+  function Z(dom, selector) {
+    var i, len = dom ? dom.length : 0
+    for (i = 0; i < len; i++) this[i] = dom[i]
+    this.length = len
+    this.selector = selector || ''
+  }
 
-        // calculate columns
-        this.cols = Math.floor(this.box.width() / this.options.width);
-        //If Cols lower than 1, the grid disappears
-        if (this.cols < 1) { this.cols = 1; }
-        diff = (this.box.width() - (this.cols * this.options.width) - this.options.gutter) / this.cols;
-        w = (this.options.width + diff) / this.box.width() * 100;
-        this.w = w;
-        this.colHeights = new Array (this.cols);
-        this.colHeights.fill(0);
-        this.colItems = new Array (this.cols);
-        this.colItems.fill([]);
+  // `$.zepto.fragment` takes a html string and an optional tag name
+  // to generate DOM nodes from the given html string.
+  // The generated DOM nodes are returned as an array.
+  // This function can be overridden in plugins for example to make
+  // it compatible with browsers that don't support the DOM fully.
+  zepto.fragment = function(html, name, properties) {
+    var dom, nodes, container
 
-        // add columns to box
-        for (var i = 0; i < this.cols; i++) {
-            var div = $('<div></div>').addClass('galcolumn').attr('id', 'item' + i + this$1.name).css({
-                'width': w + '%',
-                'paddingLeft': this$1.options.gutter,
-                'paddingBottom': this$1.options.gutter,
-                'float': 'left',
-                '-webkit-box-sizing': 'border-box',
-                '-moz-box-sizing': 'border-box',
-                '-o-box-sizing': 'border-box',
-                'box-sizing': 'border-box'
-            });
-            this$1.box.append(div);
-        }
-    };
+    // A special case optimization for a single tag
+    if (singleTagRE.test(html)) dom = $(document.createElement(RegExp.$1))
 
-    WaterfallRender.prototype._renderGrid = function _renderGrid (method, arr, count, prepArray) {
-            var this$1 = this;
+    if (!dom) {
+      if (html.replace) html = html.replace(tagExpanderRE, "<$1></$2>")
+      if (name === undefined) name = fragmentRE.test(html) && RegExp.$1
+      if (!(name in containers)) name = '*'
 
-        var items = [];
-        var boxes = [];
-        var prependArray = [];
-        var itemCount = 0;
-        var appendCount = this.appendCount;
-        var gutter = this.options.gutter;
-        var cols = this.cols;
-        var name = this.name;
-        var i = 0;
-        var w = $('.galcolumn').width();
-
-        // if arr
-        if (arr) {
-            boxes = arr;
-            // if append
-            if (method == "append") {
-                // get total of items to append
-                appendCount += count;
-                // set itemCount to last count of appened items
-                itemCount = this.appendCount;
-            }
-            // if prepend
-            if (method == "prepend") {
-                // set itemCount
-                this.isPrepending = true;
-                itemCount = Math.round(count % cols);
-                if (itemCount <= 0) itemCount = cols;
-            }
-            // called by _updateAfterPrepend()
-            if (method == "renderAfterPrepend") {
-                // get total of items that was previously prepended
-                appendCount += count;
-                // set itemCount by counting previous prepended items
-                itemCount = count;
-            }
-        }
-        else {
-            boxes = this.gridArr;
-            appendCount = $(this.gridArr).length;
-        }
-
-        // push out the items to the columns
-        for (var i$2 = 0, list = boxes; i$2 < list.length; i$2 += 1) {
-            var item = list[i$2];
-
-                var width = '100%';
-
-            // if you want something not to be "responsive", add the class "not-responsive" to the selector container
-            if (item.hasClass('not-responsive')) {
-                width = 'auto';
-            }
-
-            item.css({
-                'zoom': '1',
-                'filter': 'alpha(opacity=0)',
-                'opacity': '0'
-            });
-
-            // find shortest col
-            var shortestCol = 0;
-            for (var i$1=1; i$1 < this.colHeights.length;i$1++) {
-                if (this$1.colHeights[i$1] < this$1.colHeights[shortestCol]) {
-                    shortestCol = i$1;
-                }
-            }
-
-            // prepend or append to shortest column
-            if (method == 'prepend') {
-                $("#item" + shortestCol + name).prepend(item);
-                items.push(item);
-
-            } else {
-                $("#item" + shortestCol + name).append(item);
-                items.push(item);
-                if (appendCount >= cols) {
-                    appendCount = (appendCount - cols);
-                }
-            }
-
-            // update col heights
-            this$1.colItems[shortestCol].push(item);
-            this$1.colHeights[shortestCol] += item.height();
-        }
-
-        this.appendCount = appendCount;
-
-        if (method == "append" || method == "prepend") {
-            if (method == "prepend") {
-                // render old items and reverse the new items
-                this._updateAfterPrepend(this.gridArr, boxes);
-            }
-            this._renderItem(items);
-            this.isPrepending = false;
-        } else {
-            this._renderItem(this.gridArr);
-        }
-    };
-
-    WaterfallRender.prototype._collectItems = function _collectItems () {
-        var collection = [];
-        $(this.box).find(this.options.selector).each(function (i) {
-            collection.push($(this));
-        });
-        return collection;
-    };
-
-    WaterfallRender.prototype._renderItem = function _renderItem (items) {
-
-        var speed = this.options.animationOptions.speed;
-        var effect = this.options.animationOptions.effect;
-        var duration = this.options.animationOptions.duration;
-        var queue = this.options.animationOptions.queue;
-        var animate = this.options.animate;
-        var complete = this.options.animationOptions.complete;
-
-        var i = 0;
-        var t = 0;
-
-        // animate
-        if (animate === true && !this.isResizing) {
-
-            // fadeInOnAppear
-            if (queue === true && effect == "fadeInOnAppear") {
-                if (this.isPrepending) items.reverse();
-                $.each(items, function (index, value) {
-                    setTimeout(function () {
-                        $(value).animate({
-                            opacity: '1.0'
-                        }, duration);
-                        t++;
-                        if (t == items.length) {
-                            complete.call(undefined, items)
-                        }
-                    }, i * speed);
-                    i++;
-                });
-            } else if (queue === false && effect == "fadeInOnAppear") {
-                if (this.isPrepending) items.reverse();
-                $.each(items, function (index, value) {
-                    $(value).animate({
-                        opacity: '1.0'
-                    }, duration);
-                    t++;
-                    if (t == items.length) {
-                        if (this.ifCallback) {
-                            complete.call(undefined, items);
-                        }
-                    }
-                });
-            }
-
-            // no effect but queued
-            if (queue === true && !effect) {
-                $.each(items, function (index, value) {
-                    $(value).css({
-                        'opacity': '1',
-                        'filter': 'alpha(opacity=100)'
-                    });
-                    t++;
-                    if (t == items.length) {
-                        if (this.ifCallback) {
-                            complete.call(undefined, items);
-                        }
-                    }
-                });
-            }
-
-            // don not animate & no queue
-        } else {
-            $.each(items, function (index, value) {
-                $(value).css({
-                    'opacity': '1',
-                    'filter': 'alpha(opacity=100)'
-                });
-            });
-            if (this.ifCallback) {
-                complete.call(items);
-            }
-        }
-    };
-
-    WaterfallRender.prototype._updateAfterPrepend = function _updateAfterPrepend (prevItems, newItems) {
-        var gridArr = this.gridArr;
-        // add new items to gridArr
-        $.each(newItems, function (index, value) {
-            gridArr.unshift(value);
-        });
-        this.gridArr = gridArr;
-    };
-
-    WaterfallRender.prototype.resize = function resize () {
-        if (this.box.width() === this.boxWidth) {
-            return;
-        }
-
-        var newCols = Math.floor(this.box.width() / this.options.width);
-        if (this.cols === newCols) {
-            // nothings changed yet
-            return;
-        }
-
-        // delete columns in box
-        this.box.find($('.galcolumn')).remove();
-        // build columns
-        this._setCols();
-        // build grid
-        this.ifCallback = false;
-        this.isResizing = true;
-        this._renderGrid('append');
-        this.ifCallback = true;
-        this.isResizing = false;
-        this.boxWidth = this.box.width();
-    };
-
-    WaterfallRender.prototype.append = function append (items) {
-        var gridArr = this.gridArr;
-        var gridArrAppend = this.gridArrPrepend;
-        $.each(items, function (index, value) {
-            gridArr.push(value);
-            gridArrAppend.push(value);
-        });
-        this._renderGrid('append', items, $(items).length);
-    };
-
-    WaterfallRender.prototype.prepend = function prepend (items) {
-        this.ifCallback = false;
-        this._renderGrid('prepend', items, $(items).length);
-        this.ifCallback = true;
-    };
-
-    $.fn.waterfall = function (options, e) {
-        if (typeof options === 'string') {
-            this.each(function () {
-                var container = $.data(this, 'WaterfallRender');
-                container[options].apply(container, [e]);
-            });
-        } else {
-            this.each(function () {
-                $.data(this, 'WaterfallRender', new WaterfallRender(options, this));
-            });
-        }
-        return this;
+      container = containers[name]
+      container.innerHTML = '' + html
+      dom = $.each(slice.call(container.childNodes), function(){
+        container.removeChild(this)
+      })
     }
 
-})($);
+    if (isPlainObject(properties)) {
+      nodes = $(dom)
+      $.each(properties, function(key, value) {
+        if (methodAttributes.indexOf(key) > -1) nodes[key](value)
+        else nodes.attr(key, value)
+      })
+    }
+
+    return dom
+  }
+
+  // `$.zepto.Z` swaps out the prototype of the given `dom` array
+  // of nodes with `$.fn` and thus supplying all the Zepto functions
+  // to the array. This method can be overridden in plugins.
+  zepto.Z = function(dom, selector) {
+    return new Z(dom, selector)
+  }
+
+  // `$.zepto.isZ` should return `true` if the given object is a Zepto
+  // collection. This method can be overridden in plugins.
+  zepto.isZ = function(object) {
+    return object instanceof zepto.Z
+  }
+
+  // `$.zepto.init` is Zepto's counterpart to jQuery's `$.fn.init` and
+  // takes a CSS selector and an optional context (and handles various
+  // special cases).
+  // This method can be overridden in plugins.
+  zepto.init = function(selector, context) {
+    var dom
+    // If nothing given, return an empty Zepto collection
+    if (!selector) return zepto.Z()
+    // Optimize for string selectors
+    else if (typeof selector == 'string') {
+      selector = selector.trim()
+      // If it's a html fragment, create nodes from it
+      // Note: In both Chrome 21 and Firefox 15, DOM error 12
+      // is thrown if the fragment doesn't begin with <
+      if (selector[0] == '<' && fragmentRE.test(selector))
+        dom = zepto.fragment(selector, RegExp.$1, context), selector = null
+      // If there's a context, create a collection on that context first, and select
+      // nodes from there
+      else if (context !== undefined) return $(context).find(selector)
+      // If it's a CSS selector, use it to select nodes.
+      else dom = zepto.qsa(document, selector)
+    }
+    // If a function is given, call it when the DOM is ready
+    else if (isFunction(selector)) return $(document).ready(selector)
+    // If a Zepto collection is given, just return it
+    else if (zepto.isZ(selector)) return selector
+    else {
+      // normalize array if an array of nodes is given
+      if (isArray(selector)) dom = compact(selector)
+      // Wrap DOM nodes.
+      else if (isObject(selector))
+        dom = [selector], selector = null
+      // If it's a html fragment, create nodes from it
+      else if (fragmentRE.test(selector))
+        dom = zepto.fragment(selector.trim(), RegExp.$1, context), selector = null
+      // If there's a context, create a collection on that context first, and select
+      // nodes from there
+      else if (context !== undefined) return $(context).find(selector)
+      // And last but no least, if it's a CSS selector, use it to select nodes.
+      else dom = zepto.qsa(document, selector)
+    }
+    // create a new Zepto collection from the nodes found
+    return zepto.Z(dom, selector)
+  }
+
+  // `$` will be the base `Zepto` object. When calling this
+  // function just call `$.zepto.init, which makes the implementation
+  // details of selecting nodes and creating Zepto collections
+  // patchable in plugins.
+  $ = function(selector, context){
+    return zepto.init(selector, context)
+  }
+
+  function extend(target, source, deep) {
+    for (key in source)
+      if (deep && (isPlainObject(source[key]) || isArray(source[key]))) {
+        if (isPlainObject(source[key]) && !isPlainObject(target[key]))
+          target[key] = {}
+        if (isArray(source[key]) && !isArray(target[key]))
+          target[key] = []
+        extend(target[key], source[key], deep)
+      }
+      else if (source[key] !== undefined) target[key] = source[key]
+  }
+
+  // Copy all but undefined properties from one or more
+  // objects to the `target` object.
+  $.extend = function(target){
+    var deep, args = slice.call(arguments, 1)
+    if (typeof target == 'boolean') {
+      deep = target
+      target = args.shift()
+    }
+    args.forEach(function(arg){ extend(target, arg, deep) })
+    return target
+  }
+
+  // `$.zepto.qsa` is Zepto's CSS selector implementation which
+  // uses `document.querySelectorAll` and optimizes for some special cases, like `#id`.
+  // This method can be overridden in plugins.
+  zepto.qsa = function(element, selector){
+    var found,
+        maybeID = selector[0] == '#',
+        maybeClass = !maybeID && selector[0] == '.',
+        nameOnly = maybeID || maybeClass ? selector.slice(1) : selector, // Ensure that a 1 char tag name still gets checked
+        isSimple = simpleSelectorRE.test(nameOnly)
+    return (element.getElementById && isSimple && maybeID) ? // Safari DocumentFragment doesn't have getElementById
+      ( (found = element.getElementById(nameOnly)) ? [found] : [] ) :
+      (element.nodeType !== 1 && element.nodeType !== 9 && element.nodeType !== 11) ? [] :
+      slice.call(
+        isSimple && !maybeID && element.getElementsByClassName ? // DocumentFragment doesn't have getElementsByClassName/TagName
+          maybeClass ? element.getElementsByClassName(nameOnly) : // If it's simple, it could be a class
+          element.getElementsByTagName(selector) : // Or a tag
+          element.querySelectorAll(selector) // Or it's not simple, and we need to query all
+      )
+  }
+
+  function filtered(nodes, selector) {
+    return selector == null ? $(nodes) : $(nodes).filter(selector)
+  }
+
+  $.contains = document.documentElement.contains ?
+    function(parent, node) {
+      return parent !== node && parent.contains(node)
+    } :
+    function(parent, node) {
+      while (node && (node = node.parentNode))
+        if (node === parent) return true
+      return false
+    }
+
+  function funcArg(context, arg, idx, payload) {
+    return isFunction(arg) ? arg.call(context, idx, payload) : arg
+  }
+
+  function setAttribute(node, name, value) {
+    value == null ? node.removeAttribute(name) : node.setAttribute(name, value)
+  }
+
+  // access className property while respecting SVGAnimatedString
+  function className(node, value){
+    var klass = node.className || '',
+        svg   = klass && klass.baseVal !== undefined
+
+    if (value === undefined) return svg ? klass.baseVal : klass
+    svg ? (klass.baseVal = value) : (node.className = value)
+  }
+
+  // "true"  => true
+  // "false" => false
+  // "null"  => null
+  // "42"    => 42
+  // "42.5"  => 42.5
+  // "08"    => "08"
+  // JSON    => parse if valid
+  // String  => self
+  function deserializeValue(value) {
+    try {
+      return value ?
+        value == "true" ||
+        ( value == "false" ? false :
+          value == "null" ? null :
+          +value + "" == value ? +value :
+          /^[\[\{]/.test(value) ? $.parseJSON(value) :
+          value )
+        : value
+    } catch(e) {
+      return value
+    }
+  }
+
+  $.type = type
+  $.isFunction = isFunction
+  $.isWindow = isWindow
+  $.isArray = isArray
+  $.isPlainObject = isPlainObject
+
+  $.isEmptyObject = function(obj) {
+    var name
+    for (name in obj) return false
+    return true
+  }
+
+  $.isNumeric = function(val) {
+    var num = Number(val), type = typeof val
+    return val != null && type != 'boolean' &&
+      (type != 'string' || val.length) &&
+      !isNaN(num) && isFinite(num) || false
+  }
+
+  $.inArray = function(elem, array, i){
+    return emptyArray.indexOf.call(array, elem, i)
+  }
+
+  $.camelCase = camelize
+  $.trim = function(str) {
+    return str == null ? "" : String.prototype.trim.call(str)
+  }
+
+  // plugin compatibility
+  $.uuid = 0
+  $.support = { }
+  $.expr = { }
+  $.noop = function() {}
+
+  $.map = function(elements, callback){
+    var value, values = [], i, key
+    if (likeArray(elements))
+      for (i = 0; i < elements.length; i++) {
+        value = callback(elements[i], i)
+        if (value != null) values.push(value)
+      }
+    else
+      for (key in elements) {
+        value = callback(elements[key], key)
+        if (value != null) values.push(value)
+      }
+    return flatten(values)
+  }
+
+  $.each = function(elements, callback){
+    var i, key
+    if (likeArray(elements)) {
+      for (i = 0; i < elements.length; i++)
+        if (callback.call(elements[i], i, elements[i]) === false) return elements
+    } else {
+      for (key in elements)
+        if (callback.call(elements[key], key, elements[key]) === false) return elements
+    }
+
+    return elements
+  }
+
+  $.grep = function(elements, callback){
+    return filter.call(elements, callback)
+  }
+
+  if (window.JSON) $.parseJSON = JSON.parse
+
+  // Populate the class2type map
+  $.each("Boolean Number String Function Array Date RegExp Object Error".split(" "), function(i, name) {
+    class2type[ "[object " + name + "]" ] = name.toLowerCase()
+  })
+
+  // Define methods that will be available on all
+  // Zepto collections
+  $.fn = {
+    constructor: zepto.Z,
+    length: 0,
+
+    // Because a collection acts like an array
+    // copy over these useful array functions.
+    forEach: emptyArray.forEach,
+    reduce: emptyArray.reduce,
+    push: emptyArray.push,
+    sort: emptyArray.sort,
+    splice: emptyArray.splice,
+    indexOf: emptyArray.indexOf,
+    concat: function(){
+      var i, value, args = []
+      for (i = 0; i < arguments.length; i++) {
+        value = arguments[i]
+        args[i] = zepto.isZ(value) ? value.toArray() : value
+      }
+      return concat.apply(zepto.isZ(this) ? this.toArray() : this, args)
+    },
+
+    // `map` and `slice` in the jQuery API work differently
+    // from their array counterparts
+    map: function(fn){
+      return $($.map(this, function(el, i){ return fn.call(el, i, el) }))
+    },
+    slice: function(){
+      return $(slice.apply(this, arguments))
+    },
+
+    ready: function(callback){
+      // need to check if document.body exists for IE as that browser reports
+      // document ready when it hasn't yet created the body element
+      if (readyRE.test(document.readyState) && document.body) callback($)
+      else document.addEventListener('DOMContentLoaded', function(){ callback($) }, false)
+      return this
+    },
+    get: function(idx){
+      return idx === undefined ? slice.call(this) : this[idx >= 0 ? idx : idx + this.length]
+    },
+    toArray: function(){ return this.get() },
+    size: function(){
+      return this.length
+    },
+    remove: function(){
+      return this.each(function(){
+        if (this.parentNode != null)
+          this.parentNode.removeChild(this)
+      })
+    },
+    each: function(callback){
+      emptyArray.every.call(this, function(el, idx){
+        return callback.call(el, idx, el) !== false
+      })
+      return this
+    },
+    filter: function(selector){
+      if (isFunction(selector)) return this.not(this.not(selector))
+      return $(filter.call(this, function(element){
+        return zepto.matches(element, selector)
+      }))
+    },
+    add: function(selector,context){
+      return $(uniq(this.concat($(selector,context))))
+    },
+    is: function(selector){
+      return this.length > 0 && zepto.matches(this[0], selector)
+    },
+    not: function(selector){
+      var nodes=[]
+      if (isFunction(selector) && selector.call !== undefined)
+        this.each(function(idx){
+          if (!selector.call(this,idx)) nodes.push(this)
+        })
+      else {
+        var excludes = typeof selector == 'string' ? this.filter(selector) :
+          (likeArray(selector) && isFunction(selector.item)) ? slice.call(selector) : $(selector)
+        this.forEach(function(el){
+          if (excludes.indexOf(el) < 0) nodes.push(el)
+        })
+      }
+      return $(nodes)
+    },
+    has: function(selector){
+      return this.filter(function(){
+        return isObject(selector) ?
+          $.contains(this, selector) :
+          $(this).find(selector).size()
+      })
+    },
+    eq: function(idx){
+      return idx === -1 ? this.slice(idx) : this.slice(idx, + idx + 1)
+    },
+    first: function(){
+      var el = this[0]
+      return el && !isObject(el) ? el : $(el)
+    },
+    last: function(){
+      var el = this[this.length - 1]
+      return el && !isObject(el) ? el : $(el)
+    },
+    find: function(selector){
+      var result, $this = this
+      if (!selector) result = $()
+      else if (typeof selector == 'object')
+        result = $(selector).filter(function(){
+          var node = this
+          return emptyArray.some.call($this, function(parent){
+            return $.contains(parent, node)
+          })
+        })
+      else if (this.length == 1) result = $(zepto.qsa(this[0], selector))
+      else result = this.map(function(){ return zepto.qsa(this, selector) })
+      return result
+    },
+    closest: function(selector, context){
+      var nodes = [], collection = typeof selector == 'object' && $(selector)
+      this.each(function(_, node){
+        while (node && !(collection ? collection.indexOf(node) >= 0 : zepto.matches(node, selector)))
+          node = node !== context && !isDocument(node) && node.parentNode
+        if (node && nodes.indexOf(node) < 0) nodes.push(node)
+      })
+      return $(nodes)
+    },
+    parents: function(selector){
+      var ancestors = [], nodes = this
+      while (nodes.length > 0)
+        nodes = $.map(nodes, function(node){
+          if ((node = node.parentNode) && !isDocument(node) && ancestors.indexOf(node) < 0) {
+            ancestors.push(node)
+            return node
+          }
+        })
+      return filtered(ancestors, selector)
+    },
+    parent: function(selector){
+      return filtered(uniq(this.pluck('parentNode')), selector)
+    },
+    children: function(selector){
+      return filtered(this.map(function(){ return children(this) }), selector)
+    },
+    contents: function() {
+      return this.map(function() { return this.contentDocument || slice.call(this.childNodes) })
+    },
+    siblings: function(selector){
+      return filtered(this.map(function(i, el){
+        return filter.call(children(el.parentNode), function(child){ return child!==el })
+      }), selector)
+    },
+    empty: function(){
+      return this.each(function(){ this.innerHTML = '' })
+    },
+    // `pluck` is borrowed from Prototype.js
+    pluck: function(property){
+      return $.map(this, function(el){ return el[property] })
+    },
+    show: function(){
+      return this.each(function(){
+        this.style.display == "none" && (this.style.display = '')
+        if (getComputedStyle(this, '').getPropertyValue("display") == "none")
+          this.style.display = defaultDisplay(this.nodeName)
+      })
+    },
+    replaceWith: function(newContent){
+      return this.before(newContent).remove()
+    },
+    wrap: function(structure){
+      var func = isFunction(structure)
+      if (this[0] && !func)
+        var dom   = $(structure).get(0),
+            clone = dom.parentNode || this.length > 1
+
+      return this.each(function(index){
+        $(this).wrapAll(
+          func ? structure.call(this, index) :
+            clone ? dom.cloneNode(true) : dom
+        )
+      })
+    },
+    wrapAll: function(structure){
+      if (this[0]) {
+        $(this[0]).before(structure = $(structure))
+        var children
+        // drill down to the inmost element
+        while ((children = structure.children()).length) structure = children.first()
+        $(structure).append(this)
+      }
+      return this
+    },
+    wrapInner: function(structure){
+      var func = isFunction(structure)
+      return this.each(function(index){
+        var self = $(this), contents = self.contents(),
+            dom  = func ? structure.call(this, index) : structure
+        contents.length ? contents.wrapAll(dom) : self.append(dom)
+      })
+    },
+    unwrap: function(){
+      this.parent().each(function(){
+        $(this).replaceWith($(this).children())
+      })
+      return this
+    },
+    clone: function(){
+      return this.map(function(){ return this.cloneNode(true) })
+    },
+    hide: function(){
+      return this.css("display", "none")
+    },
+    toggle: function(setting){
+      return this.each(function(){
+        var el = $(this)
+        ;(setting === undefined ? el.css("display") == "none" : setting) ? el.show() : el.hide()
+      })
+    },
+    prev: function(selector){ return $(this.pluck('previousElementSibling')).filter(selector || '*') },
+    next: function(selector){ return $(this.pluck('nextElementSibling')).filter(selector || '*') },
+    html: function(html){
+      return 0 in arguments ?
+        this.each(function(idx){
+          var originHtml = this.innerHTML
+          $(this).empty().append( funcArg(this, html, idx, originHtml) )
+        }) :
+        (0 in this ? this[0].innerHTML : null)
+    },
+    text: function(text){
+      return 0 in arguments ?
+        this.each(function(idx){
+          var newText = funcArg(this, text, idx, this.textContent)
+          this.textContent = newText == null ? '' : ''+newText
+        }) :
+        (0 in this ? this.pluck('textContent').join("") : null)
+    },
+    attr: function(name, value){
+      var result
+      return (typeof name == 'string' && !(1 in arguments)) ?
+        (0 in this && this[0].nodeType == 1 && (result = this[0].getAttribute(name)) != null ? result : undefined) :
+        this.each(function(idx){
+          if (this.nodeType !== 1) return
+          if (isObject(name)) for (key in name) setAttribute(this, key, name[key])
+          else setAttribute(this, name, funcArg(this, value, idx, this.getAttribute(name)))
+        })
+    },
+    removeAttr: function(name){
+      return this.each(function(){ this.nodeType === 1 && name.split(' ').forEach(function(attribute){
+        setAttribute(this, attribute)
+      }, this)})
+    },
+    prop: function(name, value){
+      name = propMap[name] || name
+      return (1 in arguments) ?
+        this.each(function(idx){
+          this[name] = funcArg(this, value, idx, this[name])
+        }) :
+        (this[0] && this[0][name])
+    },
+    removeProp: function(name){
+      name = propMap[name] || name
+      return this.each(function(){ delete this[name] })
+    },
+    data: function(name, value){
+      var attrName = 'data-' + name.replace(capitalRE, '-$1').toLowerCase()
+
+      var data = (1 in arguments) ?
+        this.attr(attrName, value) :
+        this.attr(attrName)
+
+      return data !== null ? deserializeValue(data) : undefined
+    },
+    val: function(value){
+      if (0 in arguments) {
+        if (value == null) value = ""
+        return this.each(function(idx){
+          this.value = funcArg(this, value, idx, this.value)
+        })
+      } else {
+        return this[0] && (this[0].multiple ?
+           $(this[0]).find('option').filter(function(){ return this.selected }).pluck('value') :
+           this[0].value)
+      }
+    },
+    offset: function(coordinates){
+      if (coordinates) return this.each(function(index){
+        var $this = $(this),
+            coords = funcArg(this, coordinates, index, $this.offset()),
+            parentOffset = $this.offsetParent().offset(),
+            props = {
+              top:  coords.top  - parentOffset.top,
+              left: coords.left - parentOffset.left
+            }
+
+        if ($this.css('position') == 'static') props['position'] = 'relative'
+        $this.css(props)
+      })
+      if (!this.length) return null
+      if (document.documentElement !== this[0] && !$.contains(document.documentElement, this[0]))
+        return {top: 0, left: 0}
+      var obj = this[0].getBoundingClientRect()
+      return {
+        left: obj.left + window.pageXOffset,
+        top: obj.top + window.pageYOffset,
+        width: Math.round(obj.width),
+        height: Math.round(obj.height)
+      }
+    },
+    css: function(property, value){
+      if (arguments.length < 2) {
+        var element = this[0]
+        if (typeof property == 'string') {
+          if (!element) return
+          return element.style[camelize(property)] || getComputedStyle(element, '').getPropertyValue(property)
+        } else if (isArray(property)) {
+          if (!element) return
+          var props = {}
+          var computedStyle = getComputedStyle(element, '')
+          $.each(property, function(_, prop){
+            props[prop] = (element.style[camelize(prop)] || computedStyle.getPropertyValue(prop))
+          })
+          return props
+        }
+      }
+
+      var css = ''
+      if (type(property) == 'string') {
+        if (!value && value !== 0)
+          this.each(function(){ this.style.removeProperty(dasherize(property)) })
+        else
+          css = dasherize(property) + ":" + maybeAddPx(property, value)
+      } else {
+        for (key in property)
+          if (!property[key] && property[key] !== 0)
+            this.each(function(){ this.style.removeProperty(dasherize(key)) })
+          else
+            css += dasherize(key) + ':' + maybeAddPx(key, property[key]) + ';'
+      }
+
+      return this.each(function(){ this.style.cssText += ';' + css })
+    },
+    index: function(element){
+      return element ? this.indexOf($(element)[0]) : this.parent().children().indexOf(this[0])
+    },
+    hasClass: function(name){
+      if (!name) return false
+      return emptyArray.some.call(this, function(el){
+        return this.test(className(el))
+      }, classRE(name))
+    },
+    addClass: function(name){
+      if (!name) return this
+      return this.each(function(idx){
+        if (!('className' in this)) return
+        classList = []
+        var cls = className(this), newName = funcArg(this, name, idx, cls)
+        newName.split(/\s+/g).forEach(function(klass){
+          if (!$(this).hasClass(klass)) classList.push(klass)
+        }, this)
+        classList.length && className(this, cls + (cls ? " " : "") + classList.join(" "))
+      })
+    },
+    removeClass: function(name){
+      return this.each(function(idx){
+        if (!('className' in this)) return
+        if (name === undefined) return className(this, '')
+        classList = className(this)
+        funcArg(this, name, idx, classList).split(/\s+/g).forEach(function(klass){
+          classList = classList.replace(classRE(klass), " ")
+        })
+        className(this, classList.trim())
+      })
+    },
+    toggleClass: function(name, when){
+      if (!name) return this
+      return this.each(function(idx){
+        var $this = $(this), names = funcArg(this, name, idx, className(this))
+        names.split(/\s+/g).forEach(function(klass){
+          (when === undefined ? !$this.hasClass(klass) : when) ?
+            $this.addClass(klass) : $this.removeClass(klass)
+        })
+      })
+    },
+    scrollTop: function(value){
+      if (!this.length) return
+      var hasScrollTop = 'scrollTop' in this[0]
+      if (value === undefined) return hasScrollTop ? this[0].scrollTop : this[0].pageYOffset
+      return this.each(hasScrollTop ?
+        function(){ this.scrollTop = value } :
+        function(){ this.scrollTo(this.scrollX, value) })
+    },
+    scrollLeft: function(value){
+      if (!this.length) return
+      var hasScrollLeft = 'scrollLeft' in this[0]
+      if (value === undefined) return hasScrollLeft ? this[0].scrollLeft : this[0].pageXOffset
+      return this.each(hasScrollLeft ?
+        function(){ this.scrollLeft = value } :
+        function(){ this.scrollTo(value, this.scrollY) })
+    },
+    position: function() {
+      if (!this.length) return
+
+      var elem = this[0],
+        // Get *real* offsetParent
+        offsetParent = this.offsetParent(),
+        // Get correct offsets
+        offset       = this.offset(),
+        parentOffset = rootNodeRE.test(offsetParent[0].nodeName) ? { top: 0, left: 0 } : offsetParent.offset()
+
+      // Subtract element margins
+      // note: when an element has margin: auto the offsetLeft and marginLeft
+      // are the same in Safari causing offset.left to incorrectly be 0
+      offset.top  -= parseFloat( $(elem).css('margin-top') ) || 0
+      offset.left -= parseFloat( $(elem).css('margin-left') ) || 0
+
+      // Add offsetParent borders
+      parentOffset.top  += parseFloat( $(offsetParent[0]).css('border-top-width') ) || 0
+      parentOffset.left += parseFloat( $(offsetParent[0]).css('border-left-width') ) || 0
+
+      // Subtract the two offsets
+      return {
+        top:  offset.top  - parentOffset.top,
+        left: offset.left - parentOffset.left
+      }
+    },
+    offsetParent: function() {
+      return this.map(function(){
+        var parent = this.offsetParent || document.body
+        while (parent && !rootNodeRE.test(parent.nodeName) && $(parent).css("position") == "static")
+          parent = parent.offsetParent
+        return parent
+      })
+    }
+  }
+
+  // for now
+  $.fn.detach = $.fn.remove
+
+  // Generate the `width` and `height` functions
+  ;['width', 'height'].forEach(function(dimension){
+    var dimensionProperty =
+      dimension.replace(/./, function(m){ return m[0].toUpperCase() })
+
+    $.fn[dimension] = function(value){
+      var offset, el = this[0]
+      if (value === undefined) return isWindow(el) ? el['inner' + dimensionProperty] :
+        isDocument(el) ? el.documentElement['scroll' + dimensionProperty] :
+        (offset = this.offset()) && offset[dimension]
+      else return this.each(function(idx){
+        el = $(this)
+        el.css(dimension, funcArg(this, value, idx, el[dimension]()))
+      })
+    }
+  })
+
+  function traverseNode(node, fun) {
+    fun(node)
+    for (var i = 0, len = node.childNodes.length; i < len; i++)
+      traverseNode(node.childNodes[i], fun)
+  }
+
+  // Generate the `after`, `prepend`, `before`, `append`,
+  // `insertAfter`, `insertBefore`, `appendTo`, and `prependTo` methods.
+  adjacencyOperators.forEach(function(operator, operatorIndex) {
+    var inside = operatorIndex % 2 //=> prepend, append
+
+    $.fn[operator] = function(){
+      // arguments can be nodes, arrays of nodes, Zepto objects and HTML strings
+      var argType, nodes = $.map(arguments, function(arg) {
+            var arr = []
+            argType = type(arg)
+            if (argType == "array") {
+              arg.forEach(function(el) {
+                if (el.nodeType !== undefined) return arr.push(el)
+                else if ($.zepto.isZ(el)) return arr = arr.concat(el.get())
+                arr = arr.concat(zepto.fragment(el))
+              })
+              return arr
+            }
+            return argType == "object" || arg == null ?
+              arg : zepto.fragment(arg)
+          }),
+          parent, copyByClone = this.length > 1
+      if (nodes.length < 1) return this
+
+      return this.each(function(_, target){
+        parent = inside ? target : target.parentNode
+
+        // convert all methods to a "before" operation
+        target = operatorIndex == 0 ? target.nextSibling :
+                 operatorIndex == 1 ? target.firstChild :
+                 operatorIndex == 2 ? target :
+                 null
+
+        var parentInDocument = $.contains(document.documentElement, parent)
+
+        nodes.forEach(function(node){
+          if (copyByClone) node = node.cloneNode(true)
+          else if (!parent) return $(node).remove()
+
+          parent.insertBefore(node, target)
+          if (parentInDocument) traverseNode(node, function(el){
+            if (el.nodeName != null && el.nodeName.toUpperCase() === 'SCRIPT' &&
+               (!el.type || el.type === 'text/javascript') && !el.src){
+              var target = el.ownerDocument ? el.ownerDocument.defaultView : window
+              target['eval'].call(target, el.innerHTML)
+            }
+          })
+        })
+      })
+    }
+
+    // after    => insertAfter
+    // prepend  => prependTo
+    // before   => insertBefore
+    // append   => appendTo
+    $.fn[inside ? operator+'To' : 'insert'+(operatorIndex ? 'Before' : 'After')] = function(html){
+      $(html)[operator](this)
+      return this
+    }
+  })
+
+  zepto.Z.prototype = Z.prototype = $.fn
+
+  // Export internal API functions in the `$.zepto` namespace
+  zepto.uniq = uniq
+  zepto.deserializeValue = deserializeValue
+  $.zepto = zepto
+
+  return $
+})();
+
+(function($){
+  var _zid = 1, undefined,
+      slice = Array.prototype.slice,
+      isFunction = $.isFunction,
+      isString = function(obj){ return typeof obj == 'string' },
+      handlers = {},
+      specialEvents={},
+      focusinSupported = 'onfocusin' in window,
+      focus = { focus: 'focusin', blur: 'focusout' },
+      hover = { mouseenter: 'mouseover', mouseleave: 'mouseout' }
+
+  specialEvents.click = specialEvents.mousedown = specialEvents.mouseup = specialEvents.mousemove = 'MouseEvents'
+
+  function zid(element) {
+    return element._zid || (element._zid = _zid++)
+  }
+  function findHandlers(element, event, fn, selector) {
+    event = parse(event)
+    if (event.ns) var matcher = matcherFor(event.ns)
+    return (handlers[zid(element)] || []).filter(function(handler) {
+      return handler
+        && (!event.e  || handler.e == event.e)
+        && (!event.ns || matcher.test(handler.ns))
+        && (!fn       || zid(handler.fn) === zid(fn))
+        && (!selector || handler.sel == selector)
+    })
+  }
+  function parse(event) {
+    var parts = ('' + event).split('.')
+    return {e: parts[0], ns: parts.slice(1).sort().join(' ')}
+  }
+  function matcherFor(ns) {
+    return new RegExp('(?:^| )' + ns.replace(' ', ' .* ?') + '(?: |$)')
+  }
+
+  function eventCapture(handler, captureSetting) {
+    return handler.del &&
+      (!focusinSupported && (handler.e in focus)) ||
+      !!captureSetting
+  }
+
+  function realEvent(type) {
+    return hover[type] || (focusinSupported && focus[type]) || type
+  }
+
+  function add(element, events, fn, data, selector, delegator, capture){
+    var id = zid(element), set = (handlers[id] || (handlers[id] = []))
+    events.split(/\s/).forEach(function(event){
+      if (event == 'ready') return $(document).ready(fn)
+      var handler   = parse(event)
+      handler.fn    = fn
+      handler.sel   = selector
+      // emulate mouseenter, mouseleave
+      if (handler.e in hover) fn = function(e){
+        var related = e.relatedTarget
+        if (!related || (related !== this && !$.contains(this, related)))
+          return handler.fn.apply(this, arguments)
+      }
+      handler.del   = delegator
+      var callback  = delegator || fn
+      handler.proxy = function(e){
+        e = compatible(e)
+        if (e.isImmediatePropagationStopped()) return
+        e.data = data
+        var result = callback.apply(element, e._args == undefined ? [e] : [e].concat(e._args))
+        if (result === false) e.preventDefault(), e.stopPropagation()
+        return result
+      }
+      handler.i = set.length
+      set.push(handler)
+      if ('addEventListener' in element)
+        element.addEventListener(realEvent(handler.e), handler.proxy, eventCapture(handler, capture))
+    })
+  }
+  function remove(element, events, fn, selector, capture){
+    var id = zid(element)
+    ;(events || '').split(/\s/).forEach(function(event){
+      findHandlers(element, event, fn, selector).forEach(function(handler){
+        delete handlers[id][handler.i]
+      if ('removeEventListener' in element)
+        element.removeEventListener(realEvent(handler.e), handler.proxy, eventCapture(handler, capture))
+      })
+    })
+  }
+
+  $.event = { add: add, remove: remove }
+
+  $.proxy = function(fn, context) {
+    var args = (2 in arguments) && slice.call(arguments, 2)
+    if (isFunction(fn)) {
+      var proxyFn = function(){ return fn.apply(context, args ? args.concat(slice.call(arguments)) : arguments) }
+      proxyFn._zid = zid(fn)
+      return proxyFn
+    } else if (isString(context)) {
+      if (args) {
+        args.unshift(fn[context], fn)
+        return $.proxy.apply(null, args)
+      } else {
+        return $.proxy(fn[context], fn)
+      }
+    } else {
+      throw new TypeError("expected function")
+    }
+  }
+
+  $.fn.bind = function(event, data, callback){
+    return this.on(event, data, callback)
+  }
+  $.fn.unbind = function(event, callback){
+    return this.off(event, callback)
+  }
+  $.fn.one = function(event, selector, data, callback){
+    return this.on(event, selector, data, callback, 1)
+  }
+
+  var returnTrue = function(){return true},
+      returnFalse = function(){return false},
+      ignoreProperties = /^([A-Z]|returnValue$|layer[XY]$|webkitMovement[XY]$)/,
+      eventMethods = {
+        preventDefault: 'isDefaultPrevented',
+        stopImmediatePropagation: 'isImmediatePropagationStopped',
+        stopPropagation: 'isPropagationStopped'
+      }
+
+  function compatible(event, source) {
+    if (source || !event.isDefaultPrevented) {
+      source || (source = event)
+
+      $.each(eventMethods, function(name, predicate) {
+        var sourceMethod = source[name]
+        event[name] = function(){
+          this[predicate] = returnTrue
+          return sourceMethod && sourceMethod.apply(source, arguments)
+        }
+        event[predicate] = returnFalse
+      })
+
+      event.timeStamp || (event.timeStamp = Date.now())
+
+      if (source.defaultPrevented !== undefined ? source.defaultPrevented :
+          'returnValue' in source ? source.returnValue === false :
+          source.getPreventDefault && source.getPreventDefault())
+        event.isDefaultPrevented = returnTrue
+    }
+    return event
+  }
+
+  function createProxy(event) {
+    var key, proxy = { originalEvent: event }
+    for (key in event)
+      if (!ignoreProperties.test(key) && event[key] !== undefined) proxy[key] = event[key]
+
+    return compatible(proxy, event)
+  }
+
+  $.fn.delegate = function(selector, event, callback){
+    return this.on(event, selector, callback)
+  }
+  $.fn.undelegate = function(selector, event, callback){
+    return this.off(event, selector, callback)
+  }
+
+  $.fn.live = function(event, callback){
+    $(document.body).delegate(this.selector, event, callback)
+    return this
+  }
+  $.fn.die = function(event, callback){
+    $(document.body).undelegate(this.selector, event, callback)
+    return this
+  }
+
+  $.fn.on = function(event, selector, data, callback, one){
+    var autoRemove, delegator, $this = this
+    if (event && !isString(event)) {
+      $.each(event, function(type, fn){
+        $this.on(type, selector, data, fn, one)
+      })
+      return $this
+    }
+
+    if (!isString(selector) && !isFunction(callback) && callback !== false)
+      callback = data, data = selector, selector = undefined
+    if (callback === undefined || data === false)
+      callback = data, data = undefined
+
+    if (callback === false) callback = returnFalse
+
+    return $this.each(function(_, element){
+      if (one) autoRemove = function(e){
+        remove(element, e.type, callback)
+        return callback.apply(this, arguments)
+      }
+
+      if (selector) delegator = function(e){
+        var evt, match = $(e.target).closest(selector, element).get(0)
+        if (match && match !== element) {
+          evt = $.extend(createProxy(e), {currentTarget: match, liveFired: element})
+          return (autoRemove || callback).apply(match, [evt].concat(slice.call(arguments, 1)))
+        }
+      }
+
+      add(element, event, callback, data, selector, delegator || autoRemove)
+    })
+  }
+  $.fn.off = function(event, selector, callback){
+    var $this = this
+    if (event && !isString(event)) {
+      $.each(event, function(type, fn){
+        $this.off(type, selector, fn)
+      })
+      return $this
+    }
+
+    if (!isString(selector) && !isFunction(callback) && callback !== false)
+      callback = selector, selector = undefined
+
+    if (callback === false) callback = returnFalse
+
+    return $this.each(function(){
+      remove(this, event, callback, selector)
+    })
+  }
+
+  $.fn.trigger = function(event, args){
+    event = (isString(event) || $.isPlainObject(event)) ? $.Event(event) : compatible(event)
+    event._args = args
+    return this.each(function(){
+      // handle focus(), blur() by calling them directly
+      if (event.type in focus && typeof this[event.type] == "function") this[event.type]()
+      // items in the collection might not be DOM elements
+      else if ('dispatchEvent' in this) this.dispatchEvent(event)
+      else $(this).triggerHandler(event, args)
+    })
+  }
+
+  // triggers event handlers on current element just as if an event occurred,
+  // doesn't trigger an actual event, doesn't bubble
+  $.fn.triggerHandler = function(event, args){
+    var e, result
+    this.each(function(i, element){
+      e = createProxy(isString(event) ? $.Event(event) : event)
+      e._args = args
+      e.target = element
+      $.each(findHandlers(element, event.type || event), function(i, handler){
+        result = handler.proxy(e)
+        if (e.isImmediatePropagationStopped()) return false
+      })
+    })
+    return result
+  }
+
+  // shortcut methods for `.bind(event, fn)` for each event type
+  ;('focusin focusout focus blur load resize scroll unload click dblclick '+
+  'mousedown mouseup mousemove mouseover mouseout mouseenter mouseleave '+
+  'change select keydown keypress keyup error').split(' ').forEach(function(event) {
+    $.fn[event] = function(callback) {
+      return (0 in arguments) ?
+        this.bind(event, callback) :
+        this.trigger(event)
+    }
+  })
+
+  $.Event = function(type, props) {
+    if (!isString(type)) props = type, type = props.type
+    var event = document.createEvent(specialEvents[type] || 'Events'), bubbles = true
+    if (props) for (var name in props) (name == 'bubbles') ? (bubbles = !!props[name]) : (event[name] = props[name])
+    event.initEvent(type, bubbles, true)
+    return compatible(event)
+  }
+
+})(Zepto);
+
+
+(function($){
+  $.fn.serializeArray = function() {
+    var name, type, result = [],
+      add = function(value) {
+        if (value.forEach) return value.forEach(add)
+        result.push({ name: name, value: value })
+      }
+    if (this[0]) $.each(this[0].elements, function(_, field){
+      type = field.type, name = field.name
+      if (name && field.nodeName.toLowerCase() != 'fieldset' &&
+        !field.disabled && type != 'submit' && type != 'reset' && type != 'button' && type != 'file' &&
+        ((type != 'radio' && type != 'checkbox') || field.checked))
+          add($(field).val())
+    })
+    return result
+  }
+
+  $.fn.serialize = function(){
+    var result = []
+    this.serializeArray().forEach(function(elm){
+      result.push(encodeURIComponent(elm.name) + '=' + encodeURIComponent(elm.value))
+    })
+    return result.join('&')
+  }
+
+  $.fn.submit = function(callback) {
+    if (0 in arguments) this.bind('submit', callback)
+    else if (this.length) {
+      var event = $.Event('submit')
+      this.eq(0).trigger(event)
+      if (!event.isDefaultPrevented()) this.get(0).submit()
+    }
+    return this
+  }
+
+})(Zepto);
+
+(function(){
+  // getComputedStyle shouldn't freak out when called
+  // without a valid element as argument
+  try {
+    getComputedStyle(undefined)
+  } catch(e) {
+    var nativeGetComputedStyle = getComputedStyle
+    window.getComputedStyle = function(element, pseudoElement){
+      try {
+        return nativeGetComputedStyle(element, pseudoElement)
+      } catch(e) {
+        return null
+      }
+    }
+  }
+})();
+
+window.Zepto = Zepto;
+
+
+
+// copy Zepto to our current scope as $
+var $ = window.Zepto;
+
+//     Zepto.js
+//     (c) 2010-2016 Thomas Fuchs
+//     Zepto.js may be freely distributed under the MIT license.
+
+;(function($, undefined){
+  var prefix = '', eventPrefix,
+      vendors = { Webkit: 'webkit', Moz: '', O: 'o' },
+      testEl = document.createElement('div'),
+      supportedTransforms = /^((translate|rotate|scale)(X|Y|Z|3d)?|matrix(3d)?|perspective|skew(X|Y)?)$/i,
+      transform,
+      transitionProperty, transitionDuration, transitionTiming, transitionDelay,
+      animationName, animationDuration, animationTiming, animationDelay,
+      cssReset = {}
+
+  function dasherize(str) { return str.replace(/([A-Z])/g, '-$1').toLowerCase() }
+  function normalizeEvent(name) { return eventPrefix ? eventPrefix + name : name.toLowerCase() }
+
+  if (testEl.style.transform === undefined) $.each(vendors, function(vendor, event){
+    if (testEl.style[vendor + 'TransitionProperty'] !== undefined) {
+      prefix = '-' + vendor.toLowerCase() + '-'
+      eventPrefix = event
+      return false
+    }
+  })
+
+  transform = prefix + 'transform'
+  cssReset[transitionProperty = prefix + 'transition-property'] =
+      cssReset[transitionDuration = prefix + 'transition-duration'] =
+          cssReset[transitionDelay    = prefix + 'transition-delay'] =
+              cssReset[transitionTiming   = prefix + 'transition-timing-function'] =
+                  cssReset[animationName      = prefix + 'animation-name'] =
+                      cssReset[animationDuration  = prefix + 'animation-duration'] =
+                          cssReset[animationDelay     = prefix + 'animation-delay'] =
+                              cssReset[animationTiming    = prefix + 'animation-timing-function'] = ''
+
+  $.fx = {
+    off: (eventPrefix === undefined && testEl.style.transitionProperty === undefined),
+    speeds: { _default: 400, fast: 200, slow: 600 },
+    cssPrefix: prefix,
+    transitionEnd: normalizeEvent('TransitionEnd'),
+    animationEnd: normalizeEvent('AnimationEnd')
+  }
+
+  $.fn.animate = function(properties, duration, ease, callback, delay){
+    if ($.isFunction(duration))
+      callback = duration, ease = undefined, duration = undefined
+    if ($.isFunction(ease))
+      callback = ease, ease = undefined
+    if ($.isPlainObject(duration))
+      ease = duration.easing, callback = duration.complete, delay = duration.delay, duration = duration.duration
+    if (duration) duration = (typeof duration == 'number' ? duration :
+            ($.fx.speeds[duration] || $.fx.speeds._default)) / 1000
+    if (delay) delay = parseFloat(delay) / 1000
+    return this.anim(properties, duration, ease, callback, delay)
+  }
+
+  $.fn.anim = function(properties, duration, ease, callback, delay){
+    var key, cssValues = {}, cssProperties, transforms = '',
+        that = this, wrappedCallback, endEvent = $.fx.transitionEnd,
+        fired = false
+
+    if (duration === undefined) duration = $.fx.speeds._default / 1000
+    if (delay === undefined) delay = 0
+    if ($.fx.off) duration = 0
+
+    if (typeof properties == 'string') {
+      // keyframe animation
+      cssValues[animationName] = properties
+      cssValues[animationDuration] = duration + 's'
+      cssValues[animationDelay] = delay + 's'
+      cssValues[animationTiming] = (ease || 'linear')
+      endEvent = $.fx.animationEnd
+    } else {
+      cssProperties = []
+      // CSS transitions
+      for (key in properties)
+        if (supportedTransforms.test(key)) transforms += key + '(' + properties[key] + ') '
+        else cssValues[key] = properties[key], cssProperties.push(dasherize(key))
+
+      if (transforms) cssValues[transform] = transforms, cssProperties.push(transform)
+      if (duration > 0 && typeof properties === 'object') {
+        cssValues[transitionProperty] = cssProperties.join(', ')
+        cssValues[transitionDuration] = duration + 's'
+        cssValues[transitionDelay] = delay + 's'
+        cssValues[transitionTiming] = (ease || 'linear')
+      }
+    }
+
+    wrappedCallback = function(event){
+      if (typeof event !== 'undefined') {
+        if (event.target !== event.currentTarget) return // makes sure the event didn't bubble from "below"
+        $(event.target).unbind(endEvent, wrappedCallback)
+      } else
+        $(this).unbind(endEvent, wrappedCallback) // triggered by setTimeout
+
+      fired = true
+      $(this).css(cssReset)
+      callback && callback.call(this)
+    }
+    if (duration > 0){
+      this.bind(endEvent, wrappedCallback)
+      // transitionEnd is not always firing on older Android phones
+      // so make sure it gets fired
+      setTimeout(function(){
+        if (fired) return
+        wrappedCallback.call(that)
+      }, ((duration + delay) * 1000) + 25)
+    }
+
+    // trigger page reflow so new elements can animate
+    this.size() && this.get(0).clientLeft
+
+    this.css(cssValues)
+
+    if (duration <= 0) setTimeout(function() {
+      that.each(function(){ wrappedCallback.call(this) })
+    }, 0)
+
+    return this
+  }
+
+  testEl = null
+})(Zepto);
+
+
+//     Zepto.js
+//     (c) 2010-2016 Thomas Fuchs
+//     Zepto.js may be freely distributed under the MIT license.
+
+;(function($, undefined){
+
+  $.makeArray = function(array, results) {
+    array = Array.prototype.slice.call( array );
+    if ( results ) {
+      results.push.apply( results, array );
+      return results;
+    }
+    return array;
+  };
+
+
+  $.cache = {};
+  $.noData = {
+    "embed": true,
+    "object": "clsid:D27CDB6E-AE6D-11cf-96B8-444553540000",
+    "applet": true
+  };
+  $.acceptData = function (elem) {
+    if (elem.nodeName) {
+      var match = $.noData[elem.nodeName.toLowerCase()];
+
+      if (match) {
+        return ! (match === true || elem.getAttribute("classid") !== match);
+      }
+    }
+
+    return true;
+  };
+  $.data = function (elem, name, data, pvt
+                         /* Internal Use Only */
+  ) {
+    if (!$.acceptData(elem)) {
+      return;
+    }
+
+    var privateCache, thisCache, ret, internalKey = $.expando,
+        getByName = typeof name === "string",
+
+        // We have to handle DOM nodes and JS objects differently because IE6-7
+        // can't GC object references properly across the DOM-JS boundary
+        isNode = elem.nodeType,
+
+        // Only DOM nodes need the global $ cache; JS object data is
+        // attached directly to the object so GC can occur automatically
+        cache = isNode ? $.cache : elem,
+
+        // Only defining an ID for JS objects if its cache already exists allows
+        // the code to shortcut on the same path as a DOM node with no cache
+        id = isNode ? elem[internalKey] : elem[internalKey] && internalKey,
+        isEvents = name === "events";
+
+    // Avoid doing any more work than we need to when trying to get data on an
+    // object that has no data at all
+    if ((!id || !cache[id] || (!isEvents && !pvt && !cache[id].data)) && getByName && data === undefined) {
+      return;
+    }
+
+    if (!id) {
+      // Only DOM nodes need a new unique ID for each element since their data
+      // ends up in the global cache
+      if (isNode) {
+        elem[internalKey] = id = ++$.uuid;
+      } else {
+        id = internalKey;
+      }
+    }
+
+    if (!cache[id]) {
+      cache[id] = {};
+
+      // Avoids exposing $ metadata on plain JS objects when the object
+      // is serialized using JSON.stringify
+      if (!isNode) {
+        cache[id].toJSON = $.noop;
+      }
+    }
+
+    // An object can be passed to $.data instead of a key/value pair; this gets
+    // shallow copied over onto the existing cache
+    if (typeof name === "object" || typeof name === "function") {
+      if (pvt) {
+        cache[id] = $.extend(cache[id], name);
+      } else {
+        cache[id].data = $.extend(cache[id].data, name);
+      }
+    }
+
+    privateCache = thisCache = cache[id];
+
+    // $ data() is stored in a separate object inside the object's internal data
+    // cache in order to avoid key collisions between internal data and user-defined
+    // data.
+    if (!pvt) {
+      if (!thisCache.data) {
+        thisCache.data = {};
+      }
+
+      thisCache = thisCache.data;
+    }
+
+    if (data !== undefined) {
+      thisCache[$.camelCase(name)] = data;
+    }
+
+    // Users should not attempt to inspect the internal events object using $.data,
+    // it is undocumented and subject to change. But does anyone listen? No.
+    if (isEvents && !thisCache[name]) {
+      return privateCache.events;    }
+
+    // Check for both converted-to-camel and non-converted data property names
+    // If a data property was specified
+    if (getByName) {
+      // First Try to find as-is property data
+      ret = thisCache[name];
+      // Test for null|undefined property data
+      if (ret == null) {
+        // Try to find the camelCased property
+        ret = thisCache[$.camelCase(name)];
+      }
+    } else {
+      ret = thisCache;
+    }
+
+    return ret;
+  };
+})(Zepto);
+//     Zepto.js
+//     (c) 2010-2016 Thomas Fuchs
+//     Zepto.js may be freely distributed under the MIT license.
+
+;(function($, undefined){
+  var document = window.document, docElem = document.documentElement,
+      origShow = $.fn.show, origHide = $.fn.hide, origToggle = $.fn.toggle
+
+  function anim(el, speed, opacity, scale, callback) {
+    if (typeof speed == 'function' && !callback) callback = speed, speed = undefined
+    var props = { opacity: opacity }
+    if (scale) {
+      props.scale = scale
+      el.css($.fx.cssPrefix + 'transform-origin', '0 0')
+    }
+    return el.animate(props, speed, null, callback)
+  }
+
+  function hide(el, speed, scale, callback) {
+    return anim(el, speed, 0, scale, function(){
+      origHide.call($(this))
+      callback && callback.call(this)
+    })
+  }
+
+  $.fn.show = function(speed, callback) {
+    origShow.call(this)
+    if (speed === undefined) speed = 0
+    else this.css('opacity', 0)
+    return anim(this, speed, 1, '1,1', callback)
+  }
+
+  $.fn.hide = function(speed, callback) {
+    if (speed === undefined) return origHide.call(this)
+    else return hide(this, speed, '0,0', callback)
+  }
+
+  $.fn.toggle = function(speed, callback) {
+    if (speed === undefined || typeof speed == 'boolean')
+      return origToggle.call(this, speed)
+    else return this.each(function(){
+      var el = $(this)
+      el[el.css('display') == 'none' ? 'show' : 'hide'](speed, callback)
+    })
+  }
+
+  $.fn.fadeTo = function(speed, opacity, callback) {
+    return anim(this, speed, opacity, null, callback)
+  }
+
+  $.fn.fadeIn = function(speed, callback) {
+    var target = this.css('opacity')
+    if (target > 0) this.css('opacity', 0)
+    else target = 1
+    return origShow.call(this).fadeTo(speed, target, callback)
+  }
+
+  $.fn.fadeOut = function(speed, callback) {
+    return hide(this, speed, null, callback)
+  }
+
+  $.fn.fadeToggle = function(speed, callback) {
+    return this.each(function(){
+      var el = $(this)
+      el[
+          (el.css('opacity') == 0 || el.css('display') == 'none') ? 'fadeIn' : 'fadeOut'
+          ](speed, callback)
+    })
+  }
+
+})(Zepto);
 
 var arrayFill = function (array, value, start, end) {
 
@@ -520,195 +1721,31 @@ if (!Array.prototype.fill) {
 
     global.nanoajax = nanoajax;
 })(this);
+// Debouncing function from John Hann
+// http://unscriptable.com/index.php/2009/03/20/debouncing-javascript-methods/
+// Copy pasted from http://paulirish.com/2009/throttled-smartresize-jquery-event-handler/
 
-// Simple JavaScript Templating
-// John Resig - http://ejohn.org/ - MIT Licensed
+(function ($, sr) {
+    var debounce = function (func, threshold, execAsap) {
+        var timeout;
+        return function debounced() {
+            var obj = this,
+                args = arguments;
 
-(function(){
-    var _tmplCache = {};
-
-    var helpers = {
-        networkIcon:function () {
-            return this.data.network_name.toLowerCase();
-        },
-        networkName:function () {
-            return this.data.network_name.toLowerCase();
-        },
-        userUrl:function () {
-            if (this.data.user_url && this.data.user_url != '') {
-                return this.data.user_url;
+            function delayed() {
+                if (!execAsap) func.apply(obj, args);
+                timeout = null;
             }
-            if (this.data.originator_user_url && this.data.originator_user_url != '') {
-                return this.data.originator_user_url;
-            }
-            if (this.data.userUrl && this.data.userUrl != '') {
-                return this.data.userUrl;
-            }
+            if (timeout) clearTimeout(timeout);
+            else if (execAsap) func.apply(obj, args);
 
-            var netId = this.data.network_id+'';
-            if (netId === '1') {
-                return 'http://twitter.com/' + this.data.user_screen_name;
-            } else if (netId === '2') {
-                return 'http://instagram.com/'+this.data.user_screen_name;
-            } else if (netId === '3') {
-                return 'http://facebook.com/'+this.data.user_screen_name;
-            }
-
-            return '#';
-
-        },
-        parseText:function(s) {
-            if (this.data.is_html) {
-                return s;
-            } else {
-                if (this.data.network_name === 'Twitter') {
-                    s = Curator.StringUtils.linksToHref(s);
-                    s = Curator.StringUtils.twitterLinks(s);
-                } else if (this.data.network_name === 'Instagram') {
-                    s = Curator.StringUtils.linksToHref(s);
-                    s = Curator.StringUtils.instagramLinks(s);
-                } else if (this.data.network_name === 'Facebook') {
-                    s = Curator.StringUtils.linksToHref(s);
-                    s = Curator.StringUtils.facebookLinks(s);
-                } else {
-                    s = Curator.StringUtils.linksToHref(s);
-                }
-
-                return helpers.nl2br(s);
-            }
-        },
-        nl2br:function(s) {
-            s = s.trim();
-            s = s.replace(/(?:\r\n|\r|\n)/g, '<br />');
-
-            return s;
-        },
-        contentImageClasses : function () {
-            return this.data.image ? 'crt-post-has-image' : 'crt-post-content-image-hidden';
-        },
-        contentTextClasses : function () {
-            return this.data.text ? 'crt-post-has-text' : 'crt-post-content-text-hidden';
-
-        },
-        fuzzyDate : function (dateString)
-        {
-            var date = Date.parse(dateString+' UTC');
-            var delta = Math.round((new Date () - date) / 1000);
-
-            var minute = 60,
-                hour = minute * 60,
-                day = hour * 24,
-                week = day * 7,
-                month = day * 30;
-
-            var fuzzy;
-
-            if (delta < 30) {
-                fuzzy = 'Just now';
-            } else if (delta < minute) {
-                fuzzy = delta + ' seconds ago';
-            } else if (delta < 2 * minute) {
-                fuzzy = 'a minute ago.'
-            } else if (delta < hour) {
-                fuzzy = Math.floor(delta / minute) + ' minutes ago';
-            } else if (Math.floor(delta / hour) == 1) {
-                fuzzy = '1 hour ago.'
-            } else if (delta < day) {
-                fuzzy = Math.floor(delta / hour) + ' hours ago';
-            } else if (delta < day * 2) {
-                fuzzy = 'Yesterday';
-            } else if (delta < week) {
-                fuzzy = 'This week';
-            } else if (delta < week * 2) {
-                fuzzy = 'Last week';
-            } else if (delta < month) {
-                fuzzy = 'This month';
-            } else {
-                fuzzy = date;
-            }
-
-            return fuzzy;
-        },
-        prettyDate : function(time) {
-            var date = Curator.DateUtils.dateFromString(time);
-
-            var diff = (((new Date()).getTime() - date.getTime()) / 1000);
-            var day_diff = Math.floor(diff / 86400);
-            var year = date.getFullYear(),
-                month = date.getMonth()+1,
-                day = date.getDate();
-
-            if (isNaN(day_diff) || day_diff < 0 || day_diff >= 31)
-                return (
-                    year.toString()+'-'
-                    +((month<10) ? '0'+month.toString() : month.toString())+'-'
-                    +((day<10) ? '0'+day.toString() : day.toString())
-                );
-
-            var r =
-                (
-                    (
-                        day_diff == 0 &&
-                        (
-                            (diff < 60 && "just now")
-                            || (diff < 120 && "1 minute ago")
-                            || (diff < 3600 && Math.floor(diff / 60) + " minutes ago")
-                            || (diff < 7200 && "1 hour ago")
-                            || (diff < 86400 && Math.floor(diff / 3600) + " hours ago")
-                        )
-                    )
-                    || (day_diff == 1 && "Yesterday")
-                    || (day_diff < 7 && day_diff + " days ago")
-                    || (day_diff < 31 && Math.ceil(day_diff / 7) + " weeks ago")
-                );
-            return r;
-        }
+            timeout = setTimeout(delayed, threshold || 150);
+        };
     };
-
-    root.parseTemplate = function(str, data) {
-        /// <summary>
-        /// Client side template parser that uses &lt;#= #&gt; and &lt;# code #&gt; expressions.
-        /// and # # code blocks for template expansion.
-        /// NOTE: chokes on single quotes in the document in some situations
-        ///       use &amp;rsquo; for literals in text and avoid any single quote
-        ///       attribute delimiters.
-        /// </summary>
-        /// <param name="str" type="string">The text of the template to expand</param>
-        /// <param name="data" type="var">
-        /// Any data that is to be merged. Pass an object and
-        /// that object's properties are visible as variables.
-        /// </param>
-        /// <returns type="string" />
-        var err = "";
-        try {
-            var func = _tmplCache[str];
-            if (!func) {
-                var strComp =
-                    str.replace(/[\r\t\n]/g, " ")
-                        .replace(/'(?=[^%]*%>)/g, "\t")
-                        .split("'").join("\\'")
-                        .split("\t").join("'")
-                        .replace(/<%=(.+?)%>/g, "',$1,'")
-                        .split("<%").join("');")
-                        .split("%>").join("p.push('");
-
-                // note - don't change the 'var' in the string to 'let'!!!
-                var strFunc =
-                    "var p=[],print=function(){p.push.apply(p,arguments);};" +
-                        "with(obj){p.push('" + strComp + "');}return p.join('');";
-
-                func = new Function("obj", strFunc);  // jshint ignore:line
-                _tmplCache[str] = func;
-            }
-            helpers.data = data;
-            return func.call(helpers, data);
-        } catch (e) {
-            window.console.log ('Template parse error: ' +e.message);
-            err = e.message;
-        }
-        return " # ERROR: " + err + " # ";
+    $.fn[sr] = function (fn) {
+        return fn ? this.bind('resize', debounce(fn)) : this.trigger(sr);
     };
-})();
+})($, 'smartresize');
 
 // Test $ exists
 
@@ -752,27 +1789,6 @@ var Curator = {
         }
     },
 
-    loadCSS: function (config) {
-        try {
-            var sheet = Curator.createSheet(config);
-
-            var headerBgs = '.crt-post .crt-post-header, .crt-post .crt-post-header .social-icon';
-            var headerTexts = '.crt-post .crt-post-header, .crt-post .crt-post-share, .crt-post .crt-post-header .crt-post-name a, .crt-post .crt-post-share a, .crt-post .crt-post-header .social-icon i';
-            var bodyBgs = '.crt-post';
-            var bodyTexts = '.crt-post .crt-post-content-text';
-
-            // add new rules
-            Curator.addCSSRule(sheet, headerBgs, 'background-color:' + config.colours.headerBg);
-            Curator.addCSSRule(sheet, headerTexts, 'color:' + config.colours.headerText);
-            Curator.addCSSRule(sheet, bodyBgs, 'background-color:' + config.colours.bodyBg);
-            Curator.addCSSRule(sheet, bodyTexts, 'color:' + config.colours.bodyText);
-        }
-        catch (err) {
-            console.log('CURATOR UNABLE TO LOAD CSS');
-            console.log(err.message);
-        }
-    },
-
     addCSSRule: function (sheet, selector, rules, index) {
         if ('insertRule' in sheet) {
             sheet.insertRule(selector + '{' + rules + '}', 0);
@@ -790,11 +1806,7 @@ var Curator = {
         return style.sheet;
     },
 
-    loadWidget: function (config, template) {
-        if (template) {
-            Curator.Templates.postTemplate = template;
-        }
-
+    loadWidget: function (config) {
         var ConstructorClass = window.Curator[config.type];
         window.curatorWidget = new ConstructorClass(config);
     },
@@ -807,10 +1819,11 @@ var Curator = {
             feedId:'',
             postsPerPage:12,
             maxPosts:0,
-            debug: false,
-            postTemplate:'#post-template',
-            showPopupOnClick:true,
+            templatePost:'v2-post',
+            templatePopup:'v1-popup',
+            templatePopupWrapper:'v1-popup-wrapper',
             onPostsLoaded: function () {
+
             },
             filter: {
                 showNetworks: false,
@@ -844,6 +1857,9 @@ Curator.ajax = function (url, params, success, fail) {
     if (pp) {
         url = url.substr(pp+3);
     }
+
+    // if not https: or http: (eg file:) default to https:
+    p = p != 'https:' && p != 'http:' ? 'https:' : p;
     url = p+'//'+url;
 
     if (params) {
@@ -969,490 +1985,6 @@ EventBus.prototype.destroy = function destroy () {
 
 Curator.EventBus = new EventBus();
 
-(function($) {
-	// Default styling
-
-	var defaults = {
-		circular: false,
-		speed: 5000,
-		duration: 700,
-		minWidth: 250,
-		panesVisible: null,
-		moveAmount: 0,
-		autoPlay: false,
-		useCss : true
-	};
-
-	if ($.zepto) {
-		defaults.easing = 'ease-in-out';
-	}
-	// console.log (defaults);
-
-	var css = {
-		viewport: {
-			'width': '100%', // viewport needs to be fluid
-			// 'overflow': 'hidden',
-			'position': 'relative'
-		},
-
-		pane_stage: {
-			'width': '100%', // viewport needs to be fluid
-			'overflow': 'hidden',
-			'position': 'relative',
-            'height':0
-		},
-
-		pane_slider: {
-			'width': '0%', // will be set to (number of panes * 100)
-			'list-style': 'none',
-			'position': 'relative',
-			'overflow': 'hidden',
-			'padding': '0',
-			'left':'0'
-		},
-
-		pane: {
-			'width': '0%', // will be set to (100 / number of images)
-			'position': 'relative',
-			'float': 'left'
-		}
-	};
-
-	var Carousel = function Carousel (container, options) {
-			var this$1 = this;
-
-			Curator.log('Carousel->construct');
-
-        this.current_position=0;
-        this.animating=false;
-        this.timeout=null;
-        this.FAKE_NUM=0;
-        this.PANES_VISIBLE=0;
-
-			this.options = $.extend([], defaults, options);
-
-			this.$viewport = $(container); // <div> slider, known as $viewport
-
-        this.$panes = this.$viewport.children();
-        this.$panes.detach();
-
-			this.$pane_stage = $('<div class="ctr-carousel-stage"></div>').appendTo(this.$viewport);
-			this.$pane_slider = $('<div class="ctr-carousel-slider"></div>').appendTo(this.$pane_stage);
-
-			// this.$pane_slider.append(this.$panes);
-
-			this.$viewport.css(css.viewport); // set css on viewport
-			this.$pane_slider.css( css.pane_slider ); // set css on pane slider
-			this.$pane_stage.css( css.pane_stage ); // set css on pane slider
-
-        this.addControls();
-        this.update ();
-
-			$(window).smartresize(function () {
-				this$1.resize();
-				this$1.move (this$1.current_position, true);
-
-				// reset animation timer
-				if (this$1.options.autoPlay) {
-					this$1.animate();
-				}
-			})
-		};
-
-		Carousel.prototype.update = function update () {
-			this.$panes = this.$pane_slider.children(); // <li> list items, known as $panes
-			this.NUM_PANES = this.options.circular ? (this.$panes.length + 1) : this.$panes.length;
-
-			if (this.NUM_PANES > 0) {
-				this.resize();
-				this.move (this.current_position, true);
-
-				if (!this.animating) {
-					if (this.options.autoPlay) {
-						this.animate();
-					}
-				}
-			}
-		};
-
-		Carousel.prototype.add = function add ($els) {
-			var $panes = [];
-        //
-        // $.each($els,(i, $pane)=> {
-        // let p = $pane.wrapAll('<div class="crt-carousel-col"></div>').parent();
-        // $panes.push(p)
-        // });
-
-			this.$pane_slider.append($els);
-			this.$panes = this.$pane_slider.children();
-		};
-
-		Carousel.prototype.resize = function resize () {
-			var this$1 = this;
-
-			var PANE_WRAPPER_WIDTH = this.options.infinite ? ((this.NUM_PANES+1) * 100) + '%' : (this.NUM_PANES * 100) + '%'; // % width of slider (total panes * 100)
-
-			this.$pane_slider.css({width: PANE_WRAPPER_WIDTH}); // set css on pane slider
-
-			this.VIEWPORT_WIDTH = this.$viewport.width();
-
-			if (this.options.panesVisible) {
-				// TODO - change to check if it's a function or a number
-				this.PANES_VISIBLE = this.options.panesVisible();
-				this.PANE_WIDTH = (this.VIEWPORT_WIDTH / this.PANES_VISIBLE);
-			} else {
-				this.PANES_VISIBLE = this.VIEWPORT_WIDTH < this.options.minWidth ? 1 : Math.floor(this.VIEWPORT_WIDTH / this.options.minWidth);
-				this.PANE_WIDTH = (this.VIEWPORT_WIDTH / this.PANES_VISIBLE);
-			}
-
-			if (this.options.infinite) {
-
-				this.$panes.filter('.crt-clone').remove();
-
-				for(var i = this.NUM_PANES-1; i > this.NUM_PANES - 1 - this.PANES_VISIBLE; i--)
-				{
-					// console.log(i);
-					var first = this$1.$panes.eq(i).clone();
-					first.addClass('crt-clone');
-					first.css('opacity','1');
-					// Should probably move this out to an event
-					first.find('.crt-post-image').css({opacity:1});
-					this$1.$pane_slider.prepend(first);
-					this$1.FAKE_NUM = this$1.PANES_VISIBLE;
-				}
-				this.$panes = this.$pane_slider.children();
-
-			}
-
-			this.$panes.each(function (index, pane) {
-				$(pane).css( $.extend(css.pane, {width: this$1.PANE_WIDTH+'px'}) );
-			});
-		};
-
-		Carousel.prototype.destroy = function destroy () {
-
-		};
-
-		Carousel.prototype.animate = function animate () {
-			var this$1 = this;
-
-			this.animating = true;
-			clearTimeout(this.timeout);
-			this.timeout = setTimeout(function () {
-				this$1.next();
-			}, this.options.speed);
-		};
-
-		Carousel.prototype.next = function next () {
-			var move = this.options.moveAmount ? this.options.moveAmount : this.PANES_VISIBLE ;
-			this.move(this.current_position + move, false);
-		};
-
-		Carousel.prototype.prev = function prev () {
-			var move = this.options.moveAmount ? this.options.moveAmount : this.PANES_VISIBLE ;
-			this.move(this.current_position - move, false);
-		};
-
-		Carousel.prototype.move = function move (i, noAnimate) {
-			var this$1 = this;
-
-			// console.log(i);
-
-			this.current_position = i;
-
-			var maxPos = this.NUM_PANES - this.PANES_VISIBLE;
-
-			// if (this.options.infinite)
-			// {
-			// 	let mod = this.NUM_PANES % this.PANES_VISIBLE;
-			// }
-
-			if (this.current_position < 0) {
-				this.current_position = 0;
-			} else if (this.current_position > maxPos) {
-				this.current_position = maxPos;
-			}
-
-			var curIncFake = (this.FAKE_NUM + this.current_position);
-			var left = curIncFake * this.PANE_WIDTH;
-			// console.log('move');
-			// console.log(curIncFake);
-			var panesInView = this.PANES_VISIBLE;
-			var max = this.options.infinite ? (this.PANE_WIDTH * this.NUM_PANES) : (this.PANE_WIDTH * this.NUM_PANES) - this.VIEWPORT_WIDTH;
-
-
-			this.currentLeft = left;
-
-			//console.log(left+":"+max);
-
-			if (left < 0) {
-				this.currentLeft = 0;
-			} else if (left > max) {
-				this.currentLeft = max;
-			} else {
-				this.currentLeft = left;
-			}
-
-			if (noAnimate) {
-				this.$pane_slider.css(
-					{
-						left: ((0 - this.currentLeft) + 'px')
-					});
-            this.moveComplete();
-			} else {
-				var options = {
-					duration: this.options.duration,
-					complete: function () {
-						this$1.moveComplete();
-					}
-				};
-				if (this.options.easing) {
-					options.easing = this.options.easing;
-				}
-				this.$pane_slider.animate(
-					{
-						left: ((0 - this.currentLeft) + 'px')
-					},
-					options
-				);
-			}
-		};
-
-		Carousel.prototype.moveComplete = function moveComplete () {
-			var this$1 = this;
-
-			// console.log ('moveComplete');
-			// console.log (this.current_position);
-			// console.log (this.NUM_PANES - this.PANES_VISIBLE);
-			if (this.options.infinite && (this.current_position >= (this.NUM_PANES - this.PANES_VISIBLE))) {
-				// console.log('IIIII');
-				// infinite and we're off the end!
-				// re-e-wind, the crowd says 'bo selecta!'
-				this.$pane_slider.css({left:0});
-				this.current_position = 0 - this.PANES_VISIBLE;
-				this.currentLeft = 0;
-			}
-
-			setTimeout(function () {
-            var paneMaxHieght = 0;
-            for (var i=this$1.current_position;i<this$1.current_position + this$1.PANES_VISIBLE;i++)
-            {
-                	var p = $(this$1.$panes[i]).children('.crt-post');
-                var h = p.height();
-                if (h > paneMaxHieght) {
-                    paneMaxHieght = h;
-                }
-            }
-            	this$1.$pane_stage.animate({height:paneMaxHieght},300);
-        }, 50);
-
-			this.$viewport.trigger('curatorCarousel:changed', [this, this.current_position]);
-
-			if (this.options.autoPlay) {
-				this.animate();
-			}
-		};
-
-		Carousel.prototype.addControls = function addControls () {
-			this.$viewport.append('<button type="button" data-role="none" class="crt-panel-prev crt-panel-arrow" aria-label="Previous" role="button" aria-disabled="false">Previous</button>');
-			this.$viewport.append('<button type="button" data-role="none" class="crt-panel-next crt-panel-arrow" aria-label="Next" role="button" aria-disabled="false">Next</button>');
-
-			this.$viewport.on('click','.crt-panel-prev', this.prev.bind(this));
-			this.$viewport.on('click','.crt-panel-next', this.next.bind(this));
-		};
-
-		Carousel.prototype.method = function method () {
-			var m = arguments[0];
-			// let args = (arguments.length === 1 ? [arguments[0]] : Array.apply(null, arguments));
-			if (m == 'update') {
-				this.update();
-			} else if (m == 'add') {
-				this.add(arguments[1]);
-			} else if (m == 'destroy') {
-				this.destroy();
-			} else {
-
-			}
-		};
-
-	var carousels = {};
-	function rand () {
-		return Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5);
-	}
-
-	$.extend($.fn, { 
-		curatorCarousel: function (options) {
-			var args = (arguments.length === 1 ? [arguments[0]] : Array.apply(null, arguments));
-
-			$.each(this, function(index, item) {
-				var id = $(item).data('carousel');
-
-				if (carousels[id]) {
-					carousels[id].method.apply(carousels[id], args);
-				} else {
-					id = rand();
-					carousels[id] = new Carousel(item, options);
-					$(item).data('carousel', id);
-				}
-			});
-
-			return this;
-		}
-	});
-
-	window.CCarousel = Carousel;
-})($);
-
-
-
-var Client = (function (EventBus) {
-    function Client () {
-        Curator.log('Client->construct');
-
-        EventBus.call (this);
-
-        this.id = Curator.Utils.uId ();
-        Curator.log('id='+this.id);
-    }
-
-    if ( EventBus ) Client.__proto__ = EventBus;
-    Client.prototype = Object.create( EventBus && EventBus.prototype );
-    Client.prototype.constructor = Client;
-
-    Client.prototype.setOptions = function setOptions (options, defaults) {
-
-        this.options = $.extend(true,{}, defaults, options);
-
-        if (options.debug) {
-            Curator.debug = true;
-        }
-
-        // Curator.log(this.options);
-
-        return true;
-    };
-
-    Client.prototype.init = function init () {
-
-        if (!Curator.checkContainer(this.options.container)) {
-            return false;
-        }
-
-        this.$container = $(this.options.container);
-
-        this.createFeed();
-        this.createFilter();
-        this.createPopupManager();
-
-        return true;
-    };
-
-    Client.prototype.createFeed = function createFeed () {
-        var this$1 = this;
-
-        this.feed = new Curator.Feed (this);
-        this.feed.on('postsLoaded', function (event) {
-            this$1.onPostsLoaded(event.target);
-        });
-        this.feed.on('postsFailed', function (event) {
-            this$1.onPostsFail(event.target);
-        });
-    };
-
-    Client.prototype.createPopupManager = function createPopupManager () {
-        this.popupManager = new Curator.PopupManager(this);
-    };
-
-    Client.prototype.createFilter = function createFilter () {
-        if (this.options.filter && (this.options.filter.showNetworks || this.options.filter.showSources)) {
-            this.filter = new Curator.Filter(this);
-        }
-    };
-
-    Client.prototype.loadPosts = function loadPosts (page) {
-        this.feed.loadPosts(page);
-    };
-
-    Client.prototype.createPostElements = function createPostElements (posts)
-    {
-        var that = this;
-        var postElements = [];
-        $(posts).each(function(){
-            var p = that.createPostElement(this);
-            postElements.push(p.$el);
-        });
-        return postElements;
-    };
-
-    Client.prototype.createPostElement = function createPostElement (postJson) {
-        var post = new Curator.Post(postJson, this.options, this);
-        $(post).bind('postClick',this.onPostClick.bind(this));
-        $(post).bind('postReadMoreClick',this.onPostClick.bind(this));
-
-        if (this.options.onPostCreated) {
-            this.options.onPostCreated (post);
-        }
-
-        return post;
-    };
-
-    Client.prototype.onPostsLoaded = function onPostsLoaded (event) {
-        Curator.log('Client->onPostsLoaded');
-        Curator.log(event.target);
-    };
-
-    Client.prototype.onPostsFail = function onPostsFail (event) {
-        Curator.log('Client->onPostsLoadedFail');
-        Curator.log(event.target);
-    };
-
-    Client.prototype.onPostClick = function onPostClick (ev,post) {
-        if (this.options.showPopupOnClick) {
-            this.popupManager.showPopup(post);
-        }
-    };
-
-    Client.prototype.track = function track (a) {
-        Curator.log('Feed->track '+a);
-
-        Curator.ajax(
-            this.getUrl('/track/'+this.options.feedId),
-            {a:a},
-            function (data) {
-                Curator.log('Feed->track success');
-                Curator.log(data);
-            },
-            function (jqXHR, textStatus, errorThrown) {
-                Curator.log('Feed->_loadPosts fail');
-                Curator.log(textStatus);
-                Curator.log(errorThrown);
-            }
-        );
-    };
-
-    Client.prototype.getUrl = function getUrl (trail) {
-        return this.options.apiEndpoint+trail;
-    };
-
-    Client.prototype.destroy = function destroy () {
-        Curator.log('Client->destroy');
-        if (this.feed) {
-            this.feed.destroy()
-        }
-        if (this.filter) {
-            this.filter.destroy()
-        }
-        if (this.popupManager) {
-            this.popupManager.destroy()
-        }
-    };
-
-    return Client;
-}(EventBus));
-
-
-Curator.Client = Client;
-
 
 Curator.Events = {
     FEED_LOADED :'crt:feed:loaded',
@@ -1474,7 +2006,10 @@ var Feed = (function (EventBus) {
         this.postCount = 0;
         this.loading = false;
         this.allPostsLoaded = false;
-        this.pagination = null;
+        this.pagination = {
+            after:null,
+            before:null
+        };
 
         this.options = this.widget.options;
 
@@ -1897,16 +2432,14 @@ var PopupManager = function PopupManager (client) {
     Curator.log("PopupManager->init ");
 
     this.client = client;
-    this.templateId='#popup-wrapper-template';
+    var templateId = this.client.options.templatePopupWrapper;
 
-    this.$wrapper = Curator.Template.render(this.templateId, {});
+    this.$wrapper = Curator.Template.render(templateId, {});
     this.$popupContainer = this.$wrapper.find('.crt-popup-container');
     this.$underlay = this.$wrapper.find('.crt-popup-underlay');
 
     $('body').append(this.$wrapper);
     this.$underlay.click(this.onUnderlayClick.bind(this));
-    //this.$popupContainer.click(this.onUnderlayClick.bind(this));
-
 };
 
 PopupManager.prototype.showPopup = function showPopup (post) {
@@ -2020,10 +2553,10 @@ var Popup = function Popup (popupManager, post, feed) {
     this.json = post.json;
     this.feed = feed;
 
-    this.templateId='#popup-template';
+    var templateId = this.popupManager.client.options.templatePopup;
     this.videoPlaying=false;
 
-    this.$popup = Curator.Template.render(this.templateId, this.json);
+    this.$popup = Curator.Template.render(templateId, this.json);
 
     if (this.json.image) {
         this.$popup.addClass('has-image');
@@ -2197,10 +2730,10 @@ var Post = function Post (postJson, options, widget) {
     this.options = options;
     this.widget = widget;
 
-    this.templateId = this.options.postTemplate;
+    var templateId = this.widget.options.templatePost;
 
     this.json = postJson;
-    this.$el = Curator.Template.render(this.templateId, postJson);
+    this.$el = Curator.Template.render(templateId, postJson);
 
     this.$el.find('.crt-share-facebook').click(this.onShareFacebookClick.bind(this));
     this.$el.find('.crt-share-twitter').click(this.onShareTwitterClick.bind(this));
@@ -2298,6 +2831,199 @@ Post.prototype.onReadMoreClick = function onReadMoreClick (ev) {
 };
 
 Curator.Post = Post;
+
+// Simple JavaScript Templating
+// John Resig - http://ejohn.org/ - MIT Licensed
+
+(function(){
+    var _tmplCache = {};
+
+    var helpers = {
+        networkIcon:function () {
+            return this.data.network_name.toLowerCase();
+        },
+        networkName:function () {
+            return this.data.network_name.toLowerCase();
+        },
+        userUrl:function () {
+            if (this.data.user_url && this.data.user_url != '') {
+                return this.data.user_url;
+            }
+            if (this.data.originator_user_url && this.data.originator_user_url != '') {
+                return this.data.originator_user_url;
+            }
+            if (this.data.userUrl && this.data.userUrl != '') {
+                return this.data.userUrl;
+            }
+
+            var netId = this.data.network_id+'';
+            if (netId === '1') {
+                return 'http://twitter.com/' + this.data.user_screen_name;
+            } else if (netId === '2') {
+                return 'http://instagram.com/'+this.data.user_screen_name;
+            } else if (netId === '3') {
+                return 'http://facebook.com/'+this.data.user_screen_name;
+            }
+
+            return '#';
+
+        },
+        parseText:function(s) {
+            if (this.data.is_html) {
+                return s;
+            } else {
+                if (this.data.network_name === 'Twitter') {
+                    s = Curator.StringUtils.linksToHref(s);
+                    s = Curator.StringUtils.twitterLinks(s);
+                } else if (this.data.network_name === 'Instagram') {
+                    s = Curator.StringUtils.linksToHref(s);
+                    s = Curator.StringUtils.instagramLinks(s);
+                } else if (this.data.network_name === 'Facebook') {
+                    s = Curator.StringUtils.linksToHref(s);
+                    s = Curator.StringUtils.facebookLinks(s);
+                } else {
+                    s = Curator.StringUtils.linksToHref(s);
+                }
+
+                return helpers.nl2br(s);
+            }
+        },
+        nl2br:function(s) {
+            s = s.trim();
+            s = s.replace(/(?:\r\n|\r|\n)/g, '<br />');
+
+            return s;
+        },
+        contentImageClasses : function () {
+            return this.data.image ? 'crt-post-has-image' : 'crt-post-content-image-hidden';
+        },
+        contentTextClasses : function () {
+            return this.data.text ? 'crt-post-has-text' : 'crt-post-content-text-hidden';
+
+        },
+        fuzzyDate : function (dateString)
+        {
+            var date = Date.parse(dateString+' UTC');
+            var delta = Math.round((new Date () - date) / 1000);
+
+            var minute = 60,
+                hour = minute * 60,
+                day = hour * 24,
+                week = day * 7,
+                month = day * 30;
+
+            var fuzzy;
+
+            if (delta < 30) {
+                fuzzy = 'Just now';
+            } else if (delta < minute) {
+                fuzzy = delta + ' seconds ago';
+            } else if (delta < 2 * minute) {
+                fuzzy = 'a minute ago.'
+            } else if (delta < hour) {
+                fuzzy = Math.floor(delta / minute) + ' minutes ago';
+            } else if (Math.floor(delta / hour) == 1) {
+                fuzzy = '1 hour ago.'
+            } else if (delta < day) {
+                fuzzy = Math.floor(delta / hour) + ' hours ago';
+            } else if (delta < day * 2) {
+                fuzzy = 'Yesterday';
+            } else if (delta < week) {
+                fuzzy = 'This week';
+            } else if (delta < week * 2) {
+                fuzzy = 'Last week';
+            } else if (delta < month) {
+                fuzzy = 'This month';
+            } else {
+                fuzzy = date;
+            }
+
+            return fuzzy;
+        },
+        prettyDate : function(time) {
+            var date = Curator.DateUtils.dateFromString(time);
+
+            var diff = (((new Date()).getTime() - date.getTime()) / 1000);
+            var day_diff = Math.floor(diff / 86400);
+            var year = date.getFullYear(),
+                month = date.getMonth()+1,
+                day = date.getDate();
+
+            if (isNaN(day_diff) || day_diff < 0 || day_diff >= 31)
+                return (
+                    year.toString()+'-'
+                    +((month<10) ? '0'+month.toString() : month.toString())+'-'
+                    +((day<10) ? '0'+day.toString() : day.toString())
+                );
+
+            var r =
+                (
+                    (
+                        day_diff == 0 &&
+                        (
+                            (diff < 60 && "just now")
+                            || (diff < 120 && "1 minute ago")
+                            || (diff < 3600 && Math.floor(diff / 60) + " minutes ago")
+                            || (diff < 7200 && "1 hour ago")
+                            || (diff < 86400 && Math.floor(diff / 3600) + " hours ago")
+                        )
+                    )
+                    || (day_diff == 1 && "Yesterday")
+                    || (day_diff < 7 && day_diff + " days ago")
+                    || (day_diff < 31 && Math.ceil(day_diff / 7) + " weeks ago")
+                );
+            return r;
+        }
+    };
+
+    Curator.render = function(str, data) {
+        /// <summary>
+        /// Client side template parser that uses <%= %> and <% code %> expressions.
+        /// and # # code blocks for template expansion.
+        /// NOTE: chokes on single quotes in the document in some situations
+        ///       use &amp;rsquo; for literals in text and avoid any single quote
+        ///       attribute delimiters.
+        /// </summary>
+        /// <param name="str" type="string">The text of the template to expand</param>
+        /// <param name="data" type="var">
+        /// Any data that is to be merged. Pass an object and
+        /// that object's properties are visible as variables.
+        /// </param>
+        /// <returns type="string" />
+        var err = "";
+        try {
+            var func = _tmplCache[str];
+            if (!func) {
+                var strComp =
+                    str.replace(/[\r\t\n]/g, " ")
+                        .replace(/'(?=[^%]*%>)/g, "\t")
+                        .split("'").join("\\'")
+                        .split("\t").join("'")
+                        .replace(/<%=(.+?)%>/g, "',$1,'")
+                        .split("<%").join("');")
+                        .split("%>").join("p.push('");
+
+                // note - don't change the 'var' in the string to 'let'!!!
+                var strFunc =
+                    "var p=[],print=function(){p.push.apply(p,arguments);};" +
+                        "with(obj){p.push('" + strComp + "');}return p.join('');";
+
+                func = new Function("obj", strFunc);  // jshint ignore:line
+                _tmplCache[str] = func;
+            }
+            helpers.data = data;
+            return func.call(helpers, data);
+        } catch (e) {
+            window.console.log ('Template parse error: ' +e.message);
+            err = e.message;
+        }
+        return " # ERROR: " + err + " # ";
+    };
+})();
+
+
+
+
 /* global FB */
 
 Curator.SocialFacebook = {
@@ -2356,10 +3082,108 @@ Curator.SocialTwitter = {
     }
 };
 
-
-
-Curator.Templates.postTemplate = ' \
+var gridPostTemplate = ' \
 <div class="crt-post-c">\
+    <div class="crt-post post<%=id%> <%=this.contentImageClasses()%> <%=this.contentTextClasses()%>"> \
+        <div class="crt-post-content"> \
+            <div class="crt-hitarea" > \
+                <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer" /> \
+                <div class="crt-post-content-image" style="background-image: url(<%=image%>);"> </div> \
+                <div class="crt-post-content-text-c"> \
+                    <div class="crt-post-content-text"> \
+                        <%=this.parseText(text)%> \
+                    </div> \
+                </div> \
+                <a href="javascript:;" class="crt-play"><i class="crt-play-icon"></i></a> \
+                <span class="crt-social-icon crt-social-icon-normal"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \
+                <div class="crt-post-hover">\
+                    <div class="crt-post-header"> \
+                        <img src="<%=user_image%>"  /> \
+                        <div class="crt-post-name"><span><%=user_full_name%></span><br/><a href="<%=this.userUrl()%>" target="_blank">@<%=user_screen_name%></a></div> \
+                    </div> \
+                    <div class="crt-post-hover-text"> \
+                        <%=this.parseText(text)%> \
+                    </div> \
+                    <span class="crt-social-icon crt-social-icon-hover"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \
+                </div> \
+            </div> \
+        </div> \
+    </div>\
+</div>';
+
+
+var v2GridFeedTemple = ' \
+<div class="crt-feed-window">\
+    <div class="crt-feed"></div>\
+</div>\
+<div class="crt-feed-more"><a href="#">Load more</a></div>';
+
+
+var v2GridPostTemplate = ' \
+<div class="crt-grid-post crt-grid-post-v2 crt-post-<%=id%> <%=this.contentImageClasses()%> <%=this.contentTextClasses()%>"> \
+    <div class="crt-post-c"> \
+        <div class="crt-post-content"> \
+            <div class="crt-hitarea" > \
+                <div class="crt-post-normal">\
+                    <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer" /> \
+                    <div class="crt-post-content-image" style="background-image: url(<%=image%>);"> </div> \
+                    <a href="javascript:;" class="crt-play"><i class="crt-play-icon"></i></a> \
+                    <span class="crt-social-icon crt-social-icon-normal"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \
+                </div>\
+                <div class="crt-post-hover">\
+                    <div class="crt-post-header"> \
+                        <span class="crt-social-icon"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \
+                        <div class="crt-post-fullname"><a href="<%=this.userUrl()%>" target="_blank"><%=user_full_name%></a></div>\
+                    </div> \
+                    <div class="crt-post-content-text"> \
+                        <%=this.parseText(text)%> \
+                    </div> \
+                    <div class="crt-post-read-more"><a href="#" class="crt-post-read-more-button">Read more</a> </div> \
+                    <div class="crt-post-footer">\
+                        <img class="crt-post-userimage" src="<%=user_image%>" /> \
+                        <span class="crt-post-username"><a href="<%=this.userUrl()%>" target="_blank">@<%=user_screen_name%></a></span>\
+                        <span class="crt-date"><%=this.prettyDate(source_created_at)%></span> \
+                        <div class="crt-post-share"><span class="ctr-share-hint"></span><a href="#" class="crt-share-facebook"><i class="crt-icon-facebook"></i></a>  <a href="#" class="crt-share-twitter"><i class="crt-icon-twitter"></i></a></div>\
+                    </div> \
+                </div> \
+            </div> \
+        </div> \
+    </div>\
+</div>';
+
+
+var v2PostTemple = ' \
+<div class="crt-post-v2 crt-post crt-post-<%=this.networkIcon()%> <%=this.contentTextClasses()%>  <%=this.contentImageClasses()%>" data-post="<%=id%>"> \
+    <div class="crt-post-border">\
+        <div class="crt-post-c">\
+            <div class="crt-post-content">\
+                <div class="crt-image crt-hitarea crt-post-content-image" > \
+                    <div class="crt-image-c"><img src="<%=image%>" class="crt-post-image" /></div> \
+                    <span class="crt-play"><i class="crt-play-icon"></i></span> \
+                </div> \
+                <div class="crt-post-header"> \
+                    <span class="crt-social-icon"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \
+                    <div class="crt-post-fullname"><a href="<%=this.userUrl()%>" target="_blank"><%=user_full_name%></a></div>\
+                </div> \
+                <div class="text crt-post-content-text"> \
+                    <%=this.parseText(text)%> \
+                </div> \
+                <div class="crt-post-read-more"><a href="#" class="crt-post-read-more-button">Read more</a> </div> \
+            </div> \
+            <div class="crt-post-footer">\
+                <img class="crt-post-userimage" src="<%=user_image%>" /> \
+                <span class="crt-post-username"><a href="<%=this.userUrl()%>" target="_blank">@<%=user_screen_name%></a></span>\
+                <span class="crt-date"><%=this.prettyDate(source_created_at)%></span> \
+                <div class="crt-post-share"><span class="ctr-share-hint"></span><a href="#" class="crt-share-facebook"><i class="crt-icon-facebook"></i></a>  <a href="#" class="crt-share-twitter"><i class="crt-icon-twitter"></i></a></div>\
+            </div> \
+        </div> \
+    </div> \
+</div>';
+
+
+
+var postTemplate = ' \
+<div class="crt-post-v1 crt-post-c">\
     <div class="crt-post-bg"></div> \
     <div class="crt-post post<%=id%> crt-post-<%=this.networkIcon()%>"> \
         <div class="crt-post-header"> \
@@ -2387,7 +3211,7 @@ Curator.Templates.postTemplate = ' \
     </div>\
 </div>';
 
-Curator.Templates.popupWrapperTemplate = ' \
+var popupWrapperTemplate = ' \
 <div class="crt-popup-wrapper"> \
     <div class="crt-popup-wrapper-c"> \
         <div class="crt-popup-underlay"></div> \
@@ -2395,7 +3219,7 @@ Curator.Templates.popupWrapperTemplate = ' \
     </div> \
 </div>';
 
-Curator.Templates.popupTemplate = ' \
+var popupTemplate = ' \
 <div class="crt-popup"> \
     <a href="#" class="crt-close crt-icon-cancel"></a> \
     <a href="#" class="crt-next crt-icon-right-open"></a> \
@@ -2432,11 +3256,9 @@ Curator.Templates.popupTemplate = ' \
     </div> \
 </div>';
 
-Curator.Templates.popupUnderlayTemplate = '';
+var popupUnderlayTemplate = '';
 
-
-
-Curator.Templates.filterTemplate = ' <div class="crt-filter"> \
+var filterTemplate = ' <div class="crt-filter"> \
 <div class="crt-filter-networks">\
 <ul class="crt-networks"> </ul>\
 </div> \
@@ -2445,33 +3267,45 @@ Curator.Templates.filterTemplate = ' <div class="crt-filter"> \
 </div> \
 </div>';
 
+// V2
+
+Curator.Templates = {
+    'v1-post'            : postTemplate,
+    'v1-filter'          : filterTemplate,
+    'v1-popup'           : popupTemplate,
+    'v1-popup-underlay'  : popupUnderlayTemplate,
+    'v1-popup-wrapper'   : popupWrapperTemplate,
+    'v1-grid-post'       : gridPostTemplate,
+
+    // V2
+    'v2-post'            : v2PostTemple,
+    'v2-filter'          : filterTemplate,
+    'v2-popup'           : popupTemplate,
+    'v2-popup-underlay'  : popupUnderlayTemplate,
+    'v2-popup-wrapper'   : popupWrapperTemplate,
+
+    'v2-grid-post'       : v2GridPostTemplate,
+    'v2-grid-feed'       : v2GridFeedTemple,
+};
+
 Curator.Template = {
-    camelize: function (s) {
-        return s.replace (/(?:^|[-_])(\w)/g, function (_, c) {
-            return c ? c.toUpperCase () : '';
-        });
-    },
     render: function (templateId, data) {
-        var cam = this.camelize(templateId).substring(1);
         var source = '';
 
-        // console.log (cam);
-        // console.log (data);
-
-        if (Curator.Templates[cam] !== undefined)
+        if ($('#'+templateId).length===1)
         {
-            source = Curator.Templates[cam];
-        } else if ($(templateId).length===1)
+            source = $('#'+templateId).html();
+        } else if (Curator.Templates[templateId] !== undefined)
         {
-            source = $(templateId).html();
+            source = Curator.Templates[templateId];
         }
 
         if (source === '')
         {
-            throw new Error ('could not find template '+templateId+'('+cam+')');
+            throw new Error ('Could not find template '+templateId);
         }
 
-        var tmpl = window.parseTemplate(source, data);
+        var tmpl = Curator.render(source, data);
         if ($.parseHTML) {
             // breaks with jquery < 1.8
             tmpl = $.parseHTML(tmpl);
@@ -2481,6 +3315,591 @@ Curator.Template = {
 };
 
 
+Curator.UI = {};
+Curator.UI.CarouselSettings = {
+	circular: false,
+	speed: 5000,
+	duration: 700,
+	minWidth: 250,
+	panesVisible: null,
+	moveAmount: 0,
+	autoPlay: false,
+	useCss : true
+};
+
+if ($.zepto) {
+	Curator.UI.CarouselSettings.easing = 'ease-in-out';
+}
+
+var CarouselUI = function CarouselUI (container, options) {
+	Curator.log('CarouselUI->construct');
+
+	this.current_position=0;
+	this.animating=false;
+	this.timeout=null;
+	this.FAKE_NUM=0;
+	this.PANES_VISIBLE=0;
+
+	this.options = $.extend({}, Curator.UI.CarouselSettings, options);
+
+	this.$viewport = $(container); // <div> slider, known as $viewport
+
+	this.$panes = this.$viewport.children();
+	this.$panes.detach();
+
+	this.$stage = $('<div class="ctr-carousel-stage"></div>').appendTo(this.$viewport);
+	this.$pane_slider = $('<div class="ctr-carousel-slider"></div>').appendTo(this.$stage);
+
+	this.addControls();
+	this.createHandlers();
+        this.update ();
+};
+
+    CarouselUI.prototype.createHandlers = function createHandlers () {
+        var this$1 = this;
+
+        var id = this.id;
+        var updateLayoutDebounced = Curator.Utils.debounce( function () {
+            this$1.updateLayout ();
+        }, 100);
+
+        $(window).on('resize.'+id, updateLayoutDebounced);
+    };
+
+    CarouselUI.prototype.destroyHandlers = function destroyHandlers () {
+        var id = this.id;
+
+        $(window).off('resize.'+id);
+        // $(window).off('curatorCssLoaded.'+id);
+        // $(document).off('ready.'+id);
+    };
+
+CarouselUI.prototype.update = function update () {
+        Curator.log('CarouselUI->update ');
+	this.$panes = this.$pane_slider.children(); // <li> list items, known as $panes
+	this.NUM_PANES = this.options.circular ? (this.$panes.length + 1) : this.$panes.length;
+
+	if (this.NUM_PANES > 0) {
+		this.resize();
+		this.move (this.current_position, true);
+
+		if (!this.animating) {
+			if (this.options.autoPlay) {
+				this.animate();
+			}
+		}
+	}
+};
+
+CarouselUI.prototype.add = function add ($els) {
+        Curator.log('CarouselUI->add '+$els.length);
+
+	this.$pane_slider.append($els);
+	this.$panes = this.$pane_slider.children();
+};
+
+CarouselUI.prototype.resize = function resize () {
+		var this$1 = this;
+
+	var PANE_WRAPPER_WIDTH = this.options.infinite ? ((this.NUM_PANES+1) * 100) + '%' : (this.NUM_PANES * 100) + '%'; // % width of slider (total panes * 100)
+
+	this.$pane_slider.css({width: PANE_WRAPPER_WIDTH}); // set css on pane slider
+
+	this.VIEWPORT_WIDTH = this.$viewport.width();
+
+	if (this.options.panesVisible) {
+		// TODO - change to check if it's a function or a number
+		this.PANES_VISIBLE = this.options.panesVisible();
+		this.PANE_WIDTH = (this.VIEWPORT_WIDTH / this.PANES_VISIBLE);
+	} else {
+		this.PANES_VISIBLE = this.VIEWPORT_WIDTH < this.options.minWidth ? 1 : Math.floor(this.VIEWPORT_WIDTH / this.options.minWidth);
+		this.PANE_WIDTH = (this.VIEWPORT_WIDTH / this.PANES_VISIBLE);
+	}
+
+	if (this.options.infinite) {
+
+		this.$panes.filter('.crt-clone').remove();
+
+		for(var i = this.NUM_PANES-1; i > this.NUM_PANES - 1 - this.PANES_VISIBLE; i--)
+		{
+			// console.log(i);
+			var first = this$1.$panes.eq(i).clone();
+			first.addClass('crt-clone');
+			first.css('opacity','1');
+			// Should probably move this out to an event
+			first.find('.crt-post-image').css({opacity:1});
+			this$1.$pane_slider.prepend(first);
+			this$1.FAKE_NUM = this$1.PANES_VISIBLE;
+		}
+		this.$panes = this.$pane_slider.children();
+
+	}
+
+	this.$panes.each(function (index, pane) {
+		$(pane).css( {width: this$1.PANE_WIDTH+'px'});
+	});
+};
+
+CarouselUI.prototype.updateLayout = function updateLayout () {
+        this.resize();
+        this.move (this.current_position, true);
+
+        // reset animation timer
+        if (this.options.autoPlay) {
+            this.animate();
+        }
+};
+
+CarouselUI.prototype.animate = function animate () {
+		var this$1 = this;
+
+	this.animating = true;
+	clearTimeout(this.timeout);
+	this.timeout = setTimeout(function () {
+		this$1.next();
+	}, this.options.speed);
+};
+
+CarouselUI.prototype.next = function next () {
+	var move = this.options.moveAmount ? this.options.moveAmount : this.PANES_VISIBLE ;
+	this.move(this.current_position + move, false);
+};
+
+CarouselUI.prototype.prev = function prev () {
+	var move = this.options.moveAmount ? this.options.moveAmount : this.PANES_VISIBLE ;
+	this.move(this.current_position - move, false);
+};
+
+CarouselUI.prototype.move = function move (i, noAnimate) {
+	this.current_position = i;
+
+	var maxPos = this.NUM_PANES - this.PANES_VISIBLE;
+
+	if (this.current_position < 0) {
+		this.current_position = 0;
+	} else if (this.current_position > maxPos) {
+		this.current_position = maxPos;
+	}
+
+	var curIncFake = (this.FAKE_NUM + this.current_position);
+	var left = curIncFake * this.PANE_WIDTH;
+	var max = this.options.infinite ? (this.PANE_WIDTH * this.NUM_PANES) : (this.PANE_WIDTH * this.NUM_PANES) - this.VIEWPORT_WIDTH;
+
+	this.currentLeft = left;
+
+	if (left < 0) {
+		this.currentLeft = 0;
+	} else if (left > max) {
+		this.currentLeft = max;
+	} else {
+		this.currentLeft = left;
+	}
+        var x = (0 - this.currentLeft);
+
+	if (noAnimate) {
+		this.$pane_slider.css({'transform': 'translate3d('+x+'px, 0px, 0px)'});
+		this.moveComplete();
+	} else {
+		var options = {
+			duration: this.options.duration,
+			complete: this.moveComplete.bind(this),
+			// easing:'asd'
+		};
+		if (this.options.easing) {
+			options.easing = this.options.easing;
+		}
+		this.$pane_slider.animate(
+			{'transform': 'translate3d('+x+'px, 0px, 0px)'},
+			options
+		);
+	}
+};
+
+CarouselUI.prototype.moveComplete = function moveComplete () {
+		var this$1 = this;
+
+	if (this.options.infinite && (this.current_position >= (this.NUM_PANES - this.PANES_VISIBLE))) {
+		// infinite and we're off the end!
+		// re-e-wind, the crowd says 'bo selecta!'
+		this.$pane_slider.css({'transform': 'translate3d(0px, 0px, 0px)'});
+		this.current_position = 0 - this.PANES_VISIBLE;
+		this.currentLeft = 0;
+	}
+
+	setTimeout(function () {
+		var paneMaxHieght = 0;
+		for (var i=this$1.current_position;i<this$1.current_position + this$1.PANES_VISIBLE;i++)
+		{
+			var h = $(this$1.$panes[i]).height();
+			if (h > paneMaxHieght) {
+				paneMaxHieght = h;
+			}
+		}
+		this$1.$stage.animate({height:paneMaxHieght},300);
+	}, 50);
+
+	this.$viewport.trigger('curatorCarousel:changed', [this, this.current_position]);
+
+	if (this.options.autoPlay) {
+		this.animate();
+	}
+};
+
+CarouselUI.prototype.addControls = function addControls () {
+	this.$viewport.append('<button type="button" data-role="none" class="crt-panel-prev crt-panel-arrow" aria-label="Previous" role="button" aria-disabled="false">Previous</button>');
+	this.$viewport.append('<button type="button" data-role="none" class="crt-panel-next crt-panel-arrow" aria-label="Next" role="button" aria-disabled="false">Next</button>');
+
+	this.$viewport.on('click','.crt-panel-prev', this.prev.bind(this));
+	this.$viewport.on('click','.crt-panel-next', this.next.bind(this));
+};
+
+    CarouselUI.prototype.destroy = function destroy () {
+        this.destroyHandlers ()
+    };
+
+
+Curator.UI.Carousel = CarouselUI;
+/**
+ * Based on the awesome jQuery Grid-A-Licious(tm)
+ *
+ * Terms of Use - jQuery Grid-A-Licious(tm)
+ * under the MIT (http://www.opensource.org/licenses/mit-license.php) License.
+ *
+ * Original Version Copyright 2008-2012 Andreas Pihlström (Suprb). All rights reserved.
+ * (http://suprb.com/apps/gridalicious/)
+ *
+ */
+
+Curator.UI.WaterfallSettings = {
+    selector: '.item',
+    width: 225,
+    gutter: 20,
+    animate: false,
+    animationOptions: {
+        speed: 200,
+        duration: 300,
+        effect: 'fadeInOnAppear',
+        queue: true,
+        complete: function () {
+        }
+    }
+};
+
+var WaterfallUI = function WaterfallUI(options, element) {
+    this.element = $(element);
+
+    var container = this;
+    this.name = this._setName(5);
+    this.gridArr = [];
+    this.gridArrAppend = [];
+    this.gridArrPrepend = [];
+    this.setArr = false;
+    this.setGrid = false;
+    this.cols = 0;
+    this.itemCount = 0;
+    this.isPrepending = false;
+    this.appendCount = 0;
+    this.resetCount = true;
+    this.ifCallback = true;
+    this.box = this.element;
+    this.boxWidth = this.box.width();
+    this.options = $.extend(true, {}, Curator.UI.WaterfallSettings, options);
+    this.gridArr = $.makeArray(this.box.find(this.options.selector));
+    this.isResizing = false;
+    this.w = 0;
+    this.boxArr = [];
+
+    // this.offscreenRender = $('<div class="grid-rendered"></div>').appendTo('body');
+
+    // build columns
+    this._setCols();
+    // build grid
+    this._renderGrid('append');
+    // add class 'gridalicious' to container
+    $(this.box).addClass('gridalicious');
+    // add smartresize
+    $(window).smartresize(function () {
+        container.resize();
+    });
+};
+
+WaterfallUI.prototype._setName = function _setName (length, current) {
+    current = current ? current : '';
+    return length ? this._setName(--length, "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz".charAt(Math.floor(Math.random() * 60)) + current) : current;
+};
+
+WaterfallUI.prototype._setCols = function _setCols () {
+        var this$1 = this;
+
+    // calculate columns
+    this.cols = Math.floor(this.box.width() / this.options.width);
+    //If Cols lower than 1, the grid disappears
+    if (this.cols < 1) {
+        this.cols = 1;
+    }
+    diff = (this.box.width() - (this.cols * this.options.width) - this.options.gutter) / this.cols;
+    w = (this.options.width + diff) / this.box.width() * 100;
+    this.w = w;
+    this.colHeights = new Array(this.cols);
+    this.colHeights.fill(0);
+    this.colItems = new Array(this.cols);
+    this.colItems.fill([]);
+
+    // add columns to box
+    for (var i = 0; i < this.cols; i++) {
+        var div = $('<div></div>').addClass('galcolumn').attr('id', 'item' + i + this$1.name).css({
+            'width': w + '%',
+            'paddingLeft': this$1.options.gutter,
+            'paddingBottom': this$1.options.gutter,
+            'float': 'left',
+            '-webkit-box-sizing': 'border-box',
+            '-moz-box-sizing': 'border-box',
+            '-o-box-sizing': 'border-box',
+            'box-sizing': 'border-box'
+        });
+        this$1.box.append(div);
+    }
+};
+
+WaterfallUI.prototype._renderGrid = function _renderGrid (method, arr, count, prepArray) {
+        var this$1 = this;
+
+    var items = [];
+    var boxes = [];
+    var prependArray = [];
+    var itemCount = 0;
+    var appendCount = this.appendCount;
+    var gutter = this.options.gutter;
+    var cols = this.cols;
+    var name = this.name;
+    var i = 0;
+    var w = $('.galcolumn').width();
+
+    // if arr
+    if (arr) {
+        boxes = arr;
+        // if append
+        if (method == "append") {
+            // get total of items to append
+            appendCount += count;
+            // set itemCount to last count of appened items
+            itemCount = this.appendCount;
+        }
+        // if prepend
+        if (method == "prepend") {
+            // set itemCount
+            this.isPrepending = true;
+            itemCount = Math.round(count % cols);
+            if (itemCount <= 0) itemCount = cols;
+        }
+        // called by _updateAfterPrepend()
+        if (method == "renderAfterPrepend") {
+            // get total of items that was previously prepended
+            appendCount += count;
+            // set itemCount by counting previous prepended items
+            itemCount = count;
+        }
+    }
+    else {
+        boxes = this.gridArr;
+        appendCount = $(this.gridArr).length;
+    }
+
+    // push out the items to the columns
+    for (var i$2 = 0, list = boxes; i$2 < list.length; i$2 += 1) {
+        var item = list[i$2];
+
+            var width = '100%';
+
+        // if you want something not to be "responsive", add the class "not-responsive" to the selector container
+        if (item.hasClass('not-responsive')) {
+            width = 'auto';
+        }
+
+        item.css({
+            'zoom': '1',
+            'filter': 'alpha(opacity=0)',
+            'opacity': '0'
+        });
+
+        // find shortest col
+        var shortestCol = 0;
+        for (var i$1 = 1; i$1 < this.colHeights.length; i$1++) {
+            if (this$1.colHeights[i$1] < this$1.colHeights[shortestCol]) {
+                shortestCol = i$1;
+            }
+        }
+
+        // prepend or append to shortest column
+        if (method == 'prepend') {
+            $("#item" + shortestCol + name).prepend(item);
+            items.push(item);
+
+        } else {
+            $("#item" + shortestCol + name).append(item);
+            items.push(item);
+            if (appendCount >= cols) {
+                appendCount = (appendCount - cols);
+            }
+        }
+
+        // update col heights
+        this$1.colItems[shortestCol].push(item);
+        this$1.colHeights[shortestCol] += item.height();
+    }
+
+    this.appendCount = appendCount;
+
+    if (method == "append" || method == "prepend") {
+        if (method == "prepend") {
+            // render old items and reverse the new items
+            this._updateAfterPrepend(this.gridArr, boxes);
+        }
+        this._renderItem(items);
+        this.isPrepending = false;
+    } else {
+        this._renderItem(this.gridArr);
+    }
+};
+
+WaterfallUI.prototype._collectItems = function _collectItems () {
+    var collection = [];
+    $(this.box).find(this.options.selector).each(function (i) {
+        collection.push($(this));
+    });
+    return collection;
+};
+
+WaterfallUI.prototype._renderItem = function _renderItem (items) {
+
+    var speed = this.options.animationOptions.speed;
+    var effect = this.options.animationOptions.effect;
+    var duration = this.options.animationOptions.duration;
+    var queue = this.options.animationOptions.queue;
+    var animate = this.options.animate;
+    var complete = this.options.animationOptions.complete;
+
+    var i = 0;
+    var t = 0;
+
+    // animate
+    if (animate === true && !this.isResizing) {
+
+        // fadeInOnAppear
+        if (queue === true && effect == "fadeInOnAppear") {
+            if (this.isPrepending) items.reverse();
+            $.each(items, function (index, value) {
+                setTimeout(function () {
+                    $(value).animate({
+                        opacity: '1.0'
+                    }, duration);
+                    t++;
+                    if (t == items.length) {
+                        complete.call(undefined, items)
+                    }
+                }, i * speed);
+                i++;
+            });
+        } else if (queue === false && effect == "fadeInOnAppear") {
+            if (this.isPrepending) items.reverse();
+            $.each(items, function (index, value) {
+                $(value).animate({
+                    opacity: '1.0'
+                }, duration);
+                t++;
+                if (t == items.length) {
+                    if (this.ifCallback) {
+                        complete.call(undefined, items);
+                    }
+                }
+            });
+        }
+
+        // no effect but queued
+        if (queue === true && !effect) {
+            $.each(items, function (index, value) {
+                $(value).css({
+                    'opacity': '1',
+                    'filter': 'alpha(opacity=100)'
+                });
+                t++;
+                if (t == items.length) {
+                    if (this.ifCallback) {
+                        complete.call(undefined, items);
+                    }
+                }
+            });
+        }
+
+        // don not animate & no queue
+    } else {
+        $.each(items, function (index, value) {
+            $(value).css({
+                'opacity': '1',
+                'filter': 'alpha(opacity=100)'
+            });
+        });
+        if (this.ifCallback) {
+            complete.call(items);
+        }
+    }
+};
+
+WaterfallUI.prototype._updateAfterPrepend = function _updateAfterPrepend (prevItems, newItems) {
+    var gridArr = this.gridArr;
+    // add new items to gridArr
+    $.each(newItems, function (index, value) {
+        gridArr.unshift(value);
+    });
+    this.gridArr = gridArr;
+};
+
+WaterfallUI.prototype.resize = function resize () {
+    if (this.box.width() === this.boxWidth) {
+        return;
+    }
+
+    var newCols = Math.floor(this.box.width() / this.options.width);
+    if (this.cols === newCols) {
+        // nothings changed yet
+        return;
+    }
+
+    // delete columns in box
+    this.box.find($('.galcolumn')).remove();
+    // build columns
+    this._setCols();
+    // build grid
+    this.ifCallback = false;
+    this.isResizing = true;
+    this._renderGrid('append');
+    this.ifCallback = true;
+    this.isResizing = false;
+    this.boxWidth = this.box.width();
+};
+
+WaterfallUI.prototype.append = function append (items) {
+    var gridArr = this.gridArr;
+    var gridArrAppend = this.gridArrPrepend;
+    $.each(items, function (index, value) {
+        gridArr.push(value);
+        gridArrAppend.push(value);
+    });
+    this._renderGrid('append', items, $(items).length);
+};
+
+WaterfallUI.prototype.prepend = function prepend (items) {
+    this.ifCallback = false;
+    this._renderGrid('prepend', items, $(items).length);
+    this.ifCallback = true;
+};
+
+WaterfallUI.prototype.destroy = function destroy () {
+
+};
+
+
+Curator.UI.Waterfall = WaterfallUI;
 
 Curator.Utils = {
     postUrl : function (post)
@@ -2626,6 +4045,12 @@ Curator.DateUtils = {
 
 Curator.StringUtils = {
 
+    camelize: function (s) {
+        return s.replace (/(?:^|[-_])(\w)/g, function (_, c) {
+            return c ? c.toUpperCase () : '';
+        });
+    },
+
     twitterLinks: function twitterLinks (s)
     {
         s = s.replace(/[@]+[A-Za-z0-9-_]+/g, function(u) {
@@ -2727,146 +4152,154 @@ Curator.StringUtils = {
     }
 };
 
-Curator.Config.Waterfall = $.extend({}, Curator.Config.Defaults, {
-    scroll:'more',
-    waterfall: {
-        gridWidth:250,
-        animate:true,
-        animateSpeed:400
+
+var Widget = (function (EventBus) {
+    function Widget () {
+        Curator.log('Widget->construct');
+
+        EventBus.call (this);
+
+        this.id = Curator.Utils.uId ();
+        Curator.log('id='+this.id);
     }
-});
 
+    if ( EventBus ) Widget.__proto__ = EventBus;
+    Widget.prototype = Object.create( EventBus && EventBus.prototype );
+    Widget.prototype.constructor = Widget;
 
-var Waterfall = (function (superclass) {
-    function Waterfall (options) {
+    Widget.prototype.setOptions = function setOptions (options, defaults) {
+
+        this.options = $.extend(true,{}, defaults, options);
+
+        if (options.debug) {
+            Curator.debug = true;
+        }
+
+        // Curator.log(this.options);
+
+        return true;
+    };
+
+    Widget.prototype.init = function init () {
+
+        if (!Curator.checkContainer(this.options.container)) {
+            return false;
+        }
+
+        this.$container = $(this.options.container);
+
+        this.createFeed();
+        this.createFilter();
+        this.createPopupManager();
+
+        return true;
+    };
+
+    Widget.prototype.createFeed = function createFeed () {
         var this$1 = this;
 
-        superclass.call (this);
-
-        this.setOptions (options,  Curator.Config.Waterfall);
-
-        Curator.log("Waterfall->init with options:");
-        Curator.log(this.options);
-
-        if (this.init (this)) {
-            this.$scroll = $('<div class="crt-feed-scroll"></div>').appendTo(this.$container);
-            this.$feed = $('<div class="crt-feed"></div>').appendTo(this.$scroll);
-            this.$container.addClass('crt-feed-container');
-
-            if (this.options.scroll === 'continuous') {
-                $(this.$scroll).scroll(function () {
-                    var height = this$1.$scroll.height();
-                    var cHeight = this$1.$feed.height();
-                    var scrollTop = this$1.$scroll.scrollTop();
-                    if (scrollTop >= cHeight - height) {
-                        this$1.loadMorePosts();
-                    }
-                });
-            } else if (this.options.scroll === 'none') {
-                // no scroll - use javascript to trigger loading
-            } else {
-                // default to more
-                this.$more = $('<div class="crt-feed-more"><a href="#"><span>Load more</span></a></div>').appendTo(this.$scroll);
-                this.$more.find('a').on('click',function (ev) {
-                    ev.preventDefault();
-                    this$1.loadMorePosts();
-                });
-            }
-
-            this.$feed.waterfall({
-                selector:'.crt-post-c',
-                gutter:0,
-                width:this.options.waterfall.gridWidth,
-                animate:this.options.waterfall.animate,
-                animationOptions: {
-                    speed: (this.options.waterfall.animateSpeed/2),
-                    duration: this.options.waterfall.animateSpeed
-                }
-            });
-
-            this.on(Curator.Events.FILTER_CHANGED, function (event) {
-                this$1.$feed.find('.crt-post-c').remove();
-            });
-
-            // Load first set of posts
-            this.feed.load();
-        }
-    }
-
-    if ( superclass ) Waterfall.__proto__ = superclass;
-    Waterfall.prototype = Object.create( superclass && superclass.prototype );
-    Waterfall.prototype.constructor = Waterfall;
-
-    Waterfall.prototype.loadMorePosts = function loadMorePosts () {
-        Curator.log('Waterfall->loadMorePosts');
-
-        this.feed.loadAfter();
-    };
-
-    Waterfall.prototype.onPostsLoaded = function onPostsLoaded (posts) {
-        Curator.log("Waterfall->onPostsLoaded");
-
-        var postElements = this.createPostElements (posts);
-
-        //this.$feed.append(postElements);
-        this.$feed.waterfall('append', postElements);
-
-        var that = this;
-        $.each(postElements,function (i) {
-            var post = this;
-            if (that.options.waterfall.showReadMore) {
-                post.find('.crt-post')
-                    .addClass('crt-post-show-read-more');
-            }
+        this.feed = new Curator.Feed (this);
+        this.feed.on('postsLoaded', function (event) {
+            this$1.onPostsLoaded(event.target);
         });
+        this.feed.on('postsFailed', function (event) {
+            this$1.onPostsFail(event.target);
+        });
+    };
 
-        if (this.feed.allPostsLoaded) {
-            this.$more.hide();
+    Widget.prototype.createPopupManager = function createPopupManager () {
+        this.popupManager = new Curator.PopupManager(this);
+    };
+
+    Widget.prototype.createFilter = function createFilter () {
+        if (this.options.filter && (this.options.filter.showNetworks || this.options.filter.showSources)) {
+            this.filter = new Curator.Filter(this);
+        }
+    };
+
+    Widget.prototype.loadPosts = function loadPosts (page) {
+        this.feed.loadPosts(page);
+    };
+
+    Widget.prototype.createPostElements = function createPostElements (posts)
+    {
+        var that = this;
+        var postElements = [];
+        $(posts).each(function(){
+            var p = that.createPostElement(this);
+            postElements.push(p.$el);
+        });
+        return postElements;
+    };
+
+    Widget.prototype.createPostElement = function createPostElement (postJson) {
+        var post = new Curator.Post(postJson, this.options, this);
+        $(post).bind('postClick',this.onPostClick.bind(this));
+        $(post).bind('postReadMoreClick',this.onPostClick.bind(this));
+
+        if (this.options.onPostCreated) {
+            this.options.onPostCreated (post);
         }
 
-        this.popupManager.setPosts(posts);
-
-        this.loading = false;
-        this.options.onPostsLoaded (this, posts);
+        return post;
     };
 
-    Waterfall.prototype.onPostsFailed = function onPostsFailed (data) {
-        this.loading = false;
-        this.$feed.html('<p style="text-align: center">'+data.message+'</p>');
+    Widget.prototype.onPostsLoaded = function onPostsLoaded (event) {
+        Curator.log('Widget->onPostsLoaded');
+        Curator.log(event.target);
     };
 
-    Waterfall.prototype.destroy = function destroy () {
-        Curator.log('Waterfall->destroy');
-        //this.$feed.slick('unslick');
+    Widget.prototype.onPostsFail = function onPostsFail (event) {
+        Curator.log('Widget->onPostsLoadedFail');
+        Curator.log(event.target);
+    };
 
-        superclass.prototype.destroy.call(this);
-
-        this.$feed.remove();
-        this.$scroll.remove();
-        if (this.$more) {
-            this.$more.remove();
+    Widget.prototype.onPostClick = function onPostClick (ev,post) {
+        if (this.options.showPopupOnClick) {
+            this.popupManager.showPopup(post);
         }
-        this.$container.removeClass('crt-feed-container');
-
-        delete this.$feed;
-        delete this.$scroll;
-        delete this.$container;
-        delete this.options ;
-        delete this.totalPostsLoaded;
-        delete this.loading;
-        delete this.allLoaded;
-
-        // TODO add code to cascade destroy down to Feed & Posts
-        // unregistering events etc
-        delete this.feed;
     };
 
-    return Waterfall;
-}(Curator.Client));
+    Widget.prototype.track = function track (a) {
+        Curator.log('Feed->track '+a);
+
+        Curator.ajax(
+            this.getUrl('/track/'+this.options.feedId),
+            {a:a},
+            function (data) {
+                Curator.log('Feed->track success');
+                Curator.log(data);
+            },
+            function (jqXHR, textStatus, errorThrown) {
+                Curator.log('Feed->_loadPosts fail');
+                Curator.log(textStatus);
+                Curator.log(errorThrown);
+            }
+        );
+    };
+
+    Widget.prototype.getUrl = function getUrl (trail) {
+        return this.options.apiEndpoint+trail;
+    };
+
+    Widget.prototype.destroy = function destroy () {
+        Curator.log('Widget->destroy');
+        if (this.feed) {
+            this.feed.destroy()
+        }
+        if (this.filter) {
+            this.filter.destroy()
+        }
+        if (this.popupManager) {
+            this.popupManager.destroy()
+        }
+    };
+
+    return Widget;
+}(EventBus));
 
 
-Curator.Waterfall = Waterfall;
-
+Curator.Widget = Widget;
 
 
 Curator.Config.Carousel = $.extend({}, Curator.Config.Defaults, {
@@ -2877,11 +4310,11 @@ Curator.Config.Carousel = $.extend({}, Curator.Config.Defaults, {
     },
 });
 
-var Carousel = (function (Client) {
+var Carousel = (function (Widget) {
     function Carousel (options) {
         var this$1 = this;
 
-        Client.call (this);
+        Widget.call (this);
 
         options.postsPerPage = 60;
 
@@ -2900,10 +4333,10 @@ var Carousel = (function (Client) {
             this.allLoaded = false;
 
             // this.$wrapper = $('<div class="crt-carousel-wrapper"></div>').appendTo(this.$container);
-            this.$feed = $('<div class="crt-feed"></div>').appendTo(this.$container);
+            this.$feed = $('<div class="crt-carousel-feed"></div>').appendTo(this.$container);
             this.$container.addClass('crt-carousel');
 
-            this.carousel = new window.CCarousel(this.$feed, this.options.carousel);
+            this.carousel = new Curator.UI.Carousel(this.$feed, this.options.carousel);
             this.$feed.on('curatorCarousel:changed', function (event, carousel, currentSlide) {
                 // console.log('curatorCarousel:changed '+currentSlide);
                 // console.log('curatorCarousel:changed '+(that.feed.postsLoaded-carousel.PANES_VISIBLE));
@@ -2920,8 +4353,8 @@ var Carousel = (function (Client) {
         }
     }
 
-    if ( Client ) Carousel.__proto__ = Client;
-    Carousel.prototype = Object.create( Client && Client.prototype );
+    if ( Widget ) Carousel.__proto__ = Widget;
+    Carousel.prototype = Object.create( Widget && Widget.prototype );
     Carousel.prototype.constructor = Carousel;
 
     Carousel.prototype.loadMorePosts = function loadMorePosts () {
@@ -2974,7 +4407,7 @@ var Carousel = (function (Client) {
     };
 
     Carousel.prototype.destroy = function destroy () {
-        Client.prototype.destroy.call(this);
+        Widget.prototype.destroy.call(this);
 
         this.carousel.destroy();
         this.$feed.remove();
@@ -2993,33 +4426,18 @@ var Carousel = (function (Client) {
     };
 
     return Carousel;
-}(Client));
+}(Widget));
 
 
 Curator.Carousel = Carousel;
 
-Curator.Config.Panel = $.extend({}, Curator.Config.Defaults, {
-    panel: {
-        // speed: 500,
-        autoPlay: true,
-        autoLoad: true,
-        moveAmount:1,
-        fixedHeight:false,
-        infinite:true,
-        minWidth:2000
-    }
+Curator.Config.Custom = $.extend({}, Curator.Config.Defaults, {
 });
 
-var Panel = (function (superclass) {
-    function Panel  (options) {
-        var this$1 = this;
 
-        superclass.call (this);
-
-        this.setOptions (options,  Curator.Config.Panel);
-
-        Curator.log("Panel->init with options:");
-        Curator.log(this.options);
+var Custom = (function (Widget) {
+    function Custom  (options) {
+        Widget.call (this);
 
         this.containerHeight=0;
         this.loading=false;
@@ -3027,43 +4445,28 @@ var Panel = (function (superclass) {
         this.$container=null;
         this.$feed=null;
         this.posts=[];
+        this.totalPostsLoaded=0;
+        this.allLoaded=false;
+
+        this.setOptions (options,  Curator.Config.Custom);
+
+        Curator.log("Panel->init with options:");
+        Curator.log(this.options);
 
         if (this.init (this)) {
-            this.allLoaded = false;
-
             this.$feed = $('<div class="crt-feed"></div>').appendTo(this.$container);
-            this.$container.addClass('crt-panel');
+            this.$container.addClass('crt-custom');
 
-            if (this.options.panel.fixedHeight) {
-                this.$container.addClass('crt-panel-fixed-height');
-            }
-
-            this.$feed.curatorCarousel(this.options.panel);
-            this.$feed.on('curatorCarousel:changed', function (event, carousel, currentSlide) {
-                if (!this$1.allLoaded && this$1.options.panel.autoLoad) {
-                    if (currentSlide >= this$1.feed.postsLoaded - 4) {
-                        this$1.loadMorePosts();
-                    }
-                }
-            });
-
-            // load first set of posts
             this.loadPosts(0);
         }
     }
 
-    if ( superclass ) Panel.__proto__ = superclass;
-    Panel.prototype = Object.create( superclass && superclass.prototype );
-    Panel.prototype.constructor = Panel;
+    if ( Widget ) Custom.__proto__ = Widget;
+    Custom.prototype = Object.create( Widget && Widget.prototype );
+    Custom.prototype.constructor = Custom;
 
-    Panel.prototype.loadMorePosts = function loadMorePosts () {
-        Curator.log('Carousel->loadMorePosts');
-
-        this.feed.loadPosts(this.feed.currentPage+1);
-    };
-
-    Panel.prototype.onPostsLoaded = function onPostsLoaded (posts) {
-        Curator.log("Carousel->onPostsLoaded");
+    Custom.prototype.onPostsLoaded = function onPostsLoaded (posts) {
+        Curator.log("Custom->onPostsLoaded");
 
         this.loading = false;
 
@@ -3071,14 +4474,12 @@ var Panel = (function (superclass) {
             this.allLoaded = true;
         } else {
             var that = this;
-            var $els = [];
+            var postElements = [];
             $(posts).each(function(){
                 var p = that.createPostElement(this);
-                $els.push(p.$el);
+                postElements.push(p.$el);
+                that.$feed.append(p.$el);
             });
-
-            that.$feed.curatorCarousel('add',$els);
-            that.$feed.curatorCarousel('update');
 
             this.popupManager.setPosts(posts);
 
@@ -3086,24 +4487,26 @@ var Panel = (function (superclass) {
         }
     };
 
-    Panel.prototype.onPostsFail = function onPostsFail (data) {
-        Curator.log("Carousel->onPostsFail");
+    Custom.prototype.onPostsFailed = function onPostsFailed (data) {
+        Curator.log("Custom->onPostsFailed");
         this.loading = false;
         this.$feed.html('<p style="text-align: center">'+data.message+'</p>');
     };
 
-    Panel.prototype.destroy = function destroy () {
+    Custom.prototype.onPostClick = function onPostClick (ev,post) {
+        this.popupManager.showPopup(post);
+    };
 
-        superclass.prototype.destroy.call(this);
+    Custom.prototype.destroy = function destroy () {
+        Widget.prototype.destroy.call(this);
 
-        this.$feed.curatorCarousel('destroy');
         this.$feed.remove();
-        this.$container.removeClass('crt-panel');
+        this.$container.removeClass('crt-custom');
 
         delete this.$feed;
         delete this.$container;
         delete this.options ;
-        delete this.feed.postsLoaded;
+        delete this.totalPostsLoaded;
         delete this.loading;
         delete this.allLoaded;
 
@@ -3112,58 +4515,22 @@ var Panel = (function (superclass) {
         delete this.feed;
     };
 
-    return Panel;
-}(Curator.Client));
-
-Curator.Panel = Panel;
+    return Custom;
+}(Widget));
 
 Curator.Config.Grid = $.extend({}, Curator.Config.Defaults, {
-    postTemplate:'#gridPostTemplate',
+    templatePost:'v2-grid-post',
+    templateFeed:'v2-grid-feed',
     grid: {
         minWidth:200,
         rows:3
     }
 });
 
-Curator.Templates.gridPostTemplate = ' \
-<div class="crt-post-c">\
-    <div class="crt-post post<%=id%> <%=this.contentImageClasses()%> <%=this.contentTextClasses()%>"> \
-        <div class="crt-post-content"> \
-            <div class="crt-hitarea" > \
-                <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer" /> \
-                <div class="crt-post-content-image" style="background-image: url(<%=image%>);"> </div> \
-                <div class="crt-post-content-text-c"> \
-                    <div class="crt-post-content-text"> \
-                        <%=this.parseText(text)%> \
-                    </div> \
-                </div> \
-                <a href="javascript:;" class="crt-play"><i class="crt-play-icon"></i></a> \
-                <span class="crt-social-icon crt-social-icon-normal"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \
-                <div class="crt-post-hover">\
-                    <div class="crt-post-header"> \
-                        <img src="<%=user_image%>"  /> \
-                        <div class="crt-post-name"><span><%=user_full_name%></span><br/><a href="<%=this.userUrl()%>" target="_blank">@<%=user_screen_name%></a></div> \
-                    </div> \
-                    <div class="crt-post-hover-text"> \
-                        <%=this.parseText(text)%> \
-                    </div> \
-                    <span class="crt-social-icon crt-social-icon-hover"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \
-                </div> \
-            </div> \
-        </div> \
-    </div>\
-</div>';
 
-Curator.Templates.gridFeedTemplate = ' \
-<div class="crt-feed-window">\
-    <div class="crt-feed"></div>\
-</div>\
-<div class="crt-feed-more"><a href="#">Load more</a></div>';
-
-
-var Grid = (function (Client) {
+var Grid = (function (Widget) {
     function Grid  (options) {
-        Client.call (this);
+        Widget.call (this);
 
         this.setOptions (options,  Curator.Config.Grid);
 
@@ -3184,7 +4551,7 @@ var Grid = (function (Client) {
 
         if (this.init (this)) {
 
-            var tmpl = Curator.Template.render('#gridFeedTemplate', {});
+            var tmpl = Curator.Template.render(this.options.templateFeed, {});
             this.$container.append(tmpl);
             this.$feed = this.$container.find('.crt-feed');
             this.$feedWindow = this.$container.find('.crt-feed-window');
@@ -3218,8 +4585,8 @@ var Grid = (function (Client) {
         }
     }
 
-    if ( Client ) Grid.__proto__ = Client;
-    Grid.prototype = Object.create( Client && Client.prototype );
+    if ( Widget ) Grid.__proto__ = Widget;
+    Grid.prototype = Object.create( Widget && Widget.prototype );
     Grid.prototype.constructor = Grid;
 
     Grid.prototype.loadPosts = function loadPosts () {
@@ -3338,7 +4705,7 @@ var Grid = (function (Client) {
     };
 
     Grid.prototype.createPostElement = function createPostElement (postJson) {
-        var post = new Curator.Post(postJson, this.options);
+        var post = new Curator.Post(postJson, this.options, this);
         $(post).bind('postClick',$.proxy(this.onPostClick, this));
         
         if (this.options.onPostCreated) {
@@ -3367,7 +4734,7 @@ var Grid = (function (Client) {
     };
 
     Grid.prototype.destroy = function destroy () {
-        Client.prototype.destroy.call(this);
+        Widget.prototype.destroy.call(this);
 
         this.destroyHandlers();
 
@@ -3389,18 +4756,33 @@ var Grid = (function (Client) {
     };
 
     return Grid;
-}(Client));
+}(Widget));
 
 Curator.Grid = Grid;
 
 
-Curator.Config.Custom = $.extend({}, Curator.Config.Defaults, {
+Curator.Config.Panel = $.extend({}, Curator.Config.Defaults, {
+    panel: {
+        // speed: 500,
+        autoPlay: true,
+        autoLoad: true,
+        moveAmount:1,
+        fixedHeight:false,
+        infinite:true,
+        minWidth:2000
+    }
 });
 
+var Panel = (function (Widget) {
+    function Panel  (options) {
+        var this$1 = this;
 
-var Custom = (function (superclass) {
-    function Custom  (options) {
-        superclass.call (this);
+        Widget.call (this);
+
+        this.setOptions (options,  Curator.Config.Panel);
+
+        Curator.log("Panel->init with options:");
+        Curator.log(this.options);
 
         this.containerHeight=0;
         this.loading=false;
@@ -3408,28 +4790,43 @@ var Custom = (function (superclass) {
         this.$container=null;
         this.$feed=null;
         this.posts=[];
-        this.totalPostsLoaded=0;
-        this.allLoaded=false;
-
-        this.setOptions (options,  Curator.Config.Custom);
-
-        Curator.log("Panel->init with options:");
-        Curator.log(this.options);
 
         if (this.init (this)) {
-            this.$feed = $('<div class="crt-feed"></div>').appendTo(this.$container);
-            this.$container.addClass('crt-custom');
+            this.allLoaded = false;
 
+            this.$feed = $('<div class="crt-feed"></div>').appendTo(this.$container);
+            this.$container.addClass('crt-panel');
+
+            if (this.options.panel.fixedHeight) {
+                this.$container.addClass('crt-panel-fixed-height');
+            }
+
+            this.$feed.curatorCarousel(this.options.panel);
+            this.$feed.on('curatorCarousel:changed', function (event, carousel, currentSlide) {
+                if (!this$1.allLoaded && this$1.options.panel.autoLoad) {
+                    if (currentSlide >= this$1.feed.postsLoaded - 4) {
+                        this$1.loadMorePosts();
+                    }
+                }
+            });
+
+            // load first set of posts
             this.loadPosts(0);
         }
     }
 
-    if ( superclass ) Custom.__proto__ = superclass;
-    Custom.prototype = Object.create( superclass && superclass.prototype );
-    Custom.prototype.constructor = Custom;
+    if ( Widget ) Panel.__proto__ = Widget;
+    Panel.prototype = Object.create( Widget && Widget.prototype );
+    Panel.prototype.constructor = Panel;
 
-    Custom.prototype.onPostsLoaded = function onPostsLoaded (posts) {
-        Curator.log("Custom->onPostsLoaded");
+    Panel.prototype.loadMorePosts = function loadMorePosts () {
+        Curator.log('Carousel->loadMorePosts');
+
+        this.feed.loadPosts(this.feed.currentPage+1);
+    };
+
+    Panel.prototype.onPostsLoaded = function onPostsLoaded (posts) {
+        Curator.log("Carousel->onPostsLoaded");
 
         this.loading = false;
 
@@ -3437,12 +4834,14 @@ var Custom = (function (superclass) {
             this.allLoaded = true;
         } else {
             var that = this;
-            var postElements = [];
+            var $els = [];
             $(posts).each(function(){
                 var p = that.createPostElement(this);
-                postElements.push(p.$el);
-                that.$feed.append(p.$el);
+                $els.push(p.$el);
             });
+
+            that.$feed.curatorCarousel('add',$els);
+            that.$feed.curatorCarousel('update');
 
             this.popupManager.setPosts(posts);
 
@@ -3450,23 +4849,163 @@ var Custom = (function (superclass) {
         }
     };
 
-    Custom.prototype.onPostsFailed = function onPostsFailed (data) {
-        Curator.log("Custom->onPostsFailed");
+    Panel.prototype.onPostsFail = function onPostsFail (data) {
+        Curator.log("Carousel->onPostsFail");
         this.loading = false;
         this.$feed.html('<p style="text-align: center">'+data.message+'</p>');
     };
 
-    Custom.prototype.onPostClick = function onPostClick (ev,post) {
-        this.popupManager.showPopup(post);
-    };
+    Panel.prototype.destroy = function destroy () {
 
-    Custom.prototype.destroy = function destroy () {
-        superclass.prototype.destroy.call(this);
+        Widget.prototype.destroy.call(this);
 
+        this.$feed.curatorCarousel('destroy');
         this.$feed.remove();
-        this.$container.removeClass('crt-custom');
+        this.$container.removeClass('crt-panel');
 
         delete this.$feed;
+        delete this.$container;
+        delete this.options ;
+        delete this.feed.postsLoaded;
+        delete this.loading;
+        delete this.allLoaded;
+
+        // TODO add code to cascade destroy down to Feed & Posts
+        // unregistering events etc
+        delete this.feed;
+    };
+
+    return Panel;
+}(Widget));
+
+Curator.Panel = Panel;
+
+
+Curator.Config.Waterfall = $.extend({}, Curator.Config.Defaults, {
+    scroll:'more',
+    waterfall: {
+        gridWidth:300,
+        animate:true,
+        animateSpeed:400
+    }
+});
+
+
+var Waterfall = (function (Widget) {
+    function Waterfall (options) {
+        var this$1 = this;
+
+        Widget.call (this);
+
+        this.setOptions (options,  Curator.Config.Waterfall);
+
+        Curator.log("Waterfall->init with options:");
+        Curator.log(this.options);
+
+        if (this.init (this)) {
+            this.$scroll = $('<div class="crt-feed-scroll"></div>').appendTo(this.$container);
+            this.$feed = $('<div class="crt-feed"></div>').appendTo(this.$scroll);
+            this.$container.addClass('crt-feed-container');
+
+            if (this.options.scroll === 'continuous') {
+                $(this.$scroll).scroll(function () {
+                    var height = this$1.$scroll.height();
+                    var cHeight = this$1.$feed.height();
+                    var scrollTop = this$1.$scroll.scrollTop();
+                    if (scrollTop >= cHeight - height) {
+                        this$1.loadMorePosts();
+                    }
+                });
+            } else if (this.options.scroll === 'none') {
+                // no scroll - use javascript to trigger loading
+            } else {
+                // default to more
+                this.$more = $('<div class="crt-feed-more"><a href="#"><span>Load more</span></a></div>').appendTo(this.$scroll);
+                this.$more.find('a').on('click',function (ev) {
+                    ev.preventDefault();
+                    this$1.loadMorePosts();
+                });
+            }
+
+            this.ui = new Curator.UI.Waterfall({
+                selector:'.crt-post-c',
+                gutter:0,
+                width:this.options.waterfall.gridWidth,
+                animate:this.options.waterfall.animate,
+                animationOptions: {
+                    speed: (this.options.waterfall.animateSpeed/2),
+                    duration: this.options.waterfall.animateSpeed
+                }
+            },this.$feed);
+
+            this.on(Curator.Events.FILTER_CHANGED, function (event) {
+                this$1.$feed.find('.crt-post-c').remove();
+            });
+
+            // Load first set of posts
+            this.feed.load();
+        }
+    }
+
+    if ( Widget ) Waterfall.__proto__ = Widget;
+    Waterfall.prototype = Object.create( Widget && Widget.prototype );
+    Waterfall.prototype.constructor = Waterfall;
+
+    Waterfall.prototype.loadMorePosts = function loadMorePosts () {
+        Curator.log('Waterfall->loadMorePosts');
+
+        this.feed.loadAfter();
+    };
+
+    Waterfall.prototype.onPostsLoaded = function onPostsLoaded (posts) {
+        Curator.log("Waterfall->onPostsLoaded");
+
+        var postElements = this.createPostElements (posts);
+
+        //this.$feed.append(postElements);
+        this.ui.append(postElements);
+
+        var that = this;
+        $.each(postElements,function (i) {
+            var post = this;
+            if (that.options.waterfall.showReadMore) {
+                post.find('.crt-post')
+                    .addClass('crt-post-show-read-more');
+            }
+        });
+
+        if (this.feed.allPostsLoaded) {
+            this.$more.hide();
+        }
+
+        this.popupManager.setPosts(posts);
+
+        this.loading = false;
+        this.options.onPostsLoaded (this, posts);
+    };
+
+    Waterfall.prototype.onPostsFailed = function onPostsFailed (data) {
+        this.loading = false;
+        this.$feed.html('<p style="text-align: center">'+data.message+'</p>');
+    };
+
+    Waterfall.prototype.destroy = function destroy () {
+        Curator.log('Waterfall->destroy');
+        //this.$feed.slick('unslick');
+
+        Widget.prototype.destroy.call(this);
+
+        this.ui.destroy ();
+
+        this.$feed.remove();
+        this.$scroll.remove();
+        if (this.$more) {
+            this.$more.remove();
+        }
+        this.$container.removeClass('crt-feed-container');
+
+        delete this.$feed;
+        delete this.$scroll;
         delete this.$container;
         delete this.options ;
         delete this.totalPostsLoaded;
@@ -3478,9 +5017,13 @@ var Custom = (function (superclass) {
         delete this.feed;
     };
 
-    return Custom;
-}(Curator.Client));
+    return Waterfall;
+}(Widget));
 
 
+Curator.Waterfall = Waterfall;
+
+
+	root.Curator = Curator;
 	return Curator;
 }));

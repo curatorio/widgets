@@ -1,7 +1,5 @@
 
 
-
-
 .crt-feed-container {
     min-height: 400px;
     position: relative;
@@ -17,11 +15,9 @@
     .crt-feed {
         width:100%;
         @extend .crt-clearfix;
-
-        -webkit-font-smoothing:antialiased;
     }
 
-    .crt-post-c {
+    .crt-post-v1 {
         width: 100%;
         float: none;
         display: block;
@@ -32,8 +28,13 @@
         }
     }
 
+    .crt-post-v2 {
+        margin: 0 12px 24px;
+        width: auto;
+        float: none;
+    }
+
     .crt-feed-more {
-        //background-color: $color-feed-bg;
         padding: 4px;
 
         a {
@@ -44,10 +45,11 @@
             display: block;
             text-align: center;
             padding: 20px;
-            border-radius: 4px;
+            border-radius: 0;
             //text-transform: uppercase;
             text-decoration: none;
-
+            border: 1px solid $color-v2-post-border;
+            box-shadow: 0px 2px 30px $color-v2-post-shadow;
         }
     }
 }

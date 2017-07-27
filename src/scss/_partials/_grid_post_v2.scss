@@ -1,0 +1,118 @@
+
+/**
+* ==================================================================
+* Grid POST
+* ==================================================================
+ */
+
+.crt-grid-post-v2 {
+    border: 0;
+    margin: 0;
+    float: left;
+
+    .crt-post-c {
+        overflow: hidden;
+        position: relative;
+        margin-left: 1px;
+        margin-bottom: 1px;
+    }
+
+    img.spacer {
+        width: 100%;
+        display: block;
+        margin: 0 !important;
+        padding: 0 !important;
+        position: relative;
+    }
+
+    .crt-post-normal {
+        .crt-post-content-image {
+            position: absolute;
+            top:0;
+            left:0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center center;
+            z-index: 1;
+        }
+
+        .crt-social-icon {
+            position: absolute;
+            right: 17px;
+            bottom: 15px;
+            z-index: 3;
+            font-size: 24px;
+            transition: opacity .2s linear;
+            color: #ffffff;
+        }
+    }
+	//
+    //.crt-post-content-text-c {
+	//
+    //    .crt-post-content-text {
+    //        font-size: 20px;
+    //    }
+    //    z-index: 2;
+    //}
+
+    .crt-post-hover {
+        position: absolute;
+        top:0px;
+        left:0px;
+        right:0px;
+        bottom:0px;
+        background-color: #ffffff;
+        z-index: 3;
+        opacity: 0;
+        transition: opacity .4s linear;
+
+        .crt-post-content-text {
+            padding-left: 17px;
+            padding-right: 17px;
+            padding-bottom: 28px;
+            color: $color-post-text;
+            font-size: $font-size-post-text;
+            line-height: $line-height-post-text;
+            text-align: center;
+
+            a {
+                color: $color-post-text-link;
+
+                &:hover {
+                    color: darken($color-post-header-text, 25);
+                }
+            }
+
+            .crt-image {
+                display: none;
+            }
+        }
+
+
+        .crt-post-footer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+        }
+
+    }
+
+    .crt-hitarea:hover {
+        .crt-social-icon-normal {
+            opacity: 0;
+
+        }
+        .crt-post-hover {
+            display: block;
+            opacity: 1;
+        }
+    }
+
+    &.crt-post-has-image {
+        .crt-post-content-text-c {
+            display: none;
+        }
+    }
+}

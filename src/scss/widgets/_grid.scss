@@ -8,7 +8,7 @@
 	@include crt-clearfix();
 
 
-	.crt-post-c {
+	.crt-grid-post {
 		width: 33%;
 	}
 
@@ -16,7 +16,7 @@
 	@each $size in $size-list {
 		$i: index($size-list, $size);
 		&.crt-grid-col#{$i} {
-			.crt-post-c {
+			.crt-grid-post {
 				width: (100% / $size);
 			}
 		}

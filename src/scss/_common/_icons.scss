@@ -1,4 +1,7 @@
 
+[class^="crt-icon-"]:before, [class*=" crt-icon-"]:before {
+    margin: 0;
+}
 
 .crt-icon-google {
     @extend .crt-icon-gplus-1;

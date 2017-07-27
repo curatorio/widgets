@@ -1,0 +1,165 @@
+
+/**
+* ==================================================================
+* POST
+* ==================================================================
+ */
+
+.crt-post-v2 {
+    &.crt-post {
+
+        float: left;
+        z-index: 1;
+
+        .crt-post-border {
+            box-shadow: 0px 2px 30px $color-v2-post-shadow;
+            border-radius: $post-border-radius;
+            border: 1px solid $color-v2-post-border;
+        }
+
+        .crt-post-c {
+            position: relative;
+            overflow: hidden;
+            background-color: $color-v2-post-background;
+        }
+
+        a {
+            transition: color 0.2s linear;
+        }
+
+        .crt-post-content-image {
+            max-height: 400px;
+            overflow: hidden;
+            position: relative;
+
+            .text {
+                display: none;
+            }
+            IMG {
+                width: 100%;
+            }
+
+            .crt-play-icon {
+                display: none;
+            }
+        }
+
+        .crt-post-content-text {
+            padding-left: 17px;
+            padding-right: 17px;
+            padding-bottom: 28px;
+            color: $color-post-text;
+            font-size: $font-size-post-text;
+            line-height: $line-height-post-text;
+            text-align: center;
+
+            a {
+                color: $color-post-text-link;
+
+                &:hover {
+                    color: darken($color-post-header-text, 25);
+                }
+            }
+
+            .crt-image {
+                display: none;
+            }
+        }
+
+        .crt-post-read-more {
+            display: none;
+            text-align: center;
+
+            margin: 0.5em;
+
+            .crt-post-read-more-button {
+                display: inline-block;
+                background-color: #ddd;
+                text-decoration: none;
+                height: 2.5em;
+                line-height: 2.5em;
+                padding: 0 1em;
+                border-radius: 00.1em;
+                color: #666;
+            }
+        }
+
+        &.crt-post-show-read-more {
+            .crt-post-read-more {
+                display: block;
+            }
+        }
+
+        .crt-play {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            .crt-play-icon {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                margin-top: -20px;
+                margin-left: -10px;
+
+                @include play(20px, 2px);
+            }
+        }
+
+        &.has-video {
+            .crt-play-icon {
+                display: block;
+            }
+
+            .crt-hitarea {
+                &:hover, &:focus {
+                    i {
+                        &:before {
+                            transform: scale(1.1);
+                            -webkit-transform: scale(1.1);
+                            -moz-transform: scale(1.1);
+                        }
+                    }
+                }
+            }
+        }
+
+        &.crt-post-max-height {
+
+            .crt-post {
+                .crt-post-share {
+                    bottom: -50px;
+                    display: none;
+                }
+            }
+
+            .crt-post-read-more {
+                display: block;
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                text-align: center;
+                padding-bottom: 0.5em;
+                padding-top: 4em;
+
+                margin: 0em;
+
+                /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#000000+0,131313+100 */
+
+                $gradEnd: rgba(239, 239, 239, 1);
+                $gradEndStop: 50%;
+
+                background: rgba(0, 0, 0, 0);
+                background: -moz-linear-gradient(top, rgba(0, 0, 0, 0) 0%, $gradEnd $gradEndStop);
+                background: -webkit-gradient(left top, left bottom, color-stop(0%, rgba(0, 0, 0, 0)), color-stop($gradEndStop, $gradEnd));
+                background: -webkit-linear-gradient(top, rgba(0, 0, 0, 0) 0%, $gradEnd $gradEndStop);
+                background: -o-linear-gradient(top, rgba(0, 0, 0, 0) 0%, $gradEnd $gradEndStop);
+                background: -ms-linear-gradient(top, rgba(0, 0, 0, 0) 0%, $gradEnd $gradEndStop);
+                background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, $gradEnd $gradEndStop);
+                filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#000000', endColorstr='#000000', GradientType=0);
+            }
+        }
+    }
+}

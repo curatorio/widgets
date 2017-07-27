@@ -7,7 +7,7 @@ $line-height-post-header-text:  1.1em;
 $font-size-post-text:           1.0em;
 $line-height-post-text:         1.2em;
 
-$color-primary:             #efefef;
+$color-primary:             #fff;
 $color-secondary:           #2B2B2B;
 $color-tertiary:            #707070;
 
@@ -26,18 +26,33 @@ $color-post-text-link:      $color-secondary;
 $color-post-share-bg:       opacify($color-post-header-bg, 1);
 $color-post-share-text:     $color-secondary;
 
+// v2
+
+$color-v2-post-background:       #ffffff;
+$color-v2-post-border:           rgba(0,0,0,0.10);
+$color-v2-post-shadow:           rgba(0,0,0,0);
+
+
 @import "_common/mixins";
 @import "_vendor/fontello/css/crt-icon";
 
 @import "_common/icons";
 @import "_common/general";
 
-@import "_partials/post";
 @import "_partials/tag";
 @import "_partials/popup";
 @import "_partials/play";
 @import "_partials/filter";
 @import "_partials/responsive-image";
 
+// Themes - v1
+@import "_partials/post_v1";
+@import "_partials/grid_post_v1";
+
+// Themes - v2
+@import "_partials/post_v2";
+@import "_partials/post_footer_v2";
+@import "_partials/post_header_v2";
+@import "_partials/grid_post_v2";
 
 
