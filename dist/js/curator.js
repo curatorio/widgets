@@ -4967,7 +4967,7 @@ var Waterfall = (function (Widget) {
     Waterfall.prototype.loadPage = function loadPage (page) {
         Curator.log('Waterfall->loadPage');
 
-        this.$feed.find('.crt-post-c').remove();
+        this.$feed.find('.crt-post').remove();
 
         this.feed.loadPosts(page);
     };

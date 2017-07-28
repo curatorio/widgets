@@ -74,7 +74,7 @@ class Waterfall extends Widget {
     loadPage  (page) {
         Curator.log('Waterfall->loadPage');
 
-        this.$feed.find('.crt-post-c').remove();
+        this.$feed.find('.crt-post').remove();
 
         this.feed.loadPosts(page);
     }
