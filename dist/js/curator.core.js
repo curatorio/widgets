@@ -246,6 +246,7 @@ var Curator = {
             templatePost:'v2-post',
             templatePopup:'v1-popup',
             templatePopupWrapper:'v1-popup-wrapper',
+            templateFilter:'v1-filter', 
             onPostsLoaded: function () {
 
             },
@@ -637,7 +638,7 @@ var Filter = function Filter (client) {
     this.client = client;
     this.options = client.options;
 
-    this.$filter = Curator.Template.render('#filterTemplate', {});
+    this.$filter = Curator.Template.render(this.options.templateFilter, {});
     this.$filterNetworks =  this.$filter.find('.crt-filter-networks');
     this.$filterNetworksUl =  this.$filter.find('.crt-filter-networks ul');
     this.$filterSources =  this.$filter.find('.crt-filter-sources');
@@ -1538,6 +1539,36 @@ var gridPostTemplate = ' \
 </div>';
 
 
+var v1PostTemplate = ' \
+<div class="crt-post-v1 crt-post-c">\
+    <div class="crt-post-bg"></div> \
+    <div class="crt-post post<%=id%> crt-post-<%=this.networkIcon()%>"> \
+        <div class="crt-post-header"> \
+            <span class="crt-social-icon"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \
+            <img src="<%=user_image%>"  /> \
+            <div class="crt-post-name">\
+            <div class="crt-post-fullname"><%=user_full_name%></div>\
+            <div class="crt-post-username"><a href="<%=this.userUrl()%>" target="_blank">@<%=user_screen_name%></a></div>\
+            </div> \
+        </div> \
+        <div class="crt-post-content"> \
+            <div class="crt-image crt-hitarea crt-post-content-image <%=this.contentImageClasses()%>" > \
+                <div class="crt-image-c"><img src="<%=image%>" class="crt-post-image" /></div> \
+                <span class="crt-play"><i class="crt-play-icon"></i></span> \
+            </div> \
+            <div class="text crt-post-content-text <%=this.contentTextClasses()%>"> \
+                <div class="crt-post-text-body"><%=this.parseText(text)%></div> \
+            </div> \
+        </div> \
+        <div class="crt-post-footer">\
+            <div class="crt-date"><%=this.prettyDate(source_created_at)%></div> \
+            <div class="crt-post-share"><span class="ctr-share-hint"></span><a href="#" class="crt-share-facebook"><i class="crt-icon-facebook"></i></a>  <a href="#" class="crt-share-twitter"><i class="crt-icon-twitter"></i></a></div>\
+        </div> \
+        <div class="crt-post-read-more"><a href="#" class="crt-post-read-more-button">Read more</a> </div> \
+    </div>\
+</div>';
+
+
 var v2GridFeedTemple = ' \
 <div class="crt-feed-window">\
     <div class="crt-feed"></div>\
@@ -1608,35 +1639,6 @@ var v2PostTemple = ' \
 
 
 
-var postTemplate = ' \
-<div class="crt-post-v1 crt-post-c">\
-    <div class="crt-post-bg"></div> \
-    <div class="crt-post post<%=id%> crt-post-<%=this.networkIcon()%>"> \
-        <div class="crt-post-header"> \
-            <span class="crt-social-icon"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \
-            <img src="<%=user_image%>"  /> \
-            <div class="crt-post-name">\
-            <div class="crt-post-fullname"><%=user_full_name%></div>\
-            <div class="crt-post-username"><a href="<%=this.userUrl()%>" target="_blank">@<%=user_screen_name%></a></div>\
-            </div> \
-        </div> \
-        <div class="crt-post-content"> \
-            <div class="crt-image crt-hitarea crt-post-content-image <%=this.contentImageClasses()%>" > \
-                <div class="crt-image-c"><img src="<%=image%>" class="crt-post-image" /></div> \
-                <span class="crt-play"><i class="crt-play-icon"></i></span> \
-            </div> \
-            <div class="text crt-post-content-text <%=this.contentTextClasses()%>"> \
-                <div class="crt-post-text-body"><%=this.parseText(text)%></div> \
-            </div> \
-        </div> \
-        <div class="crt-post-footer">\
-            <div class="crt-date"><%=this.prettyDate(source_created_at)%></div> \
-            <div class="crt-post-share"><span class="ctr-share-hint"></span><a href="#" class="crt-share-facebook"><i class="crt-icon-facebook"></i></a>  <a href="#" class="crt-share-twitter"><i class="crt-icon-twitter"></i></a></div>\
-        </div> \
-        <div class="crt-post-read-more"><a href="#" class="crt-post-read-more-button">Read more</a> </div> \
-    </div>\
-</div>';
-
 var popupWrapperTemplate = ' \
 <div class="crt-popup-wrapper"> \
     <div class="crt-popup-wrapper-c"> \
@@ -1696,7 +1698,7 @@ var filterTemplate = ' <div class="crt-filter"> \
 // V2
 
 Curator.Templates = {
-    'v1-post'            : postTemplate,
+    'v1-post'            : v1PostTemplate,
     'v1-filter'          : filterTemplate,
     'v1-popup'           : popupTemplate,
     'v1-popup-underlay'  : popupUnderlayTemplate,
@@ -1757,29 +1759,36 @@ if ($.zepto) {
 	Curator.UI.CarouselSettings.easing = 'ease-in-out';
 }
 
-var CarouselUI = function CarouselUI (container, options) {
-	Curator.log('CarouselUI->construct');
+var CarouselUI = (function (EventBus) {
+	function CarouselUI (container, options) {
+		Curator.log('CarouselUI->construct');
 
-	this.current_position=0;
-	this.animating=false;
-	this.timeout=null;
-	this.FAKE_NUM=0;
-	this.PANES_VISIBLE=0;
+        EventBus.call (this);
 
-	this.options = $.extend({}, Curator.UI.CarouselSettings, options);
+		this.current_position=0;
+		this.animating=false;
+		this.timeout=null;
+		this.FAKE_NUM=0;
+		this.PANES_VISIBLE=0;
 
-	this.$viewport = $(container); // <div> slider, known as $viewport
+		this.options = $.extend({}, Curator.UI.CarouselSettings, options);
 
-	this.$panes = this.$viewport.children();
-	this.$panes.detach();
+		this.$viewport = $(container); // <div> slider, known as $viewport
 
-	this.$stage = $('<div class="ctr-carousel-stage"></div>').appendTo(this.$viewport);
-	this.$pane_slider = $('<div class="ctr-carousel-slider"></div>').appendTo(this.$stage);
+		this.$panes = this.$viewport.children();
+		this.$panes.detach();
 
-	this.addControls();
-	this.createHandlers();
+		this.$stage = $('<div class="ctr-carousel-stage"></div>').appendTo(this.$viewport);
+		this.$pane_slider = $('<div class="ctr-carousel-slider"></div>').appendTo(this.$stage);
+
+		this.addControls();
+		this.createHandlers();
         this.update ();
-};
+	}
+
+	if ( EventBus ) CarouselUI.__proto__ = EventBus;
+	CarouselUI.prototype = Object.create( EventBus && EventBus.prototype );
+	CarouselUI.prototype.constructor = CarouselUI;
 
     CarouselUI.prototype.createHandlers = function createHandlers () {
         var this$1 = this;
@@ -1800,73 +1809,73 @@ var CarouselUI = function CarouselUI (container, options) {
         // $(document).off('ready.'+id);
     };
 
-CarouselUI.prototype.update = function update () {
+	CarouselUI.prototype.update = function update () {
         Curator.log('CarouselUI->update ');
-	this.$panes = this.$pane_slider.children(); // <li> list items, known as $panes
-	this.NUM_PANES = this.options.circular ? (this.$panes.length + 1) : this.$panes.length;
+		this.$panes = this.$pane_slider.children(); // <li> list items, known as $panes
+		this.NUM_PANES = this.options.circular ? (this.$panes.length + 1) : this.$panes.length;
 
-	if (this.NUM_PANES > 0) {
-		this.resize();
-		this.move (this.current_position, true);
+		if (this.NUM_PANES > 0) {
+			this.resize();
+			this.move (this.current_position, true);
 
-		if (!this.animating) {
-			if (this.options.autoPlay) {
-				this.animate();
+			if (!this.animating) {
+				if (this.options.autoPlay) {
+					this.animate();
+				}
 			}
 		}
-	}
-};
+	};
 
-CarouselUI.prototype.add = function add ($els) {
+	CarouselUI.prototype.add = function add ($els) {
         Curator.log('CarouselUI->add '+$els.length);
 
-	this.$pane_slider.append($els);
-	this.$panes = this.$pane_slider.children();
-};
+		this.$pane_slider.append($els);
+		this.$panes = this.$pane_slider.children();
+	};
 
-CarouselUI.prototype.resize = function resize () {
+	CarouselUI.prototype.resize = function resize () {
 		var this$1 = this;
 
-	var PANE_WRAPPER_WIDTH = this.options.infinite ? ((this.NUM_PANES+1) * 100) + '%' : (this.NUM_PANES * 100) + '%'; // % width of slider (total panes * 100)
+		var PANE_WRAPPER_WIDTH = this.options.infinite ? ((this.NUM_PANES+1) * 100) + '%' : (this.NUM_PANES * 100) + '%'; // % width of slider (total panes * 100)
 
-	this.$pane_slider.css({width: PANE_WRAPPER_WIDTH}); // set css on pane slider
+		this.$pane_slider.css({width: PANE_WRAPPER_WIDTH}); // set css on pane slider
 
-	this.VIEWPORT_WIDTH = this.$viewport.width();
+		this.VIEWPORT_WIDTH = this.$viewport.width();
 
-	if (this.options.panesVisible) {
-		// TODO - change to check if it's a function or a number
-		this.PANES_VISIBLE = this.options.panesVisible();
-		this.PANE_WIDTH = (this.VIEWPORT_WIDTH / this.PANES_VISIBLE);
-	} else {
-		this.PANES_VISIBLE = this.VIEWPORT_WIDTH < this.options.minWidth ? 1 : Math.floor(this.VIEWPORT_WIDTH / this.options.minWidth);
-		this.PANE_WIDTH = (this.VIEWPORT_WIDTH / this.PANES_VISIBLE);
-	}
-
-	if (this.options.infinite) {
-
-		this.$panes.filter('.crt-clone').remove();
-
-		for(var i = this.NUM_PANES-1; i > this.NUM_PANES - 1 - this.PANES_VISIBLE; i--)
-		{
-			// console.log(i);
-			var first = this$1.$panes.eq(i).clone();
-			first.addClass('crt-clone');
-			first.css('opacity','1');
-			// Should probably move this out to an event
-			first.find('.crt-post-image').css({opacity:1});
-			this$1.$pane_slider.prepend(first);
-			this$1.FAKE_NUM = this$1.PANES_VISIBLE;
+		if (this.options.panesVisible) {
+			// TODO - change to check if it's a function or a number
+			this.PANES_VISIBLE = this.options.panesVisible();
+			this.PANE_WIDTH = (this.VIEWPORT_WIDTH / this.PANES_VISIBLE);
+		} else {
+			this.PANES_VISIBLE = this.VIEWPORT_WIDTH < this.options.minWidth ? 1 : Math.floor(this.VIEWPORT_WIDTH / this.options.minWidth);
+			this.PANE_WIDTH = (this.VIEWPORT_WIDTH / this.PANES_VISIBLE);
 		}
-		this.$panes = this.$pane_slider.children();
 
-	}
+		if (this.options.infinite) {
 
-	this.$panes.each(function (index, pane) {
-		$(pane).css( {width: this$1.PANE_WIDTH+'px'});
-	});
-};
+			this.$panes.filter('.crt-clone').remove();
 
-CarouselUI.prototype.updateLayout = function updateLayout () {
+			for(var i = this.NUM_PANES-1; i > this.NUM_PANES - 1 - this.PANES_VISIBLE; i--)
+			{
+				// console.log(i);
+				var first = this$1.$panes.eq(i).clone();
+				first.addClass('crt-clone');
+				first.css('opacity','1');
+				// Should probably move this out to an event
+				first.find('.crt-post-image').css({opacity:1});
+				this$1.$pane_slider.prepend(first);
+				this$1.FAKE_NUM = this$1.PANES_VISIBLE;
+			}
+			this.$panes = this.$pane_slider.children();
+
+		}
+
+		this.$panes.each(function (index, pane) {
+			$(pane).css( {width: this$1.PANE_WIDTH+'px'});
+		});
+	};
+
+	CarouselUI.prototype.updateLayout = function updateLayout () {
         this.resize();
         this.move (this.current_position, true);
 
@@ -1874,114 +1883,118 @@ CarouselUI.prototype.updateLayout = function updateLayout () {
         if (this.options.autoPlay) {
             this.animate();
         }
-};
+	};
 
-CarouselUI.prototype.animate = function animate () {
+	CarouselUI.prototype.animate = function animate () {
 		var this$1 = this;
 
-	this.animating = true;
-	clearTimeout(this.timeout);
-	this.timeout = setTimeout(function () {
-		this$1.next();
-	}, this.options.speed);
-};
+		this.animating = true;
+		clearTimeout(this.timeout);
+		this.timeout = setTimeout(function () {
+			this$1.next();
+		}, this.options.speed);
+	};
 
-CarouselUI.prototype.next = function next () {
-	var move = this.options.moveAmount ? this.options.moveAmount : this.PANES_VISIBLE ;
-	this.move(this.current_position + move, false);
-};
+	CarouselUI.prototype.next = function next () {
+		var move = this.options.moveAmount ? this.options.moveAmount : this.PANES_VISIBLE ;
+		this.move(this.current_position + move, false);
+	};
 
-CarouselUI.prototype.prev = function prev () {
-	var move = this.options.moveAmount ? this.options.moveAmount : this.PANES_VISIBLE ;
-	this.move(this.current_position - move, false);
-};
+	CarouselUI.prototype.prev = function prev () {
+		var move = this.options.moveAmount ? this.options.moveAmount : this.PANES_VISIBLE ;
+		this.move(this.current_position - move, false);
+	};
 
-CarouselUI.prototype.move = function move (i, noAnimate) {
-	this.current_position = i;
+	CarouselUI.prototype.move = function move (i, noAnimate) {
+		this.current_position = i;
 
-	var maxPos = this.NUM_PANES - this.PANES_VISIBLE;
+		var maxPos = this.NUM_PANES - this.PANES_VISIBLE;
 
-	if (this.current_position < 0) {
-		this.current_position = 0;
-	} else if (this.current_position > maxPos) {
-		this.current_position = maxPos;
-	}
+		if (this.current_position < 0) {
+			this.current_position = 0;
+		} else if (this.current_position > maxPos) {
+			this.current_position = maxPos;
+		}
 
-	var curIncFake = (this.FAKE_NUM + this.current_position);
-	var left = curIncFake * this.PANE_WIDTH;
-	var max = this.options.infinite ? (this.PANE_WIDTH * this.NUM_PANES) : (this.PANE_WIDTH * this.NUM_PANES) - this.VIEWPORT_WIDTH;
+		var curIncFake = (this.FAKE_NUM + this.current_position);
+		var left = curIncFake * this.PANE_WIDTH;
+		var max = this.options.infinite ? (this.PANE_WIDTH * this.NUM_PANES) : (this.PANE_WIDTH * this.NUM_PANES) - this.VIEWPORT_WIDTH;
 
-	this.currentLeft = left;
-
-	if (left < 0) {
-		this.currentLeft = 0;
-	} else if (left > max) {
-		this.currentLeft = max;
-	} else {
 		this.currentLeft = left;
-	}
+
+		if (left < 0) {
+			this.currentLeft = 0;
+		} else if (left > max) {
+			this.currentLeft = max;
+		} else {
+			this.currentLeft = left;
+		}
         var x = (0 - this.currentLeft);
 
-	if (noAnimate) {
-		this.$pane_slider.css({'transform': 'translate3d('+x+'px, 0px, 0px)'});
-		this.moveComplete();
-	} else {
-		var options = {
-			duration: this.options.duration,
-			complete: this.moveComplete.bind(this),
-			// easing:'asd'
-		};
-		if (this.options.easing) {
-			options.easing = this.options.easing;
+		if (noAnimate) {
+			this.$pane_slider.css({'transform': 'translate3d('+x+'px, 0px, 0px)'});
+			this.moveComplete();
+		} else {
+			var options = {
+				duration: this.options.duration,
+				complete: this.moveComplete.bind(this),
+				// easing:'asd'
+			};
+			if (this.options.easing) {
+				options.easing = this.options.easing;
+			}
+			this.$pane_slider.animate(
+				{'transform': 'translate3d('+x+'px, 0px, 0px)'},
+				options
+			);
 		}
-		this.$pane_slider.animate(
-			{'transform': 'translate3d('+x+'px, 0px, 0px)'},
-			options
-		);
-	}
-};
+	};
 
-CarouselUI.prototype.moveComplete = function moveComplete () {
+	CarouselUI.prototype.moveComplete = function moveComplete () {
 		var this$1 = this;
 
-	if (this.options.infinite && (this.current_position >= (this.NUM_PANES - this.PANES_VISIBLE))) {
-		// infinite and we're off the end!
-		// re-e-wind, the crowd says 'bo selecta!'
-		this.$pane_slider.css({'transform': 'translate3d(0px, 0px, 0px)'});
-		this.current_position = 0 - this.PANES_VISIBLE;
-		this.currentLeft = 0;
-	}
-
-	setTimeout(function () {
-		var paneMaxHieght = 0;
-		for (var i=this$1.current_position;i<this$1.current_position + this$1.PANES_VISIBLE;i++)
-		{
-			var h = $(this$1.$panes[i]).height();
-			if (h > paneMaxHieght) {
-				paneMaxHieght = h;
-			}
+		if (this.options.infinite && (this.current_position >= (this.NUM_PANES - this.PANES_VISIBLE))) {
+			// infinite and we're off the end!
+			// re-e-wind, the crowd says 'bo selecta!'
+			this.$pane_slider.css({'transform': 'translate3d(0px, 0px, 0px)'});
+			this.current_position = 0 - this.PANES_VISIBLE;
+			this.currentLeft = 0;
 		}
-		this$1.$stage.animate({height:paneMaxHieght},300);
-	}, 50);
 
-	this.$viewport.trigger('curatorCarousel:changed', [this, this.current_position]);
+		setTimeout(function () {
+			var paneMaxHieght = 0;
+			for (var i=this$1.current_position;i<this$1.current_position + this$1.PANES_VISIBLE;i++)
+			{
+				var h = $(this$1.$panes[i]).height();
+				if (h > paneMaxHieght) {
+					paneMaxHieght = h;
+				}
+			}
+			this$1.$stage.animate({height:paneMaxHieght},300);
+		}, 50);
 
-	if (this.options.autoPlay) {
-		this.animate();
-	}
-};
+		this.trigger('curatorCarousel:changed', [this, this.current_position]);
 
-CarouselUI.prototype.addControls = function addControls () {
-	this.$viewport.append('<button type="button" data-role="none" class="crt-panel-prev crt-panel-arrow" aria-label="Previous" role="button" aria-disabled="false">Previous</button>');
-	this.$viewport.append('<button type="button" data-role="none" class="crt-panel-next crt-panel-arrow" aria-label="Next" role="button" aria-disabled="false">Next</button>');
+		if (this.options.autoPlay) {
+			this.animate();
+		}
+	};
 
-	this.$viewport.on('click','.crt-panel-prev', this.prev.bind(this));
-	this.$viewport.on('click','.crt-panel-next', this.next.bind(this));
-};
+	CarouselUI.prototype.addControls = function addControls () {
+		this.$viewport.append('<button type="button" data-role="none" class="crt-panel-prev crt-panel-arrow" aria-label="Previous" role="button" aria-disabled="false">Previous</button>');
+		this.$viewport.append('<button type="button" data-role="none" class="crt-panel-next crt-panel-arrow" aria-label="Next" role="button" aria-disabled="false">Next</button>');
+
+		this.$viewport.on('click','.crt-panel-prev', this.prev.bind(this));
+		this.$viewport.on('click','.crt-panel-next', this.next.bind(this));
+	};
 
     CarouselUI.prototype.destroy = function destroy () {
-        this.destroyHandlers ()
+        this.destroyHandlers ();
+        clearTimeout(this.timeout);
     };
+
+	return CarouselUI;
+}(EventBus));
 
 
 Curator.UI.Carousel = CarouselUI;
@@ -2763,12 +2776,10 @@ var Carousel = (function (Widget) {
             this.$container.addClass('crt-carousel');
 
             this.carousel = new Curator.UI.Carousel(this.$feed, this.options.carousel);
-            this.$feed.on('curatorCarousel:changed', function (event, carousel, currentSlide) {
-                // console.log('curatorCarousel:changed '+currentSlide);
-                // console.log('curatorCarousel:changed '+(that.feed.postsLoaded-carousel.PANES_VISIBLE));
-                // console.log(carousel.PANES_VISIBLE);
+            this.carousel.on('curatorCarousel:changed', function (event) {
+                var currentSlide = event.target.currentSlide;
                 if (this$1.options.carousel.autoLoad) {
-                    if (currentSlide >= this$1.feed.postsLoaded - carousel.PANES_VISIBLE) {
+                    if (currentSlide >= this$1.feed.postsLoaded - this$1.carousel.PANES_VISIBLE) {
                         this$1.loadMorePosts();
                     }
                 }

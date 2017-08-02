@@ -18,7 +18,7 @@
         left: 5px;
         right: 5px;
         bottom: 0px;
-        background-color: $color-post-bg;
+        background-color: $color-v1-post-background;
         //border: 1px solid $color-post-border;
     }
 
@@ -39,7 +39,7 @@
 
         .crt-post-header {
             @extend .crt-clearfix;
-            background-color: $color-post-header-bg;
+            background-color: $color-v1-post-background;
             color: $color-post-header-text;
             //padding-top: 9px;
             /*[empty]margin-left:;*/

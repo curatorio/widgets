@@ -13,7 +13,7 @@ class Filter {
         this.client = client;
         this.options = client.options;
 
-        this.$filter = Curator.Template.render('#filterTemplate', {});
+        this.$filter = Curator.Template.render(this.options.templateFilter, {});
         this.$filterNetworks =  this.$filter.find('.crt-filter-networks');
         this.$filterNetworksUl =  this.$filter.find('.crt-filter-networks ul');
         this.$filterSources =  this.$filter.find('.crt-filter-sources');

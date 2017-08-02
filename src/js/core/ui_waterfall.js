@@ -115,21 +115,21 @@ class WaterfallUI {
         if (arr) {
             boxes = arr;
             // if append
-            if (method == "append") {
+            if (method === "append") {
                 // get total of items to append
                 appendCount += count;
                 // set itemCount to last count of appened items
                 itemCount = this.appendCount;
             }
             // if prepend
-            if (method == "prepend") {
+            if (method === "prepend") {
                 // set itemCount
                 this.isPrepending = true;
                 itemCount = Math.round(count % cols);
                 if (itemCount <= 0) itemCount = cols;
             }
             // called by _updateAfterPrepend()
-            if (method == "renderAfterPrepend") {
+            if (method === "renderAfterPrepend") {
                 // get total of items that was previously prepended
                 appendCount += count;
                 // set itemCount by counting previous prepended items
@@ -165,7 +165,7 @@ class WaterfallUI {
             }
 
             // prepend or append to shortest column
-            if (method == 'prepend') {
+            if (method === 'prepend') {
                 $("#item" + shortestCol + name).prepend(item);
                 items.push(item);
 
@@ -184,8 +184,8 @@ class WaterfallUI {
 
         this.appendCount = appendCount;
 
-        if (method == "append" || method == "prepend") {
-            if (method == "prepend") {
+        if (method === "append" || method === "prepend") {
+            if (method === "prepend") {
                 // render old items and reverse the new items
                 this._updateAfterPrepend(this.gridArr, boxes);
             }
@@ -220,7 +220,7 @@ class WaterfallUI {
         if (animate === true && !this.isResizing) {
 
             // fadeInOnAppear
-            if (queue === true && effect == "fadeInOnAppear") {
+            if (queue === true && effect === "fadeInOnAppear") {
                 if (this.isPrepending) items.reverse();
                 $.each(items, function (index, value) {
                     setTimeout(function () {
@@ -228,20 +228,20 @@ class WaterfallUI {
                             opacity: '1.0'
                         }, duration);
                         t++;
-                        if (t == items.length) {
+                        if (t === items.length) {
                             complete.call(undefined, items)
                         }
                     }, i * speed);
                     i++;
                 });
-            } else if (queue === false && effect == "fadeInOnAppear") {
+            } else if (queue === false && effect === "fadeInOnAppear") {
                 if (this.isPrepending) items.reverse();
                 $.each(items, function (index, value) {
                     $(value).animate({
                         opacity: '1.0'
                     }, duration);
                     t++;
-                    if (t == items.length) {
+                    if (t === items.length) {
                         if (this.ifCallback) {
                             complete.call(undefined, items);
                         }
@@ -257,7 +257,7 @@ class WaterfallUI {
                         'filter': 'alpha(opacity=100)'
                     });
                     t++;
-                    if (t == items.length) {
+                    if (t === items.length) {
                         if (this.ifCallback) {
                             complete.call(undefined, items);
                         }
