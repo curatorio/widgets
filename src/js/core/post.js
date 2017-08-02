@@ -7,9 +7,10 @@
 */
 
 
-class Post {
-
+class Post extends EventBus {
     constructor (postJson, options, widget) {
+        super();
+
         this.options = options;
         this.widget = widget;
 
@@ -24,7 +25,7 @@ class Post {
         this.$el.find('.crt-post-read-more-button').click(this.onReadMoreClick.bind(this));
         // this.$el.on('click','.crt-post-text-body a',this.onLinkClick.bind(this));
         this.$el.click(this.onPostClick.bind(this));
-        this.$post = this.$el.find('.crt-post');
+        this.$post = this.$el.find('.crt-post-c');
         this.$image = this.$el.find('.crt-post-image');
         this.$imageContainer = this.$el.find('.crt-image-c');
         this.$image.css({opacity:0});
@@ -73,14 +74,14 @@ class Post {
     }
 
     onPostClick (ev) {
-
+        Curator.log('Post->click');
         let target = $(ev.target);
 
         if (target.is('a') && target.attr('href') !== '#') {
             this.widget.track('click:link');
         } else {
             ev.preventDefault();
-            $(this).trigger('postClick', this, this.json, ev);
+            this.trigger('post:click', this, this.json, ev);
         }
 
     }

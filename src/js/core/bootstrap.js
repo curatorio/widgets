@@ -78,6 +78,7 @@ let Curator = {
             templatePopup:'v1-popup',
             templatePopupWrapper:'v1-popup-wrapper',
             templateFilter:'v1-filter',
+            showPopupOnClick:true,
             onPostsLoaded: function () {
 
             },

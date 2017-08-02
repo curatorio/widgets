@@ -14,20 +14,17 @@
     <a href="https://curator.io" target="_blank" class="crt-logo">Powered by Curator.io</a>
 </div>
 
-<script type="text/javascript" src="../dist/js/curator.nodep.js"></script>
+<script type="text/javascript" src="../dist/js/curator.js"></script>
 <script type="text/javascript">
     // While you're testing
     Curator.debug = true;
 
-    var l = window.location.href;
-    var feedId = l.indexOf('.dev') ? '58aa4d66-e2ba-42ce-bed5-16a7ee1d' : 'd770f4ab-f2cc-4514-a8d2-c2a03122' ;
-    var endPoint = l.indexOf('.dev') ? 'http://curator-api.dev/v1' : 'https://api.curator.io/v1' ;
+    var feedId = 'd770f4ab-f2cc-4514-a8d2-c2a03122' ;
 
     // Change FEED_ID to your unique FEED_ID
     var widget = new Curator.Carousel({
         container:'#curator-feed',
         feedId:feedId,
-        apiEndpoint: endPoint,
         carousel:{
             autoPlay:true
         }

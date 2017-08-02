@@ -75,12 +75,14 @@ class Widget extends EventBus {
 
     createPostElement (postJson) {
         let post = new Curator.Post(postJson, this.options, this);
-        $(post).bind('postClick',this.onPostClick.bind(this));
-        $(post).bind('postReadMoreClick',this.onPostClick.bind(this));
+        post.on('post:click',this.onPostClick.bind(this));
+        post.on('post:readMoreClick',this.onPostClick.bind(this));
 
         if (this.options.onPostCreated) {
             this.options.onPostCreated (post);
         }
+
+        this.on('post:created',post);
 
         return post;
     }
@@ -95,7 +97,12 @@ class Widget extends EventBus {
         Curator.log(event.target);
     }
 
-    onPostClick (ev,post) {
+    onPostClick (ev) {
+        Curator.log('Widget->onPostClick');
+        let post = ev.target;
+        Curator.log(ev);
+        Curator.log(post);
+
         if (this.options.showPopupOnClick) {
             this.popupManager.showPopup(post);
         }
