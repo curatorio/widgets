@@ -34,12 +34,10 @@ class Carousel extends Widget {
             this.$container.addClass('crt-carousel');
 
             this.carousel = new Curator.UI.Carousel(this.$feed, this.options.carousel);
-            this.$feed.on('curatorCarousel:changed', (event, carousel, currentSlide) => {
-                // console.log('curatorCarousel:changed '+currentSlide);
-                // console.log('curatorCarousel:changed '+(that.feed.postsLoaded-carousel.PANES_VISIBLE));
-                // console.log(carousel.PANES_VISIBLE);
+            this.carousel.on('curatorCarousel:changed', (event) => {
+                let currentSlide = event.target.currentSlide;
                 if (this.options.carousel.autoLoad) {
-                    if (currentSlide >= this.feed.postsLoaded - carousel.PANES_VISIBLE) {
+                    if (currentSlide >= this.feed.postsLoaded - this.carousel.PANES_VISIBLE) {
                         this.loadMorePosts();
                     }
                 }

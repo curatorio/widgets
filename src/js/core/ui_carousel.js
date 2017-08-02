@@ -13,9 +13,11 @@ if ($.zepto) {
 	Curator.UI.CarouselSettings.easing = 'ease-in-out';
 }
 
-class CarouselUI {
+class CarouselUI extends EventBus {
 	constructor (container, options) {
 		Curator.log('CarouselUI->construct');
+
+        super ();
 
 		this.current_position=0;
 		this.animating=false;
@@ -213,7 +215,7 @@ class CarouselUI {
 			this.$stage.animate({height:paneMaxHieght},300);
 		}, 50);
 
-		this.$viewport.trigger('curatorCarousel:changed', [this, this.current_position]);
+		this.trigger('curatorCarousel:changed', [this, this.current_position]);
 
 		if (this.options.autoPlay) {
 			this.animate();
@@ -229,7 +231,8 @@ class CarouselUI {
 	}
 
     destroy () {
-        this.destroyHandlers ()
+        this.destroyHandlers ();
+        clearTimeout(this.timeout);
     }
 }
 
