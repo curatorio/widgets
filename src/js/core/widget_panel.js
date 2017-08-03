@@ -93,7 +93,7 @@ class Panel extends Widget {
 
         super.destroy();
 
-        this.$feed.curatorCarousel('destroy');
+        this.carousel.destroy();
         this.$feed.remove();
         this.$container.removeClass('crt-panel');
         this.$container.removeClass('crt-carousel');
