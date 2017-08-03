@@ -19,6 +19,7 @@ class LayoutCarousel extends EventBus {
 
         super ();
 
+        this.id = Curator.Utils.uId ();
 		this.current_position=0;
 		this.animating=false;
 		this.timeout=null;
@@ -41,18 +42,14 @@ class LayoutCarousel extends EventBus {
 	}
 
     createHandlers () {
-        let id = this.id;
-        let updateLayoutDebounced = Curator.Utils.debounce( () => {
+        $(window).on('resize.'+this.id, Curator.Utils.debounce( () => {
             this.updateLayout ();
-        }, 100);
-
-        $(window).on('resize.'+id, updateLayoutDebounced);
+        }, 100));
     }
 
     destroyHandlers () {
-        let id = this.id;
 
-        $(window).off('resize.'+id);
+        $(window).off('resize.'+this.id);
         // $(window).off('curatorCssLoaded.'+id);
         // $(document).off('ready.'+id);
     }

@@ -24,13 +24,16 @@
         // While you're testing
         Curator.debug = true;
 
-        // Change FEED_ID to your unique FEED_ID
-        var widget = new Curator.Waterfall({
-            container:'#curator-feed',
-            feedId:"927447a8-2d33-4b3f-939b-ddc414ff"
-        });
-    </script>
+        function createWidget () {
+            // Change FEED_ID to your unique FEED_ID
+            window.widget = new Curator.Waterfall({
+                container: '#curator-feed',
+                feedId: "927447a8-2d33-4b3f-939b-ddc414ff"
+            });
+        }
 
+        createWidget ();
+    </script>
     <script type="text/javascript" src="js/example.js"></script>
 
 </body>

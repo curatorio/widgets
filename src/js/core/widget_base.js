@@ -7,7 +7,6 @@ class Widget extends EventBus {
         super ();
 
         this.id = Curator.Utils.uId ();
-        Curator.log('id='+this.id);
     }
 
     setOptions (options, defaults) {

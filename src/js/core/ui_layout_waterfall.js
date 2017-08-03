@@ -26,7 +26,9 @@ Curator.UI.Layout.WaterfallSettings = {
 
 class WaterfallLayout {
     constructor(options, element) {
+        Curator.log("WaterfallLayout->onPostsLoaded");
         this.element = $(element);
+        this.id = Curator.Utils.uId ();
 
         let container = this;
         this.name = this._setName(5);
@@ -49,6 +51,7 @@ class WaterfallLayout {
         this.w = 0;
         this.boxArr = [];
 
+
         // this.offscreenRender = $('<div class="grid-rendered"></div>').appendTo('body');
 
         // build columns
@@ -57,10 +60,20 @@ class WaterfallLayout {
         this._renderGrid('append');
         // add class 'gridalicious' to container
         $(this.box).addClass('gridalicious');
-        // add smartresize
-        $(window).smartresize(function () {
-            container.resize();
-        });
+
+        this.createHandlers ();
+    }
+
+    createHandlers () {
+        Curator.log("WaterfallLayout->createHandlers");
+        $(window).on('resize.'+this.id, Curator.Utils.debounce( () => {
+            this.resize();
+        }, 100));
+    }
+
+    destroyHandlers () {
+        Curator.log("WaterfallLayout->destroyHandlers");
+        $(window).off('resize.'+this.id);
     }
 
     _setName(length, current) {
@@ -329,7 +342,7 @@ class WaterfallLayout {
     }
 
     destroy () {
-
+        this.destroyHandlers ();
     }
 }
 
