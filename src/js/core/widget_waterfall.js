@@ -44,7 +44,7 @@ class Waterfall extends Widget {
                 });
             }
 
-            this.ui = new Curator.UI.Waterfall({
+            this.ui = new Curator.UI.Layout.Waterfall({
                 selector:'.crt-post-c',
                 gutter:0,
                 width:this.options.waterfall.gridWidth,
@@ -79,7 +79,7 @@ class Waterfall extends Widget {
         this.feed.loadPosts(page);
     }
 
-    onPostsLoaded (posts) {
+    onPostsLoaded (event, posts) {
         Curator.log("Waterfall->onPostsLoaded");
 
         let postElements = this.createPostElements (posts);
@@ -104,11 +104,6 @@ class Waterfall extends Widget {
 
         this.loading = false;
         this.options.onPostsLoaded (this, posts);
-    }
-
-    onPostsFailed (data) {
-        this.loading = false;
-        this.$feed.html('<p style="text-align: center">'+data.message+'</p>');
     }
 
     destroy  () {

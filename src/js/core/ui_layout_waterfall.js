@@ -9,7 +9,7 @@
  *
  */
 
-Curator.UI.WaterfallSettings = {
+Curator.UI.Layout.WaterfallSettings = {
     selector: '.item',
     width: 225,
     gutter: 20,
@@ -24,7 +24,7 @@ Curator.UI.WaterfallSettings = {
     }
 };
 
-class WaterfallUI {
+class WaterfallLayout {
     constructor(options, element) {
         this.element = $(element);
 
@@ -43,7 +43,7 @@ class WaterfallUI {
         this.ifCallback = true;
         this.box = this.element;
         this.boxWidth = this.box.width();
-        this.options = $.extend(true, {}, Curator.UI.WaterfallSettings, options);
+        this.options = $.extend(true, {}, Curator.UI.Layout.WaterfallSettings, options);
         this.gridArr = $.makeArray(this.box.find(this.options.selector));
         this.isResizing = false;
         this.w = 0;
@@ -334,4 +334,4 @@ class WaterfallUI {
 }
 
 
-Curator.UI.Waterfall = WaterfallUI;
+Curator.UI.Layout.Waterfall = WaterfallLayout;

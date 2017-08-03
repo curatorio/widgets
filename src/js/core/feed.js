@@ -126,9 +126,9 @@ class Feed extends EventBus {
                     }
 
                     this.widget.trigger(Curator.Events.FEED_LOADED, data);
-                    this.trigger('postsLoaded',data.posts);
+                    this.trigger(Curator.Events.FEED_LOADED, data.posts);
                 } else {
-                    this.trigger('postsFailed',data.posts);
+                    this.trigger(Curator.Events.FEED_FAILED, data.posts);
                 }
                 this.loading = false;
             },
@@ -137,7 +137,7 @@ class Feed extends EventBus {
                 Curator.log(textStatus);
                 Curator.log(errorThrown);
 
-                this.trigger('postsFailed',[]);
+                this.trigger(Curator.Events.FEED_FAILED, []);
                 this.loading = false;
             }
         );

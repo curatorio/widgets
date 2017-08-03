@@ -32,15 +32,16 @@ class Panel extends Widget {
             this.allLoaded = false;
 
             this.$feed = $('<div class="crt-feed"></div>').appendTo(this.$container);
+            this.$container.addClass('crt-carousel');
             this.$container.addClass('crt-panel');
 
             if (this.options.panel.fixedHeight) {
                 this.$container.addClass('crt-panel-fixed-height');
             }
 
-            this.$feed.curatorCarousel(this.options.panel);
-            this.$feed.on('curatorCarousel:changed', (event, carousel, currentSlide) => {
-                if (!this.allLoaded && this.options.panel.autoLoad) {
+            this.carousel = new Curator.UI.Layout.Carousel(this.$feed, this.options.panel);
+            this.carousel.on(Curator.Events.CAROUSEL_CHANGED, (event, currentSlide) => {
+                if (this.options.panel.autoLoad) {
                     if (currentSlide >= this.feed.postsLoaded - 4) {
                         this.loadMorePosts();
                     }
@@ -53,13 +54,13 @@ class Panel extends Widget {
     }
 
     loadMorePosts   () {
-        Curator.log('Carousel->loadMorePosts');
+        Curator.log('Panel->loadMorePosts');
 
         this.feed.loadPosts(this.feed.currentPage+1);
     }
 
-    onPostsLoaded  (posts) {
-        Curator.log("Carousel->onPostsLoaded");
+    onPostsLoaded  (event, posts) {
+        Curator.log("Panel->onPostsLoaded");
 
         this.loading = false;
 
@@ -68,13 +69,14 @@ class Panel extends Widget {
         } else {
             let that = this;
             let $els = [];
-            $(posts).each(function(){
+            $(posts).each(function() {
                 let p = that.createPostElement(this);
                 $els.push(p.$el);
             });
 
-            that.$feed.curatorCarousel('add',$els);
-            that.$feed.curatorCarousel('update');
+
+            this.carousel.add($els);
+            this.carousel.update();
 
             this.popupManager.setPosts(posts);
 
@@ -82,10 +84,9 @@ class Panel extends Widget {
         }
     }
 
-    onPostsFail  (data) {
-        Curator.log("Carousel->onPostsFail");
-        this.loading = false;
-        this.$feed.html('<p style="text-align: center">'+data.message+'</p>');
+    onPostImageLoaded (ev, post) {
+        Curator.log('Panel->onPostImageLoaded');
+        this.carousel.updateHeight();
     }
 
     destroy   () {
@@ -95,6 +96,7 @@ class Panel extends Widget {
         this.$feed.curatorCarousel('destroy');
         this.$feed.remove();
         this.$container.removeClass('crt-panel');
+        this.$container.removeClass('crt-carousel');
 
         delete this.$feed;
         delete this.$container;

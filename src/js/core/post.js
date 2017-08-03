@@ -81,7 +81,7 @@ class Post extends EventBus {
             this.widget.track('click:link');
         } else {
             ev.preventDefault();
-            this.trigger('post:click', this, this.json, ev);
+            this.trigger(Curator.Events.POST_CLICK, this, this.json, ev);
         }
 
     }
@@ -90,6 +90,8 @@ class Post extends EventBus {
         this.$image.animate({opacity:1});
 
         this.setHeight();
+
+        this.trigger(Curator.Events.POST_IMAGE_LOADED, this);
     }
 
     onImageError () {
@@ -111,7 +113,7 @@ class Post extends EventBus {
     onReadMoreClick (ev) {
         ev.preventDefault();
         this.widget.track('click:read-more');
-        $(this).trigger('postReadMoreClick',this, this.json, ev);
+        this.trigger(Curator.Events.POST_CLICK_READ_MORE, this, this.json, ev);
     }
 }
 

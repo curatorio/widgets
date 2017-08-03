@@ -148,7 +148,7 @@ class Grid extends Widget {
         $(document).off('ready.'+id);
     }
 
-    onPostsLoaded (posts) {
+    onPostsLoaded (event, posts) {
         Curator.log("Grid->onPostsLoaded");
 
         this.loading = false;
@@ -177,27 +177,6 @@ class Grid extends Widget {
 
             this.updateHeight(true);
         }
-    }
-
-    createPostElement (postJson) {
-        let post = new Curator.Post(postJson, this.options, this);
-        $(post).bind('postClick',$.proxy(this.onPostClick, this));
-        
-        if (this.options.onPostCreated) {
-            this.options.onPostCreated (post);
-        }
-
-        return post;
-    }
-
-    onPostsFailed (data) {
-        Curator.log("Grid->onPostsFailed");
-        this.loading = false;
-        this.$feed.html('<p style="text-align: center">'+data.message+'</p>');
-    }
-
-    onPostClick (ev,post) {
-        this.popupManager.showPopup(post);
     }
 
     onMoreClicked (ev) {

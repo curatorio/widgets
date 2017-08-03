@@ -33,9 +33,8 @@ class Carousel extends Widget {
             this.$feed = $('<div class="crt-carousel-feed"></div>').appendTo(this.$container);
             this.$container.addClass('crt-carousel');
 
-            this.carousel = new Curator.UI.Carousel(this.$feed, this.options.carousel);
-            this.carousel.on('curatorCarousel:changed', (event) => {
-                let currentSlide = event.target.currentSlide;
+            this.carousel = new Curator.UI.Layout.Carousel(this.$feed, this.options.carousel);
+            this.carousel.on(Curator.Events.CAROUSEL_CHANGED, (event, currentSlide) => {
                 if (this.options.carousel.autoLoad) {
                     if (currentSlide >= this.feed.postsLoaded - this.carousel.PANES_VISIBLE) {
                         this.loadMorePosts();
@@ -56,7 +55,7 @@ class Carousel extends Widget {
         }
     }
 
-    onPostsLoaded (posts) {
+    onPostsLoaded (event, posts) {
         Curator.log("Carousel->onPostsLoaded");
 
         this.loading = false;
@@ -82,19 +81,11 @@ class Carousel extends Widget {
             this.carousel.add($els);
             this.carousel.update();
 
-            // that.$feed.c().trigger('add.owl.carousel',$(p.$el));
-
             this.popupManager.setPosts(posts);
 
             this.options.onPostsLoaded (this, posts);
         }
         this.firstLoad = false;
-    }
-    
-    onPostsFail (data) {
-        Curator.log("Carousel->onPostsFail");
-        this.loading = false;
-        this.$feed.html('<p style="text-align: center">'+data.message+'</p>');
     }
 
     destroy  () {

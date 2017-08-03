@@ -10,7 +10,7 @@ class EventBus {
             args.push(arguments[i]);
         }
         args = args.length > 3 ? args.splice(3, args.length - 1) : [];
-        if (typeof this.listeners[type] != "undefined") {
+        if (typeof this.listeners[type] !== "undefined") {
             this.listeners[type].push({scope: scope, callback: callback, args: args});
         } else {
             this.listeners[type] = [{scope: scope, callback: callback, args: args}];
@@ -18,12 +18,12 @@ class EventBus {
     }
 
     off(type, callback, scope) {
-        if (typeof this.listeners[type] != "undefined") {
+        if (typeof this.listeners[type] !== "undefined") {
             let numOfCallbacks = this.listeners[type].length;
             let newArray = [];
             for (let i = 0; i < numOfCallbacks; i++) {
                 let listener = this.listeners[type][i];
-                if (listener.scope == scope && listener.callback == callback) {
+                if (listener.scope === scope && listener.callback === callback) {
 
                 } else {
                     newArray.push(listener);
@@ -34,14 +34,14 @@ class EventBus {
     }
 
     has(type, callback, scope) {
-        if (typeof this.listeners[type] != "undefined") {
+        if (typeof this.listeners[type] !== "undefined") {
             let numOfCallbacks = this.listeners[type].length;
             if (callback === undefined && scope === undefined) {
                 return numOfCallbacks > 0;
             }
             for (let i = 0; i < numOfCallbacks; i++) {
                 let listener = this.listeners[type][i];
-                if ((scope ? listener.scope == scope : true) && listener.callback == callback) {
+                if ((scope ? listener.scope === scope : true) && listener.callback === callback) {
                     return true;
                 }
             }
@@ -49,20 +49,20 @@ class EventBus {
         return false;
     }
 
-    trigger(type, target) {
+    trigger(type) {
         let numOfListeners = 0;
         let event = {
             type: type,
-            target: target
+            // target: target
         };
         let args = [];
-        let numOfArgs = arguments.length;
-        for (let i = 0; i < numOfArgs; i++) {
+        // let numOfArgs = arguments.length;
+        for (let i = 1; i < arguments.length; i++) {
             args.push(arguments[i]);
         }
-        args = args.length > 2 ? args.splice(2, args.length - 1) : [];
+        // args = args.length > 2 ? args.splice(2, args.length - 1) : [];
         args = [event].concat(args);
-        if (typeof this.listeners[type] != "undefined") {
+        if (typeof this.listeners[type] !== "undefined") {
             let numOfCallbacks = this.listeners[type].length;
             for (let i = 0; i < numOfCallbacks; i++) {
                 let listener = this.listeners[type][i];

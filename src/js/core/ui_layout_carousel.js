@@ -1,4 +1,4 @@
-Curator.UI.CarouselSettings = {
+Curator.UI.Layout.CarouselSettings = {
 	circular: false,
 	speed: 5000,
 	duration: 700,
@@ -10,12 +10,12 @@ Curator.UI.CarouselSettings = {
 };
 
 if ($.zepto) {
-	Curator.UI.CarouselSettings.easing = 'ease-in-out';
+	Curator.UI.Layout.CarouselSettings.easing = 'ease-in-out';
 }
 
-class CarouselUI extends EventBus {
+class LayoutCarousel extends EventBus {
 	constructor (container, options) {
-		Curator.log('CarouselUI->construct');
+		Curator.log('LayoutCarousel->construct');
 
         super ();
 
@@ -25,7 +25,7 @@ class CarouselUI extends EventBus {
 		this.FAKE_NUM=0;
 		this.PANES_VISIBLE=0;
 
-		this.options = $.extend({}, Curator.UI.CarouselSettings, options);
+		this.options = $.extend({}, Curator.UI.Layout.CarouselSettings, options);
 
 		this.$viewport = $(container); // <div> slider, known as $viewport
 
@@ -58,7 +58,7 @@ class CarouselUI extends EventBus {
     }
 
 	update () {
-        Curator.log('CarouselUI->update ');
+        Curator.log('LayoutCarousel->update ');
 		this.$panes = this.$pane_slider.children(); // <li> list items, known as $panes
 		this.NUM_PANES = this.options.circular ? (this.$panes.length + 1) : this.$panes.length;
 
@@ -75,7 +75,7 @@ class CarouselUI extends EventBus {
 	}
 
 	add ($els) {
-        Curator.log('CarouselUI->add '+$els.length);
+        Curator.log('LayoutCarousel->add '+$els.length);
 
 		this.$pane_slider.append($els);
 		this.$panes = this.$pane_slider.children();
@@ -150,6 +150,7 @@ class CarouselUI extends EventBus {
 	}
 
 	move (i, noAnimate) {
+        Curator.log('LayoutCarousel->move '+i);
 		this.current_position = i;
 
 		let maxPos = this.NUM_PANES - this.PANES_VISIBLE;
@@ -175,10 +176,23 @@ class CarouselUI extends EventBus {
 		}
         let x = (0 - this.currentLeft);
 
+        Curator.log('    x:'+x);
 		if (noAnimate) {
 			this.$pane_slider.css({'transform': 'translate3d('+x+'px, 0px, 0px)'});
 			this.moveComplete();
 		} else {
+			// let options = {
+			// 	duration: this.options.duration,
+			// 	complete: this.moveComplete.bind(this),
+			// 	// easing:'asd'
+			// };
+			// if (this.options.easing) {
+			// 	options.easing = this.options.easing;
+			// }
+            // this.$pane_slider.addClass('crt-animate-transform');
+			// this.$pane_slider.animate({'transform': 'translate3d('+x+'px, 0px, 0px)'},
+			// 	options
+			// );
 			let options = {
 				duration: this.options.duration,
 				complete: this.moveComplete.bind(this),
@@ -187,14 +201,15 @@ class CarouselUI extends EventBus {
 			if (this.options.easing) {
 				options.easing = this.options.easing;
 			}
-			this.$pane_slider.animate(
-				{'transform': 'translate3d('+x+'px, 0px, 0px)'},
+            this.$pane_slider.addClass('crt-animate-transform');
+			this.$pane_slider.animate({'transform': 'translate3d('+x+'px, 0px, 0px)'},
 				options
 			);
 		}
 	}
 
 	moveComplete () {
+        Curator.log('LayoutCarousel->moveComplete');
 		if (this.options.infinite && (this.current_position >= (this.NUM_PANES - this.PANES_VISIBLE))) {
 			// infinite and we're off the end!
 			// re-e-wind, the crowd says 'bo selecta!'
@@ -202,24 +217,36 @@ class CarouselUI extends EventBus {
 			this.current_position = 0 - this.PANES_VISIBLE;
 			this.currentLeft = 0;
 		}
-
-		setTimeout(() =>{
-			let paneMaxHieght = 0;
-			for (let i=this.current_position;i<this.current_position + this.PANES_VISIBLE;i++)
-			{
-				let h = $(this.$panes[i]).height();
-				if (h > paneMaxHieght) {
-					paneMaxHieght = h;
-				}
-			}
-			this.$stage.animate({height:paneMaxHieght},300);
+		setTimeout(() => {
+			this.updateHeight();
 		}, 50);
 
-		this.trigger('curatorCarousel:changed', [this, this.current_position]);
+		this.trigger(Curator.Events.CAROUSEL_CHANGED, [this, this.current_position]);
 
 		if (this.options.autoPlay) {
 			this.animate();
 		}
+	}
+
+	updateHeight () {
+        Curator.log('LayoutCarousel->updateHeight');
+
+        // Curator.log('    current_position: '+this.current_position);
+        // Curator.log('    PANES_VISIBLE: '+this.PANES_VISIBLE);
+        let paneMaxHieght = 0;
+        let min = this.options.infinite ? this.current_position + 1 : this.current_position;
+        let max = this.options.infinite ? this.current_position + this.PANES_VISIBLE + 1 : this.current_position + this.PANES_VISIBLE;
+        for (let i = min; i < max; i++)
+        {
+            let h = $(this.$panes[i]).height();
+            if (h > paneMaxHieght) {
+                paneMaxHieght = h;
+            }
+        }
+        Curator.log('    paneMaxHieght: '+paneMaxHieght);
+        if (this.$stage.height() !== paneMaxHieght) {
+            this.$stage.animate({height: paneMaxHieght}, 300);
+        }
 	}
 
 	addControls () {
@@ -237,4 +264,4 @@ class CarouselUI extends EventBus {
 }
 
 
-Curator.UI.Carousel = CarouselUI;
+Curator.UI.Layout.Carousel = LayoutCarousel;

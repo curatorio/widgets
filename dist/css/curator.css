@@ -159,6 +159,9 @@
 .crt-hitarea {
   cursor: pointer; }
 
+.crt-feed div {
+  box-sizing: border-box; }
+
 .crt-tag {
   position: absolute;
   bottom: 10px;
@@ -1215,7 +1218,8 @@ body.crt-popup-visible {
     -webkit-font-smoothing: antialiased; }
   .crt-carousel .crt-post {
     width: 100%;
-    padding: 0 10px; }
+    padding: 0 10px;
+    float: left; }
     .crt-carousel .crt-post .crt-post-c {
       width: 100%; }
   .crt-carousel .ctr-carousel-stage {
@@ -1280,9 +1284,6 @@ body.crt-popup-visible {
   position: relative; }
   .crt-panel .crt-logo {
     display: none; }
-  .crt-panel .crt-post {
-    margin: 0 4px;
-    box-sizing: border-box; }
 
 .crt-grid {
   position: relative;

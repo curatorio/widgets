@@ -30,7 +30,7 @@ class Custom extends Widget {
         }
     }
 
-    onPostsLoaded (posts) {
+    onPostsLoaded (event, posts) {
         Curator.log("Custom->onPostsLoaded");
 
         this.loading = false;
@@ -50,12 +50,6 @@ class Custom extends Widget {
 
             this.options.onPostsLoaded (this, posts);
         }
-    }
-
-    onPostsFailed (data) {
-        Curator.log("Custom->onPostsFailed");
-        this.loading = false;
-        this.$feed.html('<p style="text-align: center">'+data.message+'</p>');
     }
 
     onPostClick (ev,post) {

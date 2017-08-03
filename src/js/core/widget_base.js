@@ -30,6 +30,7 @@ class Widget extends EventBus {
         }
 
         this.$container = $(this.options.container);
+        this.$container.addClass('crt-feed');
 
         this.createFeed();
         this.createFilter();
@@ -40,12 +41,8 @@ class Widget extends EventBus {
 
     createFeed () {
         this.feed = new Curator.Feed (this);
-        this.feed.on('postsLoaded', (event) => {
-            this.onPostsLoaded(event.target);
-        });
-        this.feed.on('postsFailed', (event) => {
-            this.onPostsFail(event.target);
-        });
+        this.feed.on(Curator.Events.FEED_LOADED, this.onPostsLoaded.bind(this));
+        this.feed.on(Curator.Events.FEED_FAILED, this.onPostsFail.bind(this));
     }
 
     createPopupManager () {
@@ -75,37 +72,37 @@ class Widget extends EventBus {
 
     createPostElement (postJson) {
         let post = new Curator.Post(postJson, this.options, this);
-        post.on('post:click',this.onPostClick.bind(this));
-        post.on('post:readMoreClick',this.onPostClick.bind(this));
+        post.on(Curator.Events.POST_CLICK,this.onPostClick.bind(this));
+        post.on(Curator.Events.POST_CLICK_READ_MORE,this.onPostClick.bind(this));
+        post.on(Curator.Events.POST_IMAGE_LOADED, this.onPostImageLoaded.bind(this));
 
-        if (this.options.onPostCreated) {
-            this.options.onPostCreated (post);
-        }
-
-        this.on('post:created',post);
+        this.trigger(Curator.Events.POST_CREATED, post);
 
         return post;
     }
 
-    onPostsLoaded (event) {
+    onPostsLoaded (event, posts) {
         Curator.log('Widget->onPostsLoaded');
-        Curator.log(event.target);
+        Curator.log(posts);
     }
 
-    onPostsFail (event) {
+    onPostsFail (event, data) {
         Curator.log('Widget->onPostsLoadedFail');
-        Curator.log(event.target);
+        Curator.log(data);
     }
 
-    onPostClick (ev) {
+    onPostClick (ev, post, postJson) {
         Curator.log('Widget->onPostClick');
-        let post = ev.target;
         Curator.log(ev);
-        Curator.log(post);
+        Curator.log(postJson);
 
         if (this.options.showPopupOnClick) {
             this.popupManager.showPopup(post);
         }
+    }
+
+    onPostImageLoaded (ev, post) {
+        Curator.log('Widget->onPostImageLoaded');
     }
 
     track (a) {
@@ -141,6 +138,7 @@ class Widget extends EventBus {
         if (this.popupManager) {
             this.popupManager.destroy()
         }
+        this.$container.removeClass('crt-feed');
     }
 }
 

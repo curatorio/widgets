@@ -159,6 +159,9 @@
 .crt-hitarea {
   cursor: pointer; }
 
+.crt-feed div {
+  box-sizing: border-box; }
+
 .crt-tag {
   position: absolute;
   bottom: 10px;

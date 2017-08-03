@@ -58,12 +58,10 @@ class Filter {
             }
         });
 
-        this.client.on(Curator.Events.FEED_LOADED, (event) => {
-            this.onPostsLoaded(event.target);
-        });
+        this.client.on(Curator.Events.FEED_LOADED, this.onPostsLoaded.bind(this));
     }
 
-    onPostsLoaded (data) {
+    onPostsLoaded (event, data) {
 
         if (!this.filtersLoaded) {
 

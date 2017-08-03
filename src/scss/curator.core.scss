@@ -7,24 +7,24 @@ $line-height-post-header-text:  1.1em;
 $font-size-post-text:           1.0em;
 $line-height-post-text:         1.2em;
 
-$color-primary:             #fff;
-$color-secondary:           #2B2B2B;
-$color-tertiary:            #707070;
+$color-primary:             	#fff;
+$color-secondary:           	#2B2B2B;
+$color-tertiary:            	#707070;
 
-$color-feed-bg:             #ffffff;
+$color-feed-bg:             	#ffffff;
 
-$color-post-bg:             $color-primary;
-$color-post-shadow:         #CCCCCC;
-$color-post-border:         $color-primary;
+$color-post-bg:             	$color-primary;
+$color-post-shadow:         	#CCCCCC;
+$color-post-border:         	$color-primary;
 
-$color-post-header-bg:      $color-primary;
-$color-post-header-text:    $color-secondary;
-$color-post-icon-bg:        $color-primary;
-$color-post-icon-text:      $color-secondary;
-$color-post-text:           $color-tertiary;
-$color-post-text-link:      $color-secondary;
-$color-post-share-bg:       opacify($color-post-header-bg, 1);
-$color-post-share-text:     $color-secondary;
+$color-post-header-bg:      	$color-primary;
+$color-post-header-text:    	$color-secondary;
+$color-post-icon-bg:        	$color-primary;
+$color-post-icon-text:      	$color-secondary;
+$color-post-text:           	$color-tertiary;
+$color-post-text-link:      	$color-secondary;
+$color-post-share-bg:       	opacify($color-post-header-bg, 1);
+$color-post-share-text:     	$color-secondary;
 
 // v2
 
@@ -42,6 +42,7 @@ $color-v1-post-background:       #efefef;
 @import "_common/icons";
 @import "_common/general";
 
+@import "_partials/feed";
 @import "_partials/tag";
 @import "_partials/popup";
 @import "_partials/play";
