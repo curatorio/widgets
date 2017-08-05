@@ -34,13 +34,7 @@ class Carousel extends Widget {
             this.$container.addClass('crt-carousel');
 
             this.carousel = new Curator.UI.Layout.Carousel(this.$feed, this.options.carousel);
-            this.carousel.on(Curator.Events.CAROUSEL_CHANGED, (event, currentSlide) => {
-                if (this.options.carousel.autoLoad) {
-                    if (currentSlide >= this.feed.postsLoaded - this.carousel.PANES_VISIBLE) {
-                        this.loadMorePosts();
-                    }
-                }
-            });
+            this.carousel.on(Curator.Events.CAROUSEL_CHANGED, this.onCarouselChange.bind(this));
 
             // load first set of posts
             this.loadPosts(0);
@@ -88,10 +82,20 @@ class Carousel extends Widget {
         this.firstLoad = false;
     }
 
+    onCarouselChange (event, currentSlide) {
+        if (this.options.carousel.autoLoad) {
+            if (currentSlide >= this.feed.postsLoaded - this.carousel.PANES_VISIBLE) {
+                this.loadMorePosts();
+            }
+        }
+    }
+
     destroy  () {
         super.destroy();
 
+        this.carousel.off(Curator.Events.CAROUSEL_CHANGED, this.onCarouselChange.bind(this));
         this.carousel.destroy();
+
         this.$feed.remove();
         this.$container.removeClass('crt-carousel');
 
