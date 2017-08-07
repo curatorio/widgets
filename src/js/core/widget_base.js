@@ -41,7 +41,7 @@ class Widget extends EventBus {
     createFeed () {
         this.feed = new Curator.Feed (this);
         this.feed.on(Curator.Events.FEED_LOADED, this.onPostsLoaded.bind(this));
-        this.feed.on(Curator.Events.FEED_FAILED, this.onPostsFail.bind(this));
+        this.feed.on(Curator.Events.FEED_FAILED, this.onPostsFail.bind(this)); 
     }
 
     createPopupManager () {

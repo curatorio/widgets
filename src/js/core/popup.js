@@ -7,14 +7,14 @@
 
 class Popup {
     
-    constructor (popupManager, post, feed) {
+    constructor (popupManager, post, widget) {
         Curator.log("Popup->init ");
  
         this.popupManager = popupManager;
         this.json = post.json;
-        this.feed = feed;
+        this.widget = widget;
 
-        let templateId = this.popupManager.client.options.templatePopup;
+        let templateId = this.widget.options.templatePopup;
         this.videoPlaying=false;
 
         this.$popup = Curator.Template.render(templateId, this.json);
@@ -109,10 +109,10 @@ class Popup {
 
         if (this.videoPlaying) {
             this.$popup.find('video')[0].play();
-            this.popupManager.client.track('video:play');
+            this.widget.track('video:play');
         } else {
             this.$popup.find('video')[0].pause();
-            this.popupManager.client.track('video:pause');
+            this.widget.track('video:pause');
         }
 
         Curator.log(this.videoPlaying);

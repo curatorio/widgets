@@ -7,11 +7,11 @@
 
 class PopupManager {
     
-    constructor (client) {
+    constructor (widget) {
         Curator.log("PopupManager->init ");
 
-        this.client = client;
-        let templateId = this.client.options.templatePopupWrapper;
+        this.widget = widget;
+        let templateId = this.widget.options.templatePopupWrapper;
 
         this.$wrapper = Curator.Template.render(templateId, {});
         this.$popupContainer = this.$wrapper.find('.crt-popup-container');
@@ -34,7 +34,7 @@ class PopupManager {
     }
 
     showPopup2 (post) {
-        this.popup = new Curator.Popup(this, post, this.feed);
+        this.popup = new Curator.Popup(this, post, this.widget);
         this.$popupContainer.append(this.popup.$popup);
 
         this.$wrapper.show();
@@ -57,7 +57,7 @@ class PopupManager {
             }
         }
 
-        this.client.track('popup:show');
+        this.widget.track('popup:show');
     }
 
     setPosts (posts) {
@@ -95,7 +95,7 @@ class PopupManager {
 
     hide () {
         Curator.log('PopupManager->hide');
-        this.client.track('popup:hide');
+        this.widget.track('popup:hide');
         $('body').removeClass('crt-popup-visible');
         this.currentPostNum = 0;
         this.popup = null;
