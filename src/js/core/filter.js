@@ -24,7 +24,7 @@ class Filter {
         this.$filterNetworks.find('label').text(this.client.options.filter.networksLabel);
         this.$filterSources.find('label').text(this.client.options.filter.sourcesLabel);
 
-        this.$filter.on('click','.crt-filter-networks a',(ev)=>{
+        this.$filter.on('click','.crt-filter-networks a', (ev) => {
             ev.preventDefault();
             let t = $(ev.target);
             let networkId = t.data('network');
@@ -41,7 +41,7 @@ class Filter {
             }
         });
 
-        this.$filter.on('click','.crt-filter-sources a',(ev)=>{
+        this.$filter.on('click','.crt-filter-sources a', (ev) => {
             ev.preventDefault();
             let t = $(ev.target);
             let sourceId = t.data('source');

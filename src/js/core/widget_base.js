@@ -49,7 +49,11 @@ class Widget extends EventBus {
     }
 
     createFilter () {
+        Curator.log('Widget->createFilter');
+        Curator.log(this.options.filter);
+
         if (this.options.filter && (this.options.filter.showNetworks || this.options.filter.showSources)) {
+
             this.filter = new Curator.Filter(this);
         }
     }

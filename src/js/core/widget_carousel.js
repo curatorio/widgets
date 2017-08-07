@@ -36,6 +36,10 @@ class Carousel extends Widget {
             this.carousel = new Curator.UI.Layout.Carousel(this.$feed, this.options.carousel);
             this.carousel.on(Curator.Events.CAROUSEL_CHANGED, this.onCarouselChange.bind(this));
 
+            this.on(Curator.Events.FILTER_CHANGED, event => {
+                this.$feed.find('.crt-post').remove();
+            });
+
             // load first set of posts
             this.loadPosts(0);
         }

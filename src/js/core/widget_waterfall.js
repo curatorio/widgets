@@ -56,7 +56,7 @@ class Waterfall extends Widget {
             },this.$feed);
 
             this.on(Curator.Events.FILTER_CHANGED, event => {
-                this.$feed.find('.crt-post-c').remove();
+                this.$feed.find('.crt-post').remove();
             });
 
             // Load first set of posts
