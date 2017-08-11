@@ -24,7 +24,7 @@ class Grid extends Widget {
         this.$container=null;
         this.$feed=null;
         this.posts=[];
-        this.previousCol=0;
+        this.columnCount=0;
 
         this.rowsMax = 0;
         this.totalPostsLoaded=0;
@@ -76,9 +76,9 @@ class Grid extends Widget {
         cols = cols < 1 ? 1 : cols;
 
         // set col layout
-        this.$container.removeClass('crt-grid-col'+this.previousCol);
-        this.previousCol = cols;
-        this.$container.addClass('crt-grid-col'+this.previousCol);
+        this.$container.removeClass('crt-grid-col'+this.columnCount);
+        this.columnCount = cols;
+        this.$container.addClass('crt-grid-col'+this.columnCount);
 
         // figure out if we need more posts
         let postsNeeded = cols *  (this.rowsMax + 1);
@@ -107,7 +107,7 @@ class Grid extends Widget {
         let postHeight = this.$container.find('.crt-post-c').width();
         this.$feedWindow.css({'overflow':'hidden'});
 
-        let maxRows = Math.ceil(this.feed.postCount / this.previousCol);
+        let maxRows = Math.ceil(this.feed.postCount / this.columnCount);
         let rows = this.rowsMax < maxRows ? this.rowsMax : maxRows;
 
         if (animate) {
@@ -182,7 +182,15 @@ class Grid extends Widget {
     onMoreClicked (ev) {
         ev.preventDefault();
 
-        this.rowsMax ++;
+        let rowsToAdd = 1;
+
+        if (this.columnCount <= 1) {
+            rowsToAdd = 4
+        } else if (this.columnCount === 2) {
+            rowsToAdd = 2
+        }
+
+        this.rowsMax +=rowsToAdd;
 
         this.updateLayout();
     }
@@ -194,7 +202,7 @@ class Grid extends Widget {
 
         this.$container.empty()
             .removeClass('crt-grid')
-            .removeClass('crt-grid-col'+this.previousCol)
+            .removeClass('crt-grid-col'+this.columnCount)
             .css({'height':'','overflow':''});
 
         delete this.$feed;

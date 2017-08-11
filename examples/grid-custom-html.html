@@ -1,0 +1,80 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Curator Examples - Grid</title>
+    <meta name="viewport" content="width=device-width" />
+    <link href="../dist/css/curator.css" rel="stylesheet" />
+    <link href="css/example.css" rel="stylesheet" />
+    <style type="text/css">
+        #curator-feed {
+            max-width: 900px;
+        }
+    </style>
+</head>
+<body>
+<h1>Curator.io Examples</h1>
+<h2>Grid Widget - Load More</h2>
+<p class="center"><a href="index.html">Examples</a></p>
+<div id="curator-feed">
+    <a href="http://curator.io" target="_blank" class="crt-logo crt-tag">Powered by Curator.io</a>
+</div>
+
+<script type="text/javascript" src="../dist/js/curator.js"></script>
+<script type="text/javascript">
+    // While you're testing
+    Curator.debug = true;
+
+    // Change FEED_ID to your unique FEED_ID
+    var widget = new Curator.Grid({
+        container:'#curator-feed',
+//        feedId:"c70e66e4-6932-487d-8174-00fae1fc",
+        feedId:"d770f4ab-f2cc-4514-a8d2-c2a03122",
+        apiEndpoint:'http://api.curator.io/v1',
+        grid: {
+            showLoadMore:true,
+            rows:3,
+        }
+    });
+</script>
+
+<script id="v2-grid-post" type="text/html">
+<div class="crt-grid-post crt-grid-post-v2 crt-post-<%=id%> <%=this.contentImageClasses()%> <%=this.contentTextClasses()%>">
+    <div class="crt-post-c">
+        <div class="crt-post-content">
+            <div class="crt-hitarea" >
+            <div class="crt-post-normal">
+                <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer" />
+                <div class="crt-post-content-image" style="background-image: url(<%=image%>);"> </div>
+                <a href="javascript:;" class="crt-play"><i class="crt-play-icon"></i></a>
+                <span class="crt-social-icon crt-social-icon-normal"><i class="crt-icon-<%=this.networkIcon()%>"></i></span>
+            </div>
+            <div class="crt-post-hover">
+                <div class="crt-post-header">
+                    <span class="crt-social-icon"><i class="crt-icon-<%=this.networkIcon()%>"></i></span>
+                    <div class="crt-post-fullname"><a href="<%=this.userUrl()%>" target="_blank"><%=user_full_name%></a></div>
+                </div>
+                <!--<div class="crt-post-content-text">
+                    <%=this.parseText(text)%>
+                </div>-->
+                <div class="crt-post-read-more"><a href="#" class="crt-post-read-more-button">Read more</a> </div>
+                <div class="crt-post-footer">
+                    <img class="crt-post-userimage" src="<%=user_image%>" />
+                    <span class="crt-post-username"><a href="<%=this.userUrl()%>" target="_blank">@<%=user_screen_name%></a></span>
+                    <span class="crt-date"><%=this.prettyDate(source_created_at)%></span>
+                    <div class="crt-post-share">
+                        <span class="ctr-share-hint"></span>
+                        <a href="#" class="crt-share-facebook"><i class="crt-icon-facebook"></i></a>
+                        <a href="#" class="crt-share-twitter"><i class="crt-icon-twitter"></i></a>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+    </div>
+</div>
+</script>
+
+</body>
+</html>
+
