@@ -17,7 +17,7 @@
         margin-bottom: 1px;
     }
 
-    img.spacer {
+    img.crt-spacer {
         width: 100%;
         display: block;
         margin: 0 !important;
@@ -25,17 +25,13 @@
         position: relative;
     }
 
-    .crt-post-normal {
-        .crt-post-content-image {
-            position: absolute;
-            top:0;
-            left:0;
-            width: 100%;
-            height: 100%;
-            background-size: cover;
-            background-position: center center;
-            z-index: 1;
-        }
+    .crt-grid-post-text ,
+    .crt-grid-post-image {
+        position: absolute;
+        top:0;
+        left:0;
+        width: 100%;
+        height: 100%;
 
         .crt-social-icon {
             position: absolute;
@@ -44,12 +40,88 @@
             z-index: 3;
             font-size: 24px;
             transition: opacity .2s linear;
+            //color: #ffffff;
+        }
+
+    }
+
+    .crt-grid-post-image {
+        display: block;
+        position: absolute;
+        top:0;
+        left:0;
+        width: 100%;
+        height: 100%;
+
+        .crt-post-content-image {
+            height: 100%;
+            width: 100%;
+            background-size: cover;
+            background-position: center center;
+            z-index: 1;
+        }
+
+        .crt-social-icon {
             color: #ffffff;
+        }
+    }
+
+    .crt-grid-post-text {
+        display: none;
+        //padding-left: 17px;
+        //padding-right: 17px;
+        //padding-bottom: 28px;
+        color: $color-post-text;
+        font-size: $font-size-post-text;
+        line-height: $line-height-post-text;
+        text-align: center;
+
+        .crt-grid-post-text-wrap {
+            //display: flex;
+            //align-items: center;
+            //justify-content: center;
+
+            display: table;
+
+            position: absolute;
+            top:0;
+            height: 100%;
+            //width:100%;
+            padding: 0 10px 20px;
+            overflow: hidden;
+
+
+            div {
+                display: table-cell;
+                vertical-align: middle;
+                text-overflow: ellipsis;
+            }
         }
     }
 
     .crt-post-read-more {
         display: none;
+    }
+
+    &.crt-post-has-image {
+        .crt-grid-post-image {
+            display: block;
+        }
+        .crt-grid-post-text {
+            display: none;
+        }
+        .crt-post-content-text {
+            display: block;
+        }
+    }
+
+    &.crt-post-content-image-hidden {
+        .crt-grid-post-image {
+            display: none;
+        }
+        .crt-grid-post-text {
+            display: block;
+        }
     }
 	//
     //.crt-post-content-text-c {

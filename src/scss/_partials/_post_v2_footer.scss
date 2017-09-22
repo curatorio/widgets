@@ -1,4 +1,27 @@
 
+
+.crt-date {
+	margin-top: 0;
+	opacity: 0.5;
+	font-size: .8em;
+	text-transform: uppercase;
+}
+
+.crt-post-username {
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	font-size: .8em;
+	text-transform: uppercase;
+}
+
+.crt-post-userimage {
+	width: 24px;
+	height: auto;
+	border-radius: 50%;
+}
+
+
 .crt-grid-post-v2,
 .crt-post-v2 {
 	.crt-post-footer {
@@ -13,24 +36,6 @@
 			position: absolute;
 			top: 7px;
 			left: 10px;
-			width: 24px;
-			height: auto;
-			border-radius: 50%;
-		}
-
-		.crt-date {
-			margin-top: 0;
-			opacity: 0.5;
-			font-size: .8em;
-			text-transform: uppercase;
-		}
-
-		.crt-post-username {
-			overflow: hidden;
-			white-space: nowrap;
-			text-overflow: ellipsis;
-			font-size: .8em;
-			text-transform: uppercase;
 		}
 
 		.crt-post-share {

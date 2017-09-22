@@ -5,10 +5,16 @@ const v2GridPostTemplate = ' \
     <div class="crt-post-c"> \
         <div class="crt-post-content"> \
             <div class="crt-hitarea" > \
-                <div class="crt-post-normal">\
-                    <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer" /> \
+                <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="crt-spacer" /> \
+                <div class="crt-grid-post-image">\
                     <div class="crt-post-content-image" style="background-image: url(<%=image%>);"> </div> \
                     <a href="javascript:;" class="crt-play"><i class="crt-play-icon"></i></a> \
+                    <span class="crt-social-icon crt-social-icon-normal"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \
+                </div>\
+                <div class="crt-grid-post-text">\
+                    <div class="crt-grid-post-text-wrap"> \
+                        <div><%=this.parseText(text)%></div> \
+                    </div> \
                     <span class="crt-social-icon crt-social-icon-normal"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \
                 </div>\
                 <div class="crt-post-hover">\

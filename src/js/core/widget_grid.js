@@ -41,24 +41,15 @@ class Grid extends Widget {
             this.$container.addClass('crt-grid');
 
             if (this.options.grid.showLoadMore) {
-                // this.$feed.css({
-                //     position:'absolute',
-                //     left:0,
-                //     top:0,
-                //     width:'100%'
-                // });
                 this.$feedWindow.css({
                     'position':'relative'
                 });
-                // postsNeeded = cols *  (this.options.grid.rows * 2); //
                 this.$loadMore.click(this.onMoreClicked.bind(this))
             } else {
                 this.$loadMore.hide();
             }
 
             this.createHandlers();
-
-            // Debounce wrapper ...
 
             // This triggers post loading
             this.rowsMax = this.options.grid.rows;
