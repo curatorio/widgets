@@ -192,7 +192,7 @@ Curator.Templates.postTemplate = ' \
 </script>
 ```
 
-See the [template.js](https://github.com/curatorio/widgets/blob/master/src/js/core/curator/template.js) file for the HTML templates.
+See the [template_v2_post.js](https://github.com/curatorio/widgets/blob/master/src/js/core/template_v2_post.js) file for the HTML templates.
 
 Following templates are predefined:
  - Curator.Templates.postTemplate
