@@ -55,19 +55,22 @@
                 return helpers.nl2br(s);
             }
         },
+
         nl2br:function(s) {
             s = s.trim();
             s = s.replace(/(?:\r\n|\r|\n)/g, '<br />');
 
             return s;
         },
-        contentImageClasses : function () {
-            return this.data.image ? 'crt-post-has-image' : 'crt-post-content-image-hidden';
-        },
-        contentTextClasses : function () {
-            return this.data.text ? 'crt-post-has-text' : 'crt-post-content-text-hidden';
 
+        contentImageClasses : function () {
+            return this.data.image ? 'crt-post-has-image' : 'crt-post-content-image-hidden crt-post-no-image';
         },
+
+        contentTextClasses : function () {
+            return this.data.text ? 'crt-post-has-text' : 'crt-post-content-text-hidden crt-post-no-text';
+        },
+
         fuzzyDate : function (dateString)
         {
             let date = Date.parse(dateString+' UTC');
