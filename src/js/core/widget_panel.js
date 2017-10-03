@@ -84,7 +84,7 @@ class Panel extends Widget {
     }
 
     onCarouselChange (event, currentSlide) {
-        if (this.options.panel.autoLoad) {
+        if (this.options && this.options.panel.autoLoad) {
             if (currentSlide >= this.feed.postsLoaded - 4) {
                 this.loadMorePosts();
             }

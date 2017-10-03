@@ -87,7 +87,7 @@ class Carousel extends Widget {
     }
 
     onCarouselChange (event, currentSlide) {
-        if (this.options.carousel.autoLoad) {
+        if (this.options && this.options.carousel.autoLoad) {
             if (currentSlide >= this.feed.postsLoaded - this.carousel.PANES_VISIBLE) {
                 this.loadMorePosts();
             }
