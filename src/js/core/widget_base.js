@@ -132,6 +132,9 @@ class Widget extends EventBus {
 
     destroy () {
         Curator.log('Widget->destroy');
+
+        super.destroy();
+
         if (this.feed) {
             this.feed.destroy()
         }
