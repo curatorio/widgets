@@ -2804,6 +2804,9 @@ var Widget = (function (EventBus) {
 
     Widget.prototype.destroy = function destroy () {
         Curator.log('Widget->destroy');
+
+        EventBus.prototype.destroy.call(this);
+
         if (this.feed) {
             this.feed.destroy()
         }
@@ -2915,7 +2918,7 @@ var Carousel = (function (Widget) {
     };
 
     Carousel.prototype.onCarouselChange = function onCarouselChange (event, currentSlide) {
-        if (this.options.carousel.autoLoad) {
+        if (this.options && this.options.carousel.autoLoad) {
             if (currentSlide >= this.feed.postsLoaded - this.carousel.PANES_VISIBLE) {
                 this.loadMorePosts();
             }
@@ -3339,7 +3342,7 @@ var Panel = (function (Widget) {
     };
 
     Panel.prototype.onCarouselChange = function onCarouselChange (event, currentSlide) {
-        if (this.options.panel.autoLoad) {
+        if (this.options && this.options.panel.autoLoad) {
             if (currentSlide >= this.feed.postsLoaded - 4) {
                 this.loadMorePosts();
             }

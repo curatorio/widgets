@@ -155,6 +155,12 @@
       "css": "up-open-big",
       "code": 59399,
       "src": "entypo"
+    },
+    {
+      "uid": "9854b94688e31450fc76aae4c2a45dff",
+      "css": "weibo",
+      "code": 61834,
+      "src": "fontawesome"
     }
   ]
 }
