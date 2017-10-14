@@ -189,6 +189,8 @@ class Grid extends Widget {
     destroy () {
         super.destroy();
 
+        this.feed.destroy();
+
         this.destroyHandlers();
 
         this.$container.empty()

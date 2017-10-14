@@ -95,6 +95,8 @@ class Panel extends Widget {
 
         super.destroy();
 
+        this.feed.destroy();
+
         this.carousel.off(Curator.Events.CAROUSEL_CHANGED, this.onCarouselChange.bind(this));
         this.carousel.destroy();
 

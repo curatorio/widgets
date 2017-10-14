@@ -112,6 +112,8 @@ class Waterfall extends Widget {
 
         super.destroy();
 
+        this.feed.destroy();
+
         this.ui.destroy ();
 
         this.$feed.remove();

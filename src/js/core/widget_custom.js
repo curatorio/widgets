@@ -59,6 +59,8 @@ class Custom extends Widget {
     destroy  () {
         super.destroy();
 
+        this.feed.destroy();
+
         this.$feed.remove();
         this.$container.removeClass('crt-custom');
 
