@@ -4,7 +4,8 @@ Curator.Config.Carousel = $.extend({}, Curator.Config.Defaults, {
     scroll:'more',
     carousel:{
         autoPlay:true,
-        autoLoad:true
+        autoLoad:true,
+        infinite:false
     },
 });
 

@@ -2830,7 +2830,8 @@ Curator.Config.Carousel = $.extend({}, Curator.Config.Defaults, {
     scroll:'more',
     carousel:{
         autoPlay:true,
-        autoLoad:true
+        autoLoad:true,
+        infinite:false
     },
 });
 
@@ -2928,6 +2929,8 @@ var Carousel = (function (Widget) {
     Carousel.prototype.destroy = function destroy () {
         Widget.prototype.destroy.call(this);
 
+        this.feed.destroy();
+
         this.carousel.off(Curator.Events.CAROUSEL_CHANGED, this.onCarouselChange.bind(this));
         this.carousel.destroy();
 
@@ -3014,6 +3017,8 @@ var Custom = (function (Widget) {
 
     Custom.prototype.destroy = function destroy () {
         Widget.prototype.destroy.call(this);
+
+        this.feed.destroy();
 
         this.$feed.remove();
         this.$container.removeClass('crt-custom');
@@ -3229,6 +3234,8 @@ var Grid = (function (Widget) {
     Grid.prototype.destroy = function destroy () {
         Widget.prototype.destroy.call(this);
 
+        this.feed.destroy();
+
         this.destroyHandlers();
 
         this.$container.empty()
@@ -3352,6 +3359,8 @@ var Panel = (function (Widget) {
     Panel.prototype.destroy = function destroy () {
 
         Widget.prototype.destroy.call(this);
+
+        this.feed.destroy();
 
         this.carousel.off(Curator.Events.CAROUSEL_CHANGED, this.onCarouselChange.bind(this));
         this.carousel.destroy();
@@ -3496,6 +3505,8 @@ var Waterfall = (function (Widget) {
         //this.$feed.slick('unslick');
 
         Widget.prototype.destroy.call(this);
+
+        this.feed.destroy();
 
         this.ui.destroy ();
 

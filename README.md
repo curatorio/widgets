@@ -117,7 +117,7 @@ var widget = new Curator.Carousel({
        autoPlay:true,    // carousel will auto rotate
        autoLoad:true,    // carusel will auto load new when it reaches the end of the current page of posts
        minWidth:250,     // the minimum width of the post, used when calculating responsive post width
-       infinite:true     // if the last post is reached should it rotate back to the start
+       infinite:false    // if the last post is reached should it rotate back to the start
     }
 });
 ```
