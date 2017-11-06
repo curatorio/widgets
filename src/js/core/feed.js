@@ -2,12 +2,12 @@
 
 class Feed extends EventBus {
 
-    constructor(client) {
+    constructor(widget) {
         super ();
 
         Curator.log ('Feed->init with options');
 
-        this.widget = client;
+        this.widget = widget;
 
         this.posts = [];
         this.currentPage = 0;
@@ -25,7 +25,7 @@ class Feed extends EventBus {
         this.params = this.options.feedParams || {};
         this.params.limit = this.options.postsPerPage;
 
-        this.feedBase = this.options.apiEndpoint+'/feed';
+        this.feedBase = this.options.apiEndpoint+'/feeds';
     }
 
     loadPosts (page, paramsIn) {
@@ -126,9 +126,12 @@ class Feed extends EventBus {
                     }
 
                     this.widget.trigger(Curator.Events.FEED_LOADED, data);
-                    this.trigger(Curator.Events.FEED_LOADED, data.posts);
+                    this.widget.trigger(Curator.Events.POSTS_LOADED, data.posts);
+
+                    this.trigger(Curator.Events.FEED_LOADED, data);
+                    this.trigger(Curator.Events.POSTS_LOADED, data.posts);
                 } else {
-                    this.trigger(Curator.Events.FEED_FAILED, data.posts);
+                    this.trigger(Curator.Events.POSTS_FAILED, data.posts);
                 }
                 this.loading = false;
             },
@@ -137,7 +140,7 @@ class Feed extends EventBus {
                 Curator.log(textStatus);
                 Curator.log(errorThrown);
 
-                this.trigger(Curator.Events.FEED_FAILED, []);
+                this.trigger(Curator.Events.POSTS_FAILED, []);
                 this.loading = false;
             }
         );

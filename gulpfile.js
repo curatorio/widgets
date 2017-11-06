@@ -24,6 +24,20 @@ const jsHintConfig = {
 
 };
 
+const jsCore = [
+    srcJs+'libraries/*.js',
+    srcJs+'core/bootstrap.js',
+    srcJs+'core/**/*.js',
+];
+
+const jsZepto = [
+    srcJs+'_zepto/zepto.js',
+    srcJs+'_zepto/zepto.scope.js',
+    srcJs+'_zepto/zepto.animate.js',
+    srcJs+'_zepto/zepto.extend.js',
+    srcJs+'_zepto/zepto.fxmethods.js',
+];
+
 const bubleConfig = {
     transforms: {
         dangerousForOf: true
@@ -75,22 +89,10 @@ gulp.task('styles', () =>  {
 // Scripts
 
 gulp.task('scripts:all', () =>  {
-    return gulp.src([
-            srcJs+'libraries/*.js',
-            srcJs+'core/bootstrap.js',
-            srcJs+'core/**/*.js',
-            srcJs+'widgets/*.js',
-            srcJs+'widgets/custom.js'
-        ])
+    return gulp.src(jsCore)
         .pipe(buble(bubleConfig))
-        .on('error', bubleError)
-        .pipe(addsrc.prepend([
-            srcJs+'_zepto/zepto.js',
-            srcJs+'_zepto/zepto.scope.js',
-            srcJs+'_zepto/zepto.animate.js',
-            srcJs+'_zepto/zepto.extend.js',
-            srcJs+'_zepto/zepto.fxmethods.js',
-        ]))
+            .on('error', bubleError)
+        .pipe(addsrc.prepend(jsZepto))
         .pipe(concat('curator.js'))
         .pipe(wrap({ src: src+'umd-templates/all.js'}))
         .pipe(gulp.dest(destJs))
@@ -102,15 +104,9 @@ gulp.task('scripts:all', () =>  {
 // - requires jQuery or Zepto
 
 gulp.task('scripts:core', () =>  {
-    return gulp.src([
-            srcJs+'libraries/*.js',
-            srcJs+'core/bootstrap.js',
-            srcJs+'core/**/*.js',
-            srcJs+'widgets/*.js',
-            srcJs+'widgets/custom.js'
-        ])
+    return gulp.src(jsCore)
         .pipe(buble(bubleConfig))
-        .on('error', bubleError)
+        .   on('error', bubleError)
         .pipe(concat('curator.core.js'))
         .pipe(wrap({ src: src+'umd-templates/core.js'}))
         .pipe(gulp.dest(destJs))

@@ -40,8 +40,9 @@ class Widget extends EventBus {
 
     createFeed () {
         this.feed = new Curator.Feed (this);
-        this.feed.on(Curator.Events.FEED_LOADED, this.onPostsLoaded.bind(this));
-        this.feed.on(Curator.Events.FEED_FAILED, this.onPostsFail.bind(this)); 
+        this.feed.on(Curator.Events.POSTS_LOADED, this.onPostsLoaded.bind(this));
+        this.feed.on(Curator.Events.POSTS_FAILED, this.onPostsFail.bind(this));
+        this.feed.on(Curator.Events.FEED_LOADED, this.onFeedLoaded.bind(this));
     }
 
     createPopupManager () {
@@ -106,6 +107,13 @@ class Widget extends EventBus {
 
     onPostImageLoaded (ev, post) {
         Curator.log('Widget->onPostImageLoaded');
+    }
+
+    onFeedLoaded (ev, response) {
+        if (!response.account.plan.unbranded) {
+            this.$container.addClass('crt-feed-branded');
+            //<a href="http://curator.io" target="_blank" class="crt-logo crt-tag">Powered by Curator.io</a>
+        }
     }
 
     track (a) {

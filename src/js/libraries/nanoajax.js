@@ -17,33 +17,33 @@
         let headers = params.headers || {}
             , body = params.body
             , method = params.method || (body ? 'POST' : 'GET')
-            , called = false
+            , called = false;
 
-        let req = getRequest(params.cors)
+        let req = getRequest(params.cors);
 
         function cb(statusCode, responseText) {
             return function () {
                 if (!called) {
                     callback(req.status === undefined ? statusCode : req.status,
                         req.status === 0 ? "Error" : (req.response || req.responseText || responseText),
-                        req)
+                        req);
                     called = true
                 }
             }
         }
 
-        req.open(method, params.url, true)
+        req.open(method, params.url, true);
 
-        let success = req.onload = cb(200)
+        let success = req.onload = cb(200);
         req.onreadystatechange = function () {
             if (req.readyState === 4) success()
-        }
-        req.onerror = cb(null, 'Error')
-        req.ontimeout = cb(null, 'Timeout')
-        req.onabort = cb(null, 'Abort')
+        };
+        req.onerror = cb(null, 'Error');
+        req.ontimeout = cb(null, 'Timeout');
+        req.onabort = cb(null, 'Abort');
 
         if (body) {
-            setDefault(headers, 'X-Requested-With', 'XMLHttpRequest')
+            setDefault(headers, 'X-Requested-With', 'XMLHttpRequest');
 
             if (!global.FormData || !(body instanceof global.FormData)) {
                 setDefault(headers, 'Content-Type', 'application/x-www-form-urlencoded')
@@ -51,7 +51,7 @@
         }
 
         for (let i = 0, len = reqfields.length, field; i < len; i++) {
-            field = reqfields[i]
+            field = reqfields[i];
             if (params[field] !== undefined)
                 req[field] = params[field]
         }
@@ -59,7 +59,7 @@
         for (let field in headers)
             req.setRequestHeader(field, headers[field])
 
-        req.send(body)
+        req.send(body);
 
         return req
     }

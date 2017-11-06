@@ -18,13 +18,11 @@ Curator.Utils = {
         return '';
     },
 
-    center (elementWidth, elementHeight, bound) {
+    center (w, h, bound) {
         let s = window.screen,
             b = bound || {},
             bH = b.height || s.height,
-            bW = b.width || s.height,
-            w = elementWidth,
-            h = elementHeight;
+            bW = b.width || s.height;
 
         return {
             top: (bH) ? (bH - h) / 2 : 0,

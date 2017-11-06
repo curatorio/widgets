@@ -58,7 +58,7 @@ class Filter {
             }
         });
 
-        this.client.on(Curator.Events.FEED_LOADED, this.onPostsLoaded.bind(this));
+        this.client.on(Curator.Events.POSTS_LOADED, this.onPostsLoaded.bind(this));
     }
 
     onPostsLoaded (event, data) {

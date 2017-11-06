@@ -2,4 +2,21 @@
     div {
         box-sizing: border-box;
     }
+
+
+
+    &.crt-feed-branded {
+        padding-bottom: 25px;
+        .crt-logo {
+            display: block;
+            position: absolute;
+            bottom: 0px;
+            right: 10px;
+            font-size: 0.9em;
+
+            z-index: 999;
+            color: #090909;
+            text-decoration: none;
+        }
+    }
 }

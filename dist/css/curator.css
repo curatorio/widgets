@@ -166,15 +166,17 @@
 .crt-feed div {
   box-sizing: border-box; }
 
-.crt-tag {
-  position: absolute;
-  bottom: 10px;
-  right: 10px;
-  z-index: 999;
-  color: #efefef;
-  text-decoration: none; }
-  .crt-tag a {
-    color: #efefef; }
+.crt-feed.crt-feed-branded {
+  padding-bottom: 25px; }
+  .crt-feed.crt-feed-branded .crt-logo {
+    display: block;
+    position: absolute;
+    bottom: 0px;
+    right: 10px;
+    font-size: 0.9em;
+    z-index: 999;
+    color: #090909;
+    text-decoration: none; }
 
 /**
 * ==================================================================

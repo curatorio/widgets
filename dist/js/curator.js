@@ -1656,33 +1656,33 @@ if (!Array.prototype.fill) {
         var headers = params.headers || {}
             , body = params.body
             , method = params.method || (body ? 'POST' : 'GET')
-            , called = false
+            , called = false;
 
-        var req = getRequest(params.cors)
+        var req = getRequest(params.cors);
 
         function cb(statusCode, responseText) {
             return function () {
                 if (!called) {
                     callback(req.status === undefined ? statusCode : req.status,
                         req.status === 0 ? "Error" : (req.response || req.responseText || responseText),
-                        req)
+                        req);
                     called = true
                 }
             }
         }
 
-        req.open(method, params.url, true)
+        req.open(method, params.url, true);
 
-        var success = req.onload = cb(200)
+        var success = req.onload = cb(200);
         req.onreadystatechange = function () {
             if (req.readyState === 4) success()
-        }
-        req.onerror = cb(null, 'Error')
-        req.ontimeout = cb(null, 'Timeout')
-        req.onabort = cb(null, 'Abort')
+        };
+        req.onerror = cb(null, 'Error');
+        req.ontimeout = cb(null, 'Timeout');
+        req.onabort = cb(null, 'Abort');
 
         if (body) {
-            setDefault(headers, 'X-Requested-With', 'XMLHttpRequest')
+            setDefault(headers, 'X-Requested-With', 'XMLHttpRequest');
 
             if (!global.FormData || !(body instanceof global.FormData)) {
                 setDefault(headers, 'Content-Type', 'application/x-www-form-urlencoded')
@@ -1690,7 +1690,7 @@ if (!Array.prototype.fill) {
         }
 
         for (var i = 0, len = reqfields.length, field; i < len; i++) {
-            field = reqfields[i]
+            field = reqfields[i];
             if (params[field] !== undefined)
                 req[field] = params[field]
         }
@@ -1698,7 +1698,7 @@ if (!Array.prototype.fill) {
         for (var field$1 in headers)
             req.setRequestHeader(field$1, headers[field$1])
 
-        req.send(body)
+        req.send(body);
 
         return req
     }
@@ -1998,6 +1998,9 @@ Curator.Events = {
 
     FILTER_CHANGED          :'filter:changed',
 
+    POSTS_LOADED             :'posts:loaded',
+    POSTS_FAILED             :'posts:failed',
+
     POST_CREATED            :'post:created',
     POST_CLICK              :'post:click',
     POST_CLICK_READ_MORE    :'post:clickReadMore',
@@ -2008,12 +2011,12 @@ Curator.Events = {
 
 
 var Feed = (function (EventBus) {
-    function Feed(client) {
+    function Feed(widget) {
         EventBus.call (this);
 
         Curator.log ('Feed->init with options');
 
-        this.widget = client;
+        this.widget = widget;
 
         this.posts = [];
         this.currentPage = 0;
@@ -2031,7 +2034,7 @@ var Feed = (function (EventBus) {
         this.params = this.options.feedParams || {};
         this.params.limit = this.options.postsPerPage;
 
-        this.feedBase = this.options.apiEndpoint+'/feed';
+        this.feedBase = this.options.apiEndpoint+'/feeds';
     }
 
     if ( EventBus ) Feed.__proto__ = EventBus;
@@ -2138,9 +2141,12 @@ var Feed = (function (EventBus) {
                     }
 
                     this$1.widget.trigger(Curator.Events.FEED_LOADED, data);
-                    this$1.trigger(Curator.Events.FEED_LOADED, data.posts);
+                    this$1.widget.trigger(Curator.Events.POSTS_LOADED, data.posts);
+
+                    this$1.trigger(Curator.Events.FEED_LOADED, data);
+                    this$1.trigger(Curator.Events.POSTS_LOADED, data.posts);
                 } else {
-                    this$1.trigger(Curator.Events.FEED_FAILED, data.posts);
+                    this$1.trigger(Curator.Events.POSTS_FAILED, data.posts);
                 }
                 this$1.loading = false;
             },
@@ -2149,7 +2155,7 @@ var Feed = (function (EventBus) {
                 Curator.log(textStatus);
                 Curator.log(errorThrown);
 
-                this$1.trigger(Curator.Events.FEED_FAILED, []);
+                this$1.trigger(Curator.Events.POSTS_FAILED, []);
                 this$1.loading = false;
             }
         );
@@ -2273,7 +2279,7 @@ var Filter = function Filter (client) {
         }
     });
 
-    this.client.on(Curator.Events.FEED_LOADED, this.onPostsLoaded.bind(this));
+    this.client.on(Curator.Events.POSTS_LOADED, this.onPostsLoaded.bind(this));
 };
 
 Filter.prototype.onPostsLoaded = function onPostsLoaded (event, data) {
@@ -2372,364 +2378,6 @@ Curator.Networks = {
         icon:'crt-icon-linkedin'
     },
 };
-/**
-* ==================================================================
-* Popup
-* ==================================================================
-*/
-
-
-Curator.PopupInappropriate = function (post,feed) {
-    this.init(post,feed);
-};
-
-$.extend(Curator.PopupInappropriate.prototype, {
-    feed: null,
-    post:null,
-
-    init: function (post,feed) {
-        var that = this;
-
-        this.feed = feed;
-        this.post = post;
-        
-        this.jQueryel = $('.mark-bubble');
-
-        $('.mark-close').click(function (e) {
-            e.preventDefault();
-            $(this).parent().fadeOut('slow');
-        });
-
-        $('.mark-bubble .submit').click(function () {
-            var $input = that.$el.find('input.text');
-
-            var reason = $.trim($input.val());
-
-            if (reason) {
-                $input.disabled = true;
-                $(this).hide();
-
-                that.$el.find('.waiting').show();
-
-                feed.inappropriatePost(that.post.id, reason,
-                    function () {
-                        $input.val('');
-                        that.$el.find('.waiting').hide();
-                        that.$el.find('.title').html('Thank you');
-                        that.$el.find('input.text').hide();
-                        that.$el.find('input.text').html('');
-                        that.$el.find('.success-message').html('This message has been marked as inappropriate').show();
-                    },
-                    function () {
-                        that.$el.find('.waiting').hide();
-                        that.$el.find('.title').html('Oops');
-                        that.$el.find('input.text').hide();
-                        that.$el.find('input.text').html('');
-                        that.$el.find('.success-message').html('It looks like a problem has occurred. Please try again later').show();
-                    }
-                );
-            }
-        });
-
-        this.$el.fadeIn('slow');
-    }
-});
-/**
-* ==================================================================
-* Popup Manager
-* ==================================================================
-*/
-
-
-var PopupManager = function PopupManager (widget) {
-    Curator.log("PopupManager->init ");
-
-    this.widget = widget;
-    var templateId = this.widget.options.templatePopupWrapper;
-
-    this.$wrapper = Curator.Template.render(templateId, {});
-    this.$popupContainer = this.$wrapper.find('.crt-popup-container');
-    this.$underlay = this.$wrapper.find('.crt-popup-underlay');
-
-    $('body').append(this.$wrapper);
-    this.$underlay.click(this.onUnderlayClick.bind(this));
-};
-
-PopupManager.prototype.showPopup = function showPopup (post) {
-        var this$1 = this;
-
-    if (this.popup) {
-        this.popup.hide(function () {
-            this$1.popup.destroy();
-            this$1.showPopup2(post);
-        });
-    } else {
-        this.showPopup2(post);
-    }
-
-};
-
-PopupManager.prototype.showPopup2 = function showPopup2 (post) {
-        var this$1 = this;
-
-    this.popup = new Curator.Popup(this, post, this.widget);
-    this.$popupContainer.append(this.popup.$popup);
-
-    this.$wrapper.show();
-
-    if (this.$underlay.css('display') !== 'block') {
-        this.$underlay.fadeIn();
-    }
-    this.popup.show();
-
-    $('body').addClass('crt-popup-visible');
-
-    this.currentPostNum = 0;
-    for(var i=0;i < this.posts.length;i++)
-    {
-        // console.log (post.json.id +":"+this.posts[i].id);
-        if (post.json.id == this$1.posts[i].id) {
-            this$1.currentPostNum = i;
-            Curator.log('Found post '+i);
-            break;
-        }
-    }
-
-    this.widget.track('popup:show');
-};
-
-PopupManager.prototype.setPosts = function setPosts (posts) {
-    this.posts = posts;
-};
-
-PopupManager.prototype.onClose = function onClose () {
-    this.hide();
-};
-
-PopupManager.prototype.onPrevious = function onPrevious () {
-    this.currentPostNum-=1;
-    this.currentPostNum = this.currentPostNum>=0?this.currentPostNum:this.posts.length-1; // loop back to start
-
-    this.showPopup({json:this.posts[this.currentPostNum]});
-};
-
-PopupManager.prototype.onNext = function onNext () {
-    this.currentPostNum+=1;
-    this.currentPostNum = this.currentPostNum<this.posts.length?this.currentPostNum:0; // loop back to start
-
-    this.showPopup({json:this.posts[this.currentPostNum]});
-};
-
-PopupManager.prototype.onUnderlayClick = function onUnderlayClick (e) {
-    Curator.log('PopupManager->onUnderlayClick');
-    e.preventDefault();
-
-    if (this.popup) {
-        this.popup.hide(function () {
-            this.hide();
-        }.bind(this));
-    }
-};
-
-PopupManager.prototype.hide = function hide () {
-        var this$1 = this;
-
-    Curator.log('PopupManager->hide');
-    this.widget.track('popup:hide');
-    $('body').removeClass('crt-popup-visible');
-    this.currentPostNum = 0;
-    this.popup = null;
-    this.$underlay.fadeOut(function () {
-        this$1.$underlay.css({'display':'','opacity':''});
-        this$1.$wrapper.hide();
-    });
-};
-    
-PopupManager.prototype.destroy = function destroy () {
-
-    this.$underlay.remove();
-
-    delete this.$popup;
-    delete this.$underlay;
-};
-
-Curator.PopupManager = PopupManager; 
-/**
-* ==================================================================
-* Popup
-* ==================================================================
-*/
-
-
-var Popup = function Popup (popupManager, post, widget) {
-    Curator.log("Popup->init ");
- 
-    this.popupManager = popupManager;
-    this.json = post.json;
-    this.widget = widget;
-
-    var templateId = this.widget.options.templatePopup;
-    this.videoPlaying=false;
-
-    this.$popup = Curator.Template.render(templateId, this.json);
-
-    if (this.json.image) {
-        this.$popup.addClass('has-image');
-    }
-
-    if (this.json.video) {
-        this.$popup.addClass('has-video');
-    }
-
-    if (this.json.video && this.json.video.indexOf('youtu') >= 0 )
-    {
-        // youtube
-        this.$popup.find('video').remove();
-        // this.$popup.removeClass('has-image');
-
-        var youTubeId = Curator.StringUtils.youtubeVideoId(this.json.video);
-
-        var src = '<iframe id="ytplayer" type="text/html" width="615" height="615" \
-        src="https://www.youtube.com/embed/'+youTubeId+'?autoplay=0&rel=0&showinfo" \
-        frameborder="0"></iframe>';
-
-        this.$popup.find('.crt-video-container img').remove();
-        this.$popup.find('.crt-video-container a').remove();
-        this.$popup.find('.crt-video-container').append(src);
-    } else if (this.json.video && this.json.video.indexOf('vimeo') >= 0 )
-    {
-        // youtube
-        this.$popup.find('video').remove();
-        // this.$popup.removeClass('has-image');
-
-        var vimeoId = Curator.StringUtils.vimeoVideoId(this.json.video);
-
-        if (vimeoId) {
-            var src$1 = '<iframe src="https://player.vimeo.com/video/' + vimeoId + '?color=ffffff&title=0&byline=0&portrait=0" width="615" height="615" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>';
-            this.$popup.find('.crt-video-container img').remove();
-            this.$popup.find('.crt-video-container a').remove();
-            this.$popup.find('.crt-video-container').append(src$1);
-        }
-    }
-
-
-    this.$popup.on('click',' .crt-close', this.onClose.bind(this));
-    this.$popup.on('click',' .crt-previous', this.onPrevious.bind(this));
-    this.$popup.on('click',' .crt-next', this.onNext.bind(this));
-    this.$popup.on('click',' .crt-play', this.onPlay.bind(this));
-    this.$popup.on('click','.crt-share-facebook',this.onShareFacebookClick.bind(this));
-    this.$popup.on('click','.crt-share-twitter',this.onShareTwitterClick.bind(this));
-};
-
-Popup.prototype.onShareFacebookClick = function onShareFacebookClick (ev) {
-    ev.preventDefault();
-    Curator.SocialFacebook.share(this.json);
-    this.widget.track('share:facebook');
-    return false;
-};
-
-Popup.prototype.onShareTwitterClick = function onShareTwitterClick (ev) {
-    ev.preventDefault();
-    Curator.SocialTwitter.share(this.json);
-    this.widget.track('share:twitter');
-    return false;
-};
-
-Popup.prototype.onClose = function onClose (e) {
-    e.preventDefault();
-    var that = this;
-    this.hide(function(){
-        that.popupManager.onClose();
-    });
-};
-
-Popup.prototype.onPrevious = function onPrevious (e) {
-    e.preventDefault();
-
-    this.popupManager.onPrevious();
-};
-
-Popup.prototype.onNext = function onNext (e) {
-    e.preventDefault();
-
-    this.popupManager.onNext();
-};
-
-Popup.prototype.onPlay = function onPlay (e) {
-    Curator.log('Popup->onPlay');
-    e.preventDefault();
-
-    this.videoPlaying = !this.videoPlaying;
-
-    if (this.videoPlaying) {
-        this.$popup.find('video')[0].play();
-        this.widget.track('video:play');
-    } else {
-        this.$popup.find('video')[0].pause();
-        this.widget.track('video:pause');
-    }
-
-    Curator.log(this.videoPlaying);
-
-    this.$popup.toggleClass('video-playing',this.videoPlaying );
-};
-
-Popup.prototype.show = function show () {
-    //
-    // let post = this.json;
-    // let mediaUrl = post.image,
-    // text = post.text;
-    //
-    // if (mediaUrl) {
-    // let $imageWrapper = that.$el.find('div.main-image-wrapper');
-    // this.loadMainImage(mediaUrl, $imageWrapper, ['main-image']);
-    // }
-    //
-    // let $socialIcon = this.$el.find('.social-icon');
-    // $socialIcon.attr('class', 'social-icon');
-    // $socialIcon.addClass(Curator.SOURCE_TYPES[post.sourceType]);
-    //
-    // //format the date
-    // let date = Curator.Utils.dateAsDayMonthYear(post.sourceCreateAt);
-    //
-    // this.$el.find('input.discovery-id').val(post.id);
-    // this.$el.find('div.full-name span').html(post.user_full_name);
-    // this.$el.find('div.username span').html('@' + post.user_screen_name);
-    // this.$el.find('div.date span').html(date);
-    // this.$el.find('div.love-indicator span').html(post.loves);
-    // this.$el.find('div.side-text span').html(text);
-    //
-    // this.wrapper.show();
-    this.$popup.fadeIn(function () {
-        // that.$popup.find('.crt-popup').animate({width:950}, function () {
-        // $('.popup .content').fadeIn('slow');
-        // });
-    });
-};
-    
-Popup.prototype.hide = function hide (callback) {
-    Curator.log('Popup->hide');
-    var that = this;
-    this.$popup.fadeOut(function(){
-        that.destroy();
-        callback ();
-    });
-};
-    
-Popup.prototype.destroy = function destroy () {
-    if (this.$popup && this.$popup.length) {
-        this.$popup.remove();
-
-        if (this.$popup.find('video').length) {
-            this.$popup.find('video')[0].pause();
-
-        }
-    }
-
-    delete this.$popup;
-};
-
-Curator.Popup = Popup;
 
 
 /**
@@ -3995,6 +3643,364 @@ WaterfallLayout.prototype.destroy = function destroy () {
 
 
 Curator.UI.Layout.Waterfall = WaterfallLayout;
+/**
+* ==================================================================
+* Popup
+* ==================================================================
+*/
+
+
+var Popup = function Popup (popupManager, post, widget) {
+    Curator.log("Popup->init ");
+ 
+    this.popupManager = popupManager;
+    this.json = post.json;
+    this.widget = widget;
+
+    var templateId = this.widget.options.templatePopup;
+    this.videoPlaying=false;
+
+    this.$popup = Curator.Template.render(templateId, this.json);
+
+    if (this.json.image) {
+        this.$popup.addClass('has-image');
+    }
+
+    if (this.json.video) {
+        this.$popup.addClass('has-video');
+    }
+
+    if (this.json.video && this.json.video.indexOf('youtu') >= 0 )
+    {
+        // youtube
+        this.$popup.find('video').remove();
+        // this.$popup.removeClass('has-image');
+
+        var youTubeId = Curator.StringUtils.youtubeVideoId(this.json.video);
+
+        var src = '<iframe id="ytplayer" type="text/html" width="615" height="615" \
+        src="https://www.youtube.com/embed/'+youTubeId+'?autoplay=0&rel=0&showinfo" \
+        frameborder="0"></iframe>';
+
+        this.$popup.find('.crt-video-container img').remove();
+        this.$popup.find('.crt-video-container a').remove();
+        this.$popup.find('.crt-video-container').append(src);
+    } else if (this.json.video && this.json.video.indexOf('vimeo') >= 0 )
+    {
+        // youtube
+        this.$popup.find('video').remove();
+        // this.$popup.removeClass('has-image');
+
+        var vimeoId = Curator.StringUtils.vimeoVideoId(this.json.video);
+
+        if (vimeoId) {
+            var src$1 = '<iframe src="https://player.vimeo.com/video/' + vimeoId + '?color=ffffff&title=0&byline=0&portrait=0" width="615" height="615" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>';
+            this.$popup.find('.crt-video-container img').remove();
+            this.$popup.find('.crt-video-container a').remove();
+            this.$popup.find('.crt-video-container').append(src$1);
+        }
+    }
+
+
+    this.$popup.on('click',' .crt-close', this.onClose.bind(this));
+    this.$popup.on('click',' .crt-previous', this.onPrevious.bind(this));
+    this.$popup.on('click',' .crt-next', this.onNext.bind(this));
+    this.$popup.on('click',' .crt-play', this.onPlay.bind(this));
+    this.$popup.on('click','.crt-share-facebook',this.onShareFacebookClick.bind(this));
+    this.$popup.on('click','.crt-share-twitter',this.onShareTwitterClick.bind(this));
+};
+
+Popup.prototype.onShareFacebookClick = function onShareFacebookClick (ev) {
+    ev.preventDefault();
+    Curator.SocialFacebook.share(this.json);
+    this.widget.track('share:facebook');
+    return false;
+};
+
+Popup.prototype.onShareTwitterClick = function onShareTwitterClick (ev) {
+    ev.preventDefault();
+    Curator.SocialTwitter.share(this.json);
+    this.widget.track('share:twitter');
+    return false;
+};
+
+Popup.prototype.onClose = function onClose (e) {
+    e.preventDefault();
+    var that = this;
+    this.hide(function(){
+        that.popupManager.onClose();
+    });
+};
+
+Popup.prototype.onPrevious = function onPrevious (e) {
+    e.preventDefault();
+
+    this.popupManager.onPrevious();
+};
+
+Popup.prototype.onNext = function onNext (e) {
+    e.preventDefault();
+
+    this.popupManager.onNext();
+};
+
+Popup.prototype.onPlay = function onPlay (e) {
+    Curator.log('Popup->onPlay');
+    e.preventDefault();
+
+    this.videoPlaying = !this.videoPlaying;
+
+    if (this.videoPlaying) {
+        this.$popup.find('video')[0].play();
+        this.widget.track('video:play');
+    } else {
+        this.$popup.find('video')[0].pause();
+        this.widget.track('video:pause');
+    }
+
+    Curator.log(this.videoPlaying);
+
+    this.$popup.toggleClass('video-playing',this.videoPlaying );
+};
+
+Popup.prototype.show = function show () {
+    //
+    // let post = this.json;
+    // let mediaUrl = post.image,
+    // text = post.text;
+    //
+    // if (mediaUrl) {
+    // let $imageWrapper = that.$el.find('div.main-image-wrapper');
+    // this.loadMainImage(mediaUrl, $imageWrapper, ['main-image']);
+    // }
+    //
+    // let $socialIcon = this.$el.find('.social-icon');
+    // $socialIcon.attr('class', 'social-icon');
+    // $socialIcon.addClass(Curator.SOURCE_TYPES[post.sourceType]);
+    //
+    // //format the date
+    // let date = Curator.Utils.dateAsDayMonthYear(post.sourceCreateAt);
+    //
+    // this.$el.find('input.discovery-id').val(post.id);
+    // this.$el.find('div.full-name span').html(post.user_full_name);
+    // this.$el.find('div.username span').html('@' + post.user_screen_name);
+    // this.$el.find('div.date span').html(date);
+    // this.$el.find('div.love-indicator span').html(post.loves);
+    // this.$el.find('div.side-text span').html(text);
+    //
+    // this.wrapper.show();
+    this.$popup.fadeIn(function () {
+        // that.$popup.find('.crt-popup').animate({width:950}, function () {
+        // $('.popup .content').fadeIn('slow');
+        // });
+    });
+};
+    
+Popup.prototype.hide = function hide (callback) {
+    Curator.log('Popup->hide');
+    var that = this;
+    this.$popup.fadeOut(function(){
+        that.destroy();
+        callback ();
+    });
+};
+    
+Popup.prototype.destroy = function destroy () {
+    if (this.$popup && this.$popup.length) {
+        this.$popup.remove();
+
+        if (this.$popup.find('video').length) {
+            this.$popup.find('video')[0].pause();
+
+        }
+    }
+
+    delete this.$popup;
+};
+
+Curator.Popup = Popup;
+/**
+* ==================================================================
+* Popup
+* ==================================================================
+*/
+
+
+Curator.PopupInappropriate = function (post,feed) {
+    this.init(post,feed);
+};
+
+$.extend(Curator.PopupInappropriate.prototype, {
+    feed: null,
+    post:null,
+
+    init: function (post,feed) {
+        var that = this;
+
+        this.feed = feed;
+        this.post = post;
+        
+        this.jQueryel = $('.mark-bubble');
+
+        $('.mark-close').click(function (e) {
+            e.preventDefault();
+            $(this).parent().fadeOut('slow');
+        });
+
+        $('.mark-bubble .submit').click(function () {
+            var $input = that.$el.find('input.text');
+
+            var reason = $.trim($input.val());
+
+            if (reason) {
+                $input.disabled = true;
+                $(this).hide();
+
+                that.$el.find('.waiting').show();
+
+                feed.inappropriatePost(that.post.id, reason,
+                    function () {
+                        $input.val('');
+                        that.$el.find('.waiting').hide();
+                        that.$el.find('.title').html('Thank you');
+                        that.$el.find('input.text').hide();
+                        that.$el.find('input.text').html('');
+                        that.$el.find('.success-message').html('This message has been marked as inappropriate').show();
+                    },
+                    function () {
+                        that.$el.find('.waiting').hide();
+                        that.$el.find('.title').html('Oops');
+                        that.$el.find('input.text').hide();
+                        that.$el.find('input.text').html('');
+                        that.$el.find('.success-message').html('It looks like a problem has occurred. Please try again later').show();
+                    }
+                );
+            }
+        });
+
+        this.$el.fadeIn('slow');
+    }
+});
+/**
+* ==================================================================
+* Popup Manager
+* ==================================================================
+*/
+
+
+var PopupManager = function PopupManager (widget) {
+    Curator.log("PopupManager->init ");
+
+    this.widget = widget;
+    var templateId = this.widget.options.templatePopupWrapper;
+
+    this.$wrapper = Curator.Template.render(templateId, {});
+    this.$popupContainer = this.$wrapper.find('.crt-popup-container');
+    this.$underlay = this.$wrapper.find('.crt-popup-underlay');
+
+    $('body').append(this.$wrapper);
+    this.$underlay.click(this.onUnderlayClick.bind(this));
+};
+
+PopupManager.prototype.showPopup = function showPopup (post) {
+        var this$1 = this;
+
+    if (this.popup) {
+        this.popup.hide(function () {
+            this$1.popup.destroy();
+            this$1.showPopup2(post);
+        });
+    } else {
+        this.showPopup2(post);
+    }
+
+};
+
+PopupManager.prototype.showPopup2 = function showPopup2 (post) {
+        var this$1 = this;
+
+    this.popup = new Curator.Popup(this, post, this.widget);
+    this.$popupContainer.append(this.popup.$popup);
+
+    this.$wrapper.show();
+
+    if (this.$underlay.css('display') !== 'block') {
+        this.$underlay.fadeIn();
+    }
+    this.popup.show();
+
+    $('body').addClass('crt-popup-visible');
+
+    this.currentPostNum = 0;
+    for(var i=0;i < this.posts.length;i++)
+    {
+        // console.log (post.json.id +":"+this.posts[i].id);
+        if (post.json.id == this$1.posts[i].id) {
+            this$1.currentPostNum = i;
+            Curator.log('Found post '+i);
+            break;
+        }
+    }
+
+    this.widget.track('popup:show');
+};
+
+PopupManager.prototype.setPosts = function setPosts (posts) {
+    this.posts = posts;
+};
+
+PopupManager.prototype.onClose = function onClose () {
+    this.hide();
+};
+
+PopupManager.prototype.onPrevious = function onPrevious () {
+    this.currentPostNum-=1;
+    this.currentPostNum = this.currentPostNum>=0?this.currentPostNum:this.posts.length-1; // loop back to start
+
+    this.showPopup({json:this.posts[this.currentPostNum]});
+};
+
+PopupManager.prototype.onNext = function onNext () {
+    this.currentPostNum+=1;
+    this.currentPostNum = this.currentPostNum<this.posts.length?this.currentPostNum:0; // loop back to start
+
+    this.showPopup({json:this.posts[this.currentPostNum]});
+};
+
+PopupManager.prototype.onUnderlayClick = function onUnderlayClick (e) {
+    Curator.log('PopupManager->onUnderlayClick');
+    e.preventDefault();
+
+    if (this.popup) {
+        this.popup.hide(function () {
+            this.hide();
+        }.bind(this));
+    }
+};
+
+PopupManager.prototype.hide = function hide () {
+        var this$1 = this;
+
+    Curator.log('PopupManager->hide');
+    this.widget.track('popup:hide');
+    $('body').removeClass('crt-popup-visible');
+    this.currentPostNum = 0;
+    this.popup = null;
+    this.$underlay.fadeOut(function () {
+        this$1.$underlay.css({'display':'','opacity':''});
+        this$1.$wrapper.hide();
+    });
+};
+    
+PopupManager.prototype.destroy = function destroy () {
+
+    this.$underlay.remove();
+
+    delete this.$popup;
+    delete this.$underlay;
+};
+
+Curator.PopupManager = PopupManager; 
 
 Curator.Utils = {
     postUrl : function (post)
@@ -4015,13 +4021,11 @@ Curator.Utils = {
         return '';
     },
 
-    center: function center (elementWidth, elementHeight, bound) {
+    center: function center (w, h, bound) {
         var s = window.screen,
             b = bound || {},
             bH = b.height || s.height,
-            bW = b.width || s.height,
-            w = elementWidth,
-            h = elementHeight;
+            bW = b.width || s.height;
 
         return {
             top: (bH) ? (bH - h) / 2 : 0,
@@ -4292,8 +4296,9 @@ var Widget = (function (EventBus) {
 
     Widget.prototype.createFeed = function createFeed () {
         this.feed = new Curator.Feed (this);
-        this.feed.on(Curator.Events.FEED_LOADED, this.onPostsLoaded.bind(this));
-        this.feed.on(Curator.Events.FEED_FAILED, this.onPostsFail.bind(this)); 
+        this.feed.on(Curator.Events.POSTS_LOADED, this.onPostsLoaded.bind(this));
+        this.feed.on(Curator.Events.POSTS_FAILED, this.onPostsFail.bind(this));
+        this.feed.on(Curator.Events.FEED_LOADED, this.onFeedLoaded.bind(this));
     };
 
     Widget.prototype.createPopupManager = function createPopupManager () {
@@ -4358,6 +4363,13 @@ var Widget = (function (EventBus) {
 
     Widget.prototype.onPostImageLoaded = function onPostImageLoaded (ev, post) {
         Curator.log('Widget->onPostImageLoaded');
+    };
+
+    Widget.prototype.onFeedLoaded = function onFeedLoaded (ev, response) {
+        if (!response.account.plan.unbranded) {
+            this.$container.addClass('crt-feed-branded');
+            //<a href="http://curator.io" target="_blank" class="crt-logo crt-tag">Powered by Curator.io</a>
+        }
     };
 
     Widget.prototype.track = function track (a) {
