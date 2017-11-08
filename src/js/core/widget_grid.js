@@ -1,6 +1,7 @@
 Curator.Config.Grid = $.extend({}, Curator.Config.Defaults, {
     templatePost:'v2-grid-post',
     templateFeed:'v2-grid-feed',
+    animate:false,
     grid: {
         minWidth:200,
         rows:3
@@ -58,7 +59,7 @@ class Grid extends Widget {
     }
 
     loadPosts () {
-        console.log ('LOAD POSTS CALLED!!!?!?!!?!?!');
+        // console.log ('LOAD POSTS CALLED!!!?!?!!?!?!');
     }
 
     updateLayout ( ) {
@@ -147,20 +148,23 @@ class Grid extends Widget {
         if (posts.length === 0) {
             this.allLoaded = true;
         } else {
-            let that = this;
-            let postElements = [];
-            $(posts).each(function(i){
-                let p = that.createPostElement.call(that, this);
-                postElements.push(p.$el);
-                that.$feed.append(p.$el);
+            this.postElements = [];
+            let i = 0;
 
-                if (that.options.animate) {
-                    p.$el.css({opacity:0});
-                    setTimeout(function () {
-                        p.$el.css({opacity: 0}).animate({opacity: 1});
+            for (let postJson of posts) {
+                let post = this.createPostElement(postJson);
+                this.postElements.push(post);
+                this.$feed.append(post.$el);
+                post.layout();
+
+                if (this.options.animate) {
+                    post.$el.css({opacity: 0});
+                    setTimeout (() => {
+                        post.$el.css({opacity: 0}).animate({opacity: 1});
                     }, i * 100);
+                    i++;
                 }
-            });
+            }
 
             this.popupManager.setPosts(posts);
 

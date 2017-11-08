@@ -22,7 +22,6 @@
 		var config = {
 			container: '#curator-feed',
 			feedId: feedId,
-			apiEndpoint: 'https://api.curator.io/v1',
 			postsPerPage: 8
 		};
 		jQuery.extend(config,window.curatorConfig);

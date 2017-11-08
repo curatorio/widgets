@@ -1808,7 +1808,11 @@ var Curator = {
 
     loadWidget: function (config) {
         var ConstructorClass = window.Curator[config.type];
-        window.curatorWidget = new ConstructorClass(config);
+        var widget = new ConstructorClass(config);
+
+        window.curatorWidget = widget;
+
+        return widget;
     },
 
     loadCSS: function () {
@@ -1819,7 +1823,7 @@ var Curator = {
 
     Config:{
         Defaults : {
-            apiEndpoint: 'https://api.curator.io/v1',
+            apiEndpoint: 'https://api.curator.io/v1.1',
             feedId:'',
             postsPerPage:12,
             maxPosts:0,
@@ -2279,12 +2283,14 @@ var Filter = function Filter (client) {
         }
     });
 
-    this.client.on(Curator.Events.POSTS_LOADED, this.onPostsLoaded.bind(this));
+    this.client.on(Curator.Events.FEED_LOADED, this.onPostsLoaded.bind(this));
 };
 
 Filter.prototype.onPostsLoaded = function onPostsLoaded (event, data) {
         var this$1 = this;
 
+
+    var networks = data.networks;
 
     if (!this.filtersLoaded) {
 
@@ -2292,7 +2298,7 @@ Filter.prototype.onPostsLoaded = function onPostsLoaded (event, data) {
             this.$filterNetworksUl.append('<li class="crt-filter-label"><label>'+this.client.options.filter.networksLabel+'</label></li>');
             this.$filterNetworksUl.append('<li class="active"><a href="#" data-network="0"> All</a></li>');
 
-            for (var i = 0, list = data.networks; i < list.length; i += 1) {
+            for (var i = 0, list = networks; i < list.length; i += 1) {
                 var id = list[i];
 
                     var network = Curator.Networks[id];
@@ -2378,134 +2384,6 @@ Curator.Networks = {
         icon:'crt-icon-linkedin'
     },
 };
-
-
-/**
-* ==================================================================
-* Post
-* ==================================================================
-*/
-
-
-var Post = (function (EventBus) {
-    function Post (postJson, options, widget) {
-        var this$1 = this;
-
-        EventBus.call(this);
-
-        this.options = options;
-        this.widget = widget;
-
-        var templateId = this.widget.options.templatePost;
-
-        this.json = postJson;
-        this.$el = Curator.Template.render(templateId, postJson);
-
-        this.$el.find('.crt-share-facebook').click(this.onShareFacebookClick.bind(this));
-        this.$el.find('.crt-share-twitter').click(this.onShareTwitterClick.bind(this));
-        // this.$el.find('.crt-hitarea').click(this.onPostClick.bind(this));
-        this.$el.find('.crt-post-read-more-button').click(this.onReadMoreClick.bind(this));
-        // this.$el.on('click','.crt-post-text-body a',this.onLinkClick.bind(this));
-        this.$el.click(this.onPostClick.bind(this));
-        this.$post = this.$el.find('.crt-post-c');
-        this.$image = this.$el.find('.crt-post-image');
-        this.$imageContainer = this.$el.find('.crt-image-c');
-        this.$image.css({opacity:0});
-
-        if (this.json.image) {
-            this.$image.on('load', this.onImageLoaded.bind(this));
-            this.$image.on('error', this.onImageError.bind(this));
-        } else {
-            // no image ... call this.onImageLoaded
-            setTimeout(function () {
-                this$1.setHeight();
-            },100)
-        }
-
-        if (this.json.image_width > 0) {
-            var p = (this.json.image_height/this.json.image_width)*100;
-            this.$imageContainer.addClass('crt-image-responsive')
-                .css('padding-bottom',p+'%')
-        }
-
-        if (this.json.url.indexOf('http') !== 0) {
-            this.$el.find('.crt-post-share').hide ();
-        }
-
-        this.$image.data('dims',this.json.image_width+':'+this.json.image_height);
-
-        this.$post = this.$el.find('.crt-post');
-
-        if (this.json.video) {
-            this.$post.addClass('has-video');
-        }
-    }
-
-    if ( EventBus ) Post.__proto__ = EventBus;
-    Post.prototype = Object.create( EventBus && EventBus.prototype );
-    Post.prototype.constructor = Post;
-
-    Post.prototype.onShareFacebookClick = function onShareFacebookClick (ev) {
-        ev.preventDefault();
-        Curator.SocialFacebook.share(this.json);
-        this.widget.track('share:facebook');
-        return false;
-    };
-
-    Post.prototype.onShareTwitterClick = function onShareTwitterClick (ev) {
-        ev.preventDefault();
-        Curator.SocialTwitter.share(this.json);
-        this.widget.track('share:twitter');
-        return false;
-    };
-
-    Post.prototype.onPostClick = function onPostClick (ev) {
-        Curator.log('Post->click');
-        var target = $(ev.target);
-
-        if (target.is('a') && target.attr('href') !== '#') {
-            this.widget.track('click:link');
-        } else {
-            ev.preventDefault();
-            this.trigger(Curator.Events.POST_CLICK, this, this.json, ev);
-        }
-
-    };
-
-    Post.prototype.onImageLoaded = function onImageLoaded () {
-        this.$image.animate({opacity:1});
-
-        this.setHeight();
-
-        this.trigger(Curator.Events.POST_IMAGE_LOADED, this);
-    };
-
-    Post.prototype.onImageError = function onImageError () {
-        // Unable to load image!!!
-        this.$image.hide();
-
-        this.setHeight();
-    };
-
-    Post.prototype.setHeight = function setHeight () {
-        var height = this.$post.height();
-        if (this.options.maxHeight && this.options.maxHeight > 0 && height > this.options.maxHeight) {
-            this.$post
-                .css({maxHeight: this.options.maxHeight})
-                .addClass('crt-post-max-height');
-        }
-    };
-
-    Post.prototype.onReadMoreClick = function onReadMoreClick (ev) {
-        ev.preventDefault();
-        this.widget.track('click:read-more');
-        this.trigger(Curator.Events.POST_CLICK_READ_MORE, this, this.json, ev);
-    };
-
-    return Post;
-}(EventBus));
-
-Curator.Post = Post;
 
 // Simple JavaScript Templating
 // John Resig - http://ejohn.org/ - MIT Licensed
@@ -4002,6 +3880,158 @@ PopupManager.prototype.destroy = function destroy () {
 
 Curator.PopupManager = PopupManager; 
 
+
+/**
+* ==================================================================
+* Post
+* ==================================================================
+*/
+
+
+var Post = (function (EventBus) {
+    function Post (postJson, options, widget) {
+        var this$1 = this;
+
+        EventBus.call(this);
+
+        this.options = options;
+        this.widget = widget;
+
+        var templateId = this.widget.options.templatePost;
+
+        this.json = postJson;
+        this.$el = Curator.Template.render(templateId, postJson);
+
+        this.$el.find('.crt-share-facebook').click(this.onShareFacebookClick.bind(this));
+        this.$el.find('.crt-share-twitter').click(this.onShareTwitterClick.bind(this));
+        // this.$el.find('.crt-hitarea').click(this.onPostClick.bind(this));
+        this.$el.find('.crt-post-read-more-button').click(this.onReadMoreClick.bind(this));
+        // this.$el.on('click','.crt-post-text-body a',this.onLinkClick.bind(this));
+        this.$el.click(this.onPostClick.bind(this));
+        this.$post = this.$el.find('.crt-post-c');
+        this.$image = this.$el.find('.crt-post-image');
+        this.$imageContainer = this.$el.find('.crt-image-c');
+        this.$image.css({opacity:0});
+
+        if (this.json.image) {
+            this.$image.on('load', this.onImageLoaded.bind(this));
+            this.$image.on('error', this.onImageError.bind(this));
+        } else {
+            // no image ... call this.onImageLoaded
+            setTimeout(function () {
+                this$1.setHeight();
+            },100)
+        }
+
+        if (this.json.image_width > 0) {
+            var p = (this.json.image_height/this.json.image_width)*100;
+            this.$imageContainer.addClass('crt-image-responsive')
+                .css('padding-bottom',p+'%')
+        }
+
+        if (this.json.url.indexOf('http') !== 0) {
+            this.$el.find('.crt-post-share').hide ();
+        }
+
+        this.$image.data('dims',this.json.image_width+':'+this.json.image_height);
+
+        this.$post = this.$el.find('.crt-post');
+
+        if (this.json.video) {
+            this.$post.addClass('has-video');
+        }
+    }
+
+    if ( EventBus ) Post.__proto__ = EventBus;
+    Post.prototype = Object.create( EventBus && EventBus.prototype );
+    Post.prototype.constructor = Post;
+
+    Post.prototype.onShareFacebookClick = function onShareFacebookClick (ev) {
+        ev.preventDefault();
+        Curator.SocialFacebook.share(this.json);
+        this.widget.track('share:facebook');
+        return false;
+    };
+
+    Post.prototype.onShareTwitterClick = function onShareTwitterClick (ev) {
+        ev.preventDefault();
+        Curator.SocialTwitter.share(this.json);
+        this.widget.track('share:twitter');
+        return false;
+    };
+
+    Post.prototype.onPostClick = function onPostClick (ev) {
+        Curator.log('Post->click');
+        var target = $(ev.target);
+
+        if (target.is('a') && target.attr('href') !== '#') {
+            this.widget.track('click:link');
+        } else {
+            ev.preventDefault();
+            this.trigger(Curator.Events.POST_CLICK, this, this.json, ev);
+        }
+
+    };
+
+    Post.prototype.onImageLoaded = function onImageLoaded () {
+        this.$image.animate({opacity:1});
+
+        this.setHeight();
+
+        this.trigger(Curator.Events.POST_IMAGE_LOADED, this);
+    };
+
+    Post.prototype.onImageError = function onImageError () {
+        // Unable to load image!!!
+        this.$image.hide();
+
+        this.setHeight();
+    };
+
+    Post.prototype.setHeight = function setHeight () {
+        var height = this.$post.height();
+        if (this.options.maxHeight && this.options.maxHeight > 0 && height > this.options.maxHeight) {
+            this.$post
+                .css({maxHeight: this.options.maxHeight})
+                .addClass('crt-post-max-height');
+        }
+
+        this.layout();
+    };
+
+    Post.prototype.layout = function layout () {
+        Curator.log("Post->layout");
+        this.layoutFooter();
+    };
+
+    Post.prototype.layoutFooter = function layoutFooter () {
+        Curator.log("Post->layoutFooter");
+        var $userName = this.$el.find('.crt-post-username');
+        var $date = this.$el.find('.crt-date');
+        var $footer = this.$el.find('.crt-post-footer');
+        var $share = this.$el.find('.crt-post-share');
+        var $userImage = this.$el.find('.crt-post-userimage');
+
+        var footerWidth = $footer.width();
+        var padding = 40;
+        var elementsWidth = $userName.width() + $date.width() + $share.width() + $userImage.width() + padding;
+
+        if (elementsWidth > footerWidth) {
+            $userName.hide();
+        }
+    };
+
+    Post.prototype.onReadMoreClick = function onReadMoreClick (ev) {
+        ev.preventDefault();
+        this.widget.track('click:read-more');
+        this.trigger(Curator.Events.POST_CLICK_READ_MORE, this, this.json, ev);
+    };
+
+    return Post;
+}(EventBus));
+
+Curator.Post = Post;
+
 Curator.Utils = {
     postUrl : function (post)
     {
@@ -4166,7 +4196,7 @@ Curator.StringUtils = {
 
     instagramLinks: function instagramLinks (s)
     {
-        s = s.replace(/[@]+[A-Za-z0-9-_]+/g, function(u) {
+        s = s.replace(/[@]+[A-Za-z0-9-_\.]+/g, function(u) {
             var username = u.replace("@","");
             return Curator.StringUtils.url("https://www.instagram.com/"+username+'/',u);
         });
@@ -4633,6 +4663,7 @@ var Custom = (function (Widget) {
 Curator.Config.Grid = $.extend({}, Curator.Config.Defaults, {
     templatePost:'v2-grid-post',
     templateFeed:'v2-grid-feed',
+    animate:false,
     grid: {
         minWidth:200,
         rows:3
@@ -4693,7 +4724,7 @@ var Grid = (function (Widget) {
     Grid.prototype.constructor = Grid;
 
     Grid.prototype.loadPosts = function loadPosts () {
-        console.log ('LOAD POSTS CALLED!!!?!?!!?!?!');
+        // console.log ('LOAD POSTS CALLED!!!?!?!!?!?!');
     };
 
     Grid.prototype.updateLayout = function updateLayout ( ) {
@@ -4777,6 +4808,8 @@ var Grid = (function (Widget) {
     };
 
     Grid.prototype.onPostsLoaded = function onPostsLoaded (event, posts) {
+        var this$1 = this;
+
         Curator.log("Grid->onPostsLoaded");
 
         this.loading = false;
@@ -4784,20 +4817,27 @@ var Grid = (function (Widget) {
         if (posts.length === 0) {
             this.allLoaded = true;
         } else {
-            var that = this;
-            var postElements = [];
-            $(posts).each(function(i){
-                var p = that.createPostElement.call(that, this);
-                postElements.push(p.$el);
-                that.$feed.append(p.$el);
+            this.postElements = [];
+            var i = 0;
 
-                if (that.options.animate) {
-                    p.$el.css({opacity:0});
-                    setTimeout(function () {
-                        p.$el.css({opacity: 0}).animate({opacity: 1});
+            var loop = function () {
+                var postJson = list[i$1];
+
+                var post = this$1.createPostElement(postJson);
+                this$1.postElements.push(post);
+                this$1.$feed.append(post.$el);
+                post.layout();
+
+                if (this$1.options.animate) {
+                    post.$el.css({opacity: 0});
+                    setTimeout (function () {
+                        post.$el.css({opacity: 0}).animate({opacity: 1});
                     }, i * 100);
+                    i++;
                 }
-            });
+            };
+
+            for (var i$1 = 0, list = posts; i$1 < list.length; i$1 += 1) loop();
 
             this.popupManager.setPosts(posts);
 

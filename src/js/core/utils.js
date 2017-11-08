@@ -163,7 +163,7 @@ Curator.StringUtils = {
 
     instagramLinks (s)
     {
-        s = s.replace(/[@]+[A-Za-z0-9-_]+/g, function(u) {
+        s = s.replace(/[@]+[A-Za-z0-9-_\.]+/g, function(u) {
             let username = u.replace("@","");
             return Curator.StringUtils.url("https://www.instagram.com/"+username+'/',u);
         });

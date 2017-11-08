@@ -108,6 +108,30 @@ class Post extends EventBus {
                 .css({maxHeight: this.options.maxHeight})
                 .addClass('crt-post-max-height');
         }
+
+        this.layout();
+    }
+
+    layout () {
+        Curator.log("Post->layout");
+        this.layoutFooter();
+    }
+
+    layoutFooter () {
+        Curator.log("Post->layoutFooter");
+        let $userName = this.$el.find('.crt-post-username');
+        let $date = this.$el.find('.crt-date');
+        let $footer = this.$el.find('.crt-post-footer');
+        let $share = this.$el.find('.crt-post-share');
+        let $userImage = this.$el.find('.crt-post-userimage');
+
+        let footerWidth = $footer.width();
+        let padding = 40;
+        let elementsWidth = $userName.width() + $date.width() + $share.width() + $userImage.width() + padding;
+
+        if (elementsWidth > footerWidth) {
+            $userName.hide();
+        }
     }
 
     onReadMoreClick (ev) {

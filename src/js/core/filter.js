@@ -58,10 +58,12 @@ class Filter {
             }
         });
 
-        this.client.on(Curator.Events.POSTS_LOADED, this.onPostsLoaded.bind(this));
+        this.client.on(Curator.Events.FEED_LOADED, this.onPostsLoaded.bind(this));
     }
 
     onPostsLoaded (event, data) {
+
+        let networks = data.networks;
 
         if (!this.filtersLoaded) {
 
@@ -69,7 +71,7 @@ class Filter {
                 this.$filterNetworksUl.append('<li class="crt-filter-label"><label>'+this.client.options.filter.networksLabel+'</label></li>');
                 this.$filterNetworksUl.append('<li class="active"><a href="#" data-network="0"> All</a></li>');
 
-                for (let id of data.networks) {
+                for (let id of networks) {
                     let network = Curator.Networks[id];
                     if (network) {
                         this.$filterNetworksUl.append('<li><a href="#" data-network="' + id + '"><i class="' + network.icon + '"></i> ' + network.name + '</a></li>');

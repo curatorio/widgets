@@ -59,7 +59,11 @@ let Curator = {
 
     loadWidget: function (config) {
         let ConstructorClass = window.Curator[config.type];
-        window.curatorWidget = new ConstructorClass(config);
+        let widget = new ConstructorClass(config);
+
+        window.curatorWidget = widget;
+
+        return widget;
     },
 
     loadCSS: function () {
@@ -70,7 +74,7 @@ let Curator = {
 
     Config:{
         Defaults : {
-            apiEndpoint: 'https://api.curator.io/v1',
+            apiEndpoint: 'https://api.curator.io/v1.1',
             feedId:'',
             postsPerPage:12,
             maxPosts:0,
