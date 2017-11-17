@@ -113,12 +113,12 @@ class Post extends EventBus {
     }
 
     layout () {
-        Curator.log("Post->layout");
+        // Curator.log("Post->layout");
         this.layoutFooter();
     }
 
     layoutFooter () {
-        Curator.log("Post->layoutFooter");
+        // Curator.log("Post->layoutFooter");
         let $userName = this.$el.find('.crt-post-username');
         let $date = this.$el.find('.crt-date');
         let $footer = this.$el.find('.crt-post-footer');

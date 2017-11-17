@@ -9,17 +9,19 @@
         networkIcon:function () {
             return this.data.network_name.toLowerCase();
         },
+
         networkName:function () {
             return this.data.network_name.toLowerCase();
         },
+
         userUrl:function () {
-            if (this.data.user_url && this.data.user_url != '') {
+            if (this.data.user_url && this.data.user_url !== '') {
                 return this.data.user_url;
             }
-            if (this.data.originator_user_url && this.data.originator_user_url != '') {
+            if (this.data.originator_user_url && this.data.originator_user_url !== '') {
                 return this.data.originator_user_url;
             }
-            if (this.data.userUrl && this.data.userUrl != '') {
+            if (this.data.userUrl && this.data.userUrl !== '') {
                 return this.data.userUrl;
             }
 
@@ -35,6 +37,7 @@
             return '#';
 
         },
+
         parseText:function(s) {
             if (this.data.is_html) {
                 return s;
@@ -52,15 +55,12 @@
                     s = Curator.StringUtils.linksToHref(s);
                 }
 
-                return helpers.nl2br(s);
+                return Curator.StringUtils.nl2br(s);
             }
         },
 
         nl2br:function(s) {
-            s = s.trim();
-            s = s.replace(/(?:\r\n|\r|\n)/g, '<br />');
-
-            return s;
+            return Curator.StringUtils.nl2br(s);
         },
 
         contentImageClasses : function () {
@@ -92,7 +92,7 @@
                 fuzzy = 'a minute ago.'
             } else if (delta < hour) {
                 fuzzy = Math.floor(delta / minute) + ' minutes ago';
-            } else if (Math.floor(delta / hour) == 1) {
+            } else if (Math.floor(delta / hour) === 1) {
                 fuzzy = '1 hour ago.'
             } else if (delta < day) {
                 fuzzy = Math.floor(delta / hour) + ' hours ago';
@@ -110,6 +110,7 @@
 
             return fuzzy;
         },
+
         prettyDate : function(time) {
             let date = Curator.DateUtils.dateFromString(time);
 
@@ -129,7 +130,7 @@
             let r =
                 (
                     (
-                        day_diff == 0 &&
+                        day_diff === 0 &&
                         (
                             (diff < 60 && "just now")
                             || (diff < 120 && "1 minute ago")
@@ -138,7 +139,7 @@
                             || (diff < 86400 && Math.floor(diff / 3600) + " hours ago")
                         )
                     )
-                    || (day_diff == 1 && "Yesterday")
+                    || (day_diff === 1 && "Yesterday")
                     || (day_diff < 7 && day_diff + " days ago")
                     || (day_diff < 31 && Math.ceil(day_diff / 7) + " weeks ago")
                 );

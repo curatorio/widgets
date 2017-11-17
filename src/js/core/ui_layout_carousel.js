@@ -173,7 +173,7 @@ class LayoutCarousel extends EventBus {
 		}
         let x = (0 - this.currentLeft);
 
-        Curator.log('    x:'+x);
+        Curator.log('LayoutCarousel->move x:'+x);
 		if (noAnimate) {
 			this.$pane_slider.css({'transform': 'translate3d('+x+'px, 0px, 0px)'});
 			this.moveComplete();
@@ -227,22 +227,25 @@ class LayoutCarousel extends EventBus {
 
 	updateHeight () {
         Curator.log('LayoutCarousel->updateHeight');
+        // Curator.log('LayoutCarousel->updateHeight infinite:'+this.options.infinite);
+        // Curator.log('LayoutCarousel->updateHeight FAKE_NUM:'+this.FAKE_NUM);
 
         // Curator.log('    current_position: '+this.current_position);
         // Curator.log('    PANES_VISIBLE: '+this.PANES_VISIBLE);
-        let paneMaxHieght = 0;
-        let min = this.options.infinite ? this.current_position + 1 : this.current_position;
-        let max = this.options.infinite ? this.current_position + this.PANES_VISIBLE + 1 : this.current_position + this.PANES_VISIBLE;
+        let paneMaxHeight = 0;
+        let min = this.options.infinite ? this.current_position + this.FAKE_NUM: this.current_position;
+        let max = min + this.PANES_VISIBLE;
         for (let i = min; i < max; i++)
         {
             let h = $(this.$panes[i]).height();
-            if (h > paneMaxHieght) {
-                paneMaxHieght = h;
+            // Curator.log('LayoutCarousel->updateHeight i: '+i+' = '+h);
+            if (h > paneMaxHeight) {
+                paneMaxHeight = h;
             }
         }
-        Curator.log('    paneMaxHieght: '+paneMaxHieght);
-        if (this.$stage.height() !== paneMaxHieght) {
-            this.$stage.animate({height: paneMaxHieght}, 300);
+        // Curator.log('LayoutCarousel->updateHeight paneMaxHeight: '+paneMaxHeight);
+        if (this.$stage.height() !== paneMaxHeight) {
+            this.$stage.animate({height: paneMaxHeight}, 300);
         }
 	}
 
