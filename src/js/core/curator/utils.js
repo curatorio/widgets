@@ -149,7 +149,7 @@ Curator.StringUtils = {
             let username = u.replace("@","");
             return Curator.StringUtils.url("https://twitter.com/"+username,u);
         });
-        s = s.replace(/[#]+[A-Za-z0-9-_]+/g, function(t) {
+        s = s.replace(twttr.txt.regexen.validHashtag, function(t) {
             let tag = t.replace("#","%23");
             return Curator.StringUtils.url("https://twitter.com/search?q="+tag,t);
         });
@@ -163,7 +163,7 @@ Curator.StringUtils = {
             let username = u.replace("@","");
             return Curator.StringUtils.url("https://www.instagram.com/"+username+'/',u);
         });
-        s = s.replace(/[#]+[A-Za-z0-9-_]+/g, function(t) {
+        s = s.replace(twttr.txt.regexen.validHashtag, function(t) {
             let tag = t.replace("#","");
             return Curator.StringUtils.url("https://www.instagram.com/explore/tags/"+tag+'/',t);
         });
@@ -177,7 +177,7 @@ Curator.StringUtils = {
             let username = u.replace("@","");
             return Curator.StringUtils.url("https://www.facebook.com/"+username+'/',u);
         });
-        s = s.replace(/[#]+[A-Za-z0-9-_]+/g, function(t) {
+        s = s.replace(twttr.txt.regexen.validHashtag, function(t) {
             let tag = t.replace("#","%23");
             return Curator.StringUtils.url("https://www.facebook.com/search/top/?q="+tag,t);
         });
