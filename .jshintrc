@@ -1,10 +1,14 @@
 {
-  "undef": true,
-  "unused": true,
-  "multistr": true,
-  "predef": [
-    "require",
-    "define",
-    "module"
-  ]
+    "esversion": 6,
+    "undef": true,
+    "unused": true,
+    "multistr": true,
+    "predef": [
+        "$",
+        "window",
+        "document",
+        "require",
+        "define",
+        "module"
+    ]
 }

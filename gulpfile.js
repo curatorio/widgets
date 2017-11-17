@@ -1,3 +1,4 @@
+/* globals console */
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 // Configuration
@@ -20,23 +21,7 @@ const watchPaths  = [
     'examples/css/*.css',
 ];
 
-const jsHintConfig = {
-
-};
-
-const jsCore = [
-    srcJs+'libraries/*.js',
-    srcJs+'core/bootstrap.js',
-    srcJs+'core/**/*.js',
-];
-
-const jsZepto = [
-    srcJs+'_zepto/zepto.js',
-    srcJs+'_zepto/zepto.scope.js',
-    srcJs+'_zepto/zepto.animate.js',
-    srcJs+'_zepto/zepto.extend.js',
-    srcJs+'_zepto/zepto.fxmethods.js',
-];
+const jsZepto = srcJs+'_zepto/zepto.js';
 
 const bubleConfig = {
     transforms: {
@@ -52,26 +37,29 @@ function bubleError (err) {
     notify({ message: err.message });
 
     this.emit('end');
-};
+}
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 // Gulp modules
 
 const gulp = require('gulp'),
-    sass = require('gulp-sass'),
-    autoprefixer = require('gulp-autoprefixer'),
     rename = require('gulp-rename'),
     concat = require('gulp-concat'),
-    uglify = require('gulp-uglify'),
     livereload = require('gulp-livereload'),
-    wrap = require('gulp-wrap'),
     addsrc = require('gulp-add-src'),
+    insert = require('gulp-insert'),
     notify = require('gulp-notify'),
 
+    // CSS / SCSS
+    sass = require('gulp-sass'),
+    autoprefixer = require('gulp-autoprefixer'),
+
     // JS
-    umd = require('gulp-umd'),
     jshint = require('gulp-jshint'),
-    buble = require('gulp-buble');
+    // buble = require('gulp-buble'),
+    rollup = require('gulp-better-rollup'),
+    uglify = require('gulp-uglify'),
+    rollupBuble = require('rollup-plugin-buble');
 
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -82,21 +70,7 @@ gulp.task('styles', () =>  {
         .pipe(sass({ style: 'expanded' }).on('error', sass.logError))
         .pipe(autoprefixer('last 2 version', 'safari 5', 'ie 8', 'ie 9', 'opera 12.1', 'ios 6', 'android 4'))
         .pipe(gulp.dest(destCss))
-        .pipe(notify({ message: 'Styles task complete' }))
-});
-
-// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-// Scripts
-
-gulp.task('scripts:all', () =>  {
-    return gulp.src(jsCore)
-        .pipe(buble(bubleConfig))
-            .on('error', bubleError)
-        .pipe(addsrc.prepend(jsZepto))
-        .pipe(concat('curator.js'))
-        .pipe(wrap({ src: src+'umd-templates/all.js'}))
-        .pipe(gulp.dest(destJs))
-        .pipe(notify({ message: 'scripts:all task complete' }));
+        .pipe(notify({ message: 'Styles task complete' }));
 });
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -104,17 +78,52 @@ gulp.task('scripts:all', () =>  {
 // - requires jQuery or Zepto
 
 gulp.task('scripts:core', () =>  {
-    return gulp.src(jsCore)
-        .pipe(buble(bubleConfig))
-        .   on('error', bubleError)
-        .pipe(concat('curator.core.js'))
-        .pipe(wrap({ src: src+'umd-templates/core.js'}))
+
+    return gulp.src(srcJs+'main.js')
+        // .pipe(sourcemaps.init())
+        .pipe(rollup({
+            plugins: [rollupBuble(bubleConfig)],
+        }, {
+            format: 'umd',
+            name : 'Curator'
+        }))
+        .on('error', bubleError)
+
+        // .pipe(sourcemaps.write()) // inlining the sourcemap into the exported .js file
+        .pipe(rename('curator.core.js'))
         .pipe(gulp.dest(destJs))
         .pipe(notify({ message: 'scripts:core task complete' }));
 });
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-// Scripts Production
+// Scripts - bundled Curator and Zepto
+
+gulp.task('scripts:bundle', ['scripts:core'], () =>  {
+
+    return gulp.src(jsZepto)
+        .pipe(insert.append(';')) // missing ;
+        .pipe(addsrc.append(destJs+'curator.core.js'))
+
+        // .pipe(sourcemaps.write()) // inlining the sourcemap into the exported .js file
+        // .pipe(addsrc.prepend(jsZepto))
+        .pipe(concat('curator.js'))
+        .pipe(gulp.dest(destJs))
+        .pipe(notify({ message: 'scripts:all task complete' }));
+});
+
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// Scripts - lint core scripts
+
+gulp.task('scripts:lint', () =>  {
+
+    return gulp.src(srcJs+'core/**/*.js')
+        .pipe(jshint())
+        .pipe(jshint.reporter('default'))
+        .pipe(notify({ message: 'scripts:lint task complete' }));
+});
+
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// Scripts - create minimized production sripts
 
 gulp.task('scripts:prod', ['scripts'], () =>  {
     return gulp.src([destJs+'curator.js',destJs+'curator.core.js'])
@@ -146,8 +155,8 @@ gulp.task('watch', () =>  {
 
 gulp.task('dev', ['watch']);
 gulp.task('scripts', [
-    'scripts:all',
-    'scripts:core'
+    'scripts:core',
+    'scripts:bundle'
 ]);
 gulp.task('prod', ['scripts:prod']);
 gulp.task('default', ['styles','scripts']);

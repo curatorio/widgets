@@ -1,5 +1,0 @@
-Curator.UI = {
-    Layout : {
-
-    }
-};
