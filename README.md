@@ -17,7 +17,7 @@ CDN hosted Curator.io Widgets are a great way to get up and running quickly:
 In your `<head>` add:
 
 ```html
-<link rel="stylesheet" type="text/css" href="//cdn.curator.io/2.0/css/curator.css"/>
+<link rel="stylesheet" type="text/css" href="//cdn.curator.io/2.1/css/curator.css"/>
 ```
 
 In your ```<body>``` where you want the feed to appear:
@@ -29,7 +29,7 @@ In your ```<body>``` where you want the feed to appear:
 Then, before your closing ```<body>``` tag add:
 
 ```html
-<script type="text/javascript" src="//cdn.curator.io/2.0/js/curator.js"></script>
+<script type="text/javascript" src="//cdn.curator.io/2.1/js/curator.js"></script>
 <script type="text/javascript">
 	// While you're testing
     Curator.debug = true;
