@@ -17,7 +17,7 @@ CDN hosted Curator.io Widgets are a great way to get up and running quickly:
 In your `<head>` add:
 
 ```html
-<link rel="stylesheet" type="text/css" href="//cdn.curator.io/2.0/css/curator.css"/>
+<link rel="stylesheet" type="text/css" href="//cdn.curator.io/3.0/css/curator.css"/>
 ```
 
 In your ```<body>``` where you want the feed to appear:
@@ -29,13 +29,13 @@ In your ```<body>``` where you want the feed to appear:
 Then, before your closing ```<body>``` tag add:
 
 ```html
-<script type="text/javascript" src="//cdn.curator.io/2.0/js/curator.js"></script>
+<script type="text/javascript" src="//cdn.curator.io/3.0/js/curator.js"></script>
 <script type="text/javascript">
 	// While you're testing
     Curator.debug = true;
 
     // Change FEED_ID to your unique FEED_ID
-    var widget = new Curator.Waterfall({
+    var widget = new Curator.Widgets.Waterfall({
         container:'#curator-feed',
         feedId:FEED_ID
     });
@@ -49,28 +49,28 @@ There are 4 main widgets in the Curator library:
 
 **Waterfall**
 ```js
-var widget = new Curator.Waterfall({
+var widget = new Curator.Widgets.Waterfall({
     // ...
 });
 ```
 
 **Carousel**
 ```js
-var widget = new Curator.Carousel({
+var widget = new Curator.Widgets.Carousel({
     // ...
 });
 ```
 
 **Grid**
 ```js
-var widget = new Curator.Grid({
+var widget = new Curator.Widgets.Grid({
     // ...
 });
 ```
 
 **Panel**
 ```js
-var widget = new Curator.Panel({
+var widget = new Curator.Widgets.Panel({
     // ...
 });
 ```
@@ -80,7 +80,7 @@ var widget = new Curator.Panel({
 ### Default Options
 
 ```js
-var widget = new Curator.Watterfall({    
+var widget = new Curator.Widgets.Watterfall({    
     feedId:'ABC123',                 // FEED_ID to load
     postsPerPage:12,                 // number of posts per page
     debug: false,                    // turn debugging on or off
@@ -99,7 +99,7 @@ Each of the widgets can be passed a set of options to customise the widget
 
 **Waterfall**
 ```js
-var widget = new Curator.Waterfall({
+var widget = new Curator.Widgets.Waterfall({
     // ...
     waterfall: {
         gridWidth:250,    // sets the desired column width
@@ -111,7 +111,7 @@ var widget = new Curator.Waterfall({
 
 **Carousel**
 ```js
-var widget = new Curator.Carousel({
+var widget = new Curator.Widgets.Carousel({
     // ...
     carousel:{
        autoPlay:true,    // carousel will auto rotate
@@ -124,7 +124,7 @@ var widget = new Curator.Carousel({
 
 **Grid**
 ```js
-var widget = new Curator.Grid({
+var widget = new Curator.Widgets.Grid({
     // ...
     grid: {
         minWidth:200,  // minimum width of a square in the grid
@@ -135,7 +135,7 @@ var widget = new Curator.Grid({
 
 **Panel**
 ```js
-var widget = new Curator.Panel({
+var widget = new Curator.Widgets.Panel({
     // ...
     panel: {
         autoPlay: true,    // carousel will auto rotate
@@ -156,49 +156,51 @@ For example:
 ```html
 <script type="text/javascript">
 
-Curator.Templates.postTemplate = ' \
-<div class="crt-post-c">\
-    <div class="crt-post-bg"></div> \
-    <div class="crt-post post<%=id%> crt-post-<%=this.networkIcon()%>"> \
-        <div class="crt-post-header"> \
-            <span class="crt-social-icon"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \
-            <img src="<%=user_image%>"  /> \
-            <div class="crt-post-name">\
-            <div class="crt-post-fullname"><%=user_full_name%></div>\
-            <div class="crt-post-username"><a href="<%=this.userUrl()%>" target="_blank">@<%=user_screen_name%></a></div>\
+Curator.Templates['v2-post'] = '\
+<div class="crt-post-v2 crt-post crt-post-<%=this.networkIcon()%> <%=this.contentTextClasses()%>  <%=this.contentImageClasses()%>" data-post="<%=id%>"> \
+    <div class="crt-post-border">\
+        <div class="crt-post-c">\
+            <div class="crt-post-content">\
+                <div class="crt-image crt-hitarea crt-post-content-image" > \
+                    <div class="crt-image-c"><img src="<%=image%>" class="crt-post-image" /></div> \
+                    <span class="crt-play"><i class="crt-play-icon"></i></span> \
+                </div> \
+                <div class="crt-post-header"> \
+                    <span class="crt-social-icon"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \
+                    <div class="crt-post-fullname"><a href="<%=this.userUrl()%>" target="_blank"><%=user_full_name%></a></div>\
+                </div> \
+                <div class="text crt-post-content-text"> \
+                    <%=this.parseText(text)%> \
+                </div> \
+                <div class="crt-post-read-more"><a href="#" class="crt-post-read-more-button">Read more</a> </div> \
+            </div> \
+            <div class="crt-post-footer">\
+                <img class="crt-post-userimage" src="<%=user_image%>" /> \
+                <span class="crt-post-username"><a href="<%=this.userUrl()%>" target="_blank">@<%=user_screen_name%></a></span>\
+                <span class="crt-date"><%=this.prettyDate(source_created_at)%></span> \
+                <div class="crt-post-share"><span class="ctr-share-hint"></span><a href="#" class="crt-share-facebook"><i class="crt-icon-facebook"></i></a>  <a href="#" class="crt-share-twitter"><i class="crt-icon-twitter"></i></a></div>\
             </div> \
         </div> \
-        <div class="crt-post-content"> \
-            <div class="crt-image crt-hitarea crt-post-content-image <%=this.contentImageClasses()%>" > \
-                <div class="crt-image-c"><img src="<%=image%>" class="crt-post-image" /></div> \
-                <span class="crt-play"><i class="crt-play-icon"></i></span> \
-            </div> \
-            <div class="text crt-post-content-text <%=this.contentTextClasses()%>"> \
-                <div class="crt-post-text-body"><%=this.parseText(text)%></div> \
-            </div> \
-        </div> \
-        <div class="crt-post-footer">\
-            <div class="crt-date"><%=this.prettyDate(source_created_at)%></div> \
-            <div class="crt-post-share"><span class="ctr-share-hint"></span><a href="#" class="crt-share-facebook"><i class="crt-icon-facebook"></i></a>  <a href="#" class="crt-share-twitter"><i class="crt-icon-twitter"></i></a></div>\
-        </div> \
-        <div class="crt-post-read-more"><a href="#" class="crt-post-read-more-button">Read more</a> </div> \
-    </div>\
+    </div> \
 </div>';
 
     // Change FEED_ID to your unique FEED_ID
-    var widget = new Curator.Waterfall({
+    var widget = new Curator.Widgets.Waterfall({
         container:'#curator-feed',
         feedId:FEED_ID
     });
 </script>
 ```
 
-See the [template_v2_post.js](https://github.com/curatorio/widgets/blob/master/src/js/core/template_v2_post.js) file for the HTML templates.
+See the [templates directory](https://github.com/curatorio/widgets/blob/master/src/js/core/templates/) file for the HTML templates.
 
 Following templates are predefined:
- - Curator.Templates.postTemplate
- - Curator.Templates.popupTemplate
- - Curator.Templates.popupWrapperTemplate
+ - `Curator.Templates['v2-post']`
+ - `Curator.Templates['v2-popup']`
+ - `Curator.Templates['v2-popup-underlay']`
+ - `Curator.Templates['v2-popup-wrapper']`
+ - `Curator.Templates['v2-grid-post']`
+ - `Curator.Templates['v2-grid-feed']`
 
 ### Custom CSS
 
