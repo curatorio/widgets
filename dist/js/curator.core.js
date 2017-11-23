@@ -253,9 +253,6 @@ if (!Array.prototype.fill) {
     // twttr.txt.regexen.validHashtag = regexSupplant(/(#{hashtagBoundary})(#{hashSigns})(?!\ufe0f|\u20e3)(#{hashtagAlphaNumeric}*#{hashtagAlpha}#{hashtagAlphaNumeric}*)/gi);
     twttr.txt.regexen.validHashtag = regexSupplant(/[#]+(#{hashtagAlphaNumeric}*)/gi);
 
-    console.log(twttr.txt.regexen.validHashtag);
-
-    
     window.twttr = twttr;
 }());
 // Test $ exists
