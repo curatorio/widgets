@@ -13,7 +13,7 @@ class Carousel extends Client {
     constructor (options) {
         super ();
 
-        options.postsPerPage = 60;
+        options.postsPerPage = 30;
 
         this.setOptions (options,  Curator.Config.Carousel);
 

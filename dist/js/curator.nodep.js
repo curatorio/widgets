@@ -4563,7 +4563,7 @@ var Carousel = (function (Client) {
 
         Client.call (this);
 
-        options.postsPerPage = 60;
+        options.postsPerPage = 30;
 
         this.setOptions (options,  Curator.Config.Carousel);
 
