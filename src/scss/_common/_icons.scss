@@ -1,3 +1,14 @@
+@font-face {
+    font-family: 'crt-icon';
+    src: url('../fonts/crt-icon.eot?81720789');
+    src: url('../fonts/crt-icon.eot?81720789#iefix') format('embedded-opentype'),
+    url('../fonts/crt-icon.woff2?81720789') format('woff2'),
+    url('../fonts/crt-icon.woff?81720789') format('woff'),
+    url('../fonts/crt-icon.ttf?81720789') format('truetype'),
+    url('../fonts/crt-icon.svg?81720789#crt-icon') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
 
 [class^="crt-icon-"]:before, [class*=" crt-icon-"]:before {
     margin: 0;
@@ -29,4 +40,8 @@
 
 .crt-icon-youtube {
     @extend .crt-icon-youtube-1;
+}
+
+.crt-icon-image-carousel {
+    @extend .crt-icon-clone;
 }

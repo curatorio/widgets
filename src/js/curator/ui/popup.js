@@ -4,6 +4,7 @@ import SocialFacebook from "../social/facebook";
 import SocialTwitter from "../social/twitter";
 import StringUtils from "../utils/string";
 import TemplatingUtils from "../core/templating";
+import z from "../core/lib";
 
 /**
  * ==================================================================
@@ -17,7 +18,7 @@ class Popup {
         Logger.log("Popup->init ");
  
         this.popupManager = popupManager;
-        this.json = post.json;
+        this.json = post;
         this.widget = widget;
 
         let templateId = this.widget.options.templatePopup;
@@ -41,7 +42,7 @@ class Popup {
 
             let youTubeId = StringUtils.youtubeVideoId(this.json.video);
 
-            let src = '<iframe id="ytplayer" type="text/html" width="615" height="615" \
+            let src = '<iframe id="ytplayer" width="615" height="615" \
             src="https://www.youtube.com/embed/'+youTubeId+'?autoplay=0&rel=0&showinfo" \
             frameborder="0"></iframe>';
 
@@ -64,6 +65,16 @@ class Popup {
             }
         }
 
+        if (this.json.images)
+        {
+            this.$page = this.$popup.find('.crt-pagination ul');
+            for (let i = 0;i < this.json.images.length;i++) {
+                this.$page.append('<li><a href="" data-page="'+i+'"></a></li>');
+            }
+            this.$page.find('a').click(this.onPageClick.bind(this));
+            this.currentImage = 0;
+            this.$page.find('li:nth-child('+(this.currentImage+1)+')').addClass('selected');
+        }
 
         this.$popup.on('click',' .crt-close', this.onClose.bind(this));
         this.$popup.on('click',' .crt-previous', this.onPrevious.bind(this));
@@ -71,6 +82,22 @@ class Popup {
         this.$popup.on('click',' .crt-play', this.onPlay.bind(this));
         this.$popup.on('click','.crt-share-facebook',this.onShareFacebookClick.bind(this));
         this.$popup.on('click','.crt-share-twitter',this.onShareTwitterClick.bind(this));
+    }
+
+    onPageClick (ev) {
+        ev.preventDefault();
+        let a = z(ev.target);
+        let page = a.data('page');
+
+        let image = this.json.images[page];
+
+        Logger.log(image);
+
+        this.$popup.find('.crt-image img').attr('src',image.url);
+        this.currentImage = page;
+
+        this.$page.find('li').removeClass('selected');
+        this.$page.find('li:nth-child('+(this.currentImage+1)+')').addClass('selected');
     }
 
     onShareFacebookClick (ev) {

@@ -18,6 +18,7 @@ const v1PopupTemplate = ' \
         <div class="crt-image"> \
             <img src="<%=image%>" /> \
         </div> \
+        <div class="crt-pagination"><ul></ul></div>\
     </div> \
     <div class="crt-popup-right"> \
         <div class="crt-popup-header"> \

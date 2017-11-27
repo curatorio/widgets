@@ -55,7 +55,7 @@ class PopupManager {
         for(let i=0;i < this.posts.length;i++)
         {
             // console.log (post.json.id +":"+this.posts[i].id);
-            if (post.json.id == this.posts[i].id) {
+            if (post.id === this.posts[i].id) {
                 this.currentPostNum = i;
                 Logger.log('Found post '+i);
                 break;
@@ -77,14 +77,14 @@ class PopupManager {
         this.currentPostNum-=1;
         this.currentPostNum = this.currentPostNum>=0?this.currentPostNum:this.posts.length-1; // loop back to start
 
-        this.showPopup({json:this.posts[this.currentPostNum]});
+        this.showPopup(this.posts[this.currentPostNum]);
     }
 
     onNext () {
         this.currentPostNum+=1;
         this.currentPostNum = this.currentPostNum<this.posts.length?this.currentPostNum:0; // loop back to start
 
-        this.showPopup({json:this.posts[this.currentPostNum]});
+        this.showPopup(this.posts[this.currentPostNum]);
     }
 
     onUnderlayClick (e) {

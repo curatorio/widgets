@@ -11,8 +11,8 @@
 
 @font-face {
   font-family: 'crt-icon';
-  src: url("../fonts/crt-icon.eot?15592618");
-  src: url("../fonts/crt-icon.eot?15592618#iefix") format("embedded-opentype"), url("../fonts/crt-icon.woff2?15592618") format("woff2"), url("../fonts/crt-icon.woff?15592618") format("woff"), url("../fonts/crt-icon.ttf?15592618") format("truetype"), url("../fonts/crt-icon.svg?15592618#crt-icon") format("svg");
+  src: url("../font/crt-icon.eot?81720789");
+  src: url("../font/crt-icon.eot?81720789#iefix") format("embedded-opentype"), url("../font/crt-icon.woff2?81720789") format("woff2"), url("../font/crt-icon.woff?81720789") format("woff"), url("../font/crt-icon.ttf?81720789") format("truetype"), url("../font/crt-icon.svg?81720789#crt-icon") format("svg");
   font-weight: normal;
   font-style: normal; }
 
@@ -22,7 +22,7 @@
 @media screen and (-webkit-min-device-pixel-ratio:0) {
   @font-face {
     font-family: 'crt-icon';
-    src: url('../fonts/crt-icon.svg?15592618#crt-icon') format('svg');
+    src: url('../font/crt-icon.svg?81720789#crt-icon') format('svg');
   }
 }
 */
@@ -85,6 +85,10 @@
   content: '\e807'; }
 
 /* '' */
+.crt-icon-spin1:before {
+  content: '\e830'; }
+
+/* '' */
 .crt-icon-twitter:before {
   content: '\f099'; }
 
@@ -145,6 +149,10 @@
   content: '\f231'; }
 
 /* '' */
+.crt-icon-clone:before, .crt-icon-image-carousel:before {
+  content: '\f24d'; }
+
+/* '' */
 .crt-icon-snapchat-ghost:before {
   content: '\f2ac'; }
 
@@ -157,6 +165,13 @@
   content: '\f306'; }
 
 /* '' */
+@font-face {
+  font-family: 'crt-icon';
+  src: url("../fonts/crt-icon.eot?81720789");
+  src: url("../fonts/crt-icon.eot?81720789#iefix") format("embedded-opentype"), url("../fonts/crt-icon.woff2?81720789") format("woff2"), url("../fonts/crt-icon.woff?81720789") format("woff"), url("../fonts/crt-icon.ttf?81720789") format("truetype"), url("../fonts/crt-icon.svg?81720789#crt-icon") format("svg");
+  font-weight: normal;
+  font-style: normal; }
+
 [class^="crt-icon-"]:before, [class*=" crt-icon-"]:before {
   margin: 0; }
 
@@ -251,6 +266,7 @@ body.crt-popup-visible {
     .crt-popup-wrapper .crt-popup .crt-popup-left {
       display: none;
       background-color: #ffffff;
+      position: relative;
       padding-right: 335px; }
       .crt-popup-wrapper .crt-popup .crt-popup-left img {
         width: 100%;
@@ -276,6 +292,29 @@ body.crt-popup-visible {
             z-index: 2; }
           .crt-popup-wrapper .crt-popup .crt-popup-left .crt-video .crt-video-container iframe {
             display: block; }
+      .crt-popup-wrapper .crt-popup .crt-popup-left .crt-pagination {
+        text-align: center;
+        position: absolute;
+        bottom: 20px;
+        left: 0;
+        right: 335px; }
+        .crt-popup-wrapper .crt-popup .crt-popup-left .crt-pagination ul {
+          list-style: none;
+          margin: 0;
+          padding: 0;
+          text-align: center; }
+          .crt-popup-wrapper .crt-popup .crt-popup-left .crt-pagination ul li {
+            padding: 0;
+            display: inline-block;
+            margin: 0 5px; }
+            .crt-popup-wrapper .crt-popup .crt-popup-left .crt-pagination ul li a {
+              border: 2px solid #fff;
+              display: block;
+              border-radius: 50%;
+              width: 13px;
+              height: 13px; }
+            .crt-popup-wrapper .crt-popup .crt-popup-left .crt-pagination ul li.selected a {
+              background-color: #FFF; }
     .crt-popup-wrapper .crt-popup .crt-popup-right {
       width: 335px;
       padding: 10px 20px;
@@ -490,6 +529,8 @@ body.crt-popup-visible {
       max-height: 300px; }
   .crt-popup-wrapper .crt-popup .crt-popup-left {
     padding-right: 0; }
+    .crt-popup-wrapper .crt-popup .crt-popup-left .crt-pagination {
+      right: 0; }
   .crt-popup-wrapper .crt-popup.has-image .crt-popup-right {
     position: relative;
     width: auto;
@@ -893,6 +934,15 @@ body.crt-popup-visible {
     background-color: #ffffff; }
   .crt-post-v2 a {
     transition: color 0.2s linear; }
+  .crt-post-v2 .crt-image .crt-image-carousel {
+    position: absolute;
+    bottom: 7px;
+    left: 10px;
+    color: #fff;
+    font-size: 1.2em;
+    display: none; }
+  .crt-post-v2.crt-has-image-carousel .crt-image .crt-image-carousel {
+    display: block; }
   .crt-post-v2 .crt-post-content-image {
     max-height: 400px;
     overflow: hidden;

@@ -28,6 +28,26 @@
         transition: color 0.2s linear;
     }
 
+    .crt-image {
+        .crt-image-carousel {
+            position: absolute;
+            bottom: 7px;
+            left: 10px;
+            color:#fff;
+            font-size: 1.2em;
+            display: none;
+
+        }
+    }
+
+    &.crt-has-image-carousel {
+        .crt-image {
+            .crt-image-carousel {
+                display: block;
+            }
+        }
+    }
+
     .crt-post-content-image {
         max-height: 400px;
         overflow: hidden;

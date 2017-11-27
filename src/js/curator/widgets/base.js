@@ -114,7 +114,7 @@ class Widget extends EventBus {
         Logger.log(postJson);
 
         if (this.options.showPopupOnClick) {
-            this.popupManager.showPopup(post);
+            this.popupManager.showPopup(post.json);
         }
     }
 

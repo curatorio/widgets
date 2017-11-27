@@ -22,9 +22,6 @@
     "url": "https://github.com/curatorio/widgets/issues",
     "email": "thomas@curator.io"
   },
-  "dependencies": {
-    "jquery": ">=1.8.3"
-  },
   "devDependencies": {
     "gulp": "^3.9.1",
     "gulp-add-src": "*",
@@ -43,5 +40,8 @@
     "jshint": "*",
     "rollup-plugin-buble": "^0.17.0",
     "rollup-stream": "^1.24.1"
+  },
+  "dependencies": {
+    "zepto": "^1.2.0"
   }
 }

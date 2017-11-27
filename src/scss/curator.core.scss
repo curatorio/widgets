@@ -42,20 +42,20 @@ $color-v1-post-background:       #efefef;
 @import "_common/icons";
 @import "_common/general";
 
-@import "_partials/feed";
-@import "_partials/popup";
-@import "_partials/play";
-@import "_partials/filter";
-@import "_partials/responsive-image";
+@import "_ui/feed";
+@import "_ui/general/popup";
+@import "_ui/play";
+@import "_ui/filter";
+@import "_ui/responsive-image";
 
 // Themes - v1
-@import "_partials/post_v1";
-@import "_partials/grid_post_v1";
+@import "_ui/post_v1";
+@import "_ui/grid_post_v1";
 
 // Themes - v2
-@import "_partials/post_v2";
-@import "_partials/post_v2_header";
-@import "_partials/post_v2_footer";
-@import "_partials/grid_post_v2";
+@import "_ui/post_v2";
+@import "_ui/post_v2_header";
+@import "_ui/post_v2_footer";
+@import "_ui/grid_post_v2";
 
 

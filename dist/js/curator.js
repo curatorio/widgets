@@ -2088,6 +2088,7 @@ var Events = {
 
     POSTS_LOADED             :'posts:loaded',
     POSTS_FAILED             :'posts:failed',
+    POSTS_RENDERED           :'posts:rendered',
 
     POST_CREATED            :'post:created',
     POST_CLICK              :'post:click',
@@ -2096,50 +2097,6 @@ var Events = {
 
     CAROUSEL_CHANGED        :'curator:changed',
 };
-
-var v2GridPostTemplate = ' \
-<div class="crt-grid-post crt-grid-post-v2 crt-post-<%=id%> <%=this.contentImageClasses()%> <%=this.contentTextClasses()%>"> \
-    <div class="crt-post-c"> \
-        <div class="crt-post-content"> \
-            <div class="crt-hitarea" > \
-                <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="crt-spacer" /> \
-                <div class="crt-grid-post-image">\
-                    <div class="crt-post-content-image" style="background-image: url(<%=image%>);"> </div> \
-                    <a href="javascript:;" class="crt-play"><i class="crt-play-icon"></i></a> \
-                    <span class="crt-social-icon crt-social-icon-normal"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \
-                </div>\
-                <div class="crt-grid-post-text">\
-                    <div class="crt-grid-post-text-wrap"> \
-                        <div><%=this.parseText(text)%></div> \
-                    </div> \
-                    <span class="crt-social-icon crt-social-icon-normal"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \
-                </div>\
-                <div class="crt-post-hover">\
-                    <div class="crt-post-header"> \
-                        <span class="crt-social-icon"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \
-                        <div class="crt-post-fullname"><a href="<%=this.userUrl()%>" target="_blank"><%=user_full_name%></a></div>\
-                    </div> \
-                    <div class="crt-post-content-text"> \
-                        <%=this.parseText(text)%> \
-                    </div> \
-                    <div class="crt-post-read-more"><a href="#" class="crt-post-read-more-button">Read more</a> </div> \
-                    <div class="crt-post-footer">\
-                        <img class="crt-post-userimage" src="<%=user_image%>" /> \
-                        <span class="crt-post-username"><a href="<%=this.userUrl()%>" target="_blank">@<%=user_screen_name%></a></span>\
-                        <span class="crt-date"><%=this.prettyDate(source_created_at)%></span> \
-                        <div class="crt-post-share"><span class="ctr-share-hint"></span><a href="#" class="crt-share-facebook"><i class="crt-icon-facebook"></i></a>  <a href="#" class="crt-share-twitter"><i class="crt-icon-twitter"></i></a></div>\
-                    </div> \
-                </div> \
-            </div> \
-        </div> \
-    </div>\
-</div>';
-
-var v2GridFeedTemple = ' \
-<div class="crt-feed-window">\
-    <div class="crt-feed"></div>\
-</div>\
-<div class="crt-feed-more"><a href="#">Load more</a></div>';
 
 var v1PopupUnderlayTemplate = '';
 
@@ -2169,6 +2126,7 @@ var v1PopupTemplate = ' \
         <div class="crt-image"> \
             <img src="<%=image%>" /> \
         </div> \
+        <div class="crt-pagination"><ul></ul></div>\
     </div> \
     <div class="crt-popup-right"> \
         <div class="crt-popup-header"> \
@@ -2263,6 +2221,7 @@ var v2PostTemplate = ' \
                 <div class="crt-image crt-hitarea crt-post-content-image" > \
                     <div class="crt-image-c"><img src="<%=image%>" class="crt-post-image" /></div> \
                     <span class="crt-play"><i class="crt-play-icon"></i></span> \
+                    <div class="crt-image-carousel"><i class="crt-icon-image-carousel"></i></div> \
                 </div> \
                 <div class="crt-post-header"> \
                     <span class="crt-social-icon"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \
@@ -2283,24 +2242,64 @@ var v2PostTemplate = ' \
     </div> \
 </div>';
 
+var v2GridPostTemplate = ' \
+<div class="crt-grid-post crt-grid-post-v2 crt-post-<%=id%> <%=this.contentImageClasses()%> <%=this.contentTextClasses()%>"> \
+    <div class="crt-post-c"> \
+        <div class="crt-post-content"> \
+            <div class="crt-hitarea" > \
+                <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="crt-spacer" /> \
+                <div class="crt-grid-post-image">\
+                    <div class="crt-post-content-image" style="background-image: url(<%=image%>);"> </div> \
+                    <a href="javascript:;" class="crt-play"><i class="crt-play-icon"></i></a> \
+                    <span class="crt-social-icon crt-social-icon-normal"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \
+                </div>\
+                <div class="crt-grid-post-text">\
+                    <div class="crt-grid-post-text-wrap"> \
+                        <div><%=this.parseText(text)%></div> \
+                    </div> \
+                    <span class="crt-social-icon crt-social-icon-normal"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \
+                </div>\
+                <div class="crt-post-hover">\
+                    <div class="crt-post-header"> \
+                        <span class="crt-social-icon"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \
+                        <div class="crt-post-fullname"><a href="<%=this.userUrl()%>" target="_blank"><%=user_full_name%></a></div>\
+                    </div> \
+                    <div class="crt-post-content-text"> \
+                        <%=this.parseText(text)%> \
+                    </div> \
+                    <div class="crt-post-read-more"><a href="#" class="crt-post-read-more-button">Read more</a> </div> \
+                    <div class="crt-post-footer">\
+                        <img class="crt-post-userimage" src="<%=user_image%>" /> \
+                        <span class="crt-post-username"><a href="<%=this.userUrl()%>" target="_blank">@<%=user_screen_name%></a></span>\
+                        <span class="crt-date"><%=this.prettyDate(source_created_at)%></span> \
+                        <div class="crt-post-share"><span class="ctr-share-hint"></span><a href="#" class="crt-share-facebook"><i class="crt-icon-facebook"></i></a>  <a href="#" class="crt-share-twitter"><i class="crt-icon-twitter"></i></a></div>\
+                    </div> \
+                </div> \
+            </div> \
+        </div> \
+    </div>\
+</div>';
+
+var v2GridFeedTemple = ' \
+<div class="crt-feed-window">\
+    <div class="crt-feed"></div>\
+</div>\
+<div class="crt-feed-more"><a href="#">Load more</a></div>';
+
 var Templates = {
+    'filter'                : v1FilterTemplate,
+    'popup'                 : v1PopupTemplate,
+    'popup-underlay'        : v1PopupUnderlayTemplate,
+    'popup-wrapper'         : v1PopupWrapperTemplate,
+
     // V1
-    'v1-post'            : v1PostTemplate,
-    'v1-filter'          : v1FilterTemplate,
-    'v1-popup'           : v1PopupTemplate,
-    'v1-popup-underlay'  : v1PopupUnderlayTemplate,
-    'v1-popup-wrapper'   : v1PopupWrapperTemplate,
-    'v1-grid-post'       : gridPostTemplate,
+    'post-v1'               : v1PostTemplate,
+    'grid-post-v1'          : gridPostTemplate,
 
     // V2
-    'v2-post'            : v2PostTemplate,
-    'v2-filter'          : v1FilterTemplate,
-    'v2-popup'           : v1PopupTemplate,
-    'v2-popup-underlay'  : v1PopupUnderlayTemplate,
-    'v2-popup-wrapper'   : v1PopupWrapperTemplate,
-
-    'v2-grid-post'       : v2GridPostTemplate,
-    'v2-grid-feed'       : v2GridFeedTemple,
+    'post-v2'               : v2PostTemplate,
+    'grid-post-v2'          : v2GridPostTemplate,
+    'grid-feed-v2'          : v2GridFeedTemple,
 };
 
 var DateUtils = {
@@ -2595,13 +2594,6 @@ var Templating = {
     }
 };
 
-/**
-* ==================================================================
-* Post
-* ==================================================================
-*/
-
-
 var Post = (function (EventBus$$1) {
     function Post (postJson, options, widget) {
         var this$1 = this;
@@ -2653,6 +2645,10 @@ var Post = (function (EventBus$$1) {
 
         if (this.json.video) {
             this.$post.addClass('has-video');
+        }
+
+        if (this.json.images && this.json.images.length > 0) {
+            this.$el.addClass('crt-has-image-carousel');
         }
     }
 
@@ -3110,12 +3106,6 @@ var networks = {
     },
 };
 
-/**
-* ==================================================================
-* Filter
-* ==================================================================
-*/
-
 var Filter = (function (EventBus$$1) {
     function Filter (client) {
         var this$1 = this;
@@ -3234,17 +3224,13 @@ var Filter = (function (EventBus$$1) {
     return Filter;
 }(EventBus));
 
-/**
- * ==================================================================
- * Popup
- * ==================================================================
- */
-
 var Popup = function Popup (popupManager, post, widget) {
+    var this$1 = this;
+
     Logger.log("Popup->init ");
  
     this.popupManager = popupManager;
-    this.json = post.json;
+    this.json = post;
     this.widget = widget;
 
     var templateId = this.widget.options.templatePopup;
@@ -3268,7 +3254,7 @@ var Popup = function Popup (popupManager, post, widget) {
 
         var youTubeId = StringUtils.youtubeVideoId(this.json.video);
 
-        var src = '<iframe id="ytplayer" type="text/html" width="615" height="615" \
+        var src = '<iframe id="ytplayer" width="615" height="615" \
             src="https://www.youtube.com/embed/'+youTubeId+'?autoplay=0&rel=0&showinfo" \
             frameborder="0"></iframe>';
 
@@ -3291,6 +3277,16 @@ var Popup = function Popup (popupManager, post, widget) {
         }
     }
 
+    if (this.json.images)
+    {
+        this.$page = this.$popup.find('.crt-pagination ul');
+        for (var i = 0;i < this.json.images.length;i++) {
+            this$1.$page.append('<li><a href="" data-page="'+i+'"></a></li>');
+        }
+        this.$page.find('a').click(this.onPageClick.bind(this));
+        this.currentImage = 0;
+        this.$page.find('li:nth-child('+(this.currentImage+1)+')').addClass('selected');
+    }
 
     this.$popup.on('click',' .crt-close', this.onClose.bind(this));
     this.$popup.on('click',' .crt-previous', this.onPrevious.bind(this));
@@ -3298,6 +3294,22 @@ var Popup = function Popup (popupManager, post, widget) {
     this.$popup.on('click',' .crt-play', this.onPlay.bind(this));
     this.$popup.on('click','.crt-share-facebook',this.onShareFacebookClick.bind(this));
     this.$popup.on('click','.crt-share-twitter',this.onShareTwitterClick.bind(this));
+};
+
+Popup.prototype.onPageClick = function onPageClick (ev) {
+    ev.preventDefault();
+    var a = z$1(ev.target);
+    var page = a.data('page');
+
+    var image = this.json.images[page];
+
+    Logger.log(image);
+
+    this.$popup.find('.crt-image img').attr('src',image.url);
+    this.currentImage = page;
+
+    this.$page.find('li').removeClass('selected');
+    this.$page.find('li:nth-child('+(this.currentImage+1)+')').addClass('selected');
 };
 
 Popup.prototype.onShareFacebookClick = function onShareFacebookClick (ev) {
@@ -3460,7 +3472,7 @@ PopupManager.prototype.showPopup2 = function showPopup2 (post) {
     for(var i=0;i < this.posts.length;i++)
     {
         // console.log (post.json.id +":"+this.posts[i].id);
-        if (post.json.id == this$1.posts[i].id) {
+        if (post.id === this$1.posts[i].id) {
             this$1.currentPostNum = i;
             Logger.log('Found post '+i);
             break;
@@ -3482,14 +3494,14 @@ PopupManager.prototype.onPrevious = function onPrevious () {
     this.currentPostNum-=1;
     this.currentPostNum = this.currentPostNum>=0?this.currentPostNum:this.posts.length-1; // loop back to start
 
-    this.showPopup({json:this.posts[this.currentPostNum]});
+    this.showPopup(this.posts[this.currentPostNum]);
 };
 
 PopupManager.prototype.onNext = function onNext () {
     this.currentPostNum+=1;
     this.currentPostNum = this.currentPostNum<this.posts.length?this.currentPostNum:0; // loop back to start
 
-    this.showPopup({json:this.posts[this.currentPostNum]});
+    this.showPopup(this.posts[this.currentPostNum]);
 };
 
 PopupManager.prototype.onUnderlayClick = function onUnderlayClick (e) {
@@ -3632,7 +3644,7 @@ var Widget = (function (EventBus$$1) {
         Logger.log(postJson);
 
         if (this.options.showPopupOnClick) {
-            this.popupManager.showPopup(post);
+            this.popupManager.showPopup(post.json);
         }
     };
 
@@ -3693,28 +3705,24 @@ var Widget = (function (EventBus$$1) {
 
 var ConfigWidgetBase = {
     apiEndpoint: 'https://api.curator.io/v1.1',
-        feedId:'',
-        postsPerPage:12,
-        maxPosts:0,
-        templatePost:'v2-post',
-        templatePopup:'v1-popup',
-        templatePopupWrapper:'v1-popup-wrapper',
-        templateFilter:'v1-filter',
-        showPopupOnClick:true,
-        onPostsLoaded: function () {
-
-    },
+    feedId:'',
+    postsPerPage:12,
+    maxPosts:0,
+    templatePost:'post-v2',
+    templatePopup:'popup',
+    templatePopupWrapper:'popup-wrapper',
+    templateFilter:'filter',
+    showPopupOnClick:true,
     filter: {
         showNetworks: false,
-            networksLabel: 'Networks:',
+        networksLabel: 'Networks:',
 
-            showSources: false,
-            sourcesLabel: 'Sources:',
+        showSources: false,
+        sourcesLabel: 'Sources:',
     }
 };
 
 var ConfigWidgetWaterfall = z$1.extend({}, ConfigWidgetBase, {
-    scroll:'more',
     waterfall: {
         gridWidth:300,
         animate:true,
@@ -4178,7 +4186,8 @@ var Waterfall = (function (Widget$$1) {
         this.popupManager.setPosts(posts);
 
         this.loading = false;
-        this.options.onPostsLoaded (this, posts);
+
+        this.trigger(Events.POSTS_RENDERED, this);
     };
 
     Waterfall.prototype.destroy = function destroy () {
@@ -4215,8 +4224,8 @@ var Waterfall = (function (Widget$$1) {
 }(Widget));
 
 var ConfigWidgetGrid = z$1.extend({}, ConfigWidgetBase, {
-    templatePost:'v2-grid-post',
-    templateFeed:'v2-grid-feed',
+    templatePost:'grid-post-v2',
+    templateFeed:'grid-feed-v2',
     animate:false,
     grid: {
         minWidth:200,
@@ -4395,8 +4404,6 @@ var Grid = (function (Widget$$1) {
             }
 
             this.popupManager.setPosts(posts);
-
-            this.options.onPostsLoaded (this, posts);
 
             this.updateHeight(true);
         }
@@ -4741,7 +4748,7 @@ var Carousel = (function (Widget$$1) {
 
         Widget$$1.call (this);
 
-        options.postsPerPage = 60;
+        options.postsPerPage = 30;
 
         this.setOptions (options,  ConfigCarousel);
 
@@ -4811,8 +4818,6 @@ var Carousel = (function (Widget$$1) {
             this.carousel.update();
 
             this.popupManager.setPosts(posts);
-
-            this.options.onPostsLoaded (this, posts);
         }
         this.firstLoad = false;
     };
@@ -4928,8 +4933,6 @@ var Panel = (function (Widget$$1) {
             this.carousel.update();
 
             this.popupManager.setPosts(posts);
-
-            this.options.onPostsLoaded (this, posts);
         }
     };
 
@@ -4975,10 +4978,8 @@ var Panel = (function (Widget$$1) {
     return Panel;
 }(Widget));
 
-// import EventBus from './core/events'
+// import EventBus from './curator/events'
 var loadWidget = function (config) {
-
-    window.console.log(z$1('body'));
     var ConstructorClass = Crt.Widgets[config.type];
     var widget = new ConstructorClass(config);
     return widget;
@@ -4991,6 +4992,8 @@ var Crt = {
 
     Templating : Templating,
     EventBus : EventBus,
+    Events : Events,
+    Logger : Logger,
 
     Ui : {
         Post : Post,
@@ -5007,6 +5010,9 @@ var Crt = {
         Html : HtmlUtils
     },
 };
+
+// Crt.Widgets.Carousel = Carousel;
+// Crt.Widgets.Panel = Panel;
 
 return Crt;
 

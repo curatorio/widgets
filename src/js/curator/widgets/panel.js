@@ -80,8 +80,6 @@ class Panel extends Widget {
             this.carousel.update();
 
             this.popupManager.setPosts(posts);
-
-            this.options.onPostsLoaded (this, posts);
         }
     }
 

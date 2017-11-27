@@ -64,6 +64,10 @@ class Post extends EventBus {
         if (this.json.video) {
             this.$post.addClass('has-video');
         }
+
+        if (this.json.images && this.json.images.length > 0) {
+            this.$el.addClass('crt-has-image-carousel');
+        }
     }
 
     onShareFacebookClick (ev) {

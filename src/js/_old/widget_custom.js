@@ -47,8 +47,6 @@ class Custom extends Widget {
             });
 
             this.popupManager.setPosts(posts);
-
-            this.options.onPostsLoaded (this, posts);
         }
     }
 

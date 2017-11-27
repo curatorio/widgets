@@ -1,19 +1,21 @@
 
-// import EventBus from './core/events'
+// import EventBus from './curator/events'
 import {} from './libraries/nanoajax';
 import {} from './libraries/es6shim-array-fill';
 import {} from './libraries/twitter-text-regex';
 
-import EventBus from './core/core/bus';
+import EventBus from './curator/core/bus';
 
-import Post from './core/ui/post';
-import Waterfall from "./core/widgets/waterfall";
-import HtmlUtils from "./core/utils/html";
-import Grid from "./core/widgets/grid";
-import Carousel from "./core/widgets/carousel";
-import Panel from "./core/widgets/panel";
-import Templating from "./core/core/templating";
-import z from "./core/core/lib";
+import Post from './curator/ui/post';
+import Waterfall from "./curator/widgets/waterfall";
+import HtmlUtils from "./curator/utils/html";
+import Grid from "./curator/widgets/grid";
+import Carousel from "./curator/widgets/carousel";
+import Panel from "./curator/widgets/panel";
+import Templating from "./curator/core/templating";
+import Logger from "./curator/core/logger";
+import Events from "./curator/core/events";
+import z from "./curator/core/lib";
 
 let loadWidget = function (config) {
     let ConstructorClass = Crt.Widgets[config.type];
@@ -28,6 +30,8 @@ let Crt = {
 
     Templating : Templating,
     EventBus : EventBus,
+    Events : Events,
+    Logger : Logger,
 
     Ui : {
         Post : Post,

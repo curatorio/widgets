@@ -21,7 +21,7 @@ class Carousel extends Widget {
     constructor (options) {
         super ();
 
-        options.postsPerPage = 60;
+        options.postsPerPage = 30;
 
         this.setOptions (options,  ConfigCarousel);
 
@@ -87,8 +87,6 @@ class Carousel extends Widget {
             this.carousel.update();
 
             this.popupManager.setPosts(posts);
-
-            this.options.onPostsLoaded (this, posts);
         }
         this.firstLoad = false;
     }

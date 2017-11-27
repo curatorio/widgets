@@ -168,8 +168,6 @@ class Grid extends Widget {
 
             this.popupManager.setPosts(posts);
 
-            this.options.onPostsLoaded (this, posts);
-
             this.updateHeight(true);
         }
     }

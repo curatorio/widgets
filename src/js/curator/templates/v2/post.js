@@ -8,6 +8,7 @@ const v2PostTemplate = ' \
                 <div class="crt-image crt-hitarea crt-post-content-image" > \
                     <div class="crt-image-c"><img src="<%=image%>" class="crt-post-image" /></div> \
                     <span class="crt-play"><i class="crt-play-icon"></i></span> \
+                    <div class="crt-image-carousel"><i class="crt-icon-image-carousel"></i></div> \
                 </div> \
                 <div class="crt-post-header"> \
                     <span class="crt-social-icon"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \

@@ -7,6 +7,7 @@
 .crt-icon-left-open-big:before { content: '\e805'; } /* '' */
 .crt-icon-down-open-big:before { content: '\e806'; } /* '' */
 .crt-icon-up-open-big:before { content: '\e807'; } /* '' */
+.crt-icon-spin1:before { content: '\e830'; } /* '' */
 .crt-icon-twitter:before { content: '\f099'; } /* '' */
 .crt-icon-facebook:before { content: '\f09a'; } /* '' */
 .crt-icon-gplus-1:before { content: '\f0d5'; } /* '' */
@@ -22,6 +23,7 @@
 .crt-icon-weibo:before { content: '\f18a'; } /* '' */
 .crt-icon-vine:before { content: '\f1ca'; } /* '' */
 .crt-icon-pinterest-1:before { content: '\f231'; } /* '' */
+.crt-icon-clone:before { content: '\f24d'; } /* '' */
 .crt-icon-snapchat-ghost:before { content: '\f2ac'; } /* '' */
 .crt-icon-flickr:before { content: '\f303'; } /* '' */
 .crt-icon-vimeo:before { content: '\f306'; } /* '' */

@@ -6,6 +6,7 @@ let Events = {
 
     POSTS_LOADED             :'posts:loaded',
     POSTS_FAILED             :'posts:failed',
+    POSTS_RENDERED           :'posts:rendered',
 
     POST_CREATED            :'post:created',
     POST_CLICK              :'post:click',

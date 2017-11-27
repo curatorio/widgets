@@ -6,7 +6,6 @@ import LayoutWaterfall from "../ui/layout/waterfall";
 import Events from "../core/events";
 import z from "../core/lib";
 
-
 class Waterfall extends Widget {
 
     constructor (options) {
@@ -101,7 +100,8 @@ class Waterfall extends Widget {
         this.popupManager.setPosts(posts);
 
         this.loading = false;
-        this.options.onPostsLoaded (this, posts);
+
+        this.trigger(Events.POSTS_RENDERED, this);
     }
 
     destroy  () {
