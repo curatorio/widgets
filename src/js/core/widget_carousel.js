@@ -14,7 +14,7 @@ class Carousel extends Widget {
     constructor (options) {
         super ();
 
-        options.postsPerPage = 60;
+        options.postsPerPage = 30;
 
         this.setOptions (options,  Curator.Config.Carousel);
 

@@ -2983,7 +2983,7 @@ var Carousel = (function (Widget) {
 
         Widget.call (this);
 
-        options.postsPerPage = 60;
+        options.postsPerPage = 30;
 
         this.setOptions (options,  Curator.Config.Carousel);
 
