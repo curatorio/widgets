@@ -42,7 +42,6 @@
             transition: opacity .2s linear;
             //color: #ffffff;
         }
-
     }
 
     .crt-grid-post-image {
@@ -63,6 +62,23 @@
 
         .crt-social-icon {
             color: #ffffff;
+        }
+        .crt-image-carousel {
+            position: absolute;
+            bottom: 7px;
+            left: 10px;
+            color:#fff;
+            font-size: 1.2em;
+            display: none;
+
+        }
+    }
+
+    &.crt-has-image-carousel {
+        .crt-grid-post-image {
+            .crt-image-carousel {
+                display: block;
+            }
         }
     }
 

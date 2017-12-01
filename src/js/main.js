@@ -9,6 +9,7 @@ import EventBus from './curator/core/bus';
 import Post from './curator/ui/post';
 import Waterfall from "./curator/widgets/waterfall";
 import HtmlUtils from "./curator/utils/html";
+import StringUtils from "./curator/utils/string";
 import Grid from "./curator/widgets/grid";
 import Carousel from "./curator/widgets/carousel";
 import Panel from "./curator/widgets/panel";
@@ -19,37 +20,35 @@ import z from "./curator/core/lib";
 
 let loadWidget = function (config) {
     let ConstructorClass = Crt.Widgets[config.type];
-    let widget = new ConstructorClass(config);
-    return widget;
+    return new ConstructorClass(config);
 };
 
 let Crt = {
 
-    loadWidget : loadWidget,
-    z : z,
+    loadWidget: loadWidget,
+    loadCSS: () => {/* depreciated */},
+    z: z,
 
-    Templating : Templating,
-    EventBus : EventBus,
-    Events : Events,
-    Logger : Logger,
+    Templating: Templating,
+    EventBus: EventBus,
+    Events: Events,
+    Logger: Logger,
 
-    Ui : {
-        Post : Post,
+    Ui: {
+        Post: Post,
     },
 
-    Widgets : {
-        Waterfall : Waterfall,
-        Grid : Grid,
-        Carousel : Carousel,
-        Panel : Panel,
+    Widgets: {
+        Waterfall: Waterfall,
+        Grid: Grid,
+        Carousel: Carousel,
+        Panel: Panel,
     },
 
-    Utils : {
-        Html : HtmlUtils
+    Utils: {
+        Html: HtmlUtils,
+        String: StringUtils
     },
 };
-
-// Crt.Widgets.Carousel = Carousel;
-// Crt.Widgets.Panel = Panel;
 
 export default Crt;

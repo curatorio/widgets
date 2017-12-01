@@ -733,6 +733,7 @@ var v2GridPostTemplate = ' \
                     <div class="crt-post-content-image" style="background-image: url(<%=image%>);"> </div> \
                     <a href="javascript:;" class="crt-play"><i class="crt-play-icon"></i></a> \
                     <span class="crt-social-icon crt-social-icon-normal"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \
+                    <div class="crt-image-carousel"><i class="crt-icon-image-carousel"></i></div> \
                 </div>\
                 <div class="crt-grid-post-text">\
                     <div class="crt-grid-post-text-wrap"> \
@@ -1075,6 +1076,13 @@ var Templating = {
     }
 };
 
+/**
+* ==================================================================
+* Post
+* ==================================================================
+*/
+
+
 var Post = (function (EventBus$$1) {
     function Post (postJson, options, widget) {
         var this$1 = this;
@@ -1095,7 +1103,7 @@ var Post = (function (EventBus$$1) {
         this.$el.find('.crt-post-read-more-button').click(this.onReadMoreClick.bind(this));
         // this.$el.on('click','.crt-post-text-body a',this.onLinkClick.bind(this));
         this.$el.click(this.onPostClick.bind(this));
-        this.$post = this.$el.find('.crt-post-c');
+        this.$postC = this.$el.find('.crt-post-c');
         this.$image = this.$el.find('.crt-post-image');
         this.$imageContainer = this.$el.find('.crt-image-c');
         this.$image.css({opacity:0});
@@ -1122,10 +1130,8 @@ var Post = (function (EventBus$$1) {
 
         this.$image.data('dims',this.json.image_width+':'+this.json.image_height);
 
-        this.$post = this.$el.find('.crt-post');
-
         if (this.json.video) {
-            this.$post.addClass('has-video');
+            this.$el.addClass('crt-post-has-video');
         }
 
         if (this.json.images && this.json.images.length > 0) {
@@ -1180,11 +1186,11 @@ var Post = (function (EventBus$$1) {
     };
 
     Post.prototype.setHeight = function setHeight () {
-        var height = this.$post.height();
+        var height = this.$postC.height();
         if (this.options.maxHeight && this.options.maxHeight > 0 && height > this.options.maxHeight) {
-            this.$post
-                .css({maxHeight: this.options.maxHeight})
-                .addClass('crt-post-max-height');
+            this.$postC
+                .css({maxHeight: this.options.maxHeight});
+            this.$el.addClass('crt-post-max-height');
         }
 
         this.layout();
@@ -1587,6 +1593,12 @@ var networks = {
     },
 };
 
+/**
+* ==================================================================
+* Filter
+* ==================================================================
+*/
+
 var Filter = (function (EventBus$$1) {
     function Filter (client) {
         var this$1 = this;
@@ -1704,6 +1716,12 @@ var Filter = (function (EventBus$$1) {
 
     return Filter;
 }(EventBus));
+
+/**
+ * ==================================================================
+ * Popup
+ * ==================================================================
+ */
 
 var Popup = function Popup (popupManager, post, widget) {
     var this$1 = this;
@@ -3469,6 +3487,7 @@ var loadWidget = function (config) {
 var Crt = {
 
     loadWidget : loadWidget,
+    loadCSS : function () {/* depreciated */},
     z : z$1,
 
     Templating : Templating,
@@ -3488,12 +3507,10 @@ var Crt = {
     },
 
     Utils : {
-        Html : HtmlUtils
+        Html : HtmlUtils,
+        String : StringUtils
     },
 };
-
-// Crt.Widgets.Carousel = Carousel;
-// Crt.Widgets.Panel = Panel;
 
 return Crt;
 

@@ -32,7 +32,7 @@ class Post extends EventBus {
         this.$el.find('.crt-post-read-more-button').click(this.onReadMoreClick.bind(this));
         // this.$el.on('click','.crt-post-text-body a',this.onLinkClick.bind(this));
         this.$el.click(this.onPostClick.bind(this));
-        this.$post = this.$el.find('.crt-post-c');
+        this.$postC = this.$el.find('.crt-post-c');
         this.$image = this.$el.find('.crt-post-image');
         this.$imageContainer = this.$el.find('.crt-image-c');
         this.$image.css({opacity:0});
@@ -59,10 +59,8 @@ class Post extends EventBus {
 
         this.$image.data('dims',this.json.image_width+':'+this.json.image_height);
 
-        this.$post = this.$el.find('.crt-post');
-
         if (this.json.video) {
-            this.$post.addClass('has-video');
+            this.$el.addClass('crt-post-has-video');
         }
 
         if (this.json.images && this.json.images.length > 0) {
@@ -113,11 +111,11 @@ class Post extends EventBus {
     }
 
     setHeight () {
-        let height = this.$post.height();
+        let height = this.$postC.height();
         if (this.options.maxHeight && this.options.maxHeight > 0 && height > this.options.maxHeight) {
-            this.$post
-                .css({maxHeight: this.options.maxHeight})
-                .addClass('crt-post-max-height');
+            this.$postC
+                .css({maxHeight: this.options.maxHeight});
+            this.$el.addClass('crt-post-max-height');
         }
 
         this.layout();

@@ -11,8 +11,8 @@
 
 @font-face {
   font-family: 'crt-icon';
-  src: url("../font/crt-icon.eot?81720789");
-  src: url("../font/crt-icon.eot?81720789#iefix") format("embedded-opentype"), url("../font/crt-icon.woff2?81720789") format("woff2"), url("../font/crt-icon.woff?81720789") format("woff"), url("../font/crt-icon.ttf?81720789") format("truetype"), url("../font/crt-icon.svg?81720789#crt-icon") format("svg");
+  src: url("../fonts/crt-icon.eot?81720789");
+  src: url("../fonts/crt-icon.eot?81720789#iefix") format("embedded-opentype"), url("../fonts/crt-icon.woff2?81720789") format("woff2"), url("../fonts/crt-icon.woff?81720789") format("woff"), url("../fonts/crt-icon.ttf?81720789") format("truetype"), url("../fonts/crt-icon.svg?81720789#crt-icon") format("svg");
   font-weight: normal;
   font-style: normal; }
 
@@ -22,7 +22,7 @@
 @media screen and (-webkit-min-device-pixel-ratio:0) {
   @font-face {
     font-family: 'crt-icon';
-    src: url('../font/crt-icon.svg?81720789#crt-icon') format('svg');
+    src: url('../fonts/crt-icon.svg?81720789#crt-icon') format('svg');
   }
 }
 */
@@ -165,13 +165,6 @@
   content: '\f306'; }
 
 /* '' */
-@font-face {
-  font-family: 'crt-icon';
-  src: url("../fonts/crt-icon.eot?81720789");
-  src: url("../fonts/crt-icon.eot?81720789#iefix") format("embedded-opentype"), url("../fonts/crt-icon.woff2?81720789") format("woff2"), url("../fonts/crt-icon.woff?81720789") format("woff"), url("../fonts/crt-icon.ttf?81720789") format("truetype"), url("../fonts/crt-icon.svg?81720789#crt-icon") format("svg");
-  font-weight: normal;
-  font-style: normal; }
-
 [class^="crt-icon-"]:before, [class*=" crt-icon-"]:before {
   margin: 0; }
 
@@ -1038,9 +1031,9 @@ body.crt-popup-visible {
           top: -16px;
           border-left: 8px solid #efefef;
           box-shadow: inset 12px 0 0 0 #f9f9f9; }
-  .crt-post-v2.has-video .crt-play-icon {
+  .crt-post-v2.crt-post-has-video .crt-play-icon {
     display: block; }
-  .crt-post-v2.has-video .crt-hitarea:hover i:before, .crt-post-v2.has-video .crt-hitarea:focus i:before {
+  .crt-post-v2.crt-post-has-video .crt-hitarea:hover i:before, .crt-post-v2.crt-post-has-video .crt-hitarea:focus i:before {
     transform: scale(1.1);
     -webkit-transform: scale(1.1);
     -moz-transform: scale(1.1); }
@@ -1206,6 +1199,15 @@ body.crt-popup-visible {
       z-index: 1; }
     .crt-grid-post-v2 .crt-grid-post-image .crt-social-icon {
       color: #ffffff; }
+    .crt-grid-post-v2 .crt-grid-post-image .crt-image-carousel {
+      position: absolute;
+      bottom: 7px;
+      left: 10px;
+      color: #fff;
+      font-size: 1.2em;
+      display: none; }
+  .crt-grid-post-v2.crt-has-image-carousel .crt-grid-post-image .crt-image-carousel {
+    display: block; }
   .crt-grid-post-v2 .crt-grid-post-text {
     display: none;
     color: #707070;
