@@ -126,8 +126,11 @@ gulp.task('scripts:lint', () =>  {
 // Scripts - create minimized production sripts
 
 gulp.task('scripts:prod', ['scripts'], () =>  {
-    return gulp.src([destJs+'curator.js',destJs+'curator.core.js'])
-        .pipe(jshint.reporter('default'))
+    return gulp.src([
+            destJs+'curator.js',
+            destJs+'curator.core.js'
+        ])
+        // .pipe(jshint.reporter('default'))
         .pipe(gulp.dest(destJs))
         .pipe(rename({suffix: '.min'}))
         .pipe(uglify())

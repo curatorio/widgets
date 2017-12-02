@@ -249,13 +249,10 @@ body {
             {
                 float: left;
                 display: block;
-                width: 43px;
-                height: 57px;
+                width: 34px;
+                height: 42px;
                 margin-right: 10px;
-                margin-left: 3px;
-                //background-color: $color-post-icon-bg;
-                border-radius: 50%;
-                line-height: 57px;
+                line-height: 42px;
                 text-align: center;
                 padding-top: 2px;
 
@@ -268,6 +265,10 @@ body {
                         font-size: 32px;
                         margin-right: 6px;
                     }
+
+                    &.crt-icon-instagram {
+                        margin-left: -1px;
+                    }
                 }
             }
 
@@ -276,13 +277,12 @@ body {
                 float: left;
                 width: 40px;
                 margin-right: 9px;
-                margin-top: 10px;
+                margin-top: 7px;
             }
 
             .crt-post-name
             {
                 float: left;
-                margin-top: 3px;
                 position: absolute;
                 left: 105px;
                 top: 11px;
@@ -296,8 +296,48 @@ body {
         }
 
         .crt-popup-footer {
+            @include crt-clearfix;
+            border-top: 1px solid $color-popup-borders;
+            padding: 10px 15px 10px;
+            background-color: #ffffff;
+            margin-top: 4px;
+            line-height: 1em;
+
+            .crt-popup-stats {
+                float: left;
+                color: $color-popup-text2;
+                font-size: .8em;
+                text-transform: uppercase;
+                vertical-align: middle;
+                padding-top: 2px;
+
+                //span {
+                //    vertical-align: middle;
+                //}
+
+                span {
+                    color: $color-popup-text3;
+                }
+
+                .sep {
+                    background-color: $color-popup-text2;
+                    width: 4px;
+                    height: 4px;
+                    display: inline-block;
+                    margin: 0 4px;
+                    vertical-align: middle;
+                    position: relative;
+                    top:-2px;
+                }
+
+            }
             .crt-post-share {
+                float: right;
                 text-align: right;
+                padding-top: 3px;
+                i {
+                    color: $color-popup-text3;
+                }
             }
         }
 
@@ -337,8 +377,8 @@ body {
         .crt-close
         {
             position: absolute;
-            top: 10px;
-            right: 10px;
+            top: 13px;
+            right: 15px;
             z-index: 10;
         }
 
@@ -382,7 +422,7 @@ body {
 
                 .crt-popup-text {
                     position: absolute;
-                    top: 90px;
+                    top: 75px;
                     left: 20px;
                     right: 20px;
                     bottom:40px;
@@ -390,9 +430,9 @@ body {
 
                 .crt-popup-footer {
                     position: absolute;
-                    left: 20px;
-                    right: 20px;
-                    bottom:15px;
+                    left: 0px;
+                    right: 0px;
+                    bottom: 0px;
                 }
             }
         }

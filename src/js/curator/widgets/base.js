@@ -119,9 +119,9 @@ class Widget extends EventBus {
     }
 
     onPostImageLoaded (event, post) {
-        Logger.log('Widget->onPostImageLoaded');
-        Logger.log(event);
-        Logger.log(post);
+        // Logger.log('Widget->onPostImageLoaded');
+        // Logger.log(event);
+        // Logger.log(post);
     }
 
     onFeedLoaded (ev, response) {

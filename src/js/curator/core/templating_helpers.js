@@ -73,7 +73,7 @@ let helpers = {
     },
 
     prettyDate : function(time) {
-        DateUtils.prettyDate (time);
+        return DateUtils.prettyDate (time);
     }
 };
 

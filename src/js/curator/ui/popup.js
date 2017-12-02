@@ -91,8 +91,6 @@ class Popup {
 
         let image = this.json.images[page];
 
-        Logger.log(image);
-
         this.$popup.find('.crt-image img').attr('src',image.url);
         this.currentImage = page;
 

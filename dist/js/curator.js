@@ -2117,7 +2117,7 @@ var v1PopupTemplate = ' \
         <div class="crt-video"> \
             <div class="crt-video-container">\
                 <video preload="none">\
-                <source src="<%=video%>" type="video/mp4" >\
+                <source src="<%=video%>" type="video/mp4">\
                 </video>\
                 <img src="<%=image%>" />\
                 <a href="javascript:;" class="crt-play"><i class="crt-play-icon"></i></a> \
@@ -2141,6 +2141,7 @@ var v1PopupTemplate = ' \
             </div> \
         </div> \
         <div class="crt-popup-footer">\
+            <div class="crt-popup-stats"><span><%=likes%></span> <%= likes==1?"LIKE":"LIKES" %> <i class="sep"></i> <span><%=comments%></span> <%= comments==1?"COMMENT":"COMMENTS" %></div> \
             <div class="crt-post-share"><span class="ctr-share-hint"></span><a href="#" class="crt-share-facebook"><i class="crt-icon-facebook"></i></a>  <a href="#" class="crt-share-twitter"><i class="crt-icon-twitter"></i></a></div>\
         </div> \
     </div> \
@@ -2515,7 +2516,7 @@ var helpers = {
     },
 
     prettyDate : function(time) {
-        DateUtils.prettyDate (time);
+        return DateUtils.prettyDate (time);
     }
 };
 
@@ -3321,8 +3322,6 @@ Popup.prototype.onPageClick = function onPageClick (ev) {
 
     var image = this.json.images[page];
 
-    Logger.log(image);
-
     this.$popup.find('.crt-image img').attr('src',image.url);
     this.currentImage = page;
 
@@ -3667,9 +3666,9 @@ var Widget = (function (EventBus$$1) {
     };
 
     Widget.prototype.onPostImageLoaded = function onPostImageLoaded (event, post) {
-        Logger.log('Widget->onPostImageLoaded');
-        Logger.log(event);
-        Logger.log(post);
+        // Logger.log('Widget->onPostImageLoaded');
+        // Logger.log(event);
+        // Logger.log(post);
     };
 
     Widget.prototype.onFeedLoaded = function onFeedLoaded (ev, response) {
@@ -4999,35 +4998,34 @@ var Panel = (function (Widget$$1) {
 // import EventBus from './curator/events'
 var loadWidget = function (config) {
     var ConstructorClass = Crt.Widgets[config.type];
-    var widget = new ConstructorClass(config);
-    return widget;
+    return new ConstructorClass(config);
 };
 
 var Crt = {
 
-    loadWidget : loadWidget,
-    loadCSS : function () {/* depreciated */},
-    z : z$1,
+    loadWidget: loadWidget,
+    loadCSS: function () {/* depreciated */},
+    z: z$1,
 
-    Templating : Templating,
-    EventBus : EventBus,
-    Events : Events,
-    Logger : Logger,
+    Templating: Templating,
+    EventBus: EventBus,
+    Events: Events,
+    Logger: Logger,
 
-    Ui : {
-        Post : Post,
+    Ui: {
+        Post: Post,
     },
 
-    Widgets : {
-        Waterfall : Waterfall,
-        Grid : Grid,
-        Carousel : Carousel,
-        Panel : Panel,
+    Widgets: {
+        Waterfall: Waterfall,
+        Grid: Grid,
+        Carousel: Carousel,
+        Panel: Panel,
     },
 
-    Utils : {
-        Html : HtmlUtils,
-        String : StringUtils
+    Utils: {
+        Html: HtmlUtils,
+        String: StringUtils
     },
 };
 

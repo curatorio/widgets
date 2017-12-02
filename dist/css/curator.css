@@ -351,12 +351,10 @@ body.crt-popup-visible {
       .crt-popup-wrapper .crt-popup .crt-popup-header .crt-social-icon {
         float: left;
         display: block;
-        width: 43px;
-        height: 57px;
+        width: 34px;
+        height: 42px;
         margin-right: 10px;
-        margin-left: 3px;
-        border-radius: 50%;
-        line-height: 57px;
+        line-height: 42px;
         text-align: center;
         padding-top: 2px; }
         .crt-popup-wrapper .crt-popup .crt-popup-header .crt-social-icon i {
@@ -366,14 +364,15 @@ body.crt-popup-visible {
           .crt-popup-wrapper .crt-popup .crt-popup-header .crt-social-icon i.crt-icon-twitter {
             font-size: 32px;
             margin-right: 6px; }
+          .crt-popup-wrapper .crt-popup .crt-popup-header .crt-social-icon i.crt-icon-instagram {
+            margin-left: -1px; }
       .crt-popup-wrapper .crt-popup .crt-popup-header IMG {
         float: left;
         width: 40px;
         margin-right: 9px;
-        margin-top: 10px; }
+        margin-top: 7px; }
       .crt-popup-wrapper .crt-popup .crt-popup-header .crt-post-name {
         float: left;
-        margin-top: 3px;
         position: absolute;
         left: 105px;
         top: 11px;
@@ -382,8 +381,44 @@ body.crt-popup-visible {
         line-height: 1.1em;
         white-space: nowrap;
         text-overflow: ellipsis; }
-    .crt-popup-wrapper .crt-popup .crt-popup-footer .crt-post-share {
-      text-align: right; }
+    .crt-popup-wrapper .crt-popup .crt-popup-footer {
+      zoom: 1;
+      border-top: 1px solid #efefef;
+      padding: 10px 15px 10px;
+      background-color: #ffffff;
+      margin-top: 4px;
+      line-height: 1em; }
+      .crt-popup-wrapper .crt-popup .crt-popup-footer:before, .crt-popup-wrapper .crt-popup .crt-popup-footer:after {
+        content: "\0020";
+        display: block;
+        height: 0;
+        overflow: hidden; }
+      .crt-popup-wrapper .crt-popup .crt-popup-footer:after {
+        clear: both; }
+      .crt-popup-wrapper .crt-popup .crt-popup-footer .crt-popup-stats {
+        float: left;
+        color: #CCCCCC;
+        font-size: .8em;
+        text-transform: uppercase;
+        vertical-align: middle;
+        padding-top: 2px; }
+        .crt-popup-wrapper .crt-popup .crt-popup-footer .crt-popup-stats span {
+          color: #666; }
+        .crt-popup-wrapper .crt-popup .crt-popup-footer .crt-popup-stats .sep {
+          background-color: #CCCCCC;
+          width: 4px;
+          height: 4px;
+          display: inline-block;
+          margin: 0 4px;
+          vertical-align: middle;
+          position: relative;
+          top: -2px; }
+      .crt-popup-wrapper .crt-popup .crt-popup-footer .crt-post-share {
+        float: right;
+        text-align: right;
+        padding-top: 3px; }
+        .crt-popup-wrapper .crt-popup .crt-popup-footer .crt-post-share i {
+          color: #666; }
     .crt-popup-wrapper .crt-popup .crt-date {
       margin-top: 0;
       opacity: 0.5; }
@@ -450,8 +485,8 @@ body.crt-popup-visible {
         -moz-transform: scale(1.1); }
     .crt-popup-wrapper .crt-popup .crt-close {
       position: absolute;
-      top: 10px;
-      right: 10px;
+      top: 13px;
+      right: 15px;
       z-index: 10; }
     .crt-popup-wrapper .crt-popup .crt-previous,
     .crt-popup-wrapper .crt-popup .crt-next {
@@ -479,15 +514,15 @@ body.crt-popup-visible {
       right: 0; }
       .crt-popup-wrapper .crt-popup.has-image .crt-popup-right .crt-popup-text {
         position: absolute;
-        top: 90px;
+        top: 75px;
         left: 20px;
         right: 20px;
         bottom: 40px; }
       .crt-popup-wrapper .crt-popup.has-image .crt-popup-right .crt-popup-footer {
         position: absolute;
-        left: 20px;
-        right: 20px;
-        bottom: 15px; }
+        left: 0px;
+        right: 0px;
+        bottom: 0px; }
     .crt-popup-wrapper .crt-popup.has-video .crt-popup-left .crt-video {
       display: block; }
     .crt-popup-wrapper .crt-popup.has-video .crt-popup-left .crt-image {

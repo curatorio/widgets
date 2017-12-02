@@ -3,11 +3,11 @@
 
 ### Demo
 
-[Curator.io](http://curator.io/showcase)
+[Curator.io](https://curator.io/showcase)
 
 ## Setup
 
-Sign up to [Curator.io](http://admin.curator.io/auth/register) to set up a social feed - it's free :)
+Sign up to [Curator.io](https://admin.curator.io/auth/register) to set up a social feed - it's free :)
 You'll need your unique `FEED_ID` to use the widgets.
 
 ### CDN
@@ -156,7 +156,7 @@ For example:
 ```html
 <script type="text/javascript">
 
-Curator.Templates['v2-post'] = '\
+Curator.Templates['post-v2'] = '\
 <div class="crt-post-v2 crt-post crt-post-<%=this.networkIcon()%> <%=this.contentTextClasses()%>  <%=this.contentImageClasses()%>" data-post="<%=id%>"> \
     <div class="crt-post-border">\
         <div class="crt-post-c">\
@@ -195,12 +195,12 @@ Curator.Templates['v2-post'] = '\
 See the [templates directory](https://github.com/curatorio/widgets/blob/master/src/js/core/templates/) file for the HTML templates.
 
 Following templates are predefined:
- - `Curator.Templates['v2-post']`
- - `Curator.Templates['v2-popup']`
- - `Curator.Templates['v2-popup-underlay']`
- - `Curator.Templates['v2-popup-wrapper']`
- - `Curator.Templates['v2-grid-post']`
- - `Curator.Templates['v2-grid-feed']`
+ - `Curator.Templates['post-v2']`
+ - `Curator.Templates['popup']`
+ - `Curator.Templates['popup-underlay']`
+ - `Curator.Templates['popup-wrapper']`
+ - `Curator.Templates['grid-post-v2']`
+ - `Curator.Templates['grid-feed-v2']`
 
 ### Custom CSS
 

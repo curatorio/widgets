@@ -9,7 +9,7 @@ const v1PopupTemplate = ' \
         <div class="crt-video"> \
             <div class="crt-video-container">\
                 <video preload="none">\
-                <source src="<%=video%>" type="video/mp4" >\
+                <source src="<%=video%>" type="video/mp4">\
                 </video>\
                 <img src="<%=image%>" />\
                 <a href="javascript:;" class="crt-play"><i class="crt-play-icon"></i></a> \
@@ -33,6 +33,7 @@ const v1PopupTemplate = ' \
             </div> \
         </div> \
         <div class="crt-popup-footer">\
+            <div class="crt-popup-stats"><span><%=likes%></span> <%= likes==1?"LIKE":"LIKES" %> <i class="sep"></i> <span><%=comments%></span> <%= comments==1?"COMMENT":"COMMENTS" %></div> \
             <div class="crt-post-share"><span class="ctr-share-hint"></span><a href="#" class="crt-share-facebook"><i class="crt-icon-facebook"></i></a>  <a href="#" class="crt-share-twitter"><i class="crt-icon-twitter"></i></a></div>\
         </div> \
     </div> \
