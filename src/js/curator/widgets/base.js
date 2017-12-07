@@ -9,6 +9,7 @@ import Post from "../ui/post";
 import Filter from "../ui/filter";
 import PopupManager from "../ui/popup_manager";
 import z from "../core/lib";
+import translate from "../core/translate";
 
 class Widget extends EventBus {
 
@@ -24,9 +25,11 @@ class Widget extends EventBus {
 
         this.options = z.extend(true,{}, defaults, options);
 
-        if (options.debug) {
+        if (this.options.debug) {
             Logger.debug = true;
         }
+
+        translate.setLang(this.options.lang);
 
         // Logger.log(this.options);
 
@@ -151,6 +154,10 @@ class Widget extends EventBus {
 
     getUrl (trail) {
         return this.options.apiEndpoint+trail;
+    }
+
+    _t (s) {
+        return translate.t (s);
     }
 
     destroy () {

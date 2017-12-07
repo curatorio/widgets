@@ -1,4 +1,4 @@
-
+import t from "../core/translate";
 
 let DateUtils = {
     /**
@@ -121,21 +121,24 @@ let DateUtils = {
         if (isNaN(day_diff) || day_diff < 0 || day_diff >= 31) {
             return year.toString() + '-' + ((month < 10) ? '0' + month.toString() : month.toString()) + '-' + ((day < 10) ? '0' + day.toString() : day.toString());
         }
+
+        let minute_diff = Math.floor(diff / 60);
+        let hour_diff = Math.floor(diff / 3600);
+        let week_diff = Math.ceil(day_diff / 7);
+
         let r =
             (
                 (
                     day_diff === 0 &&
                     (
-                        (diff < 60 && "just now") ||
-                        (diff < 120 && "1 minute ago") ||
-                        (diff < 3600 && Math.floor(diff / 60) + " minutes ago") ||
-                        (diff < 7200 && "1 hour ago") ||
-                        (diff < 86400 && Math.floor(diff / 3600) + " hours ago")
+                        (diff < 60 && t.t("Just now")) ||
+                        (diff < 3600 && t.t("minutes ago", minute_diff)) || //
+                        (diff < 86400 && t.t("hours ago", hour_diff)) // + " hours ago")
                     )
                 ) ||
-                (day_diff === 1 && "Yesterday") ||
-                (day_diff < 7 && day_diff + " days ago") ||
-                (day_diff < 31 && Math.ceil(day_diff / 7) + " weeks ago")
+                (day_diff === 1 && t.t("Yesterday")) ||
+                (day_diff < 7 && t.t("days ago",day_diff)) ||
+                (day_diff < 31 && t.t("weeks ago",week_diff))
             );
         return r;
     }

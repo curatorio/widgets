@@ -2304,6 +2304,213 @@ var Templates = {
     'grid-feed-v2'          : v2GridFeedTemple,
 };
 
+/**
+ * Microlib for translations with support for placeholders and multiple plural forms.
+ *
+ * https://github.com/musterknabe/translate.js
+ *
+ * v1.1.0
+ *
+ * @author Jonas Girnatis <dermusterknabe@gmail.com>
+ * @licence May be freely distributed under the MIT license.
+ */
+
+
+var isNumeric = function(obj) { return !isNaN(parseFloat(obj)) && isFinite(obj); };
+var isObject = function(obj) { return typeof obj === 'object' && obj !== null; };
+var isString = function(obj) { return Object.prototype.toString.call(obj) === '[object String]'; };
+
+var libTranslate = {
+    getTranslationFunction: function(messageObject, options) {
+        options = isObject(options) ? options : {};
+
+        var debug = options.debug;
+        var namespaceSplitter = options.namespaceSplitter || '::';
+
+        function getTranslationValue(translationKey) {
+            if(messageObject[translationKey]) {
+                return messageObject[translationKey];
+            }
+
+            var components = translationKey.split(namespaceSplitter); //@todo make this more robust. maybe support more levels?
+            var namespace = components[0];
+            var key = components[1];
+
+            if(messageObject[namespace] && messageObject[namespace][key]) {
+                return messageObject[namespace][key];
+            }
+
+            return null;
+        }
+
+        function getPluralValue(translation, count) {
+            if (isObject(translation)) {
+                var keys = Object.keys(translation);
+                var upperCap;
+
+                if(keys.length === 0) {
+                    debug && window.console.log('[Translation] No plural forms found.');
+                    return null;
+                }
+
+                for(var i = 0; i < keys.length; i++) {
+                    if(keys[i].indexOf('gt') === 0) {
+                        upperCap = parseInt(keys[i].replace('gt', ''), 10);
+                    }
+                }
+
+                if(translation[count]){
+                    translation = translation[count];
+                } else if(count > upperCap) { //int > undefined returns false
+                    translation = translation['gt' + upperCap];
+                } else if(translation.n) {
+                    translation = translation.n;
+                } else {
+                    debug && window.console.log('[Translation] No plural forms found for count:"' + count + '" in', translation);
+                    translation = translation[Object.keys(translation).reverse()[0]];
+                }
+            }
+
+            return translation;
+        }
+
+        function replacePlaceholders(translation, replacements) {
+            if (isString(translation)) {
+                return translation.replace(/\{(\w*)\}/g, function (match, key) {
+                    if(!replacements.hasOwnProperty(key)) {
+                        debug && window.console.log('Could not find replacement "' + key + '" in provided replacements object:', replacements);
+
+                        return '{' + key + '}';
+                    }
+
+                    return replacements.hasOwnProperty(key) ? replacements[key] : key;
+                });
+            }
+
+            return translation;
+        }
+
+        return function (translationKey) {
+            var replacements = isObject(arguments[1]) ? arguments[1] : (isObject(arguments[2]) ? arguments[2] : {});
+            var count = isNumeric(arguments[1]) ? arguments[1] : (isNumeric(arguments[2]) ? arguments[2] : null);
+
+            var translation = getTranslationValue(translationKey);
+
+            if (count !== null) {
+                replacements.n = replacements.n ? replacements.n : count;
+
+                //get appropriate plural translation string
+                translation = getPluralValue(translation, count);
+            }
+
+            //replace {placeholders}
+            translation = replacePlaceholders(translation, replacements);
+
+            if (translation === null) {
+                translation = debug ? '@@' + translationKey + '@@' : translationKey;
+
+                if (debug) {
+                    window.console.log('Translation for "' + translationKey + '" not found.');
+                }
+            }
+
+            return translation;
+        };
+    }
+};
+
+var langs = {
+    en : {
+        'Load more': 'Load more',
+        'minutes ago': {
+            1: '{n} minute ago',
+            n: '{n} minutes ago',
+        },
+        'hours ago': {
+            1: '{n} hour ago',
+            n: '{n} hours ago',
+        },
+        'days ago': {
+            1: '{n} day ago',
+            n: '{n} days ago',
+        },
+        'weeks ago': {
+            1: '{n} week ago',
+            n: '{n} weeks ago',
+        },
+        'Yesterday':'Yesterday',
+        'Just now':'Just now',
+    },
+
+    fr : {
+        'Load more': 'Charger plus',
+        'minutes ago': {
+            1: '{n} minute ago',
+            n: '{n} minutes ago',
+        },
+        'hours ago': {
+            1: '{n} hour ago',
+            n: '{n} hours ago',
+        },
+        'days ago': {
+            1: '{n} day ago',
+            n: '{n} days ago',
+        },
+        'weeks ago': {
+            1: '{n} week ago',
+            n: '{n} weeks ago',
+        },
+        'Yesterday':'Yesterday',
+        'Just now':'Just now',
+    },
+
+    de : {
+        'Load more': 'Mehr laden',
+        'minutes ago': {
+            1: '{n} minute ago',
+            n: '{n} minutes ago',
+        },
+        'hours ago': {
+            1: '{n} hour ago',
+            n: '{n} hours ago',
+        },
+        'days ago': {
+            1: '{n} day ago',
+            n: '{n} days ago',
+        },
+        'weeks ago': {
+            1: '{n} week ago',
+            n: '{n} weeks ago',
+        },
+        'Yesterday':'Yesterday',
+        'Just now':'Just now',
+    }
+};
+
+var _cache = {};
+var currentLang = 'en';
+
+var mod = {
+    setLang: function setLang (lang) {
+        currentLang = lang;
+    },
+
+    t: function t (key, n) {
+        var lang = currentLang;
+
+        if (!_cache[lang]) {
+            if (langs[lang]) {
+                _cache[lang] = libTranslate.getTranslationFunction(langs[lang]);
+            } else {
+                window.console.error('Unsupported language `' + lang + '`');
+                _cache[lang] = libTranslate.getTranslationFunction(langs.en);
+            }
+        }
+
+        return _cache[lang](key, n);
+    }
+};
+
 var DateUtils = {
     /**
      * Parse a date string in form DD/MM/YYYY HH:MM::SS - returns as UTC
@@ -2425,36 +2632,39 @@ var DateUtils = {
         if (isNaN(day_diff) || day_diff < 0 || day_diff >= 31) {
             return year.toString() + '-' + ((month < 10) ? '0' + month.toString() : month.toString()) + '-' + ((day < 10) ? '0' + day.toString() : day.toString());
         }
+
+        var minute_diff = Math.floor(diff / 60);
+        var hour_diff = Math.floor(diff / 3600);
+        var week_diff = Math.ceil(day_diff / 7);
+
         var r =
             (
                 (
                     day_diff === 0 &&
                     (
-                        (diff < 60 && "just now") ||
-                        (diff < 120 && "1 minute ago") ||
-                        (diff < 3600 && Math.floor(diff / 60) + " minutes ago") ||
-                        (diff < 7200 && "1 hour ago") ||
-                        (diff < 86400 && Math.floor(diff / 3600) + " hours ago")
+                        (diff < 60 && mod.t("Just now")) ||
+                        (diff < 3600 && mod.t("minutes ago", minute_diff)) || //
+                        (diff < 86400 && mod.t("hours ago", hour_diff)) // + " hours ago")
                     )
                 ) ||
-                (day_diff === 1 && "Yesterday") ||
-                (day_diff < 7 && day_diff + " days ago") ||
-                (day_diff < 31 && Math.ceil(day_diff / 7) + " weeks ago")
+                (day_diff === 1 && mod.t("Yesterday")) ||
+                (day_diff < 7 && mod.t("days ago",day_diff)) ||
+                (day_diff < 31 && mod.t("weeks ago",week_diff))
             );
         return r;
     }
 };
 
 var helpers = {
-    networkIcon:function () {
+    networkIcon: function networkIcon () {
         return this.data.network_name.toLowerCase();
     },
 
-    networkName:function () {
+    networkName: function networkName () {
         return this.data.network_name.toLowerCase();
     },
 
-    userUrl:function () {
+    userUrl: function userUrl () {
         if (this.data.user_url && this.data.user_url !== '') {
             return this.data.user_url;
         }
@@ -2477,7 +2687,7 @@ var helpers = {
         return '#';
     },
 
-    parseText:function(s) {
+    parseText: function parseText (s) {
         if (this.data.is_html) {
             return s;
         } else {
@@ -2498,25 +2708,29 @@ var helpers = {
         }
     },
 
-    nl2br:function(s) {
+    nl2br: function nl2br (s) {
         return StringUtils.nl2br(s);
     },
 
-    contentImageClasses : function () {
+    contentImageClasses: function contentImageClasses () {
         return this.data.image ? 'crt-post-has-image' : 'crt-post-content-image-hidden crt-post-no-image';
     },
 
-    contentTextClasses : function () {
+    contentTextClasses: function contentTextClasses () {
         return this.data.text ? 'crt-post-has-text' : 'crt-post-content-text-hidden crt-post-no-text';
     },
 
-    fuzzyDate : function (dateString)
+    fuzzyDate: function fuzzyDate (dateString)
     {
         return DateUtils.fuzzyDate(dateString);
     },
 
-    prettyDate : function(time) {
+    prettyDate: function prettyDate (time) {
         return DateUtils.prettyDate (time);
+    },
+
+    _t: function _t$1 (s) {
+        return mod (s);
     }
 };
 
@@ -2595,13 +2809,6 @@ var Templating = {
         return " # ERROR: " + err + " # ";
     }
 };
-
-/**
-* ==================================================================
-* Post
-* ==================================================================
-*/
-
 
 var Post = (function (EventBus$$1) {
     function Post (postJson, options, widget) {
@@ -3113,12 +3320,6 @@ var networks = {
     },
 };
 
-/**
-* ==================================================================
-* Filter
-* ==================================================================
-*/
-
 var Filter = (function (EventBus$$1) {
     function Filter (client) {
         var this$1 = this;
@@ -3236,12 +3437,6 @@ var Filter = (function (EventBus$$1) {
 
     return Filter;
 }(EventBus));
-
-/**
- * ==================================================================
- * Popup
- * ==================================================================
- */
 
 var Popup = function Popup (popupManager, post, widget) {
     var this$1 = this;
@@ -3571,9 +3766,11 @@ var Widget = (function (EventBus$$1) {
 
         this.options = z$1.extend(true,{}, defaults, options);
 
-        if (options.debug) {
+        if (this.options.debug) {
             Logger.debug = true;
         }
+
+        mod.setLang(this.options.lang);
 
         // Logger.log(this.options);
 
@@ -3700,6 +3897,10 @@ var Widget = (function (EventBus$$1) {
         return this.options.apiEndpoint+trail;
     };
 
+    Widget.prototype._t = function _t (s) {
+        return mod.t (s);
+    };
+
     Widget.prototype.destroy = function destroy () {
         Logger.log('Widget->destroy');
 
@@ -3730,6 +3931,8 @@ var ConfigWidgetBase = {
     templatePopupWrapper:'popup-wrapper',
     templateFilter:'filter',
     showPopupOnClick:true,
+    lang:'en',
+    debug:true,
     filter: {
         showNetworks: false,
         networksLabel: 'Networks:',
@@ -4133,7 +4336,7 @@ var Waterfall = (function (Widget$$1) {
                 // no scroll - use javascript to trigger loading
             } else {
                 // default to more
-                this.$more = z$1('<div class="crt-feed-more"><a href="#"><span>Load more</span></a></div>').appendTo(this.$scroll);
+                this.$more = z$1('<div class="crt-feed-more"><a href="#"><span>'+this._t('Load more')+'</span></a></div>').appendTo(this.$scroll);
                 this.$more.find('a').on('click',function (ev) {
                     ev.preventDefault();
                     this$1.loadMorePosts();
@@ -4209,7 +4412,6 @@ var Waterfall = (function (Widget$$1) {
 
     Waterfall.prototype.destroy = function destroy () {
         Logger.log('Waterfall->destroy');
-        //this.$feed.slick('unslick');
 
         Widget$$1.prototype.destroy.call(this);
 
@@ -4995,7 +5197,6 @@ var Panel = (function (Widget$$1) {
     return Panel;
 }(Widget));
 
-// import EventBus from './curator/events'
 var loadWidget = function (config) {
     var ConstructorClass = Crt.Widgets[config.type];
     return new ConstructorClass(config);

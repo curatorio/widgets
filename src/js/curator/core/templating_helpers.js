@@ -1,17 +1,18 @@
 
 import DateUtils from "../utils/date";
 import StringUtils from "../utils/string";
+import _t from "../core/translate";
 
 let helpers = {
-    networkIcon:function () {
+    networkIcon () {
         return this.data.network_name.toLowerCase();
     },
 
-    networkName:function () {
+    networkName () {
         return this.data.network_name.toLowerCase();
     },
 
-    userUrl:function () {
+    userUrl () {
         if (this.data.user_url && this.data.user_url !== '') {
             return this.data.user_url;
         }
@@ -34,7 +35,7 @@ let helpers = {
         return '#';
     },
 
-    parseText:function(s) {
+    parseText (s) {
         if (this.data.is_html) {
             return s;
         } else {
@@ -55,25 +56,29 @@ let helpers = {
         }
     },
 
-    nl2br:function(s) {
+    nl2br (s) {
         return StringUtils.nl2br(s);
     },
 
-    contentImageClasses : function () {
+    contentImageClasses () {
         return this.data.image ? 'crt-post-has-image' : 'crt-post-content-image-hidden crt-post-no-image';
     },
 
-    contentTextClasses : function () {
+    contentTextClasses () {
         return this.data.text ? 'crt-post-has-text' : 'crt-post-content-text-hidden crt-post-no-text';
     },
 
-    fuzzyDate : function (dateString)
+    fuzzyDate (dateString)
     {
         return DateUtils.fuzzyDate(dateString);
     },
 
-    prettyDate : function(time) {
+    prettyDate (time) {
         return DateUtils.prettyDate (time);
+    },
+
+    _t (s) {
+        return _t (s);
     }
 };
 

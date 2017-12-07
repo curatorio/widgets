@@ -1241,7 +1241,65 @@ body.crt-popup-visible {
       color: #fff;
       font-size: 1.2em;
       display: none; }
+    .crt-grid-post-v2 .crt-grid-post-image .crt-play {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%; }
+      .crt-grid-post-v2 .crt-grid-post-image .crt-play .crt-play-icon {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        margin-top: -20px;
+        margin-left: -10px;
+        display: none;
+        width: 0;
+        height: 0;
+        border-top: 20px solid transparent;
+        border-bottom: 20px solid transparent;
+        border-left: 24px solid #efefef;
+        position: relative;
+        z-index: 1;
+        transition: all 0.3s;
+        -webkit-transition: all 0.3s;
+        -moz-transition: all 0.3s;
+        opacity: 0.50; }
+        .crt-grid-post-v2 .crt-grid-post-image .crt-play .crt-play-icon:before {
+          content: '';
+          position: absolute;
+          top: -30px;
+          left: -46px;
+          bottom: -30px;
+          right: -14px;
+          border-radius: 50%;
+          border: 2px solid #efefef;
+          z-index: 2;
+          transition: all 0.3s;
+          -webkit-transition: all 0.3s;
+          -moz-transition: all 0.3s; }
+        .crt-grid-post-v2 .crt-grid-post-image .crt-play .crt-play-icon:after {
+          content: '';
+          opacity: 0;
+          transition: opacity 0.6s;
+          -webkit-transition: opacity 0.6s;
+          -moz-transition: opacity 0.6s; }
+        .crt-grid-post-v2 .crt-grid-post-image .crt-play .crt-play-icon.active {
+          border-color: transparent; }
+          .crt-grid-post-v2 .crt-grid-post-image .crt-play .crt-play-icon.active:after {
+            content: '';
+            opacity: 1;
+            width: 20px;
+            height: 32px;
+            background: #efefef;
+            position: absolute;
+            right: 2px;
+            top: -16px;
+            border-left: 8px solid #efefef;
+            box-shadow: inset 12px 0 0 0 #f9f9f9; }
   .crt-grid-post-v2.crt-has-image-carousel .crt-grid-post-image .crt-image-carousel {
+    display: block; }
+  .crt-grid-post-v2.crt-post-has-video .crt-play .crt-play-icon {
     display: block; }
   .crt-grid-post-v2 .crt-grid-post-text {
     display: none;

@@ -9,6 +9,8 @@ let ConfigWidgetBase = {
     templatePopupWrapper:'popup-wrapper',
     templateFilter:'filter',
     showPopupOnClick:true,
+    lang:'en',
+    debug:true,
     filter: {
         showNetworks: false,
         networksLabel: 'Networks:',

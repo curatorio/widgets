@@ -34,7 +34,7 @@ class Waterfall extends Widget {
                 // no scroll - use javascript to trigger loading
             } else {
                 // default to more
-                this.$more = z('<div class="crt-feed-more"><a href="#"><span>Load more</span></a></div>').appendTo(this.$scroll);
+                this.$more = z('<div class="crt-feed-more"><a href="#"><span>'+this._t('Load more')+'</span></a></div>').appendTo(this.$scroll);
                 this.$more.find('a').on('click',(ev) => {
                     ev.preventDefault();
                     this.loadMorePosts();
@@ -106,7 +106,6 @@ class Waterfall extends Widget {
 
     destroy  () {
         Logger.log('Waterfall->destroy');
-        //this.$feed.slick('unslick');
 
         super.destroy();
 

@@ -1,5 +1,4 @@
 
-// import EventBus from './curator/events'
 import {} from './libraries/nanoajax';
 import {} from './libraries/es6shim-array-fill';
 import {} from './libraries/twitter-text-regex';
