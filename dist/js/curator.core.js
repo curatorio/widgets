@@ -443,7 +443,7 @@ var StringUtils = {
 
     linksToHref: function linksToHref (s)
     {
-        s = s.replace(/[A-Za-z]+:\/\/[A-Za-z0-9-_]+\.[A-Za-z0-9-_:%&~\?\/.=]+/g, function(url) {
+        s = s.replace(/[A-Za-z]+:\/\/[A-Za-z0-9-_]+\.[A-Za-z0-9-_:%&~\?\/.=]+[A-Za-z0-9-_:%&~\?\/=]+/g, function(url) {
             return StringUtils.url(url);
         });
 
@@ -900,73 +900,42 @@ var libTranslate = {
     }
 };
 
-var langs = {
-    en : {
-        'Load more': 'Load more',
-        'minutes ago': {
-            1: '{n} minute ago',
-            n: '{n} minutes ago',
-        },
-        'hours ago': {
-            1: '{n} hour ago',
-            n: '{n} hours ago',
-        },
-        'days ago': {
-            1: '{n} day ago',
-            n: '{n} days ago',
-        },
-        'weeks ago': {
-            1: '{n} week ago',
-            n: '{n} weeks ago',
-        },
-        'Yesterday':'Yesterday',
-        'Just now':'Just now',
-    },
-
-    fr : {
-        'Load more': 'Charger plus',
-        'minutes ago': {
-            1: '{n} minute ago',
-            n: '{n} minutes ago',
-        },
-        'hours ago': {
-            1: '{n} hour ago',
-            n: '{n} hours ago',
-        },
-        'days ago': {
-            1: '{n} day ago',
-            n: '{n} days ago',
-        },
-        'weeks ago': {
-            1: '{n} week ago',
-            n: '{n} weeks ago',
-        },
-        'Yesterday':'Yesterday',
-        'Just now':'Just now',
-    },
-
-    de : {
-        'Load more': 'Mehr laden',
-        'minutes ago': {
-            1: '{n} minute ago',
-            n: '{n} minutes ago',
-        },
-        'hours ago': {
-            1: '{n} hour ago',
-            n: '{n} hours ago',
-        },
-        'days ago': {
-            1: '{n} day ago',
-            n: '{n} days ago',
-        },
-        'weeks ago': {
-            1: '{n} week ago',
-            n: '{n} weeks ago',
-        },
-        'Yesterday':'Yesterday',
-        'Just now':'Just now',
+function _k (o, key, val) {
+    var kPath = key.split('.');
+    for (var i=0;i<kPath.length;i++) {
+        var k = kPath[i];
+        if (!o[k]) {
+            o[k] = {};
+        }
+        if (i === kPath.length-1) {
+            o[k] = val;
+        } else {
+            o = o[k];
+        }
     }
-};
+}
+
+var landData = "\nid,en,de,it\nload-more,Load more,Mehr anzeigen,Di più\nminutes-ago.1,{n} minute ago,Vor einer Minute,Un minuto fa\nminutes-ago.n,{n} minutes ago,Vor {n} Minuten,{n} minuti fa\nhours-ago.1,{n} hour ago,Vor einer Stunde,Un'ora fa\nhours-ago.n,{n} hours ago,Vor {n} Stunden,{n} ore fa\ndays-ago.1,{n} day ago,Vor einem Tag,Un giorno fa\ndays-ago.n,{n} days ago,Vor {n} Tagen,{n} giorni fa\nweeks-ago.1,{n} week ago,Vor einer Woche,Una settimana fa\nweeks-ago.n,{n} weeks ago,Vor {n} Wochen,{n} settimane fa\nmonths-ago.1,{n} month ago,Vor einem Monat,Un mese fa\nmonths-ago.n,{n} months ago,Vor {n} Monaten,{n} mesi\nyesterday,Yesterday,Gestern,Leri\njust-now,Just now,Eben,Appena\nprevious,Previous,Zurück,Indietro\nnext,Next,Weiter,Più\n";
+
+var langs = {};
+var langDataLines = landData.split('\n');
+
+// Remove unused lines
+for (var i = langDataLines.length-1 ; i>=0 ; i--) {
+    if (!langDataLines[i]) {
+        langDataLines.splice(i,1);
+    }
+}
+var keys = langDataLines[0].split(',');
+
+for (var i$1=1;i$1<langDataLines.length;i$1++) {
+    var langDataCols = langDataLines[i$1].split(',');
+    for (var j = 1;j < langDataCols.length;j++) {
+        _k (langs, keys[j]+'.'+langDataCols[0], langDataCols[j]);
+    }
+}
+
+// console.log(translations);
 
 var _cache = {};
 var currentLang = 'en';
@@ -987,6 +956,11 @@ var mod = {
                 _cache[lang] = libTranslate.getTranslationFunction(langs.en);
             }
         }
+
+        key = key.toLowerCase();
+        key = key.replace(' ','-');
+
+        // console.log(key);
 
         return _cache[lang](key, n);
     }
@@ -1290,6 +1264,13 @@ var Templating = {
         return " # ERROR: " + err + " # ";
     }
 };
+
+/**
+* ==================================================================
+* Post
+* ==================================================================
+*/
+
 
 var Post = (function (EventBus$$1) {
     function Post (postJson, options, widget) {
@@ -1651,6 +1632,8 @@ var Feed = (function (EventBus$$1) {
 
         this.loading = true;
 
+        params.rnd = (new Date ()).getTime();
+
         ajax.get(
             this.getUrl('/posts'),
             params,
@@ -1801,6 +1784,12 @@ var networks = {
     },
 };
 
+/**
+* ==================================================================
+* Filter
+* ==================================================================
+*/
+
 var Filter = (function (EventBus$$1) {
     function Filter (client) {
         var this$1 = this;
@@ -1918,6 +1907,12 @@ var Filter = (function (EventBus$$1) {
 
     return Filter;
 }(EventBus));
+
+/**
+ * ==================================================================
+ * Popup
+ * ==================================================================
+ */
 
 var Popup = function Popup (popupManager, post, widget) {
     var this$1 = this;
@@ -2243,22 +2238,11 @@ var Widget = (function (EventBus$$1) {
     Widget.prototype = Object.create( EventBus$$1 && EventBus$$1.prototype );
     Widget.prototype.constructor = Widget;
 
-    Widget.prototype.setOptions = function setOptions (options, defaults) {
+    Widget.prototype.init = function init (options, defaults) {
+        var this$1 = this;
+
 
         this.options = z$1.extend(true,{}, defaults, options);
-
-        if (this.options.debug) {
-            Logger.debug = true;
-        }
-
-        mod.setLang(this.options.lang);
-
-        // Logger.log(this.options);
-
-        return true;
-    };
-
-    Widget.prototype.init = function init () {
 
         if (!HtmlUtils.checkContainer(this.options.container)) {
             return false;
@@ -2266,6 +2250,26 @@ var Widget = (function (EventBus$$1) {
 
         this.$container = z$1(this.options.container);
         this.$container.addClass('crt-feed');
+
+        // get inline options
+        var inlineOptions = [
+            'lang',
+            'debug'
+        ];
+        for (var i = 0, list = inlineOptions; i < list.length; i += 1) {
+            var option = list[i];
+
+            var val = this$1.$container.data('crt-'+option);
+            if (val) {
+                this$1.options[option] = val;
+            }
+        }
+
+        if (this.options.debug) {
+            Logger.debug = true;
+        }
+
+        mod.setLang(this.options.lang);
 
         this.createFeed();
         this.createFilter();
@@ -2350,9 +2354,11 @@ var Widget = (function (EventBus$$1) {
     };
 
     Widget.prototype.onFeedLoaded = function onFeedLoaded (ev, response) {
-        if (!response.account.plan.unbranded) {
-            this.$container.addClass('crt-feed-branded');
+        if (this.options.hidePoweredBy && response.account.plan.unbranded === 1) {
             //<a href="http://curator.io" target="_blank" class="crt-logo crt-tag">Powered by Curator.io</a>
+            this.$container.addClass('crt-feed-unbranded');
+        } else {
+            this.$container.addClass('crt-feed-branded');
         }
     };
 
@@ -2397,6 +2403,8 @@ var Widget = (function (EventBus$$1) {
             this.popupManager.destroy();
         }
         this.$container.removeClass('crt-feed');
+        this.$container.removeClass('crt-feed-unbranded');
+        this.$container.removeClass('crt-feed-branded');
     };
 
     return Widget;
@@ -2413,7 +2421,7 @@ var ConfigWidgetBase = {
     templateFilter:'filter',
     showPopupOnClick:true,
     lang:'en',
-    debug:true,
+    debug:false,
     filter: {
         showNetworks: false,
         networksLabel: 'Networks:',
@@ -2794,12 +2802,10 @@ var Waterfall = (function (Widget$$1) {
 
         Widget$$1.call (this);
 
-        this.setOptions (options,  ConfigWidgetWaterfall);
+        if (this.init (options,  ConfigWidgetWaterfall)) {
+            Logger.log("Waterfall->init with options:");
+            Logger.log(this.options);
 
-        Logger.log("Waterfall->init with options:");
-        Logger.log(this.options);
-
-        if (this.init (this)) {
             this.$scroll = z$1('<div class="crt-feed-scroll"></div>').appendTo(this.$container);
             this.$feed = z$1('<div class="crt-feed"></div>').appendTo(this.$scroll);
             this.$container.addClass('crt-feed-container');
@@ -2817,7 +2823,7 @@ var Waterfall = (function (Widget$$1) {
                 // no scroll - use javascript to trigger loading
             } else {
                 // default to more
-                this.$more = z$1('<div class="crt-feed-more"><a href="#"><span>'+this._t('Load more')+'</span></a></div>').appendTo(this.$scroll);
+                this.$more = z$1('<div class="crt-load-more"><a href="#"><span>'+this._t('Load more')+'</span></a></div>').appendTo(this.$scroll);
                 this.$more.find('a').on('click',function (ev) {
                     ev.preventDefault();
                     this$1.loadMorePosts();
@@ -2937,24 +2943,19 @@ var Grid = (function (Widget$$1) {
     function Grid  (options) {
         Widget$$1.call (this);
 
-        this.setOptions (options,  ConfigWidgetGrid);
-
-        Logger.log("Grid->init with options:");
-        Logger.log(this.options);
-
-        this.containerHeight=0;
         this.loading=false;
         this.feed=null;
         this.$container=null;
         this.$feed=null;
         this.posts=[];
         this.columnCount=0;
-
         this.rowsMax = 0;
         this.totalPostsLoaded=0;
         this.allLoaded=false;
 
-        if (this.init (this)) {
+        if (this.init (options,  ConfigWidgetGrid)) {
+            Logger.log("Grid->init with options:");
+            Logger.log(this.options);
 
             var tmpl = Templating.renderTemplate(this.options.templateFeed, {});
             this.$container.append(tmpl);
@@ -3450,17 +3451,13 @@ var Carousel = (function (Widget$$1) {
 
         options.postsPerPage = 30;
 
-        this.setOptions (options,  ConfigCarousel);
-
-        this.containerHeight=0;
         this.loading=false;
         this.posts=[];
         this.firstLoad=true;
 
-        Logger.log("Carousel->init with options:");
-        Logger.log(this.options);
-
-        if (this.init (this)) {
+        if (this.init (options,  ConfigCarousel)) {
+            Logger.log("Carousel->init with options:");
+            Logger.log(this.options);
 
             this.allLoaded = false;
 
@@ -3572,19 +3569,16 @@ var Panel = (function (Widget$$1) {
     function Panel  (options) {
         Widget$$1.call (this);
 
-        this.setOptions (options,  ConfigPanel);
-
-        Logger.log("Panel->init with options:");
-        Logger.log(this.options);
-
-        this.containerHeight=0;
         this.loading=false;
         this.feed=null;
         this.$container=null;
         this.$feed=null;
         this.posts=[];
 
-        if (this.init (this)) {
+        if (this.init (options,  ConfigPanel)) {
+            Logger.log("Panel->init with options:");
+            Logger.log(this.options);
+
             this.allLoaded = false;
 
             this.$feed = z$1('<div class="crt-feed"></div>').appendTo(this.$container);

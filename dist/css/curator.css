@@ -1,4 +1,16 @@
 @charset "UTF-8";
+
+@keyframes opacityWithDisplay {
+  0% {
+    display: none;
+    opacity: 0; }
+  1% {
+    display: block;
+    opacity: 0; }
+  100% {
+    display: block;
+    opacity: 1; } }
+
 .crt-clearfix, .crt-popup-wrapper .crt-popup .crt-popup-header, .crt-post-v1 .crt-post .crt-post-header, .crt-feed-container .crt-feed {
   zoom: 1; }
   .crt-clearfix:before, .crt-popup-wrapper .crt-popup .crt-popup-header:before, .crt-post-v1 .crt-post .crt-post-header:before, .crt-feed-container .crt-feed:before, .crt-clearfix:after, .crt-popup-wrapper .crt-popup .crt-popup-header:after, .crt-post-v1 .crt-post .crt-post-header:after, .crt-feed-container .crt-feed:after {
@@ -574,6 +586,21 @@ body.crt-popup-visible {
       bottom: auto;
       max-height: 300px; } }
 
+.crt-load-more {
+  padding: 4px;
+  text-align: center; }
+  .crt-load-more a {
+    margin: 0 auto;
+    background-color: #fff;
+    color: #2B2B2B;
+    display: inline-block;
+    text-align: center;
+    padding: 20px;
+    border-radius: 0;
+    text-decoration: none;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0px 2px 30px transparent; }
+
 .crt-filter {
   margin: 5px;
   padding: 5px;
@@ -1095,32 +1122,38 @@ body.crt-popup-visible {
 
 .crt-grid-post-v2 .crt-post-header,
 .crt-post-v2 .crt-post-header {
-  margin-top: 28px;
+  padding-top: 28px;
   color: #2B2B2B;
   position: relative;
   text-align: center; }
   .crt-grid-post-v2 .crt-post-header .crt-social-icon,
   .crt-post-v2 .crt-post-header .crt-social-icon {
-    display: block;
     margin-bottom: 12px; }
     .crt-grid-post-v2 .crt-post-header .crt-social-icon i,
     .crt-post-v2 .crt-post-header .crt-social-icon i {
-      display: inline-block;
-      font-size: 24px;
-      color: #2B2B2B;
-      line-height: 1em; }
+      font-size: 24px; }
       .crt-grid-post-v2 .crt-post-header .crt-social-icon i.crt-icon-twitter,
       .crt-post-v2 .crt-post-header .crt-social-icon i.crt-icon-twitter {
         font-size: 26px;
         margin-left: 6px; }
-  .crt-grid-post-v2 .crt-post-header .crt-post-fullname,
-  .crt-post-v2 .crt-post-header .crt-post-fullname {
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    display: block;
-    margin-bottom: 6px;
-    font-weight: bold; }
+
+.crt-grid-post-v2 .crt-social-icon,
+.crt-post-v2 .crt-social-icon {
+  display: block; }
+  .crt-grid-post-v2 .crt-social-icon i,
+  .crt-post-v2 .crt-social-icon i {
+    display: inline-block;
+    color: #2B2B2B;
+    line-height: 1em; }
+
+.crt-grid-post-v2 .crt-post-fullname,
+.crt-post-v2 .crt-post-fullname {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  display: block;
+  margin-bottom: 6px;
+  font-weight: bold; }
 
 .crt-date {
   margin-top: 0;
@@ -1214,8 +1247,8 @@ body.crt-popup-visible {
     .crt-grid-post-v2 .crt-grid-post-text .crt-social-icon,
     .crt-grid-post-v2 .crt-grid-post-image .crt-social-icon {
       position: absolute;
-      right: 17px;
-      bottom: 15px;
+      right: 10px;
+      bottom: 8px;
       z-index: 3;
       font-size: 24px;
       transition: opacity .2s linear; }
@@ -1339,7 +1372,8 @@ body.crt-popup-visible {
     background-color: #ffffff;
     z-index: 3;
     opacity: 0;
-    transition: opacity .4s linear; }
+    visibility: hidden;
+    transition: visibility 0s, opacity 0.3s linear; }
     .crt-grid-post-v2 .crt-post-hover .crt-post-content-text {
       padding-left: 17px;
       padding-right: 17px;
@@ -1362,7 +1396,7 @@ body.crt-popup-visible {
   .crt-grid-post-v2 .crt-hitarea:hover .crt-social-icon-normal {
     opacity: 0; }
   .crt-grid-post-v2 .crt-hitarea:hover .crt-post-hover {
-    display: block;
+    visibility: visible;
     opacity: 1; }
   .crt-grid-post-v2.crt-post-has-image .crt-post-content-text-c {
     display: none; }
@@ -1385,20 +1419,6 @@ body.crt-popup-visible {
     margin: 0 12px 24px;
     width: auto;
     float: none; }
-  .crt-feed-container .crt-feed-more {
-    padding: 4px; }
-    .crt-feed-container .crt-feed-more a {
-      width: 150px;
-      margin: 0 auto;
-      background-color: #fff;
-      color: #2B2B2B;
-      display: block;
-      text-align: center;
-      padding: 20px;
-      border-radius: 0;
-      text-decoration: none;
-      border: 1px solid rgba(0, 0, 0, 0.1);
-      box-shadow: 0px 2px 30px transparent; }
 
 .crt-carousel {
   min-height: 400px;
