@@ -35,8 +35,8 @@
 
         .crt-social-icon {
             position: absolute;
-            right: 17px;
-            bottom: 15px;
+            right: 10px;
+            bottom: 8px;
             z-index: 3;
             font-size: 24px;
             transition: opacity .2s linear;
@@ -195,7 +195,8 @@
         background-color: #ffffff;
         z-index: 3;
         opacity: 0;
-        transition: opacity .4s linear;
+        visibility: hidden;
+        transition: visibility 0s, opacity 0.3s linear;
 
         .crt-post-content-text {
             padding-left: 17px;
@@ -235,7 +236,7 @@
 
         }
         .crt-post-hover {
-            display: block;
+            visibility: visible;
             opacity: 1;
         }
     }

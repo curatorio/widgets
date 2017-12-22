@@ -10,7 +10,7 @@ let ConfigWidgetBase = {
     templateFilter:'filter',
     showPopupOnClick:true,
     lang:'en',
-    debug:true,
+    debug:false,
     filter: {
         showNetworks: false,
         networksLabel: 'Networks:',

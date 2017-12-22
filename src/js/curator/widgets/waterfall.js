@@ -11,12 +11,10 @@ class Waterfall extends Widget {
     constructor (options) {
         super ();
 
-        this.setOptions (options,  ConfigWidgetWaterfall);
+        if (this.init (options,  ConfigWidgetWaterfall)) {
+            Logger.log("Waterfall->init with options:");
+            Logger.log(this.options);
 
-        Logger.log("Waterfall->init with options:");
-        Logger.log(this.options);
-
-        if (this.init (this)) {
             this.$scroll = z('<div class="crt-feed-scroll"></div>').appendTo(this.$container);
             this.$feed = z('<div class="crt-feed"></div>').appendTo(this.$scroll);
             this.$container.addClass('crt-feed-container');
@@ -34,7 +32,7 @@ class Waterfall extends Widget {
                 // no scroll - use javascript to trigger loading
             } else {
                 // default to more
-                this.$more = z('<div class="crt-feed-more"><a href="#"><span>'+this._t('Load more')+'</span></a></div>').appendTo(this.$scroll);
+                this.$more = z('<div class="crt-load-more"><a href="#"><span>'+this._t('Load more')+'</span></a></div>').appendTo(this.$scroll);
                 this.$more.find('a').on('click',(ev) => {
                     ev.preventDefault();
                     this.loadMorePosts();

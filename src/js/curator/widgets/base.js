@@ -21,22 +21,9 @@ class Widget extends EventBus {
         this.id = CommonUtils.uId ();
     }
 
-    setOptions (options, defaults) {
+    init (options, defaults) {
 
         this.options = z.extend(true,{}, defaults, options);
-
-        if (this.options.debug) {
-            Logger.debug = true;
-        }
-
-        translate.setLang(this.options.lang);
-
-        // Logger.log(this.options);
-
-        return true;
-    }
-
-    init () {
 
         if (!HtmlUtils.checkContainer(this.options.container)) {
             return false;
@@ -44,6 +31,24 @@ class Widget extends EventBus {
 
         this.$container = z(this.options.container);
         this.$container.addClass('crt-feed');
+
+        // get inline options
+        let inlineOptions = [
+            'lang',
+            'debug'
+        ];
+        for (let option of inlineOptions) {
+            let val = this.$container.data('crt-'+option);
+            if (val) {
+                this.options[option] = val;
+            }
+        }
+
+        if (this.options.debug) {
+            Logger.debug = true;
+        }
+
+        translate.setLang(this.options.lang);
 
         this.createFeed();
         this.createFilter();
@@ -128,9 +133,11 @@ class Widget extends EventBus {
     }
 
     onFeedLoaded (ev, response) {
-        if (!response.account.plan.unbranded) {
-            this.$container.addClass('crt-feed-branded');
+        if (this.options.hidePoweredBy && response.account.plan.unbranded === 1) {
             //<a href="http://curator.io" target="_blank" class="crt-logo crt-tag">Powered by Curator.io</a>
+            this.$container.addClass('crt-feed-unbranded');
+        } else {
+            this.$container.addClass('crt-feed-branded');
         }
     }
 
@@ -175,6 +182,8 @@ class Widget extends EventBus {
             this.popupManager.destroy();
         }
         this.$container.removeClass('crt-feed');
+        this.$container.removeClass('crt-feed-unbranded');
+        this.$container.removeClass('crt-feed-branded');
     }
 }
 

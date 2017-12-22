@@ -3,19 +3,15 @@
 .crt-grid-post-v2,
 .crt-post-v2 {
 	.crt-post-header {
-		margin-top: 28px;
+		padding-top: 28px;
 		color: $color-post-header-text;
 		position: relative;
 		text-align: center;
 
 		.crt-social-icon {
-			display: block;
 			margin-bottom: 12px;
 			i {
-				display: inline-block;
 				font-size: 24px;
-				color: $color-post-icon-text;
-				line-height: 1em;
 
 				&.crt-icon-twitter {
 					font-size: 26px;
@@ -23,14 +19,23 @@
 				}
 			}
 		}
+	}
 
-		.crt-post-fullname {
-			overflow: hidden;
-			white-space: nowrap;
-			text-overflow: ellipsis;
-			display: block;
-			margin-bottom: 6px;
-			font-weight: bold;
+	.crt-social-icon {
+		display: block;
+		i {
+			display: inline-block;
+			color: $color-post-icon-text;
+			line-height: 1em;
 		}
+	}
+
+	.crt-post-fullname {
+		overflow: hidden;
+		white-space: nowrap;
+		text-overflow: ellipsis;
+		display: block;
+		margin-bottom: 6px;
+		font-weight: bold;
 	}
 }

@@ -1,6 +1,9 @@
 import libTranslate from "../../libraries/translate";
 import translations from "./translations";
 
+
+// console.log(translations);
+
 let _cache = {};
 let currentLang = 'en';
 
@@ -20,6 +23,11 @@ const mod = {
                 _cache[lang] = libTranslate.getTranslationFunction(translations.en);
             }
         }
+
+        key = key.toLowerCase();
+        key = key.replace(' ','-');
+
+        // console.log(key);
 
         return _cache[lang](key, n);
     }

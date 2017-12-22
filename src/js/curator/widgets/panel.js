@@ -23,19 +23,16 @@ class Panel extends Widget {
     constructor  (options) {
         super ();
 
-        this.setOptions (options,  ConfigPanel);
-
-        Logger.log("Panel->init with options:");
-        Logger.log(this.options);
-
-        this.containerHeight=0;
         this.loading=false;
         this.feed=null;
         this.$container=null;
         this.$feed=null;
         this.posts=[];
 
-        if (this.init (this)) {
+        if (this.init (options,  ConfigPanel)) {
+            Logger.log("Panel->init with options:");
+            Logger.log(this.options);
+
             this.allLoaded = false;
 
             this.$feed = z('<div class="crt-feed"></div>').appendTo(this.$container);

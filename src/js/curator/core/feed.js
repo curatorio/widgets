@@ -112,6 +112,8 @@ class Feed extends EventBus {
 
         this.loading = true;
 
+        params.rnd = (new Date ()).getTime();
+
         ajax.get(
             this.getUrl('/posts'),
             params,

@@ -40,6 +40,7 @@ $color-v2-post-shadow:           rgba(0,0,0,0);
 
 $color-v1-post-background:       #efefef;
 
+@import "_common/transitions";
 @import "_common/mixins";
 @import "_vendor/fontello/css/crt-icon";
 
@@ -47,7 +48,10 @@ $color-v1-post-background:       #efefef;
 @import "_common/general";
 
 @import "_ui/feed";
+
 @import "_ui/general/popup";
+@import "_ui/general/load-more";
+
 @import "_ui/play";
 @import "_ui/filter";
 @import "_ui/responsive-image";

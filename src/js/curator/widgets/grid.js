@@ -10,24 +10,19 @@ class Grid extends Widget {
     constructor  (options) {
         super ();
 
-        this.setOptions (options,  ConfigWidgetGrid);
-
-        Logger.log("Grid->init with options:");
-        Logger.log(this.options);
-
-        this.containerHeight=0;
         this.loading=false;
         this.feed=null;
         this.$container=null;
         this.$feed=null;
         this.posts=[];
         this.columnCount=0;
-
         this.rowsMax = 0;
         this.totalPostsLoaded=0;
         this.allLoaded=false;
 
-        if (this.init (this)) {
+        if (this.init (options,  ConfigWidgetGrid)) {
+            Logger.log("Grid->init with options:");
+            Logger.log(this.options);
 
             let tmpl = TemplatingUtils.renderTemplate(this.options.templateFeed, {});
             this.$container.append(tmpl);

@@ -23,17 +23,13 @@ class Carousel extends Widget {
 
         options.postsPerPage = 30;
 
-        this.setOptions (options,  ConfigCarousel);
-
-        this.containerHeight=0;
         this.loading=false;
         this.posts=[];
         this.firstLoad=true;
 
-        Logger.log("Carousel->init with options:");
-        Logger.log(this.options);
-
-        if (this.init (this)) {
+        if (this.init (options,  ConfigCarousel)) {
+            Logger.log("Carousel->init with options:");
+            Logger.log(this.options);
 
             this.allLoaded = false;
 
