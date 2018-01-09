@@ -1,7 +1,7 @@
 
 import DateUtils from "../utils/date";
 import StringUtils from "../utils/string";
-import _t from "../core/translate";
+import translate from "./translate";
 
 let helpers = {
     networkIcon () {
@@ -77,8 +77,8 @@ let helpers = {
         return DateUtils.prettyDate (time);
     },
 
-    _t (s) {
-        return _t (s);
+    _t (s, n) {
+        return translate.t (s, n);
     }
 };
 

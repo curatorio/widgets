@@ -295,6 +295,10 @@ body {
             }
         }
 
+        .crt-popup-read-more {
+            display: none;
+        }
+
         .crt-popup-footer {
             @include crt-clearfix;
             border-top: 1px solid $color-popup-borders;

@@ -26,15 +26,18 @@ class Post extends EventBus {
         this.json = postJson;
         this.$el = Templating.renderTemplate(templateId, postJson);
 
+        this.$postC = this.$el.find('.crt-post-c');
+        this.$image = this.$el.find('.crt-post-image');
+        this.$imageContainer = this.$el.find('.crt-image-c');
+
         this.$el.find('.crt-share-facebook').click(this.onShareFacebookClick.bind(this));
         this.$el.find('.crt-share-twitter').click(this.onShareTwitterClick.bind(this));
         // this.$el.find('.crt-hitarea').click(this.onPostClick.bind(this));
         this.$el.find('.crt-post-read-more-button').click(this.onReadMoreClick.bind(this));
         // this.$el.on('click','.crt-post-text-body a',this.onLinkClick.bind(this));
-        this.$el.click(this.onPostClick.bind(this));
-        this.$postC = this.$el.find('.crt-post-c');
-        this.$image = this.$el.find('.crt-post-image');
-        this.$imageContainer = this.$el.find('.crt-image-c');
+
+        this.$postC.click(this.onPostClick.bind(this));
+
         this.$image.css({opacity:0});
 
         if (this.json.image) {

@@ -589,44 +589,7 @@ var v1PopupWrapperTemplate = ' \
     </div> \
 </div>';
 
-var v1PopupTemplate = ' \
-<div class="crt-popup"> \
-    <a href="#" class="crt-close crt-icon-cancel"></a> \
-    <a href="#" class="crt-next crt-icon-right-open"></a> \
-    <a href="#" class="crt-previous crt-icon-left-open"></a> \
-    <div class="crt-popup-left">  \
-        <div class="crt-video"> \
-            <div class="crt-video-container">\
-                <video preload="none">\
-                <source src="<%=video%>" type="video/mp4">\
-                </video>\
-                <img src="<%=image%>" />\
-                <a href="javascript:;" class="crt-play"><i class="crt-play-icon"></i></a> \
-            </div> \
-        </div> \
-        <div class="crt-image"> \
-            <img src="<%=image%>" /> \
-        </div> \
-        <div class="crt-pagination"><ul></ul></div>\
-    </div> \
-    <div class="crt-popup-right"> \
-        <div class="crt-popup-header"> \
-            <span class="crt-social-icon"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \
-            <img src="<%=user_image%>"  /> \
-            <div class="crt-post-name"><span><%=user_full_name%></span><br/><a href="<%=this.userUrl()%>" target="_blank">@<%=user_screen_name%></a></div> \
-        </div> \
-        <div class="crt-popup-text <%=this.contentTextClasses()%>"> \
-            <div class="crt-popup-text-container"> \
-                <p class="crt-date"><%=this.prettyDate(source_created_at)%></p> \
-                <div class="crt-popup-text-body"><%=this.parseText(text)%></div> \
-            </div> \
-        </div> \
-        <div class="crt-popup-footer">\
-            <div class="crt-popup-stats"><span><%=likes%></span> <%= likes==1?"LIKE":"LIKES" %> <i class="sep"></i> <span><%=comments%></span> <%= comments==1?"COMMENT":"COMMENTS" %></div> \
-            <div class="crt-post-share"><span class="ctr-share-hint"></span><a href="#" class="crt-share-facebook"><i class="crt-icon-facebook"></i></a>  <a href="#" class="crt-share-twitter"><i class="crt-icon-twitter"></i></a></div>\
-        </div> \
-    </div> \
-</div>';
+var v1PopupTemplate = " \n<div class=\"crt-popup\"> \n    <a href=\"#\" class=\"crt-close crt-icon-cancel\"></a> \n    <a href=\"#\" class=\"crt-next crt-icon-right-open\"></a> \n    <a href=\"#\" class=\"crt-previous crt-icon-left-open\"></a> \n    <div class=\"crt-popup-left\">  \n        <div class=\"crt-video\"> \n            <div class=\"crt-video-container\">\n                <video preload=\"none\">\n                <source src=\"<%=video%>\" type=\"video/mp4\">\n                </video>\n                <img src=\"<%=image%>\" />\n                <a href=\"javascript:;\" class=\"crt-play\"><i class=\"crt-play-icon\"></i></a> \n            </div> \n        </div> \n        <div class=\"crt-image\"> \n            <img src=\"<%=image%>\" /> \n        </div> \n        <div class=\"crt-pagination\"><ul></ul></div>\n    </div> \n    <div class=\"crt-popup-right\"> \n        <div class=\"crt-popup-header\"> \n            <span class=\"crt-social-icon\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n            <img src=\"<%=user_image%>\"  /> \n            <div class=\"crt-post-name\"><span><%=user_full_name%></span><br/><a href=\"<%=this.userUrl()%>\" target=\"_blank\">@<%=user_screen_name%></a></div> \n        </div> \n        <div class=\"crt-popup-text <%=this.contentTextClasses()%>\"> \n            <div class=\"crt-popup-text-container\"> \n                <p class=\"crt-date\"><%=this.prettyDate(source_created_at)%></p> \n                <div class=\"crt-popup-text-body\"><%=this.parseText(text)%></div> \n            </div> \n        </div> \n        <div class=\"crt-popup-read-more\">\n            <a href=\"#\" class=\"crt-post-read-more-button\"><%=this._t(\"read-more\")%></a> \n        </div>\n        <div class=\"crt-popup-footer\">\n            <div class=\"crt-popup-stats\"><span><%=likes%></span> <%=this._t(\"likes\", likes)%> <i class=\"sep\"></i> <span><%=comments%></span> <%=this._t(\"comments\", comments)%></div> \n            <div class=\"crt-post-share\"><span class=\"ctr-share-hint\"></span><a href=\"#\" class=\"crt-share-facebook\"><i class=\"crt-icon-facebook\"></i></a>  <a href=\"#\" class=\"crt-share-twitter\"><i class=\"crt-icon-twitter\"></i></a></div>\n        </div> \n    </div> \n</div>";
 
 var v1FilterTemplate = '<div class="crt-filter"> \
 <div class="crt-filter-networks">\
@@ -695,73 +658,9 @@ var v1PostTemplate = ' \
     </div>\
 </div>';
 
-var v2PostTemplate = ' \
-<div class="crt-post-v2 crt-post crt-post-<%=this.networkIcon()%> <%=this.contentTextClasses()%>  <%=this.contentImageClasses()%>" data-post="<%=id%>"> \
-    <div class="crt-post-border">\
-        <div class="crt-post-c">\
-            <div class="crt-post-content">\
-                <div class="crt-image crt-hitarea crt-post-content-image" > \
-                    <div class="crt-image-c"><img src="<%=image%>" class="crt-post-image" /></div> \
-                    <span class="crt-play"><i class="crt-play-icon"></i></span> \
-                    <div class="crt-image-carousel"><i class="crt-icon-image-carousel"></i></div> \
-                </div> \
-                <div class="crt-post-header"> \
-                    <span class="crt-social-icon"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \
-                    <div class="crt-post-fullname"><a href="<%=this.userUrl()%>" target="_blank"><%=user_full_name%></a></div>\
-                </div> \
-                <div class="text crt-post-content-text"> \
-                    <%=this.parseText(text)%> \
-                </div> \
-                <div class="crt-post-read-more"><a href="#" class="crt-post-read-more-button">Read more</a> </div> \
-            </div> \
-            <div class="crt-post-footer">\
-                <img class="crt-post-userimage" src="<%=user_image%>" /> \
-                <span class="crt-post-username"><a href="<%=this.userUrl()%>" target="_blank">@<%=user_screen_name%></a></span>\
-                <span class="crt-date"><%=this.prettyDate(source_created_at)%></span> \
-                <div class="crt-post-share"><span class="ctr-share-hint"></span><a href="#" class="crt-share-facebook"><i class="crt-icon-facebook"></i></a>  <a href="#" class="crt-share-twitter"><i class="crt-icon-twitter"></i></a></div>\
-            </div> \
-        </div> \
-    </div> \
-</div>';
+var v2PostTemplate = " \n<div class=\"crt-post-v2 crt-post crt-post-<%=this.networkIcon()%> <%=this.contentTextClasses()%>  <%=this.contentImageClasses()%>\" data-post=\"<%=id%>\"> \n    <div class=\"crt-post-border\">\n        <div class=\"crt-post-c\">\n            <div class=\"crt-post-content\">\n                <div class=\"crt-image crt-hitarea crt-post-content-image\" > \n                    <div class=\"crt-image-c\"><img src=\"<%=image%>\" class=\"crt-post-image\" /></div> \n                    <span class=\"crt-play\"><i class=\"crt-play-icon\"></i></span> \n                    <div class=\"crt-image-carousel\"><i class=\"crt-icon-image-carousel\"></i></div> \n                </div> \n                <div class=\"crt-post-header\"> \n                    <span class=\"crt-social-icon\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                    <div class=\"crt-post-fullname\"><a href=\"<%=this.userUrl()%>\" target=\"_blank\"><%=user_full_name%></a></div>\n                </div> \n                <div class=\"text crt-post-content-text\"> \n                    <%=this.parseText(text)%> \n                </div> \n                <div class=\"crt-post-read-more\"><a href=\"#\" class=\"crt-post-read-more-button\"><%=this._t(\"read-more\")%></a> </div> \n            </div> \n            <div class=\"crt-post-footer\">\n                <img class=\"crt-post-userimage\" src=\"<%=user_image%>\" /> \n                <span class=\"crt-post-username\"><a href=\"<%=this.userUrl()%>\" target=\"_blank\">@<%=user_screen_name%></a></span>\n                <span class=\"crt-date\"><%=this.prettyDate(source_created_at)%></span> \n                <div class=\"crt-post-share\"><span class=\"ctr-share-hint\"></span><a href=\"#\" class=\"crt-share-facebook\"><i class=\"crt-icon-facebook\"></i></a>  <a href=\"#\" class=\"crt-share-twitter\"><i class=\"crt-icon-twitter\"></i></a></div>\n            </div> \n        </div> \n    </div> \n</div>";
 
-var v2GridPostTemplate = ' \
-<div class="crt-grid-post crt-grid-post-v2 crt-post-<%=id%> <%=this.contentImageClasses()%> <%=this.contentTextClasses()%>"> \
-    <div class="crt-post-c"> \
-        <div class="crt-post-content"> \
-            <div class="crt-hitarea" > \
-                <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="crt-spacer" /> \
-                <div class="crt-grid-post-image">\
-                    <div class="crt-post-content-image" style="background-image: url(<%=image%>);"> </div> \
-                    <a href="javascript:;" class="crt-play"><i class="crt-play-icon"></i></a> \
-                    <span class="crt-social-icon crt-social-icon-normal"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \
-                    <div class="crt-image-carousel"><i class="crt-icon-image-carousel"></i></div> \
-                </div>\
-                <div class="crt-grid-post-text">\
-                    <div class="crt-grid-post-text-wrap"> \
-                        <div><%=this.parseText(text)%></div> \
-                    </div> \
-                    <span class="crt-social-icon crt-social-icon-normal"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \
-                </div>\
-                <div class="crt-post-hover">\
-                    <div class="crt-post-header"> \
-                        <span class="crt-social-icon"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \
-                        <div class="crt-post-fullname"><a href="<%=this.userUrl()%>" target="_blank"><%=user_full_name%></a></div>\
-                    </div> \
-                    <div class="crt-post-content-text"> \
-                        <%=this.parseText(text)%> \
-                    </div> \
-                    <div class="crt-post-read-more"><a href="#" class="crt-post-read-more-button">Read more</a> </div> \
-                    <div class="crt-post-footer">\
-                        <img class="crt-post-userimage" src="<%=user_image%>" /> \
-                        <span class="crt-post-username"><a href="<%=this.userUrl()%>" target="_blank">@<%=user_screen_name%></a></span>\
-                        <span class="crt-date"><%=this.prettyDate(source_created_at)%></span> \
-                        <div class="crt-post-share"><span class="ctr-share-hint"></span><a href="#" class="crt-share-facebook"><i class="crt-icon-facebook"></i></a>  <a href="#" class="crt-share-twitter"><i class="crt-icon-twitter"></i></a></div>\
-                    </div> \
-                </div> \
-            </div> \
-        </div> \
-    </div>\
-</div>';
+var v2GridPostTemplate = "\n<div class=\"crt-grid-post crt-grid-post-v2 crt-post-<%=id%> <%=this.contentImageClasses()%> <%=this.contentTextClasses()%>\">     <div class=\"crt-post-c\"> \n        <div class=\"crt-post-content\"> \n            <div class=\"crt-hitarea\" > \n                <img src=\"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7\" class=\"crt-spacer\" /> \n                <div class=\"crt-grid-post-image\">\n                    <div class=\"crt-post-content-image\" style=\"background-image: url(<%=image%>);\"> </div> \n                    <a href=\"javascript:;\" class=\"crt-play\"><i class=\"crt-play-icon\"></i></a> \n                    <span class=\"crt-social-icon crt-social-icon-normal\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                    <div class=\"crt-image-carousel\"><i class=\"crt-icon-image-carousel\"></i></div> \n                </div>\n                <div class=\"crt-grid-post-text\">\n                    <div class=\"crt-grid-post-text-wrap\"> \n                        <div><%=this.parseText(text)%></div> \n                    </div> \n                    <span class=\"crt-social-icon crt-social-icon-normal\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                </div>\n                <div class=\"crt-post-hover\">\n                    <div class=\"crt-post-header\"> \n                        <span class=\"crt-social-icon\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                        <div class=\"crt-post-fullname\"><a href=\"<%=this.userUrl()%>\" target=\"_blank\"><%=user_full_name%></a></div>\n                    </div> \n                    <div class=\"crt-post-content-text\"> \n                        <%=this.parseText(text)%> \n                    </div> \n                    <div class=\"crt-post-read-more\"><a href=\"#\" class=\"crt-post-read-more-button\"><%=this._t(\"read-more\")%></a></div> \n                    <div class=\"crt-post-footer\">\n                        <img class=\"crt-post-userimage\" src=\"<%=user_image%>\" /> \n                        <span class=\"crt-post-username\"><a href=\"<%=this.userUrl()%>\" target=\"_blank\">@<%=user_screen_name%></a></span>\n                        <span class=\"crt-date\"><%=this.prettyDate(source_created_at)%></span> \n                        <div class=\"crt-post-share\"><span class=\"ctr-share-hint\"></span><a href=\"#\" class=\"crt-share-facebook\"><i class=\"crt-icon-facebook\"></i></a>  <a href=\"#\" class=\"crt-share-twitter\"><i class=\"crt-icon-twitter\"></i></a></div>\n                    </div> \n                </div> \n            </div> \n        </div> \n    </div>\n</div>";
 
 var v2GridFeedTemple = ' \
 <div class="crt-feed-window">\
@@ -901,6 +800,7 @@ var libTranslate = {
 };
 
 function _k (o, key, val) {
+    // console.log(key);
     var kPath = key.split('.');
     for (var i=0;i<kPath.length;i++) {
         var k = kPath[i];
@@ -915,10 +815,11 @@ function _k (o, key, val) {
     }
 }
 
-var landData = "\nid,en,de,it\nload-more,Load more,Mehr anzeigen,Di più\nminutes-ago.1,{n} minute ago,Vor einer Minute,Un minuto fa\nminutes-ago.n,{n} minutes ago,Vor {n} Minuten,{n} minuti fa\nhours-ago.1,{n} hour ago,Vor einer Stunde,Un'ora fa\nhours-ago.n,{n} hours ago,Vor {n} Stunden,{n} ore fa\ndays-ago.1,{n} day ago,Vor einem Tag,Un giorno fa\ndays-ago.n,{n} days ago,Vor {n} Tagen,{n} giorni fa\nweeks-ago.1,{n} week ago,Vor einer Woche,Una settimana fa\nweeks-ago.n,{n} weeks ago,Vor {n} Wochen,{n} settimane fa\nmonths-ago.1,{n} month ago,Vor einem Monat,Un mese fa\nmonths-ago.n,{n} months ago,Vor {n} Monaten,{n} mesi\nyesterday,Yesterday,Gestern,Leri\njust-now,Just now,Eben,Appena\nprevious,Previous,Zurück,Indietro\nnext,Next,Weiter,Più\n";
+var langsData = "\nid,en,de,it,nl,es\nload-more,Load more,Mehr anzeigen,Di più,Laad meer,Cargar más\nminutes.1,{n} minute ago,Vor einer Minute,Un minuto fa,{n} minuut geleden,Hace un minuto\nminutes.n,{n} minutes ago,Vor {n} Minuten,{n} minuti fa,{n} minuten geleden,Hace {n} minutos\nhours-ago.1,{n} hour ago,Vor einer Stunde,Un'ora fa,{n} uur geleden,Hace una hora\nhours-ago.n,{n} hours ago,Vor {n} Stunden,{n} ore fa,{n} uren geleden,Hace {n} horas\ndays-ago.1,{n} day ago,Vor einem Tag,Un giorno fa,{n} dag geleden,Hace un día\ndays-ago.n,{n} days ago,Vor {n} Tagen,{n} giorni fa,{n} dagen geleden,Hace {n} días\nweeks-ago.1,{n} week ago,Vor einer Woche,Una settimana fa,{n} week geleden,Hace una semana\nweeks-ago.n,{n} weeks ago,Vor {n} Wochen,{n} settimane fa,{n} weken geleden,Hace {n} semanas\nmonths-ago.1,{n} month ago,Vor einem Monat,Un mese fa,{n} maand geleden,Hace un mes\nmonths-ago.n,{n} months ago,Vor {n} Monaten,{n} mesi,{n} maanden geleden,Hace {n} meses\nyesterday,Yesterday,Gestern,Leri,Gisteren,Ayer\njust-now,Just now,Eben,Appena,Nu,Ahora\nprevious,Previous,Zurück,Indietro,Vorige,Anterior\nnext,Next,Weiter,Più,Volgende,Siguiente\ncomments,Comments,Kommentare,Commenti,Comments,Comentarios\nlikes,Likes,Gefällt mir,Mi piace,Likes,Me gusta\nread-more,Read more,Weiterlesen,Di più,Lees meer,Leer más\n";
+
 
 var langs = {};
-var langDataLines = landData.split('\n');
+var langDataLines = langsData.split('\n');
 
 // Remove unused lines
 for (var i = langDataLines.length-1 ; i>=0 ; i--) {
@@ -1184,8 +1085,8 @@ var helpers = {
         return DateUtils.prettyDate (time);
     },
 
-    _t: function _t$1 (s) {
-        return mod (s);
+    _t: function _t (s, n) {
+        return mod.t (s, n);
     }
 };
 
@@ -1286,15 +1187,18 @@ var Post = (function (EventBus$$1) {
         this.json = postJson;
         this.$el = Templating.renderTemplate(templateId, postJson);
 
+        this.$postC = this.$el.find('.crt-post-c');
+        this.$image = this.$el.find('.crt-post-image');
+        this.$imageContainer = this.$el.find('.crt-image-c');
+
         this.$el.find('.crt-share-facebook').click(this.onShareFacebookClick.bind(this));
         this.$el.find('.crt-share-twitter').click(this.onShareTwitterClick.bind(this));
         // this.$el.find('.crt-hitarea').click(this.onPostClick.bind(this));
         this.$el.find('.crt-post-read-more-button').click(this.onReadMoreClick.bind(this));
         // this.$el.on('click','.crt-post-text-body a',this.onLinkClick.bind(this));
-        this.$el.click(this.onPostClick.bind(this));
-        this.$postC = this.$el.find('.crt-post-c');
-        this.$image = this.$el.find('.crt-post-image');
-        this.$imageContainer = this.$el.find('.crt-image-c');
+
+        this.$postC.click(this.onPostClick.bind(this));
+
         this.$image.css({opacity:0});
 
         if (this.json.image) {
