@@ -10,6 +10,10 @@
 Sign up to [Curator.io](https://admin.curator.io/auth/register) to set up a social feed - it's free :)
 You'll need your unique `FEED_ID` to use the widgets.
 
+You can find the FEED_ID here:
+
+![Screenshot of Curator Admin showing FEED ID](https://admin.curator.io/assets/images/github-feed-id.jpg)
+
 ### CDN
 
 CDN hosted Curator.io Widgets are a great way to get up and running quickly:
@@ -81,9 +85,10 @@ var widget = new Curator.Widgets.Panel({
 
 ```js
 var widget = new Curator.Widgets.Watterfall({    
-    feedId:'ABC123',                 // FEED_ID to load
-    postsPerPage:12,                 // number of posts per page
+    feedId: 'ABC123',                // FEED_ID to load
+    postsPerPage: 12,                // number of posts per page
     debug: false,                    // turn debugging on or off
+    lang: 'en',                      // translation used - en, de, it, nl, es
     filter: {
         showNetworks: false,         // show Networks filter bar
         networksLabel: 'Networks:',  // Networks filter bar label
@@ -102,9 +107,9 @@ Each of the widgets can be passed a set of options to customise the widget
 var widget = new Curator.Widgets.Waterfall({
     // ...
     waterfall: {
-        gridWidth:250,    // sets the desired column width
-        animate:true,     // should the posts animate in?
-        animateSpeed:400  
+        gridWidth: 250,    // sets the desired column width
+        animate: true,     // should the posts animate in?
+        animateSpeed: 400  
     }
 });
 ```
@@ -114,10 +119,10 @@ var widget = new Curator.Widgets.Waterfall({
 var widget = new Curator.Widgets.Carousel({
     // ...
     carousel:{
-       autoPlay:true,    // carousel will auto rotate
-       autoLoad:true,    // carusel will auto load new when it reaches the end of the current page of posts
-       minWidth:250,     // the minimum width of the post, used when calculating responsive post width
-       infinite:false    // if the last post is reached should it rotate back to the start
+       autoPlay: true,    // carousel will auto rotate
+       autoLoad: true,    // carusel will auto load new when it reaches the end of the current page of posts
+       minWidth: 250,     // the minimum width of the post, used when calculating responsive post width
+       infinite: false    // if the last post is reached should it rotate back to the start
     }
 });
 ```
@@ -127,8 +132,8 @@ var widget = new Curator.Widgets.Carousel({
 var widget = new Curator.Widgets.Grid({
     // ...
     grid: {
-        minWidth:200,  // minimum width of a square in the grid
-        rows:3         // desired number of rows in the grid
+        minWidth: 200,  // minimum width of a square in the grid
+        rows: 3         // desired number of rows in the grid
     }
 });
 ```
@@ -138,10 +143,10 @@ var widget = new Curator.Widgets.Grid({
 var widget = new Curator.Widgets.Panel({
     // ...
     panel: {
-        autoPlay: true,    // carousel will auto rotate
-        autoLoad: true,    // carousel will auto load new when it reaches the end of the current page of posts
-        moveAmount:1,      // number of posts to move at a time
-        infinite:true      // if the last post is reached should it rotate back to the start
+        autoPlay: true,     // carousel will auto rotate
+        autoLoad: true,     // carousel will auto load new when it reaches the end of the current page of posts
+        moveAmount: 1,      // number of posts to move at a time
+        infinite: true      // if the last post is reached should it rotate back to the start
     }
 });
 ```
