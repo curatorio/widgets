@@ -1,9 +1,6 @@
 import libTranslate from "../../libraries/translate";
 import translations from "./translations";
 
-
-// console.log(translations);
-
 let _cache = {};
 let currentLang = 'en';
 
@@ -12,8 +9,8 @@ const mod = {
         currentLang = lang;
     },
 
-    t (key, n) {
-        let lang = currentLang;
+    t (key, n, lang) {
+        lang = lang || currentLang;
 
         if (!_cache[lang]) {
             if (translations[lang]) {

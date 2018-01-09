@@ -48,6 +48,7 @@ class Widget extends EventBus {
             Logger.debug = true;
         }
 
+        Logger.log ('Setting language to: '+this.options.lang);
         translate.setLang(this.options.lang);
 
         this.createFeed();

@@ -16,6 +16,7 @@ import Templating from "./curator/core/templating";
 import Logger from "./curator/core/logger";
 import Events from "./curator/core/events";
 import z from "./curator/core/lib";
+import translate from "./curator/core/translate";
 
 let loadWidget = function (config) {
     let ConstructorClass = Crt.Widgets[config.type];
@@ -27,6 +28,9 @@ let Crt = {
     loadWidget: loadWidget,
     loadCSS: () => {/* depreciated */},
     z: z,
+    _t (s, n, lang) {
+        return translate.t (s, n, lang);
+    },
 
     Templating: Templating,
     EventBus: EventBus,

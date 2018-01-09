@@ -815,7 +815,7 @@ function _k (o, key, val) {
     }
 }
 
-var langsData = "\nid,en,de,it,nl,es\nload-more,Load more,Mehr anzeigen,Di più,Laad meer,Cargar más\nminutes.1,{n} minute ago,Vor einer Minute,Un minuto fa,{n} minuut geleden,Hace un minuto\nminutes.n,{n} minutes ago,Vor {n} Minuten,{n} minuti fa,{n} minuten geleden,Hace {n} minutos\nhours-ago.1,{n} hour ago,Vor einer Stunde,Un'ora fa,{n} uur geleden,Hace una hora\nhours-ago.n,{n} hours ago,Vor {n} Stunden,{n} ore fa,{n} uren geleden,Hace {n} horas\ndays-ago.1,{n} day ago,Vor einem Tag,Un giorno fa,{n} dag geleden,Hace un día\ndays-ago.n,{n} days ago,Vor {n} Tagen,{n} giorni fa,{n} dagen geleden,Hace {n} días\nweeks-ago.1,{n} week ago,Vor einer Woche,Una settimana fa,{n} week geleden,Hace una semana\nweeks-ago.n,{n} weeks ago,Vor {n} Wochen,{n} settimane fa,{n} weken geleden,Hace {n} semanas\nmonths-ago.1,{n} month ago,Vor einem Monat,Un mese fa,{n} maand geleden,Hace un mes\nmonths-ago.n,{n} months ago,Vor {n} Monaten,{n} mesi,{n} maanden geleden,Hace {n} meses\nyesterday,Yesterday,Gestern,Leri,Gisteren,Ayer\njust-now,Just now,Eben,Appena,Nu,Ahora\nprevious,Previous,Zurück,Indietro,Vorige,Anterior\nnext,Next,Weiter,Più,Volgende,Siguiente\ncomments,Comments,Kommentare,Commenti,Comments,Comentarios\nlikes,Likes,Gefällt mir,Mi piace,Likes,Me gusta\nread-more,Read more,Weiterlesen,Di più,Lees meer,Leer más\n";
+var langsData = "\nid,en,de,it,nl,es\nload-more,Load more,Mehr anzeigen,Di più,Laad meer,Cargar más\nminutes-ago.1,{n} minute ago,Vor einer Minute,Un minuto fa,{n} minuut geleden,Hace un minuto\nminutes-ago.n,{n} minutes ago,Vor {n} Minuten,{n} minuti fa,{n} minuten geleden,Hace {n} minutos\nhours-ago.1,{n} hour ago,Vor einer Stunde,Un'ora fa,{n} uur geleden,Hace una hora\nhours-ago.n,{n} hours ago,Vor {n} Stunden,{n} ore fa,{n} uren geleden,Hace {n} horas\ndays-ago.1,{n} day ago,Vor einem Tag,Un giorno fa,{n} dag geleden,Hace un día\ndays-ago.n,{n} days ago,Vor {n} Tagen,{n} giorni fa,{n} dagen geleden,Hace {n} días\nweeks-ago.1,{n} week ago,Vor einer Woche,Una settimana fa,{n} week geleden,Hace una semana\nweeks-ago.n,{n} weeks ago,Vor {n} Wochen,{n} settimane fa,{n} weken geleden,Hace {n} semanas\nmonths-ago.1,{n} month ago,Vor einem Monat,Un mese fa,{n} maand geleden,Hace un mes\nmonths-ago.n,{n} months ago,Vor {n} Monaten,{n} mesi,{n} maanden geleden,Hace {n} meses\nyesterday,Yesterday,Gestern,Leri,Gisteren,Ayer\njust-now,Just now,Eben,Appena,Nu,Ahora\nprevious,Previous,Zurück,Indietro,Vorige,Anterior\nnext,Next,Weiter,Più,Volgende,Siguiente\ncomments,Comments,Kommentare,Commenti,Comments,Comentarios\nlikes,Likes,Gefällt mir,Mi piace,Likes,Me gusta\nread-more,Read more,Weiterlesen,Di più,Lees meer,Leer más\n";
 
 
 var langs = {};
@@ -836,8 +836,6 @@ for (var i$1=1;i$1<langDataLines.length;i$1++) {
     }
 }
 
-// console.log(translations);
-
 var _cache = {};
 var currentLang = 'en';
 
@@ -846,8 +844,8 @@ var mod = {
         currentLang = lang;
     },
 
-    t: function t (key, n) {
-        var lang = currentLang;
+    t: function t (key, n, lang) {
+        lang = lang || currentLang;
 
         if (!_cache[lang]) {
             if (langs[lang]) {
@@ -2173,6 +2171,7 @@ var Widget = (function (EventBus$$1) {
             Logger.debug = true;
         }
 
+        Logger.log ('Setting language to: '+this.options.lang);
         mod.setLang(this.options.lang);
 
         this.createFeed();
@@ -3586,6 +3585,9 @@ var Crt = {
     loadWidget: loadWidget,
     loadCSS: function () {/* depreciated */},
     z: z$1,
+    _t: function _t (s, n, lang) {
+        return mod.t (s, n, lang);
+    },
 
     Templating: Templating,
     EventBus: EventBus,

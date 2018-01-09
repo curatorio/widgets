@@ -19,8 +19,8 @@ function _k (o, key, val) {
 const langsData = `
 id,en,de,it,nl,es
 load-more,Load more,Mehr anzeigen,Di più,Laad meer,Cargar más
-minutes.1,{n} minute ago,Vor einer Minute,Un minuto fa,{n} minuut geleden,Hace un minuto
-minutes.n,{n} minutes ago,Vor {n} Minuten,{n} minuti fa,{n} minuten geleden,Hace {n} minutos
+minutes-ago.1,{n} minute ago,Vor einer Minute,Un minuto fa,{n} minuut geleden,Hace un minuto
+minutes-ago.n,{n} minutes ago,Vor {n} Minuten,{n} minuti fa,{n} minuten geleden,Hace {n} minutos
 hours-ago.1,{n} hour ago,Vor einer Stunde,Un'ora fa,{n} uur geleden,Hace una hora
 hours-ago.n,{n} hours ago,Vor {n} Stunden,{n} ore fa,{n} uren geleden,Hace {n} horas
 days-ago.1,{n} day ago,Vor einem Tag,Un giorno fa,{n} dag geleden,Hace un día
