@@ -19,7 +19,7 @@ class Waterfall extends Widget {
             this.$feed = z('<div class="crt-feed"></div>').appendTo(this.$scroll);
             this.$container.addClass('crt-feed-container');
 
-            if (this.options.scroll === 'continuous') {
+            if (this.options.continuousScroll) {
                 z(this.$scroll).scroll(() => {
                     let height = this.$scroll.height();
                     let cHeight = this.$feed.height();
@@ -28,12 +28,13 @@ class Waterfall extends Widget {
                         this.loadMorePosts();
                     }
                 });
-            } else if (this.options.scroll === 'none') {
-                // no scroll - use javascript to trigger loading
-            } else {
+            }
+
+            if (this.options.waterfall.showLoadMore) {
                 // default to more
-                this.$more = z('<div class="crt-load-more"><a href="#"><span>'+this._t('Load more')+'</span></a></div>').appendTo(this.$scroll);
-                this.$more.find('a').on('click',(ev) => {
+                this.$more = z('<div class="crt-load-more"><a href="#"><span>' + this._t('Load more') + '</span></a></div>')
+                    .appendTo(this.$scroll);
+                this.$more.find('a').on('click', (ev) => {
                     ev.preventDefault();
                     this.loadMorePosts();
                 });

@@ -13,6 +13,7 @@ import Grid from "./curator/widgets/grid";
 import Carousel from "./curator/widgets/carousel";
 import Panel from "./curator/widgets/panel";
 import Templating from "./curator/core/templating";
+import Templates from "./curator/templates/templates";
 import Logger from "./curator/core/logger";
 import Events from "./curator/core/events";
 import z from "./curator/core/lib";
@@ -32,6 +33,7 @@ let Crt = {
         return translate.t (s, n, lang);
     },
 
+    Templates: Templates,
     Templating: Templating,
     EventBus: EventBus,
     Events: Events,

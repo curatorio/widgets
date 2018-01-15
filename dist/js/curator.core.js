@@ -2336,6 +2336,8 @@ var ConfigWidgetBase = {
 
 var ConfigWidgetWaterfall = z$1.extend({}, ConfigWidgetBase, {
     waterfall: {
+        showLoadMore:true,
+        continuousScroll:false,
         gridWidth:300,
         animate:true,
         animateSpeed:400
@@ -2713,7 +2715,7 @@ var Waterfall = (function (Widget$$1) {
             this.$feed = z$1('<div class="crt-feed"></div>').appendTo(this.$scroll);
             this.$container.addClass('crt-feed-container');
 
-            if (this.options.scroll === 'continuous') {
+            if (this.options.continuousScroll) {
                 z$1(this.$scroll).scroll(function () {
                     var height = this$1.$scroll.height();
                     var cHeight = this$1.$feed.height();
@@ -2722,12 +2724,13 @@ var Waterfall = (function (Widget$$1) {
                         this$1.loadMorePosts();
                     }
                 });
-            } else if (this.options.scroll === 'none') {
-                // no scroll - use javascript to trigger loading
-            } else {
+            }
+
+            if (this.options.waterfall.showLoadMore) {
                 // default to more
-                this.$more = z$1('<div class="crt-load-more"><a href="#"><span>'+this._t('Load more')+'</span></a></div>').appendTo(this.$scroll);
-                this.$more.find('a').on('click',function (ev) {
+                this.$more = z$1('<div class="crt-load-more"><a href="#"><span>' + this._t('Load more') + '</span></a></div>')
+                    .appendTo(this.$scroll);
+                this.$more.find('a').on('click', function (ev) {
                     ev.preventDefault();
                     this$1.loadMorePosts();
                 });
@@ -3589,6 +3592,7 @@ var Crt = {
         return mod.t (s, n, lang);
     },
 
+    Templates: Templates,
     Templating: Templating,
     EventBus: EventBus,
     Events: Events,

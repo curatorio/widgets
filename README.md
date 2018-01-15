@@ -151,43 +151,55 @@ var widget = new Curator.Widgets.Panel({
 });
 ```
 
-#### Changing Post HTML
+### Changing Post HTML
 
-The HTML structure of a post can be modified by passing the widget a custom post template. The template uses a basic 
-templating language similar to Handlebars or EJS. 
+Curator uses a basic templating language similar to Handlebars or EJS to define the layout of the posts, popup and various other elements.
 
+You can override the templates using one of two methods: 
+ 
+ 
+##### Method 1 - Via HTML Templates
+
+You can override the templates by adding `<script type="text/html" id="TEMPLATE_ID">...</script>` tags do your HTML, 
+and passing TEMPLATE_ID when you create the widget using the option `templatePost`.  
+
+For example: 
+```html
+<!-- Template Code --->
+<script type="text/html" id="my-post-template">
+    <div class="crt-post-v2 crt-post crt-post-<%=this.networkIcon()%>" data-post="<%=id%>">
+        <div class="crt-post-c">
+            <%=this.parseText(text)%>
+        </div>
+    </div>
+</script>
+
+<!-- Javascript Code --->
+<script type="text/javascript">
+
+    // Change FEED_ID to your unique FEED_ID
+    var widget = new Curator.Widgets.Waterfall({
+        container:'#curator-feed',
+        feedId:FEED_ID,
+        templatePost:'my-post-template'
+    });
+</script>
+```
+
+##### Method 2 - Via Javascript
+
+Alternatively you can override the templates via Javascript.  
 
 For example: 
 ```html
 <script type="text/javascript">
 
-Curator.Templates['post-v2'] = '\
-<div class="crt-post-v2 crt-post crt-post-<%=this.networkIcon()%> <%=this.contentTextClasses()%>  <%=this.contentImageClasses()%>" data-post="<%=id%>"> \
-    <div class="crt-post-border">\
-        <div class="crt-post-c">\
-            <div class="crt-post-content">\
-                <div class="crt-image crt-hitarea crt-post-content-image" > \
-                    <div class="crt-image-c"><img src="<%=image%>" class="crt-post-image" /></div> \
-                    <span class="crt-play"><i class="crt-play-icon"></i></span> \
-                </div> \
-                <div class="crt-post-header"> \
-                    <span class="crt-social-icon"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \
-                    <div class="crt-post-fullname"><a href="<%=this.userUrl()%>" target="_blank"><%=user_full_name%></a></div>\
-                </div> \
-                <div class="text crt-post-content-text"> \
-                    <%=this.parseText(text)%> \
-                </div> \
-                <div class="crt-post-read-more"><a href="#" class="crt-post-read-more-button">Read more</a> </div> \
-            </div> \
-            <div class="crt-post-footer">\
-                <img class="crt-post-userimage" src="<%=user_image%>" /> \
-                <span class="crt-post-username"><a href="<%=this.userUrl()%>" target="_blank">@<%=user_screen_name%></a></span>\
-                <span class="crt-date"><%=this.prettyDate(source_created_at)%></span> \
-                <div class="crt-post-share"><span class="ctr-share-hint"></span><a href="#" class="crt-share-facebook"><i class="crt-icon-facebook"></i></a>  <a href="#" class="crt-share-twitter"><i class="crt-icon-twitter"></i></a></div>\
-            </div> \
+    Curator.Templates['post-v2'] = '\
+    <div class="crt-post-v2 crt-post crt-post-<%=this.networkIcon()%>" data-post="<%=id%>"> \
+        <div class="crt-post-c"> \
+            <%=this.parseText(text)%> \
         </div> \
-    </div> \
-</div>';
+    </div>';
 
     // Change FEED_ID to your unique FEED_ID
     var widget = new Curator.Widgets.Waterfall({
@@ -196,6 +208,8 @@ Curator.Templates['post-v2'] = '\
     });
 </script>
 ```
+
+##### Current Templates
 
 See the [templates directory](https://github.com/curatorio/widgets/blob/master/src/js/core/templates/) file for the HTML templates.
 
