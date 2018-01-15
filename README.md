@@ -165,7 +165,7 @@ and passing TEMPLATE_ID when you create the widget using the option `templatePos
 
 For example: 
 ```html
-<!-- Template Code --->
+<!-- Template Code -->
 <script type="text/html" id="my-post-template">
     <div class="crt-post-v2 crt-post crt-post-<%=this.networkIcon()%>" data-post="<%=id%>">
         <div class="crt-post-c">
@@ -174,7 +174,7 @@ For example:
     </div>
 </script>
 
-<!-- Javascript Code --->
+<!-- Javascript Code -->
 <script type="text/javascript">
 
     // Change FEED_ID to your unique FEED_ID
