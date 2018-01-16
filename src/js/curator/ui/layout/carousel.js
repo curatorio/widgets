@@ -34,6 +34,11 @@ class LayoutCarousel extends EventBus {
 
 		this.options = z.extend({}, LayoutCarouselSettings, options);
 
+		// Validate options
+        if (!this.options.minWidth || this.options.minWidth < 100) {
+            this.options.minWidth = LayoutCarouselSettings.minWidth;
+		}
+
 		this.$viewport = z(container); // <div> slider, known as $viewport
 
 		this.$panes = this.$viewport.children();
