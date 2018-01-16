@@ -211,7 +211,7 @@ For example:
 
 ##### Current Templates
 
-See the [templates directory](https://github.com/curatorio/widgets/blob/master/src/js/core/templates/) file for the HTML templates.
+See the [templates directory](https://github.com/curatorio/widgets/blob/master/src/js/curator/templates/templates.js) file for the HTML templates.
 
 Following templates are predefined:
  - `Curator.Templates['post-v2']`

@@ -133,7 +133,9 @@ gulp.task('scripts:prod', ['scripts'], () =>  {
         // .pipe(jshint.reporter('default'))
         .pipe(gulp.dest(destJs))
         .pipe(rename({suffix: '.min'}))
-        .pipe(uglify())
+        .pipe(uglify({
+            mangle:false
+        }))
         .pipe(gulp.dest(destJs))
         .pipe(notify({ message: 'Scripts & Minify task complete' }));
 });

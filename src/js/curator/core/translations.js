@@ -29,7 +29,7 @@ weeks-ago.1,{n} week ago,Vor einer Woche,Una settimana fa,{n} week geleden,Hace 
 weeks-ago.n,{n} weeks ago,Vor {n} Wochen,{n} settimane fa,{n} weken geleden,Hace {n} semanas
 months-ago.1,{n} month ago,Vor einem Monat,Un mese fa,{n} maand geleden,Hace un mes
 months-ago.n,{n} months ago,Vor {n} Monaten,{n} mesi,{n} maanden geleden,Hace {n} meses
-yesterday,Yesterday,Gestern,Leri,Gisteren,Ayer
+yesterday,Yesterday,Gestern,Ieri,Gisteren,Ayer
 just-now,Just now,Eben,Appena,Nu,Ahora
 previous,Previous,Zurück,Indietro,Vorige,Anterior
 next,Next,Weiter,Più,Volgende,Siguiente
