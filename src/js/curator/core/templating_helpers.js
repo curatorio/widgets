@@ -1,7 +1,7 @@
 
-import DateUtils from "../utils/date";
-import StringUtils from "../utils/string";
-import translate from "./translate";
+import DateUtils from '/curator/utils/date';
+import StringUtils from '/curator/utils/string';
+import translate from './translate';
 
 let helpers = {
     networkIcon () {

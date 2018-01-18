@@ -23,8 +23,8 @@
 
 @font-face {
   font-family: 'crt-icon';
-  src: url("../fonts/crt-icon.eot?81720789");
-  src: url("../fonts/crt-icon.eot?81720789#iefix") format("embedded-opentype"), url("../fonts/crt-icon.woff2?81720789") format("woff2"), url("../fonts/crt-icon.woff?81720789") format("woff"), url("../fonts/crt-icon.ttf?81720789") format("truetype"), url("../fonts/crt-icon.svg?81720789#crt-icon") format("svg");
+  src: url("../fonts/crt-icon.eot?79570543");
+  src: url("../fonts/crt-icon.eot?79570543#iefix") format("embedded-opentype"), url("../fonts/crt-icon.woff2?79570543") format("woff2"), url("../fonts/crt-icon.woff?79570543") format("woff"), url("../fonts/crt-icon.ttf?79570543") format("truetype"), url("../fonts/crt-icon.svg?79570543#crt-icon") format("svg");
   font-weight: normal;
   font-style: normal; }
 
@@ -34,7 +34,7 @@
 @media screen and (-webkit-min-device-pixel-ratio:0) {
   @font-face {
     font-family: 'crt-icon';
-    src: url('../fonts/crt-icon.svg?81720789#crt-icon') format('svg');
+    src: url('../fonts/crt-icon.svg?79570543#crt-icon') format('svg');
   }
 }
 */
@@ -97,6 +97,14 @@
   content: '\e807'; }
 
 /* '' */
+.crt-icon-heart-1:before, .crt-icon-heart:before {
+  content: '\e808'; }
+
+/* '' */
+.crt-icon-comment-alt:before, .crt-icon-comment:before {
+  content: '\e80a'; }
+
+/* '' */
 .crt-icon-spin1:before {
   content: '\e830'; }
 
@@ -1402,6 +1410,24 @@ body.crt-popup-visible {
     opacity: 1; }
   .crt-grid-post-v2.crt-post-has-image .crt-post-content-text-c {
     display: none; }
+  .crt-grid-post-v2.crt-grid-post-minimal .crt-post-hover {
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-align: center;
+        align-items: center; }
+    .crt-grid-post-v2.crt-grid-post-minimal .crt-post-hover > div {
+      width: 100%; }
+    .crt-grid-post-v2.crt-grid-post-minimal .crt-post-hover .crt-post-header {
+      padding-top: 0; }
+  .crt-grid-post-v2.crt-grid-post-minimal .crt-post-minimal-stats {
+    text-align: center; }
+    .crt-grid-post-v2.crt-grid-post-minimal .crt-post-minimal-stats .crt-likes {
+      margin-right: 15px; }
+      .crt-grid-post-v2.crt-grid-post-minimal .crt-post-minimal-stats .crt-likes i {
+        margin-right: 2px; }
+    .crt-grid-post-v2.crt-grid-post-minimal .crt-post-minimal-stats .crt-comments i {
+      margin-right: 5px;
+      font-size: 0.90em; }
 
 .crt-feed-container {
   min-height: 400px;

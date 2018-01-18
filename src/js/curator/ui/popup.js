@@ -1,10 +1,10 @@
 
-import Logger from "../core/logger";
-import SocialFacebook from "../social/facebook";
-import SocialTwitter from "../social/twitter";
-import StringUtils from "../utils/string";
-import TemplatingUtils from "../core/templating";
-import z from "../core/lib";
+import Logger from '/curator/core/logger';
+import SocialFacebook from '/curator/social/facebook';
+import SocialTwitter from '/curator/social/twitter';
+import StringUtils from '/curator/utils/string';
+import TemplatingUtils from '/curator/core/templating';
+import z from '/curator/core/lib';
 
 /**
  * ==================================================================

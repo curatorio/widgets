@@ -1,9 +1,9 @@
-import Widget from "./base";
-import Logger from "../core/logger";
-import CommonUtils from "../utils/common";
-import ConfigWidgetGrid from "../config/widget_grid";
-import TemplatingUtils from "../core/templating";
-import z from "../core/lib";
+import Widget from './base';
+import Logger from '/curator/core/logger';
+import CommonUtils from '/curator/utils/common';
+import ConfigWidgetGrid from '/curator/config/widget_grid';
+import TemplatingUtils from '/curator/core/templating';
+import z from '/curator/core/lib';
 
 class Grid extends Widget {
 
@@ -41,12 +41,55 @@ class Grid extends Widget {
                 this.$loadMore.hide();
             }
 
+            if (!this.options.grid.hover.showName) {
+                this.$container.addClass('crt-grid-hide-name');
+            }
+
+            if (!this.options.grid.hover.showFooter) {
+                this.$container.addClass('crt-grid-hide-footer');
+            }
+
+            if (!this.options.grid.hover.showText) {
+                this.$container.addClass('crt-grid-hide-text');
+            }
+
             this.createHandlers();
 
             // This triggers post loading
             this.rowsMax = this.options.grid.rows;
             this.updateLayout ();
         }
+    }
+
+    createHandlers () {
+        let id = this.id;
+        let updateLayoutDebounced = CommonUtils.debounce( () => {
+            this.updateLayout ();
+        }, 100);
+
+        z(window).on('resize.'+id, updateLayoutDebounced);
+
+        z(window).on('curatorCssLoaded.'+id, updateLayoutDebounced);
+
+        z(document).on('ready.'+id, updateLayoutDebounced);
+
+        if (this.options.grid.continuousScroll) {
+            z(window).on('scroll.'+id, CommonUtils.debounce(() => {
+                this.checkScroll();
+            }, 100));
+        }
+    }
+
+    destroyHandlers () {
+        let id = this.id;
+
+        z(window).off('resize.'+id);
+
+        z(window).off('curatorCssLoaded.'+id);
+
+        z(document).off('ready.'+id);
+
+        z(window).off('scroll.'+id);
     }
 
     loadPosts () {
@@ -93,10 +136,19 @@ class Grid extends Widget {
         let maxRows = Math.ceil(this.feed.postCount / this.columnCount);
         let rows = this.rowsMax < maxRows ? this.rowsMax : maxRows;
 
-        if (animate) {
-            this.$feedWindow.animate({height:rows * postHeight});
-        } else {
-            this.$feedWindow.height(rows * postHeight);
+        // if (animate) {
+        //     this.$feedWindow.animate({height:rows * postHeight});
+        // } else {
+        let scrollTopOrig = z('html,body').scrollTop();
+        this.$feedWindow.height(rows * postHeight);
+        // }
+        let scrollTopNew = z('html,body').scrollTop();
+        // console.log(scrollTop1+":"+scrollTop2);
+
+        if (scrollTopNew > scrollTopOrig+100) {
+            // chrome seems to lock scroll position relative to bottom - so scrollTop changes when we adjust height
+            // - let's reset
+            z(window).scrollTop(scrollTopOrig);
         }
 
         if (this.options.grid.showLoadMore) {
@@ -108,27 +160,27 @@ class Grid extends Widget {
         }
     }
 
-    createHandlers () {
-        let id = this.id;
-        let updateLayoutDebounced = CommonUtils.debounce( () => {
-            this.updateLayout ();
-        }, 100);
+    checkScroll () {
+        Logger.log("Grid->checkScroll");
+        // console.log('scroll');
+        let feedBottom = this.$container.position().top+this.$container.height();
+        let scrollTop = z('html,body').scrollTop();
+        let windowBottom = scrollTop+z(window).height();
+        let diff = windowBottom - feedBottom;
 
-        z(window).on('resize.'+id, updateLayoutDebounced);
+        if (diff > this.options.grid.continuousScrollOffset) {
+            if (!this.feed.loading && !this.feed.allPostsLoaded) {
+                let rowsToAdd = this.options.grid.rows;
 
-        z(window).on('curatorCssLoaded.'+id, updateLayoutDebounced);
+                if (this.columnCount <= 1) {
+                    rowsToAdd = this.options.grid.rows * 2;
+                }
 
-        z(document).on('ready.'+id, updateLayoutDebounced);
-    }
+                this.rowsMax += rowsToAdd;
 
-    destroyHandlers () {
-        let id = this.id;
-
-        z(window).off('resize.'+id);
-
-        z(window).off('curatorCssLoaded.'+id);
-
-        z(document).off('ready.'+id);
+                this.updateLayout();
+            }
+        }
     }
 
     onPostsLoaded (event, posts) {
@@ -178,13 +230,15 @@ class Grid extends Widget {
             rowsToAdd = 2;
         }
 
-        this.rowsMax +=rowsToAdd;
+        this.rowsMax += rowsToAdd;
 
         this.updateLayout();
     }
 
     destroy () {
         super.destroy();
+
+        this.destroyListeners();
 
         this.feed.destroy();
 

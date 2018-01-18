@@ -1,10 +1,10 @@
 
-import EventBus from '../core/bus';
-import Templating from "../core/templating";
-import Logger from "../core/logger";
-import Events from "../core/events";
-import Networks from "../config/networks";
-import z from "../core/lib";
+import EventBus from '/curator/core/bus';
+import Templating from '/curator/core/templating';
+import Logger from '/curator/core/logger';
+import Events from '/curator/core/events';
+import Networks from '/curator/config/networks';
+import z from '/curator/core/lib';
 
 /**
 * ==================================================================

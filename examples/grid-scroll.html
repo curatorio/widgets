@@ -1,0 +1,77 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Curator Examples - Grid</title>
+    <meta name="viewport" content="width=device-width" />
+    <link href="../dist/css/curator.css" rel="stylesheet" />
+    <link href="css/example.css" rel="stylesheet" />
+    <style type="text/css">
+        #curator-feed {
+            max-width: 900px;
+        }
+
+        .crt-grid-post-v2 .crt-post-hover {
+            background-color: rgba(0, 0, 0, 0.5);
+            color:#ffffff;
+            font-weight: bold;
+        }
+
+        .crt-grid-post-v2 .crt-post-hover  i {
+                color:#ffffff;
+            }
+    </style>
+</head>
+<body>
+<h1>Curator.io Examples</h1>
+<h2>Grid Widget - Load More</h2>
+<p class="center"><a href="index.html">Examples</a></p>
+<div id="curator-feed">
+    <a href="http://curator.io" target="_blank" class="crt-logo crt-tag">Powered by Curator.io</a>
+</div>
+<div>
+    <p>Fake content below</p>
+    <p>Fake content below</p>
+    <p>Fake content below</p>
+    <p>Fake content below</p>
+    <p>Fake content below</p>
+    <p>Fake content below</p>
+    <p>Fake content below</p>
+    <p>Fake content below</p>
+    <p>Fake content below</p>
+    <p>Fake content below</p>
+    <p>Fake content below</p>
+    <p>Fake content below</p>
+    <p>Fake content below</p>
+    <p>Fake content below</p>
+    <p>Fake content below</p>
+    <p>Fake content below</p>
+    <p>Fake content below</p>
+    <p>Fake content below</p>
+    <p>Fake content below</p>
+    <p>Fake content below</p>
+    <p>Fake content below</p>
+    <p>Fake content below</p>
+</div>
+
+<script type="text/javascript" src="../dist/js/curator.js"></script>
+<script type="text/javascript">
+    // While you're testing
+    Curator.Logger.debug = true;
+
+    // Change FEED_ID to your unique FEED_ID
+    var widget = new Curator.Widgets.Grid({
+        container:'#curator-feed',
+//        feedId:"c70e66e4-6932-487d-8174-00fae1fc",
+        feedId:"0DE3D84D-E173-4522-8B21-EE9AF2D7",
+        postClickAction:'goto-source',
+        templatePost:'grid-post-minimal',
+        grid: {
+            continuousScroll:true,
+            rows:3,
+        }
+    });
+</script>
+</body>
+</html>
+

@@ -4,10 +4,10 @@
 * ==================================================================
 */
 
-import Logger from "../core/logger";
-import Popup from "./popup";
-import TemplatingUtils from "../core/templating";
-import z from "../core/lib";
+import Logger from '/curator/core/logger';
+import Popup from './popup';
+import TemplatingUtils from '/curator/core/templating';
+import z from '/curator/core/lib';
 
 
 class PopupManager {

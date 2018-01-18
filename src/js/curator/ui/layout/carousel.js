@@ -1,8 +1,8 @@
-import CommonUtils from "../../utils/common";
-import EventBus from "../../core/bus";
-import Logger from "../../core/logger";
-import Events from "../../core/events";
-import z from "../../core/lib";
+import CommonUtils from '/curator/utils/common';
+import EventBus from '/curator/core/bus';
+import Logger from '/curator/core/logger';
+import Events from '/curator/core/events';
+import z from '/curator/core/lib';
 
 const LayoutCarouselSettings = {
 	circular: false,

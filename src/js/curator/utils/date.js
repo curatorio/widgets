@@ -1,4 +1,4 @@
-import t from "../core/translate";
+import t from '/curator/core/translate';
 
 let DateUtils = {
     /**

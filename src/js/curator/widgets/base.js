@@ -1,15 +1,16 @@
-import EventBus from '../core/bus';
-import CommonUtils from '../utils/common';
-import Logger from "../core/logger";
-import HtmlUtils from "../utils/html";
-import Feed from "../core/feed";
-import ajax from "../core/ajax";
-import Events from "../core/events";
-import Post from "../ui/post";
-import Filter from "../ui/filter";
-import PopupManager from "../ui/popup_manager";
-import z from "../core/lib";
-import translate from "../core/translate";
+import EventBus from '/curator/core/bus';
+import CommonUtils from '/curator/utils/common';
+import Logger from '/curator/core/logger';
+import HtmlUtils from '/curator/utils/html';
+import Feed from '/curator/core/feed';
+import ajax from '/curator/core/ajax';
+import Events from '/curator/core/events';
+import Post from '/curator/ui/post';
+import Filter from '/curator/ui/filter';
+import PopupManager from '/curator/ui/popup_manager';
+import z from '/curator/core/lib';
+import translate from '/curator/core/translate';
+import Globals from '/curator/core/globals';
 
 class Widget extends EventBus {
 
@@ -122,8 +123,12 @@ class Widget extends EventBus {
         Logger.log(ev);
         Logger.log(postJson);
 
-        if (this.options.showPopupOnClick) {
+        console.log(this.options.postClickAction);
+
+        if (this.options.postClickAction === Globals.POST_CLICK_ACTION_OPEN_POPUP) {
             this.popupManager.showPopup(post.json);
+        } else if (this.options.postClickAction === Globals.POST_CLICK_ACTION_GOTO_SOURCE) {
+            window.open(postJson.url);
         }
     }
 

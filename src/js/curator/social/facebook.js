@@ -1,7 +1,7 @@
 /* global window */
 
-import CommonUtils from "../utils/common";
-import StringUtils from "../utils/string";
+import CommonUtils from '/curator/utils/common';
+import StringUtils from '/curator/utils/string';
 
 let SocialFacebook = {
     share: function (post) {

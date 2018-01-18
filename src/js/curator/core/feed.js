@@ -1,10 +1,10 @@
 
 
-import Logger from "./logger";
-import Events from "./events";
-import EventBus from "./bus";
-import ajax from "./ajax";
-import z from "./lib";
+import Logger from './logger';
+import Events from './events';
+import EventBus from './bus';
+import ajax from './ajax';
+import z from './lib';
 
 class Feed extends EventBus {
 

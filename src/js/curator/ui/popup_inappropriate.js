@@ -3,7 +3,7 @@
 * Popup
 * ==================================================================
 */
-import z from "../core/lib";
+import z from '/curator/core/lib';
 
 
 class PopupInappropriate {

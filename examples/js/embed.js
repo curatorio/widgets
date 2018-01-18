@@ -17,7 +17,7 @@
 
 	// Launch widget
 	function loadCurator () {
-		// Curator.debug = true;
+		// Curator.Logger.debug = true;
 
 		var config = {
 			container: '#curator-feed',

@@ -1,11 +1,11 @@
 
 
-import Widget from "./base";
-import Logger from "../core/logger";
-import Events from "../core/events";
-import ConfigWidgetBase from "../config/widget_base";
-import LayoutCarousel from "../ui/layout/carousel";
-import z from "../core/lib";
+import Widget from './base';
+import Logger from '/curator/core/logger';
+import Events from '/curator/core/events';
+import ConfigWidgetBase from '/curator/config/widget_base';
+import LayoutCarousel from '/curator/ui/layout/carousel';
+import z from '/curator/core/lib';
 
 let ConfigCarousel = z.extend({}, ConfigWidgetBase, {
     scroll:'more',

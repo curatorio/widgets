@@ -1,11 +1,11 @@
 
-import EventBus from '../core/bus';
-import SocialFacebook from "../social/facebook";
-import SocialTwitter from "../social/twitter";
-import Logger from "../core/logger";
-import Events from "../core/events";
-import Templating from "../core/templating";
-import z from "../core/lib";
+import EventBus from '/curator/core/bus';
+import SocialFacebook from '/curator/social/facebook';
+import SocialTwitter from '/curator/social/twitter';
+import Logger from '/curator/core/logger';
+import Events from '/curator/core/events';
+import Templating from '/curator/core/templating';
+import z from '/curator/core/lib';
 
 /**
 * ==================================================================
