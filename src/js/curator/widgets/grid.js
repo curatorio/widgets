@@ -19,6 +19,10 @@ class Grid extends Widget {
         this.rowsMax = 0;
         this.totalPostsLoaded=0;
         this.allLoaded=false;
+        //
+        // if ('scrollRestoration' in window.history) {
+        //     window.history.scrollRestoration = 'manual';
+        // }
 
         if (this.init (options,  ConfigWidgetGrid)) {
             Logger.log("Grid->init with options:");
@@ -74,7 +78,9 @@ class Grid extends Widget {
         z(document).on('ready.'+id, updateLayoutDebounced);
 
         if (this.options.grid.continuousScroll) {
+            this.$scroller = z(window);
             z(window).on('scroll.'+id, CommonUtils.debounce(() => {
+                console.log(this.$scroller.scrollTop());
                 this.checkScroll();
             }, 100));
         }
@@ -130,7 +136,9 @@ class Grid extends Widget {
     }
 
     updateHeight (animate) {
-        let postHeight = this.$container.find('.crt-post-c').width();
+        let $post = this.$container.find('.crt-post-c').first();
+        let postHeight = $post.width();
+        postHeight += $post.css("margin-left");
         this.$feedWindow.css({'overflow':'hidden'});
 
         let maxRows = Math.ceil(this.feed.postCount / this.columnCount);
@@ -139,16 +147,17 @@ class Grid extends Widget {
         // if (animate) {
         //     this.$feedWindow.animate({height:rows * postHeight});
         // } else {
-        let scrollTopOrig = z('html,body').scrollTop();
-        this.$feedWindow.height(rows * postHeight);
+        let scrollTopOrig = this.$scroller.scrollTop();
         // }
-        let scrollTopNew = z('html,body').scrollTop();
-        // console.log(scrollTop1+":"+scrollTop2);
+
+        this.$feedWindow.height(rows * postHeight);
+        let scrollTopNew = this.$scroller.scrollTop();
+        console.log(scrollTopOrig+":"+scrollTopNew);
 
         if (scrollTopNew > scrollTopOrig+100) {
             // chrome seems to lock scroll position relative to bottom - so scrollTop changes when we adjust height
             // - let's reset
-            z(window).scrollTop(scrollTopOrig);
+            this.$scroller.scrollTop(scrollTopOrig);
         }
 
         if (this.options.grid.showLoadMore) {
@@ -164,7 +173,7 @@ class Grid extends Widget {
         Logger.log("Grid->checkScroll");
         // console.log('scroll');
         let feedBottom = this.$container.position().top+this.$container.height();
-        let scrollTop = z('html,body').scrollTop();
+        let scrollTop = this.$scroller.scrollTop();
         let windowBottom = scrollTop+z(window).height();
         let diff = windowBottom - feedBottom;
 
