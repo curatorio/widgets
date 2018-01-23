@@ -28,7 +28,7 @@ class Grid extends Widget {
             Logger.log("Grid->init with options:");
             Logger.log(this.options);
 
-            let tmpl = TemplatingUtils.renderTemplate(this.options.templateFeed, {});
+            let tmpl = TemplatingUtils.renderTemplate(this.responsiveOptions.templateFeed, {});
             this.$container.append(tmpl);
             this.$feed = this.$container.find('.crt-feed');
             this.$feedWindow = this.$container.find('.crt-feed-window');
@@ -36,7 +36,7 @@ class Grid extends Widget {
 
             this.$container.addClass('crt-grid');
 
-            if (this.options.grid.showLoadMore) {
+            if (this.responsiveOptions.grid.showLoadMore) {
                 this.$feedWindow.css({
                     'position':'relative'
                 });
@@ -45,22 +45,22 @@ class Grid extends Widget {
                 this.$loadMore.hide();
             }
 
-            if (!this.options.grid.hover.showName) {
+            if (!this.responsiveOptions.grid.hover.showName) {
                 this.$container.addClass('crt-grid-hide-name');
             }
 
-            if (!this.options.grid.hover.showFooter) {
+            if (!this.responsiveOptions.grid.hover.showFooter) {
                 this.$container.addClass('crt-grid-hide-footer');
             }
 
-            if (!this.options.grid.hover.showText) {
+            if (!this.responsiveOptions.grid.hover.showText) {
                 this.$container.addClass('crt-grid-hide-text');
             }
 
             this.createHandlers();
 
             // This triggers post loading
-            this.rowsMax = this.options.grid.rows;
+            this.rowsMax = this.responsiveOptions.grid.rows;
             this.updateLayout ();
         }
     }
@@ -71,16 +71,18 @@ class Grid extends Widget {
             this.updateLayout ();
         }, 100);
 
-        z(window).on('resize.'+id, updateLayoutDebounced);
+        z(window).on('resize.'+id, CommonUtils.debounce(() => {
+            this.updateResponsiveOptions ();
+            this.updateLayout ();
+        }, 100));
 
         z(window).on('curatorCssLoaded.'+id, updateLayoutDebounced);
 
         z(document).on('ready.'+id, updateLayoutDebounced);
 
-        if (this.options.grid.continuousScroll) {
+        if (this.responsiveOptions.grid.continuousScroll) {
             this.$scroller = z(window);
             z(window).on('scroll.'+id, CommonUtils.debounce(() => {
-                console.log(this.$scroller.scrollTop());
                 this.checkScroll();
             }, 100));
         }
@@ -104,7 +106,7 @@ class Grid extends Widget {
 
     updateLayout ( ) {
         // Logger.log("Grid->updateLayout ");
-        let cols = Math.floor(this.$container.width()/this.options.grid.minWidth);
+        let cols = Math.floor(this.$container.width()/this.responsiveOptions.grid.minWidth);
         cols = cols < 1 ? 1 : cols;
 
         // set col layout
@@ -138,7 +140,9 @@ class Grid extends Widget {
     updateHeight (animate) {
         let $post = this.$container.find('.crt-post-c').first();
         let postHeight = $post.width();
-        postHeight += $post.css("margin-left");
+        let postMargin = parseInt($post.css("margin-left"));
+        postHeight += postMargin;
+
         this.$feedWindow.css({'overflow':'hidden'});
 
         let maxRows = Math.ceil(this.feed.postCount / this.columnCount);
@@ -152,7 +156,7 @@ class Grid extends Widget {
 
         this.$feedWindow.height(rows * postHeight);
         let scrollTopNew = this.$scroller.scrollTop();
-        console.log(scrollTopOrig+":"+scrollTopNew);
+        // console.log(scrollTopOrig+":"+scrollTopNew);
 
         if (scrollTopNew > scrollTopOrig+100) {
             // chrome seems to lock scroll position relative to bottom - so scrollTop changes when we adjust height
@@ -160,7 +164,7 @@ class Grid extends Widget {
             this.$scroller.scrollTop(scrollTopOrig);
         }
 
-        if (this.options.grid.showLoadMore) {
+        if (this.responsiveOptions.grid.showLoadMore) {
             if (this.feed.allPostsLoaded) {
                 this.$loadMore.hide();
             } else {
@@ -172,20 +176,16 @@ class Grid extends Widget {
     checkScroll () {
         Logger.log("Grid->checkScroll");
         // console.log('scroll');
-        let feedBottom = this.$container.position().top+this.$container.height();
+        let top = this.$container.offset().top;
+        let feedBottom = top+this.$feedWindow.height();
         let scrollTop = this.$scroller.scrollTop();
         let windowBottom = scrollTop+z(window).height();
         let diff = windowBottom - feedBottom;
 
-        if (diff > this.options.grid.continuousScrollOffset) {
+        if (diff > this.responsiveOptions.grid.continuousScrollOffset) {
             if (!this.feed.loading && !this.feed.allPostsLoaded) {
-                let rowsToAdd = this.options.grid.rows;
 
-                if (this.columnCount <= 1) {
-                    rowsToAdd = this.options.grid.rows * 2;
-                }
-
-                this.rowsMax += rowsToAdd;
+                this.rowsMax += this.responsiveOptions.grid.rowsToAdd;
 
                 this.updateLayout();
             }
@@ -215,7 +215,7 @@ class Grid extends Widget {
                 this.$feed.append(post.$el);
                 post.layout();
 
-                if (this.options.animate) {
+                if (this.responsiveOptions.animate) {
                     post.$el.css({opacity: 0});
                     anim (post, i);
                     i++;

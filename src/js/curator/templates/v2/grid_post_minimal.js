@@ -1,7 +1,7 @@
 
 
 const template = `
-<div class="crt-grid-post crt-grid-post-minimal crt-grid-post-v2 crt-post-<%=id%> <%=this.contentImageClasses()%> <%=this.contentTextClasses()%>"> \
+<div class="crt-grid-post crt-grid-post-minimal crt-grid-post-v2 crt-post-<%=id%> <%=this.contentImageClasses()%> <%=this.contentTextClasses()%>" data-post="<%=id%>"> \
     <div class="crt-post-c"> 
         <div class="crt-post-content"> 
             <div class="crt-hitarea" > 

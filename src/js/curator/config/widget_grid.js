@@ -11,6 +11,7 @@ let ConfigWidgetGrid = z.extend({}, ConfigWidgetBase, {
         minWidth:200,
         rows:3,
         showLoadMore:false,
+        rowsToAdd:1,
         continuousScroll:false,
         continuousScrollOffset:50,
         hover:{

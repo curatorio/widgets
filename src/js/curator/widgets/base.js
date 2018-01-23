@@ -49,6 +49,8 @@ class Widget extends EventBus {
             Logger.debug = true;
         }
 
+        this.updateResponsiveOptions ();
+
         Logger.log ('Setting language to: '+this.options.lang);
         translate.setLang(this.options.lang);
 
@@ -57,6 +59,39 @@ class Widget extends EventBus {
         this.createPopupManager();
 
         return true;
+    }
+
+    updateResponsiveOptions () {
+        // console.log('updateResponsiveOptions');
+        if (!this.options.responsive) {
+            this.responsiveOptions = z.extend(true, {}, this.options);
+            return;
+        }
+
+        let width = z(window).width();
+        let keys = Object.keys(this.options.responsive);
+        keys = keys.map(x => parseInt(x));
+        keys = keys.sort((a, b) => {
+            return a - b;
+        });
+        keys = keys.reverse();
+
+        let foundKey = null;
+        for (let key of keys) {
+            if (width <= key) {
+                foundKey = key;
+            }
+        }
+        if (!foundKey) {
+            this.responsiveKey = null;
+            this.responsiveOptions = z.extend(true, {}, this.options);
+        }
+
+        if (this.responsiveKey !== foundKey) {
+            // console.log('CHANGING RESPONSIVE SETTINGS '+foundKey);
+            this.responsiveKey = foundKey;
+            this.responsiveOptions = z.extend(true, {}, this.options, this.options.responsive[foundKey]);
+        }
     }
 
     createFeed () {

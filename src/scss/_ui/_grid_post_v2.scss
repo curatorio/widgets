@@ -61,7 +61,9 @@
         }
 
         .crt-social-icon {
-            color: #ffffff;
+            i {
+                color: #ffffff;
+            }
         }
 
         .crt-image-carousel {
@@ -234,6 +236,9 @@
         .crt-social-icon-normal {
             opacity: 0;
 
+        }
+        .crt-image-carousel {
+            opacity: 0;
         }
         .crt-post-hover {
             visibility: visible;

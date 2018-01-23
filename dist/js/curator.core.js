@@ -127,6 +127,53 @@ if (!Array.prototype.fill) {
     };
 }
 
+if (!Object.keys) {
+    // http://whattheheadsaid.com/2010/10/a-safer-object-keys-compatibility-implementation
+    var hasDontEnumBug = true,
+        dontEnums = [
+            "toString",
+            "toLocaleString",
+            "valueOf",
+            "hasOwnProperty",
+            "isPrototypeOf",
+            "propertyIsEnumerable",
+            "constructor"
+        ],
+        dontEnumsLength = dontEnums.length;
+
+    for (var key in {"toString": null}) {
+        hasDontEnumBug = false;
+    }
+
+    Object.keys = function keys(object) {
+
+        if (
+            (typeof object != "object" && typeof object != "function") ||
+            object === null
+        ) {
+            throw new TypeError("Object.keys called on a non-object");
+        }
+
+        var keys = [];
+        for (var name in object) {
+            if (owns(object, name)) {
+                keys.push(name);
+            }
+        }
+
+        if (hasDontEnumBug) {
+            for (var i = 0, ii = dontEnumsLength; i < ii; i++) {
+                var dontEnum = dontEnums[i];
+                if (owns(object, dontEnum)) {
+                    keys.push(dontEnum);
+                }
+            }
+        }
+        return keys;
+    };
+
+}
+
 // From https://cdn.rawgit.com/twitter/twitter-text/v1.13.4/js/twitter-text.js
 // Cut down to only include RegEx functions
 
@@ -660,13 +707,15 @@ var v1PostTemplate = ' \
 
 var v2PostTemplate = " \n<div class=\"crt-post-v2 crt-post crt-post-<%=this.networkIcon()%> <%=this.contentTextClasses()%>  <%=this.contentImageClasses()%>\" data-post=\"<%=id%>\"> \n    <div class=\"crt-post-border\">\n        <div class=\"crt-post-c\">\n            <div class=\"crt-post-content\">\n                <div class=\"crt-image crt-hitarea crt-post-content-image\" > \n                    <div class=\"crt-image-c\"><img src=\"<%=image%>\" class=\"crt-post-image\" /></div> \n                    <span class=\"crt-play\"><i class=\"crt-play-icon\"></i></span> \n                    <div class=\"crt-image-carousel\"><i class=\"crt-icon-image-carousel\"></i></div> \n                </div> \n                <div class=\"crt-post-header\"> \n                    <span class=\"crt-social-icon\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                    <div class=\"crt-post-fullname\"><a href=\"<%=this.userUrl()%>\" target=\"_blank\"><%=user_full_name%></a></div>\n                </div> \n                <div class=\"text crt-post-content-text\"> \n                    <%=this.parseText(text)%> \n                </div> \n                <div class=\"crt-post-read-more\"><a href=\"#\" class=\"crt-post-read-more-button\"><%=this._t(\"read-more\")%></a> </div> \n            </div> \n            <div class=\"crt-post-footer\">\n                <img class=\"crt-post-userimage\" src=\"<%=user_image%>\" /> \n                <span class=\"crt-post-username\"><a href=\"<%=this.userUrl()%>\" target=\"_blank\">@<%=user_screen_name%></a></span>\n                <span class=\"crt-date\"><%=this.prettyDate(source_created_at)%></span> \n                <div class=\"crt-post-share\"><span class=\"ctr-share-hint\"></span><a href=\"#\" class=\"crt-share-facebook\"><i class=\"crt-icon-facebook\"></i></a>  <a href=\"#\" class=\"crt-share-twitter\"><i class=\"crt-icon-twitter\"></i></a></div>\n            </div> \n        </div> \n    </div> \n</div>";
 
-var v2GridPostTemplate = "\n<div class=\"crt-grid-post crt-grid-post-v2 crt-post-<%=id%> <%=this.contentImageClasses()%> <%=this.contentTextClasses()%>\">     <div class=\"crt-post-c\"> \n        <div class=\"crt-post-content\"> \n            <div class=\"crt-hitarea\" > \n                <img src=\"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7\" class=\"crt-spacer\" /> \n                <div class=\"crt-grid-post-image\">\n                    <div class=\"crt-post-content-image\" style=\"background-image: url(<%=image%>);\"> </div> \n                    <a href=\"javascript:;\" class=\"crt-play\"><i class=\"crt-play-icon\"></i></a> \n                    <span class=\"crt-social-icon crt-social-icon-normal\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                    <div class=\"crt-image-carousel\"><i class=\"crt-icon-image-carousel\"></i></div> \n                </div>\n                <div class=\"crt-grid-post-text\">\n                    <div class=\"crt-grid-post-text-wrap\"> \n                        <div><%=this.parseText(text)%></div> \n                    </div> \n                    <span class=\"crt-social-icon crt-social-icon-normal\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                </div>\n                <div class=\"crt-post-hover\">\n                    <div class=\"crt-post-header\"> \n                        <span class=\"crt-social-icon\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                        <div class=\"crt-post-fullname\"><a href=\"<%=this.userUrl()%>\" target=\"_blank\"><%=user_full_name%></a></div>\n                    </div> \n                    <div class=\"crt-post-content-text\"> \n                        <%=this.parseText(text)%> \n                    </div> \n                    <div class=\"crt-post-read-more\"><a href=\"#\" class=\"crt-post-read-more-button\"><%=this._t(\"read-more\")%></a></div> \n                    <div class=\"crt-post-footer\">\n                        <img class=\"crt-post-userimage\" src=\"<%=user_image%>\" /> \n                        <span class=\"crt-post-username\"><a href=\"<%=this.userUrl()%>\" target=\"_blank\">@<%=user_screen_name%></a></span>\n                        <span class=\"crt-date\"><%=this.prettyDate(source_created_at)%></span> \n                        <div class=\"crt-post-share\"><span class=\"ctr-share-hint\"></span><a href=\"#\" class=\"crt-share-facebook\"><i class=\"crt-icon-facebook\"></i></a>  <a href=\"#\" class=\"crt-share-twitter\"><i class=\"crt-icon-twitter\"></i></a></div>\n                    </div> \n                </div> \n            </div> \n        </div> \n    </div>\n</div>";
+var v2GridPostTemplate = "\n<div class=\"crt-grid-post crt-grid-post-v2 crt-post-<%=id%> <%=this.contentImageClasses()%> <%=this.contentTextClasses()%>\" data-post=\"<%=id%>\">     <div class=\"crt-post-c\"> \n        <div class=\"crt-post-content\"> \n            <div class=\"crt-hitarea\" > \n                <img src=\"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7\" class=\"crt-spacer\" /> \n                <div class=\"crt-grid-post-image\">\n                    <div class=\"crt-post-content-image\" style=\"background-image: url(<%=image%>);\"> </div> \n                    <a href=\"javascript:;\" class=\"crt-play\"><i class=\"crt-play-icon\"></i></a> \n                    <span class=\"crt-social-icon crt-social-icon-normal\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                    <div class=\"crt-image-carousel\"><i class=\"crt-icon-image-carousel\"></i></div> \n                </div>\n                <div class=\"crt-grid-post-text\">\n                    <div class=\"crt-grid-post-text-wrap\"> \n                        <div><%=this.parseText(text)%></div> \n                    </div> \n                    <span class=\"crt-social-icon crt-social-icon-normal\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                </div>\n                <div class=\"crt-post-hover\">\n                    <div>\n                        <div class=\"crt-post-header\"> \n                            <span class=\"crt-social-icon\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                            <div class=\"crt-post-fullname\"><a href=\"<%=this.userUrl()%>\" target=\"_blank\"><%=user_full_name%></a></div>\n                        </div> \n                        <div class=\"crt-post-content-text\"> \n                            <%=this.parseText(text)%> \n                        </div> \n                        <div class=\"crt-post-read-more\"><a href=\"#\" class=\"crt-post-read-more-button\"><%=this._t(\"read-more\")%></a></div> \n                        <div class=\"crt-post-footer\">\n                            <img class=\"crt-post-userimage\" src=\"<%=user_image%>\" /> \n                            <span class=\"crt-post-username\"><a href=\"<%=this.userUrl()%>\" target=\"_blank\">@<%=user_screen_name%></a></span>\n                            <span class=\"crt-date\"><%=this.prettyDate(source_created_at)%></span> \n                            <div class=\"crt-post-share\"><span class=\"ctr-share-hint\"></span><a href=\"#\" class=\"crt-share-facebook\"><i class=\"crt-icon-facebook\"></i></a>  <a href=\"#\" class=\"crt-share-twitter\"><i class=\"crt-icon-twitter\"></i></a></div>\n                        </div> \n                    </div>\n                </div> \n            </div> \n        </div> \n    </div>\n</div>";
 
 var v2GridFeedTemple = ' \
 <div class="crt-feed-window">\
     <div class="crt-feed"></div>\
 </div>\
 <div class="crt-feed-more"><a href="#">Load more</a></div>';
+
+var template = "\n<div class=\"crt-grid-post crt-grid-post-minimal crt-grid-post-v2 crt-post-<%=id%> <%=this.contentImageClasses()%> <%=this.contentTextClasses()%>\" data-post=\"<%=id%>\">     <div class=\"crt-post-c\"> \n        <div class=\"crt-post-content\"> \n            <div class=\"crt-hitarea\" > \n                <img src=\"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7\" class=\"crt-spacer\" /> \n                <div class=\"crt-grid-post-image\">\n                    <div class=\"crt-post-content-image\" style=\"background-image: url(<%=image%>);\"> </div> \n                    <a href=\"javascript:;\" class=\"crt-play\"><i class=\"crt-play-icon\"></i></a> \n                    <span class=\"crt-social-icon crt-social-icon-normal\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                    <div class=\"crt-image-carousel\"><i class=\"crt-icon-image-carousel\"></i></div> \n                </div>\n                <div class=\"crt-grid-post-text\">\n                    <div class=\"crt-grid-post-text-wrap\"> \n                        <div><%=this.parseText(text)%></div> \n                    </div> \n                    <span class=\"crt-social-icon crt-social-icon-normal\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                </div>\n                <div class=\"crt-post-hover\">\n                    <div>\n                        <div class=\"crt-post-header\">\n                            <span class=\"crt-social-icon\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span>  \n                        </div> \n                        <div class=\"crt-post-minimal-stats\"> \n                            <span class=\"crt-likes\"><i class=\"crt-icon-heart\"></i>&nbsp;<%=likes%></span>\n                            <span class=\"crt-comments\"><i class=\"crt-icon-comment\"></i>&nbsp;<%=comments%></span>\n                        </div> \n                    </div> \n                </div> \n            </div> \n        </div> \n    </div>\n</div>";
 
 var Templates = {
     'filter'                : v1FilterTemplate,
@@ -681,6 +730,7 @@ var Templates = {
     // V2
     'post-v2'               : v2PostTemplate,
     'grid-post-v2'          : v2GridPostTemplate,
+    'grid-post-minimal'     : template,
     'grid-feed-v2'          : v2GridFeedTemple,
 };
 
@@ -815,7 +865,7 @@ function _k (o, key, val) {
     }
 }
 
-var langsData = "\nid,en,de,it,nl,es\nload-more,Load more,Mehr anzeigen,Di più,Laad meer,Cargar más\nminutes-ago.1,{n} minute ago,Vor einer Minute,Un minuto fa,{n} minuut geleden,Hace un minuto\nminutes-ago.n,{n} minutes ago,Vor {n} Minuten,{n} minuti fa,{n} minuten geleden,Hace {n} minutos\nhours-ago.1,{n} hour ago,Vor einer Stunde,Un'ora fa,{n} uur geleden,Hace una hora\nhours-ago.n,{n} hours ago,Vor {n} Stunden,{n} ore fa,{n} uren geleden,Hace {n} horas\ndays-ago.1,{n} day ago,Vor einem Tag,Un giorno fa,{n} dag geleden,Hace un día\ndays-ago.n,{n} days ago,Vor {n} Tagen,{n} giorni fa,{n} dagen geleden,Hace {n} días\nweeks-ago.1,{n} week ago,Vor einer Woche,Una settimana fa,{n} week geleden,Hace una semana\nweeks-ago.n,{n} weeks ago,Vor {n} Wochen,{n} settimane fa,{n} weken geleden,Hace {n} semanas\nmonths-ago.1,{n} month ago,Vor einem Monat,Un mese fa,{n} maand geleden,Hace un mes\nmonths-ago.n,{n} months ago,Vor {n} Monaten,{n} mesi,{n} maanden geleden,Hace {n} meses\nyesterday,Yesterday,Gestern,Leri,Gisteren,Ayer\njust-now,Just now,Eben,Appena,Nu,Ahora\nprevious,Previous,Zurück,Indietro,Vorige,Anterior\nnext,Next,Weiter,Più,Volgende,Siguiente\ncomments,Comments,Kommentare,Commenti,Comments,Comentarios\nlikes,Likes,Gefällt mir,Mi piace,Likes,Me gusta\nread-more,Read more,Weiterlesen,Di più,Lees meer,Leer más\n";
+var langsData = "\nid,en,de,it,nl,es,fr,po,ru\nload-more,Load more,Mehr anzeigen,Di più,Laad meer,Cargar más,Voir plus,Carregar Mais,Загрузить больше\nminutes-ago.1,{n} minute ago,Vor einer Minute,Un minuto fa,{n} minuut geleden,Hace un minuto,Il y a {n} minute,Tem um minuto,Одну минуту назад\nminutes-ago.n,{n} minutes ago,Vor {n} Minuten,{n} minuti fa,{n} minuten geleden,Hace {n} minutos,Il y a {n} minutes,Tem {n} minutos,{n} минут назад\nhours-ago.1,{n} hour ago,Vor einer Stunde,Un'ora fa,{n} uur geleden,Hace una hora,Il y a {n} heure,Tem {n} hora,Один час назад\nhours-ago.n,{n} hours ago,Vor {n} Stunden,{n} ore fa,{n} uren geleden,Hace {n} horas,Il y a {n} heures,Tem {n} horas,{n} часов назад\ndays-ago.1,{n} day ago,Vor einem Tag,Un giorno fa,{n} dag geleden,Hace un día,Il y a {n} jour,Faz um dia,Один день назад\ndays-ago.n,{n} days ago,Vor {n} Tagen,{n} giorni fa,{n} dagen geleden,Hace {n} días,Il y a {n} jours,Fazem {n} dias,{n} дней назад\nweeks-ago.1,{n} week ago,Vor einer Woche,Una settimana fa,{n} week geleden,Hace una semana,Il y a {n} semaine,Faz uma semana,Одну неделю назад\nweeks-ago.n,{n} weeks ago,Vor {n} Wochen,{n} settimane fa,{n} weken geleden,Hace {n} semanas,Il y a {n} semaines,Fazem {n} semanas,{n} недель назад\nmonths-ago.1,{n} month ago,Vor einem Monat,Un mese fa,{n} maand geleden,Hace un mes,Il y a {n} mois,Tem um mês,Один месяц назад\nmonths-ago.n,{n} months ago,Vor {n} Monaten,{n} mesi,{n} maanden geleden,Hace {n} meses,Il y a {n} mois,Tem {n} meses,{n} месяцев назад\nyesterday,Yesterday,Gestern,Ieri,Gisteren,Ayer,Hier,Ontem,Вчера\njust-now,Just now,Eben,Appena,Nu,Ahora,Il y a un instant,Agora,Только что\nprevious,Previous,Zurück,Indietro,Vorige,Anterior,Précédent,Anterior,Предыдущий\nnext,Next,Weiter,Più,Volgende,Siguiente,Suivant,Próximo,Следующий\ncomments,Comments,Kommentare,Commenti,Comments,Comentarios,Commentaires,Comentários,Комментарии\nlikes,Likes,Gefällt mir,Mi piace,Likes,Me gusta,J'aime,Curtir,Лайки\nread-more,Read more,Weiterlesen,Di più,Lees meer,Leer más,En savoir plus,Leia mais,Подробнее\n";
 
 
 var langs = {};
@@ -2127,6 +2177,12 @@ PopupManager.prototype.destroy = function destroy () {
     delete this.$underlay;
 };
 
+var Globals = {
+    POST_CLICK_ACTION_OPEN_POPUP:   'open-popup',
+    POST_CLICK_ACTION_GOTO_SOURCE:  'goto-source',
+    POST_CLICK_ACTION_NOTHING:      'nothing',
+};
+
 var Widget = (function (EventBus$$1) {
     function Widget () {
         Logger.log('Widget->construct');
@@ -2171,6 +2227,8 @@ var Widget = (function (EventBus$$1) {
             Logger.debug = true;
         }
 
+        this.updateResponsiveOptions ();
+
         Logger.log ('Setting language to: '+this.options.lang);
         mod.setLang(this.options.lang);
 
@@ -2179,6 +2237,41 @@ var Widget = (function (EventBus$$1) {
         this.createPopupManager();
 
         return true;
+    };
+
+    Widget.prototype.updateResponsiveOptions = function updateResponsiveOptions () {
+        // console.log('updateResponsiveOptions');
+        if (!this.options.responsive) {
+            this.responsiveOptions = z$1.extend(true, {}, this.options);
+            return;
+        }
+
+        var width = z$1(window).width();
+        var keys = Object.keys(this.options.responsive);
+        keys = keys.map(function (x) { return parseInt(x); });
+        keys = keys.sort(function (a, b) {
+            return a - b;
+        });
+        keys = keys.reverse();
+
+        var foundKey = null;
+        for (var i = 0, list = keys; i < list.length; i += 1) {
+            var key = list[i];
+
+            if (width <= key) {
+                foundKey = key;
+            }
+        }
+        if (!foundKey) {
+            this.responsiveKey = null;
+            this.responsiveOptions = z$1.extend(true, {}, this.options);
+        }
+
+        if (this.responsiveKey !== foundKey) {
+            // console.log('CHANGING RESPONSIVE SETTINGS '+foundKey);
+            this.responsiveKey = foundKey;
+            this.responsiveOptions = z$1.extend(true, {}, this.options, this.options.responsive[foundKey]);
+        }
     };
 
     Widget.prototype.createFeed = function createFeed () {
@@ -2245,8 +2338,12 @@ var Widget = (function (EventBus$$1) {
         Logger.log(ev);
         Logger.log(postJson);
 
-        if (this.options.showPopupOnClick) {
+        console.log(this.options.postClickAction);
+
+        if (this.options.postClickAction === Globals.POST_CLICK_ACTION_OPEN_POPUP) {
             this.popupManager.showPopup(post.json);
+        } else if (this.options.postClickAction === Globals.POST_CLICK_ACTION_GOTO_SOURCE) {
+            window.open(postJson.url);
         }
     };
 
@@ -2325,6 +2422,7 @@ var ConfigWidgetBase = {
     showPopupOnClick:true,
     lang:'en',
     debug:false,
+    postClickAction:'open-popup',     // open-popup | goto-source | nothing
     filter: {
         showNetworks: false,
         networksLabel: 'Networks:',
@@ -2363,6 +2461,7 @@ var makeArray = function(array, results) {
  * (http://suprb.com/apps/gridalicious/)
  *
  */
+
 var LayoutWaterfallSettings = {
     selector: '.item',
     width: 225,
@@ -2753,12 +2852,22 @@ var Waterfall = (function (Widget$$1) {
 
             // Load first set of posts
             this.feed.load();
+
+            this.iniListeners();
         }
     }
 
     if ( Widget$$1 ) Waterfall.__proto__ = Widget$$1;
     Waterfall.prototype = Object.create( Widget$$1 && Widget$$1.prototype );
     Waterfall.prototype.constructor = Waterfall;
+
+    Waterfall.prototype.iniListeners = function iniListeners () {
+
+    };
+
+    Waterfall.prototype.destroyListeners = function destroyListeners () {
+
+    };
 
     Waterfall.prototype.loadMorePosts = function loadMorePosts () {
         Logger.log('Waterfall->loadMorePosts');
@@ -2819,6 +2928,8 @@ var Waterfall = (function (Widget$$1) {
         }
         this.$container.removeClass('crt-feed-container');
 
+        this.destroyListeners();
+
         delete this.$feed;
         delete this.$scroll;
         delete this.$container;
@@ -2841,7 +2952,16 @@ var ConfigWidgetGrid = z$1.extend({}, ConfigWidgetBase, {
     animate:false,
     grid: {
         minWidth:200,
-        rows:3
+        rows:3,
+        showLoadMore:false,
+        rowsToAdd:1,
+        continuousScroll:false,
+        continuousScrollOffset:50,
+        hover:{
+            showName:true,
+            showFooter:true,
+            showText:true,
+        }
     }
 });
 
@@ -2858,12 +2978,16 @@ var Grid = (function (Widget$$1) {
         this.rowsMax = 0;
         this.totalPostsLoaded=0;
         this.allLoaded=false;
+        //
+        // if ('scrollRestoration' in window.history) {
+        //     window.history.scrollRestoration = 'manual';
+        // }
 
         if (this.init (options,  ConfigWidgetGrid)) {
             Logger.log("Grid->init with options:");
             Logger.log(this.options);
 
-            var tmpl = Templating.renderTemplate(this.options.templateFeed, {});
+            var tmpl = Templating.renderTemplate(this.responsiveOptions.templateFeed, {});
             this.$container.append(tmpl);
             this.$feed = this.$container.find('.crt-feed');
             this.$feedWindow = this.$container.find('.crt-feed-window');
@@ -2871,7 +2995,7 @@ var Grid = (function (Widget$$1) {
 
             this.$container.addClass('crt-grid');
 
-            if (this.options.grid.showLoadMore) {
+            if (this.responsiveOptions.grid.showLoadMore) {
                 this.$feedWindow.css({
                     'position':'relative'
                 });
@@ -2880,10 +3004,22 @@ var Grid = (function (Widget$$1) {
                 this.$loadMore.hide();
             }
 
+            if (!this.responsiveOptions.grid.hover.showName) {
+                this.$container.addClass('crt-grid-hide-name');
+            }
+
+            if (!this.responsiveOptions.grid.hover.showFooter) {
+                this.$container.addClass('crt-grid-hide-footer');
+            }
+
+            if (!this.responsiveOptions.grid.hover.showText) {
+                this.$container.addClass('crt-grid-hide-text');
+            }
+
             this.createHandlers();
 
             // This triggers post loading
-            this.rowsMax = this.options.grid.rows;
+            this.rowsMax = this.responsiveOptions.grid.rows;
             this.updateLayout ();
         }
     }
@@ -2892,13 +3028,50 @@ var Grid = (function (Widget$$1) {
     Grid.prototype = Object.create( Widget$$1 && Widget$$1.prototype );
     Grid.prototype.constructor = Grid;
 
+    Grid.prototype.createHandlers = function createHandlers () {
+        var this$1 = this;
+
+        var id = this.id;
+        var updateLayoutDebounced = CommonUtils.debounce( function () {
+            this$1.updateLayout ();
+        }, 100);
+
+        z$1(window).on('resize.'+id, CommonUtils.debounce(function () {
+            this$1.updateResponsiveOptions ();
+            this$1.updateLayout ();
+        }, 100));
+
+        z$1(window).on('curatorCssLoaded.'+id, updateLayoutDebounced);
+
+        z$1(document).on('ready.'+id, updateLayoutDebounced);
+
+        if (this.responsiveOptions.grid.continuousScroll) {
+            this.$scroller = z$1(window);
+            z$1(window).on('scroll.'+id, CommonUtils.debounce(function () {
+                this$1.checkScroll();
+            }, 100));
+        }
+    };
+
+    Grid.prototype.destroyHandlers = function destroyHandlers () {
+        var id = this.id;
+
+        z$1(window).off('resize.'+id);
+
+        z$1(window).off('curatorCssLoaded.'+id);
+
+        z$1(document).off('ready.'+id);
+
+        z$1(window).off('scroll.'+id);
+    };
+
     Grid.prototype.loadPosts = function loadPosts () {
         // console.log ('LOAD POSTS CALLED!!!?!?!!?!?!');
     };
 
     Grid.prototype.updateLayout = function updateLayout ( ) {
         // Logger.log("Grid->updateLayout ");
-        var cols = Math.floor(this.$container.width()/this.options.grid.minWidth);
+        var cols = Math.floor(this.$container.width()/this.responsiveOptions.grid.minWidth);
         cols = cols < 1 ? 1 : cols;
 
         // set col layout
@@ -2930,19 +3103,33 @@ var Grid = (function (Widget$$1) {
     };
 
     Grid.prototype.updateHeight = function updateHeight (animate) {
-        var postHeight = this.$container.find('.crt-post-c').width();
+        var $post = this.$container.find('.crt-post-c').first();
+        var postHeight = $post.width();
+        var postMargin = parseInt($post.css("margin-left"));
+        postHeight += postMargin;
+
         this.$feedWindow.css({'overflow':'hidden'});
 
         var maxRows = Math.ceil(this.feed.postCount / this.columnCount);
         var rows = this.rowsMax < maxRows ? this.rowsMax : maxRows;
 
-        if (animate) {
-            this.$feedWindow.animate({height:rows * postHeight});
-        } else {
-            this.$feedWindow.height(rows * postHeight);
+        // if (animate) {
+        //     this.$feedWindow.animate({height:rows * postHeight});
+        // } else {
+        var scrollTopOrig = this.$scroller.scrollTop();
+        // }
+
+        this.$feedWindow.height(rows * postHeight);
+        var scrollTopNew = this.$scroller.scrollTop();
+        // console.log(scrollTopOrig+":"+scrollTopNew);
+
+        if (scrollTopNew > scrollTopOrig+100) {
+            // chrome seems to lock scroll position relative to bottom - so scrollTop changes when we adjust height
+            // - let's reset
+            this.$scroller.scrollTop(scrollTopOrig);
         }
 
-        if (this.options.grid.showLoadMore) {
+        if (this.responsiveOptions.grid.showLoadMore) {
             if (this.feed.allPostsLoaded) {
                 this.$loadMore.hide();
             } else {
@@ -2951,29 +3138,23 @@ var Grid = (function (Widget$$1) {
         }
     };
 
-    Grid.prototype.createHandlers = function createHandlers () {
-        var this$1 = this;
+    Grid.prototype.checkScroll = function checkScroll () {
+        Logger.log("Grid->checkScroll");
+        // console.log('scroll');
+        var top = this.$container.offset().top;
+        var feedBottom = top+this.$feedWindow.height();
+        var scrollTop = this.$scroller.scrollTop();
+        var windowBottom = scrollTop+z$1(window).height();
+        var diff = windowBottom - feedBottom;
 
-        var id = this.id;
-        var updateLayoutDebounced = CommonUtils.debounce( function () {
-            this$1.updateLayout ();
-        }, 100);
+        if (diff > this.responsiveOptions.grid.continuousScrollOffset) {
+            if (!this.feed.loading && !this.feed.allPostsLoaded) {
 
-        z$1(window).on('resize.'+id, updateLayoutDebounced);
+                this.rowsMax += this.responsiveOptions.grid.rowsToAdd;
 
-        z$1(window).on('curatorCssLoaded.'+id, updateLayoutDebounced);
-
-        z$1(document).on('ready.'+id, updateLayoutDebounced);
-    };
-
-    Grid.prototype.destroyHandlers = function destroyHandlers () {
-        var id = this.id;
-
-        z$1(window).off('resize.'+id);
-
-        z$1(window).off('curatorCssLoaded.'+id);
-
-        z$1(document).off('ready.'+id);
+                this.updateLayout();
+            }
+        }
     };
 
     Grid.prototype.onPostsLoaded = function onPostsLoaded (event, posts) {
@@ -3003,7 +3184,7 @@ var Grid = (function (Widget$$1) {
                 this$1.$feed.append(post.$el);
                 post.layout();
 
-                if (this$1.options.animate) {
+                if (this$1.responsiveOptions.animate) {
                     post.$el.css({opacity: 0});
                     anim (post, i);
                     i++;
@@ -3027,13 +3208,15 @@ var Grid = (function (Widget$$1) {
             rowsToAdd = 2;
         }
 
-        this.rowsMax +=rowsToAdd;
+        this.rowsMax += rowsToAdd;
 
         this.updateLayout();
     };
 
     Grid.prototype.destroy = function destroy () {
         Widget$$1.prototype.destroy.call(this);
+
+        this.destroyListeners();
 
         this.feed.destroy();
 
@@ -3088,6 +3271,11 @@ var LayoutCarousel = (function (EventBus$$1) {
 		this.PANES_VISIBLE=0;
 
 		this.options = z$1.extend({}, LayoutCarouselSettings, options);
+
+		// Validate options
+        if (!this.options.minWidth || this.options.minWidth < 100) {
+            this.options.minWidth = LayoutCarouselSettings.minWidth;
+		}
 
 		this.$viewport = z$1(container); // <div> slider, known as $viewport
 

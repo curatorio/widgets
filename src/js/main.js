@@ -1,6 +1,7 @@
 
 import {} from './libraries/nanoajax';
 import {} from './libraries/es6shim-array-fill';
+import {} from './libraries/es5shim-object-keys';
 import {} from './libraries/twitter-text-regex';
 
 import EventBus from '/curator/core/bus';

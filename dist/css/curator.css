@@ -1275,7 +1275,7 @@ body.crt-popup-visible {
       background-size: cover;
       background-position: center center;
       z-index: 1; }
-    .crt-grid-post-v2 .crt-grid-post-image .crt-social-icon {
+    .crt-grid-post-v2 .crt-grid-post-image .crt-social-icon i {
       color: #ffffff; }
     .crt-grid-post-v2 .crt-grid-post-image .crt-image-carousel {
       position: absolute;
@@ -1404,6 +1404,8 @@ body.crt-popup-visible {
       left: 0;
       right: 0; }
   .crt-grid-post-v2 .crt-hitarea:hover .crt-social-icon-normal {
+    opacity: 0; }
+  .crt-grid-post-v2 .crt-hitarea:hover .crt-image-carousel {
     opacity: 0; }
   .crt-grid-post-v2 .crt-hitarea:hover .crt-post-hover {
     visibility: visible;
