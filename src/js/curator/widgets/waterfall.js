@@ -92,8 +92,12 @@ class Waterfall extends Widget {
             }
         });
 
-        if (this.feed.allPostsLoaded && this.$more) {
-            this.$more.hide();
+        if (this.options.waterfall.showLoadMore) {
+            if (this.feed.allPostsLoaded) {
+                this.$more.hide();
+            } else {
+                this.$more.show();
+            }
         }
 
         this.popupManager.setPosts(posts);

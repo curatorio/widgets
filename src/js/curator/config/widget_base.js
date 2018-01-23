@@ -13,10 +13,7 @@ let ConfigWidgetBase = {
     debug:false,
     filter: {
         showNetworks: false,
-        networksLabel: 'Networks:',
-
         showSources: false,
-        sourcesLabel: 'Sources:',
     }
 };
 
