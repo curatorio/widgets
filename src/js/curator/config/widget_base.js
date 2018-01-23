@@ -14,10 +14,7 @@ let ConfigWidgetBase = {
     postClickAction:'open-popup',     // open-popup | goto-source | nothing
     filter: {
         showNetworks: false,
-        networksLabel: 'Networks:',
-
         showSources: false,
-        sourcesLabel: 'Sources:',
     }
 };
 

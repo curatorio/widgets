@@ -36,6 +36,8 @@ next,Next,Weiter,Più,Volgende,Siguiente,Suivant,Próximo,Следующий
 comments,Comments,Kommentare,Commenti,Comments,Comentarios,Commentaires,Comentários,Комментарии
 likes,Likes,Gefällt mir,Mi piace,Likes,Me gusta,J'aime,Curtir,Лайки
 read-more,Read more,Weiterlesen,Di più,Lees meer,Leer más,En savoir plus,Leia mais,Подробнее
+filter,Filter,Filtern,Filtrare,Filtreren,filtrar,Filtrer,Filtro,фильтровать
+all,All,Alle,Tutti,Alle,Todas,Tout,Todos,все
 `;
 
 
