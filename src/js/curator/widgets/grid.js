@@ -1,9 +1,11 @@
+
 import Widget from './base';
 import Logger from '/curator/core/logger';
 import CommonUtils from '/curator/utils/common';
 import ConfigWidgetGrid from '/curator/config/widget_grid';
 import TemplatingUtils from '/curator/core/templating';
 import z from '/curator/core/lib';
+import Events from "/curator/core/events";
 
 class Grid extends Widget {
 
@@ -163,9 +165,9 @@ class Grid extends Widget {
             // - let's reset
             this.$scroller.scrollTop(scrollTopOrig);
         }
-
         if (this.responsiveOptions.grid.showLoadMore) {
-            if (this.feed.allPostsLoaded) {
+            let postsVisible = this.columnCount * rows;
+            if (this.feed.allPostsLoaded && postsVisible >= this.feed.posts.length) {
                 this.$loadMore.hide();
             } else {
                 this.$loadMore.show();
@@ -184,12 +186,27 @@ class Grid extends Widget {
 
         if (diff > this.responsiveOptions.grid.continuousScrollOffset) {
             if (!this.feed.loading && !this.feed.allPostsLoaded) {
-
                 this.rowsMax += this.responsiveOptions.grid.rowsToAdd;
-
                 this.updateLayout();
             }
         }
+
+        z(document).on('ready.'+id, updateLayoutDebounced);
+
+        this.on(Events.FILTER_CHANGED, () => {
+            this.$feed.find('.crt-grid-post').remove();
+        });
+    }
+
+    destroyHandlers () {
+        let id = this.id;
+
+        z(window).off('resize.'+id);
+
+        z(window).off('curatorCssLoaded.'+id);
+
+        z(document).off('ready.'+id);
+>>>>>>> e6db32c... Grid - Fix Load More hiding
     }
 
     onPostsLoaded (event, posts) {
