@@ -12,7 +12,8 @@ let ConfigCarousel = z.extend({}, ConfigWidgetBase, {
     carousel:{
         autoPlay:true,
         autoLoad:true,
-        infinite:false
+        infinite:false,
+        matchHeights:false
     },
 });
 

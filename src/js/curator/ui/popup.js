@@ -5,6 +5,7 @@ import SocialTwitter from '/curator/social/twitter';
 import StringUtils from '/curator/utils/string';
 import TemplatingUtils from '/curator/core/templating';
 import z from '/curator/core/lib';
+import CommonUtils from "/curator/utils/common";
 
 /**
  * ==================================================================
@@ -25,6 +26,7 @@ class Popup {
         this.videoPlaying=false;
 
         this.$popup = TemplatingUtils.renderTemplate(templateId, this.json);
+        this.$left = this.$popup.find('.crt-popup-left');
 
         if (this.json.image) {
             this.$popup.addClass('has-image');
@@ -42,9 +44,7 @@ class Popup {
 
             let youTubeId = StringUtils.youtubeVideoId(this.json.video);
 
-            let src = '<iframe id="ytplayer" width="615" height="615" \
-            src="https://www.youtube.com/embed/'+youTubeId+'?autoplay=0&rel=0&showinfo" \
-            frameborder="0"></iframe>';
+            let src = `<div class="crt-responsive-video"><iframe id="ytplayer" src="https://www.youtube.com/embed/${youTubeId}?autoplay=0&rel=0&showinfo" frameborder="0" allowfullscreen></iframe></div>`;
 
             this.$popup.find('.crt-video-container img').remove();
             this.$popup.find('.crt-video-container a').remove();
@@ -58,7 +58,7 @@ class Popup {
             let vimeoId = StringUtils.vimeoVideoId(this.json.video);
 
             if (vimeoId) {
-                let src = '<iframe src="https://player.vimeo.com/video/' + vimeoId + '?color=ffffff&title=0&byline=0&portrait=0" width="615" height="615" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>';
+                let src = `<div class="crt-responsive-video"><iframe src="https://player.vimeo.com/video/${vimeoId}?color=ffffff&title=0&byline=0&portrait=0" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>`;
                 this.$popup.find('.crt-video-container img').remove();
                 this.$popup.find('.crt-video-container a').remove();
                 this.$popup.find('.crt-video-container').append(src);
@@ -82,6 +82,29 @@ class Popup {
         this.$popup.on('click',' .crt-play', this.onPlay.bind(this));
         this.$popup.on('click','.crt-share-facebook',this.onShareFacebookClick.bind(this));
         this.$popup.on('click','.crt-share-twitter',this.onShareTwitterClick.bind(this));
+
+        z(window).on('resize.crt-popup',CommonUtils.debounce(this.onResize.bind(this),50));
+
+        this.onResize ();
+    }
+
+    onResize () {
+        Logger.log('Popup->onResize');
+        let windowWidth = z(window).width ();
+        let padding = 60;
+        let paddingMobile = 40;
+        let rightPanel = 335;
+        let leftPanelMax = 600;
+
+        if (windowWidth > 1055) {
+            this.$left.width(leftPanelMax+rightPanel);
+        } else if (windowWidth > 910) {
+            this.$left.width(windowWidth-(padding*2));
+        } else if (windowWidth > leftPanelMax+(paddingMobile*2)) {
+            this.$left.width(600);
+        } else {
+            this.$left.width(windowWidth-(paddingMobile*2));
+        }
     }
 
     onPageClick (ev) {
@@ -201,6 +224,8 @@ class Popup {
 
             }
         }
+
+        z(window).off('resize.crt-popup');
 
         delete this.$popup;
     }

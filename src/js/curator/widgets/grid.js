@@ -33,6 +33,7 @@ class Grid extends Widget {
             this.$feed = this.$container.find('.crt-feed');
             this.$feedWindow = this.$container.find('.crt-feed-window');
             this.$loadMore = this.$container.find('.crt-feed-more a');
+            this.$scroller = z(window);
 
             this.$container.addClass('crt-grid');
 
@@ -81,7 +82,6 @@ class Grid extends Widget {
         z(document).on('ready.'+id, updateLayoutDebounced);
 
         if (this.responsiveOptions.grid.continuousScroll) {
-            this.$scroller = z(window);
             z(window).on('scroll.'+id, CommonUtils.debounce(() => {
                 this.checkScroll();
             }, 100));
@@ -246,8 +246,6 @@ class Grid extends Widget {
 
     destroy () {
         super.destroy();
-
-        this.destroyListeners();
 
         this.feed.destroy();
 

@@ -5,7 +5,7 @@ import Events from '/curator/core/events';
 import z from '/curator/core/lib';
 
 const LayoutCarouselSettings = {
-	circular: false,
+    infinite: false,
 	speed: 5000,
 	duration: 700,
 	minWidth: 250,
@@ -44,8 +44,12 @@ class LayoutCarousel extends EventBus {
 		this.$panes = this.$viewport.children();
 		this.$panes.detach();
 
-		this.$stage = z('<div class="ctr-carousel-stage"></div>').appendTo(this.$viewport);
-		this.$pane_slider = z('<div class="ctr-carousel-slider"></div>').appendTo(this.$stage);
+		this.$stage = z('<div class="crt-carousel-stage"></div>').appendTo(this.$viewport);
+		this.$pane_slider = z('<div class="crt-carousel-slider"></div>').appendTo(this.$stage);
+
+		if (this.options.matchHeights) {
+            this.$stage.addClass('crt-match-heights');
+        }
 
 		this.addControls();
 		this.createHandlers();
@@ -68,7 +72,7 @@ class LayoutCarousel extends EventBus {
 	update () {
         Logger.log('LayoutCarousel->update ');
 		this.$panes = this.$pane_slider.children(); // <li> list items, known as $panes
-		this.NUM_PANES = this.options.circular ? (this.$panes.length + 1) : this.$panes.length;
+		this.NUM_PANES = this.$panes.length;
 
 		if (this.NUM_PANES > 0) {
 			this.resize();
@@ -238,26 +242,54 @@ class LayoutCarousel extends EventBus {
 
 	updateHeight () {
         Logger.log('LayoutCarousel->updateHeight');
-        // Logger.log('LayoutCarousel->updateHeight infinite:'+this.options.infinite);
-        // Logger.log('LayoutCarousel->updateHeight FAKE_NUM:'+this.FAKE_NUM);
 
-        // Logger.log('    current_position: '+this.current_position);
-        // Logger.log('    PANES_VISIBLE: '+this.PANES_VISIBLE);
-        let paneMaxHeight = 0;
         let min = this.options.infinite ? this.current_position + this.FAKE_NUM: this.current_position;
-        let max = min + this.PANES_VISIBLE;
-        for (let i = min; i < max; i++)
-        {
-            let h = z(this.$panes[i]).height();
-            // Logger.log('LayoutCarousel->updateHeight i: '+i+' = '+h);
-            if (h > paneMaxHeight) {
-                paneMaxHeight = h;
-            }
-        }
-        // Logger.log('LayoutCarousel->updateHeight paneMaxHeight: '+paneMaxHeight);
+        let paneMaxHeight = this.getMaxHeight(min);
+
         if (this.$stage.height() !== paneMaxHeight) {
             this.$stage.animate({height: paneMaxHeight}, 300);
         }
+
+        if (this.options.matchHeights) {
+        	this.setPaneHeights (min);
+        	this.setPaneHeights (min + this.PANES_VISIBLE);
+        }
+	}
+
+	setPaneHeights (min) {
+        Logger.log('LayoutCarousel->setPaneHeights '+min);
+
+        let max = min + this.PANES_VISIBLE;
+        let paneMaxHeight = this.getMaxHeight(min);
+
+
+        if (this.options.matchHeights) {
+            for (let i = min; i < max; i++) {
+                let $pane = z(this.$panes[i]);
+                $pane.find('.crt-post-c').height((paneMaxHeight - 2));
+            }
+        }
+	}
+
+	getMaxHeight (min) {
+        Logger.log('LayoutCarousel->getMaxHeight '+min);
+        let paneMaxHeight = 0;
+        let max = min + this.PANES_VISIBLE;
+        for (let i = min; i < max; i++)
+        {
+        	if (this.$panes[i]) {
+                let $pane = z(this.$panes[i]);
+                let contentHeight = $pane.find('.crt-post-content').height();
+                let footerHeight = $pane.find('.crt-post-footer').height();
+                let h = contentHeight + footerHeight + 2;
+                // Logger.log('LayoutCarousel->updateHeight i: '+i+' = '+h);
+                if (h > paneMaxHeight) {
+                    paneMaxHeight = h;
+                }
+            }
+        }
+
+        return paneMaxHeight;
 	}
 
 	addControls () {
