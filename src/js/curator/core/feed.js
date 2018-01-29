@@ -55,6 +55,19 @@ class Feed extends EventBus {
         this._loadPosts (params);
     }
 
+    loadMorePaginated (paramsIn) {
+
+        let params = z.extend({},this.params,paramsIn);
+
+        if (this.pagination && this.pagination.after) {
+            params.after = this.pagination.after;
+        }
+
+        // console.log (params);
+
+        this._loadPosts (params);
+    }
+
     loadMore (paramsIn) {
         Logger.log ('Feed->loadMore '+this.loading);
         if (this.loading) {

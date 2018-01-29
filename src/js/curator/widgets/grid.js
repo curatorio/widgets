@@ -131,13 +131,7 @@ class Grid extends Widget {
                 limit : limit
             };
 
-            if (this.feed.pagination && this.feed.pagination.after) {
-                params.after = this.feed.pagination.after;
-            }
-
-            // console.log (params);
-
-            this.feed._loadPosts(params);
+            this.feed.loadMorePaginated(params);
         } else {
             this.updateHeight(false);
         }
