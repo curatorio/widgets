@@ -88,6 +88,10 @@ class Grid extends Widget {
                 this.checkScroll();
             }, 100));
         }
+
+        this.on(Events.FILTER_CHANGED, () => {
+            this.$feed.find('.crt-grid-post').remove();
+        });
     }
 
     destroyHandlers () {
@@ -190,12 +194,6 @@ class Grid extends Widget {
                 this.updateLayout();
             }
         }
-
-        z(document).on('ready.'+id, updateLayoutDebounced);
-
-        this.on(Events.FILTER_CHANGED, () => {
-            this.$feed.find('.crt-grid-post').remove();
-        });
     }
 
     destroyHandlers () {
@@ -206,7 +204,7 @@ class Grid extends Widget {
         z(window).off('curatorCssLoaded.'+id);
 
         z(document).off('ready.'+id);
->>>>>>> e6db32c... Grid - Fix Load More hiding
+
     }
 
     onPostsLoaded (event, posts) {
