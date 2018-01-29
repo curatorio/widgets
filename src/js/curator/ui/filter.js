@@ -41,10 +41,12 @@ class Filter extends EventBus {
             this.widget.trigger(Events.FILTER_CHANGED);
 
             if (networkId) {
-                this.widget.feed.loadPosts(0, {network_id: networkId});
+                this.widget.feed.params.network_id = networkId;
             } else {
-                this.widget.feed.loadPosts(0, {});
+                this.widget.feed.params.network_id = 0;
             }
+
+            this.widget.feed.loadPosts(0);
         });
 
         this.$filter.on('click','.crt-filter-sources a', (ev) => {
@@ -58,10 +60,12 @@ class Filter extends EventBus {
             this.widget.trigger(Events.FILTER_CHANGED);
 
             if (sourceId) {
-                this.widget.feed.loadPosts(0, {source_id:sourceId});
+                this.widget.feed.params.source_id = sourceId;
             } else {
-                this.widget.feed.loadPosts(0, {});
+                this.widget.feed.params.source_id = 0;
             }
+
+            this.widget.feed.loadPosts(0);
         });
 
         this.widget.on(Events.FEED_LOADED, this.onPostsLoaded.bind(this));
