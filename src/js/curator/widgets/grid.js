@@ -4,6 +4,7 @@ import CommonUtils from "../utils/common";
 import ConfigWidgetGrid from "../config/widget_grid";
 import TemplatingUtils from "../core/templating";
 import z from "../core/lib";
+import Events from "../core/events";
 
 class Grid extends Widget {
 
@@ -100,7 +101,8 @@ class Grid extends Widget {
         }
 
         if (this.options.grid.showLoadMore) {
-            if (this.feed.allPostsLoaded) {
+            let postsVisible = this.columnCount * rows;
+            if (this.feed.allPostsLoaded && postsVisible >= this.feed.posts.length) {
                 this.$loadMore.hide();
             } else {
                 this.$loadMore.show();
@@ -119,6 +121,10 @@ class Grid extends Widget {
         z(window).on('curatorCssLoaded.'+id, updateLayoutDebounced);
 
         z(document).on('ready.'+id, updateLayoutDebounced);
+
+        this.on(Events.FILTER_CHANGED, () => {
+            this.$feed.find('.crt-grid-post').remove();
+        });
     }
 
     destroyHandlers () {

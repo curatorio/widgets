@@ -42,6 +42,11 @@ class Feed extends EventBus {
         }
         this.currentPage = page;
 
+        if (+this.currentPage === 0) {
+            this.posts = [];
+            this.postsLoaded = 0;
+        }
+
         let params = z.extend({},this.options.feedParams,paramsIn);
 
         params.limit = this.options.postsPerPage;
