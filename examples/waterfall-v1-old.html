@@ -22,10 +22,10 @@
     <script type="text/javascript" src="https://cdn.curator.io/1.5/js/curator.nodep.js"></script>
     <script type="text/javascript">
         // While you're testing
-        Curator.debug = true;
+        Curator.Logger.debug = true;
 
         // Change FEED_ID to your unique FEED_ID
-        var widget = new Curator.Waterfall({
+        var widget = new Curator.Widgets.Waterfall({
             container:'#curator-feed',
             feedId:"927447a8-2d33-4b3f-939b-ddc414ff",
             templatePost:'v1-post'

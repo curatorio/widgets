@@ -1,10 +1,10 @@
 
-import EventBus from '../core/bus';
-import Templating from "../core/templating";
-import Logger from "../core/logger";
-import Events from "../core/events";
-import Networks from "../config/networks";
-import z from "../core/lib";
+import EventBus from '/curator/core/bus';
+import Templating from '/curator/core/templating';
+import Logger from '/curator/core/logger';
+import Events from '/curator/core/events';
+import Networks from '/curator/config/networks';
+import z from '/curator/core/lib';
 
 /**
 * ==================================================================
@@ -14,13 +14,13 @@ import z from "../core/lib";
 
 class Filter extends EventBus {
 
-    constructor (client) {
+    constructor (widget) {
         Logger.log('Filter->construct');
 
         super();
 
-        this.client = client;
-        this.options = client.options;
+        this.widget = widget;
+        this.options = widget.options;
 
         this.$filter = Templating.renderTemplate(this.options.templateFilter, {});
         this.$filterNetworks =  this.$filter.find('.crt-filter-networks');
@@ -28,10 +28,7 @@ class Filter extends EventBus {
         this.$filterSources =  this.$filter.find('.crt-filter-sources');
         this.$filterSourcesUl =  this.$filter.find('.crt-filter-sources ul');
 
-        this.client.$container.append(this.$filter);
-
-        this.$filterNetworks.find('label').text(this.client.options.filter.networksLabel);
-        this.$filterSources.find('label').text(this.client.options.filter.sourcesLabel);
+        this.widget.$container.append(this.$filter);
 
         this.$filter.on('click','.crt-filter-networks a', (ev) => {
             ev.preventDefault();
@@ -41,13 +38,15 @@ class Filter extends EventBus {
             this.$filter.find('.crt-filter-networks li').removeClass('active');
             t.parent().addClass('active');
 
-            this.client.trigger(Events.FILTER_CHANGED);
+            this.widget.trigger(Events.FILTER_CHANGED);
 
             if (networkId) {
-                this.client.feed.loadPosts(0, {network_id: networkId});
+                this.widget.feed.params.network_id = networkId;
             } else {
-                this.client.feed.loadPosts(0, {});
+                this.widget.feed.params.network_id = 0;
             }
+
+            this.widget.feed.loadPosts(0);
         });
 
         this.$filter.on('click','.crt-filter-sources a', (ev) => {
@@ -58,16 +57,18 @@ class Filter extends EventBus {
             this.$filter.find('.crt-filter-sources li').removeClass('active');
             t.parent().addClass('active');
 
-            this.client.trigger(Events.FILTER_CHANGED);
+            this.widget.trigger(Events.FILTER_CHANGED);
 
             if (sourceId) {
-                this.client.feed.loadPosts(0, {source_id:sourceId});
+                this.widget.feed.params.source_id = sourceId;
             } else {
-                this.client.feed.loadPosts(0, {});
+                this.widget.feed.params.source_id = 0;
             }
+
+            this.widget.feed.loadPosts(0);
         });
 
-        this.client.on(Events.FEED_LOADED, this.onPostsLoaded.bind(this));
+        this.widget.on(Events.FEED_LOADED, this.onPostsLoaded.bind(this));
     }
 
     onPostsLoaded (event, data) {
@@ -76,11 +77,7 @@ class Filter extends EventBus {
         let sources = data.sources;
 
         if (!this.filtersLoaded) {
-
             if (this.options.filter.showNetworks) {
-                this.$filterNetworksUl.append('<li class="crt-filter-label"><label>'+this.client.options.filter.networksLabel+'</label></li>');
-                this.$filterNetworksUl.append('<li class="active"><a href="#" data-network="0"> All</a></li>');
-
                 for (let id of networks) {
                     let network = Networks[id];
                     if (network) {
@@ -94,8 +91,6 @@ class Filter extends EventBus {
             }
 
             if (this.options.filter.showSources) {
-                this.$filterSourcesUl.append('<li class="crt-filter-label"><label>'+this.client.options.filter.sourcesLabel+'</label></li>');
-                this.$filterSourcesUl.append('<li class="active"><a href="#" data-source="0"> All</a></li>');
                 for (let source of sources) {
                     let network = Networks[source.network_id];
                     if (network) {

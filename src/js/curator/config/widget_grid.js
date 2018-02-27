@@ -1,7 +1,7 @@
 
 
-import ConfigWidgetBase from "./widget_base";
-import z from "../core/lib";
+import ConfigWidgetBase from './widget_base';
+import z from '/curator/core/lib';
 
 let ConfigWidgetGrid = z.extend({}, ConfigWidgetBase, {
     templatePost:'grid-post-v2',
@@ -9,7 +9,16 @@ let ConfigWidgetGrid = z.extend({}, ConfigWidgetBase, {
     animate:false,
     grid: {
         minWidth:200,
-        rows:3
+        rows:3,
+        showLoadMore:false,
+        rowsToAdd:1,
+        continuousScroll:false,
+        continuousScrollOffset:50,
+        hover:{
+            showName:true,
+            showFooter:true,
+            showText:true,
+        }
     }
 });
 

@@ -1,10 +1,10 @@
 
 
-import Logger from "./logger";
-import Events from "./events";
-import EventBus from "./bus";
-import ajax from "./ajax";
-import z from "./lib";
+import Logger from './logger';
+import Events from './events';
+import EventBus from './bus';
+import ajax from './ajax';
+import z from './lib';
 
 class Feed extends EventBus {
 
@@ -42,10 +42,28 @@ class Feed extends EventBus {
         }
         this.currentPage = page;
 
-        let params = z.extend({},this.options.feedParams,paramsIn);
+        if (+this.currentPage === 0) {
+            this.posts = [];
+            this.postsLoaded = 0;
+        }
+
+        let params = z.extend({},this.params,paramsIn);
 
         params.limit = this.options.postsPerPage;
         params.offset = page * this.options.postsPerPage;
+
+        this._loadPosts (params);
+    }
+
+    loadMorePaginated (paramsIn) {
+
+        let params = z.extend({},this.params,paramsIn);
+
+        if (this.pagination && this.pagination.after) {
+            params.after = this.pagination.after;
+        }
+
+        // console.log (params);
 
         this._loadPosts (params);
     }

@@ -2,12 +2,12 @@
 import Widget from './base';
 import Logger from '/curator/core/logger';
 import CommonUtils from '/curator/utils/common';
-import ConfigWidgetGrid from '/curator/config/widget_grid';
+import ConfigWidgetGrid from '/curator/config/widget_list';
 import TemplatingUtils from '/curator/core/templating';
 import z from '/curator/core/lib';
 import Events from "/curator/core/events";
 
-class Grid extends Widget {
+class List extends Widget {
 
     constructor  (options) {
         super ();
@@ -17,17 +17,13 @@ class Grid extends Widget {
         this.$container=null;
         this.$feed=null;
         this.posts=[];
-        this.columnCount=0;
-        this.rowsMax = 0;
-        this.totalPostsLoaded=0;
-        this.allLoaded=false;
         //
         // if ('scrollRestoration' in window.history) {
         //     window.history.scrollRestoration = 'manual';
         // }
 
         if (this.init (options,  ConfigWidgetGrid)) {
-            Logger.log("Grid->init with options:");
+            Logger.log("List->init with options:");
             Logger.log(this.options);
 
             let tmpl = TemplatingUtils.renderTemplate(this.responsiveOptions.templateFeed, {});
@@ -37,9 +33,9 @@ class Grid extends Widget {
             this.$loadMore = this.$container.find('.crt-feed-more a');
             this.$scroller = z(window);
 
-            this.$container.addClass('crt-grid');
+            this.$container.addClass('crt-list');
 
-            if (this.responsiveOptions.grid.showLoadMore) {
+            if (this.responsiveOptions.list.showLoadMore) {
                 this.$feedWindow.css({
                     'position':'relative'
                 });
@@ -48,23 +44,10 @@ class Grid extends Widget {
                 this.$loadMore.hide();
             }
 
-            if (!this.responsiveOptions.grid.hover.showName) {
-                this.$container.addClass('crt-grid-hide-name');
-            }
-
-            if (!this.responsiveOptions.grid.hover.showFooter) {
-                this.$container.addClass('crt-grid-hide-footer');
-            }
-
-            if (!this.responsiveOptions.grid.hover.showText) {
-                this.$container.addClass('crt-grid-hide-text');
-            }
-
             this.createHandlers();
 
             // This triggers post loading
-            this.rowsMax = this.responsiveOptions.grid.rows;
-            this.updateLayout ();
+            this.feed.load();
         }
     }
 
@@ -83,14 +66,14 @@ class Grid extends Widget {
 
         z(document).on('ready.'+id, updateLayoutDebounced);
 
-        if (this.responsiveOptions.grid.continuousScroll) {
+        if (this.responsiveOptions.list.continuousScroll) {
             z(window).on('scroll.'+id, CommonUtils.debounce(() => {
                 this.checkScroll();
             }, 100));
         }
 
         this.on(Events.FILTER_CHANGED, () => {
-            this.$feed.find('.crt-grid-post').remove();
+            this.$feed.find('.crt-list-post').remove();
         });
     }
 
@@ -111,14 +94,14 @@ class Grid extends Widget {
     }
 
     updateLayout ( ) {
-        // Logger.log("Grid->updateLayout ");
-        let cols = Math.floor(this.$container.width()/this.responsiveOptions.grid.minWidth);
+        // Logger.log("List->updateLayout ");
+        let cols = Math.floor(this.$container.width()/this.responsiveOptions.list.minWidth);
         cols = cols < 1 ? 1 : cols;
 
         // set col layout
-        this.$container.removeClass('crt-grid-col'+this.columnCount);
+        this.$container.removeClass('crt-list-col'+this.columnCount);
         this.columnCount = cols;
-        this.$container.addClass('crt-grid-col'+this.columnCount);
+        this.$container.addClass('crt-list-col'+this.columnCount);
 
         // figure out if we need more posts
         let postsNeeded = cols *  (this.rowsMax + 1);
@@ -138,14 +121,10 @@ class Grid extends Widget {
     }
 
     updateHeight (animate) {
-        let $post = this.$container.find('.crt-grid-post').first();
-        let postHeight = $post.height();
-        let postMarginBottom = parseInt($post.css("margin-bottom"));
-        // let postMarginTop = parseInt($post.css("margin-top"));
-        // let postPaddingBottom = parseInt($post.css("padding-bottom"));
-        // let postPaddingTop = parseInt($post.css("padding-top"));
-
-        postHeight += postMarginBottom;
+        let $post = this.$container.find('.crt-post-c').first();
+        let postHeight = $post.width();
+        let postMargin = parseInt($post.css("margin-left"));
+        postHeight += postMargin;
 
         this.$feedWindow.css({'overflow':'hidden'});
 
@@ -167,7 +146,7 @@ class Grid extends Widget {
             // - let's reset
             this.$scroller.scrollTop(scrollTopOrig);
         }
-        if (this.responsiveOptions.grid.showLoadMore) {
+        if (this.responsiveOptions.list.showLoadMore) {
             let postsVisible = this.columnCount * rows;
             if (this.feed.allPostsLoaded && postsVisible >= this.feed.posts.length) {
                 this.$loadMore.hide();
@@ -178,7 +157,7 @@ class Grid extends Widget {
     }
 
     checkScroll () {
-        Logger.log("Grid->checkScroll");
+        Logger.log("List->checkScroll");
         // console.log('scroll');
         let top = this.$container.offset().top;
         let feedBottom = top+this.$feedWindow.height();
@@ -186,22 +165,20 @@ class Grid extends Widget {
         let windowBottom = scrollTop+z(window).height();
         let diff = windowBottom - feedBottom;
 
-        if (diff > this.responsiveOptions.grid.continuousScrollOffset) {
+        if (diff > this.responsiveOptions.list.continuousScrollOffset) {
             if (!this.feed.loading && !this.feed.allPostsLoaded) {
-                this.rowsMax += this.responsiveOptions.grid.rowsToAdd;
+                this.rowsMax += this.responsiveOptions.list.rowsToAdd;
                 this.updateLayout();
             }
         }
     }
 
     onPostsLoaded (event, posts) {
-        Logger.log("Grid->onPostsLoaded");
+        Logger.log("List->onPostsLoaded");
 
         this.loading = false;
 
-        if (posts.length === 0) {
-            this.allLoaded = true;
-        } else {
+        if (posts.length !== 0) {
             this.postElements = [];
             let i = 0;
 
@@ -226,26 +203,22 @@ class Grid extends Widget {
 
             this.popupManager.setPosts(posts);
 
-            window.setTimeout(() => {
-                this.updateHeight(true);
-            },10);
+            if (this.responsiveOptions.list.showLoadMore) {
+                if (this.feed.allPostsLoaded) {
+                    this.$loadMore.hide();
+                } else {
+                    this.$loadMore.show();
+                }
+            } else {
+                this.$loadMore.hide();
+            }
         }
     }
 
     onMoreClicked (ev) {
         ev.preventDefault();
 
-        let rowsToAdd = 1;
-
-        if (this.columnCount <= 1) {
-            rowsToAdd = 4;
-        } else if (this.columnCount === 2) {
-            rowsToAdd = 2;
-        }
-
-        this.rowsMax += rowsToAdd;
-
-        this.updateLayout();
+        this.feed.loadMorePaginated();
     }
 
     destroy () {
@@ -256,16 +229,14 @@ class Grid extends Widget {
         this.destroyHandlers();
 
         this.$container.empty()
-            .removeClass('crt-grid')
-            .removeClass('crt-grid-col'+this.columnCount)
+            .removeClass('crt-list')
+            .removeClass('crt-list-col'+this.columnCount)
             .css({'height':'','overflow':''});
 
         delete this.$feed;
         delete this.$container;
         delete this.options ;
-        delete this.totalPostsLoaded;
         delete this.loading;
-        delete this.allLoaded;
 
         // TODO add code to cascade destroy down to Posts
         // unregistering events etc
@@ -274,4 +245,4 @@ class Grid extends Widget {
 
 }
 
-export default Grid;
+export default List;

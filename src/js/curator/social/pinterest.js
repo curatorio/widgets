@@ -1,5 +1,5 @@
 
-import CommonUtils from "../utils/common";
+import CommonUtils from '/curator/utils/common';
 
 let SocialPinterest = {
     share: function (post) {

@@ -23,7 +23,7 @@ const v1PostTemplate = ' \
         </div> \
         <div class="crt-post-footer">\
             <div class="crt-date"><%=this.prettyDate(source_created_at)%></div> \
-            <div class="crt-post-share"><span class="ctr-share-hint"></span><a href="#" class="crt-share-facebook"><i class="crt-icon-facebook"></i></a>  <a href="#" class="crt-share-twitter"><i class="crt-icon-twitter"></i></a></div>\
+            <div class="crt-post-share"><span class="crt-share-hint"></span><a href="#" class="crt-share-facebook"><i class="crt-icon-facebook"></i></a>  <a href="#" class="crt-share-twitter"><i class="crt-icon-twitter"></i></a></div>\
         </div> \
         <div class="crt-post-read-more"><a href="#" class="crt-post-read-more-button">Read more</a> </div> \
     </div>\

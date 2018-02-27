@@ -19,10 +19,10 @@
 <script type="text/javascript" src="https://cdn.curator.io/1.0/js/curator.widget.waterfall.js"></script>
 <script type="text/javascript">
     // While you're testing
-    Curator.debug = true;
+    Curator.Logger.debug = true;
 
     // Change FEED_ID to your unique FEED_ID
-    var widget = new Curator.Waterfall({
+    var widget = new Curator.Widgets.Waterfall({
         container:'#curator-feed',
         feedId:"6dab8d1e-abe9-4fb7-8475-99ab8d5e"
     });

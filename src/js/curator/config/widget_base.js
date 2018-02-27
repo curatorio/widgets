@@ -11,12 +11,10 @@ let ConfigWidgetBase = {
     showPopupOnClick:true,
     lang:'en',
     debug:false,
+    postClickAction:'open-popup',     // open-popup | goto-source | nothing
     filter: {
         showNetworks: false,
-        networksLabel: 'Networks:',
-
         showSources: false,
-        sourcesLabel: 'Sources:',
     }
 };
 

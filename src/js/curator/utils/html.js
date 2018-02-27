@@ -1,5 +1,5 @@
-import Logger from "../core/logger";
-import z from "../core/lib";
+import Logger from '/curator/core/logger';
+import z from '/curator/core/lib';
 
 const HtmlUtils = {
     checkContainer: function (container) {

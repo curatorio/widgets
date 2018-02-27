@@ -1,5 +1,5 @@
-import libTranslate from "../../libraries/translate";
-import translations from "./translations";
+import libTranslate from '/libraries/translate';
+import translations from './translations';
 
 let _cache = {};
 let currentLang = 'en';

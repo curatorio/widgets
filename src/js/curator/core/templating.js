@@ -2,10 +2,10 @@
 // Simple JavaScript Templating
 // John Resig - http://ejohn.org/ - MIT Licensed
 
-import Templates from "../templates/templates";
+import Templates from '/curator/templates/templates';
 import helpers from './templating_helpers';
-import Logger from "./logger";
-import z from "./lib";
+import Logger from './logger';
+import z from './lib';
 
 let _rendererTmplCache = {};
 

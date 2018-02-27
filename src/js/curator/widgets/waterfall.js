@@ -1,10 +1,10 @@
 
-import Widget from "./base";
-import ConfigWidgetWaterfall from "../config/widget_waterfall";
-import Logger from "../core/logger";
-import LayoutWaterfall from "../ui/layout/waterfall";
-import Events from "../core/events";
-import z from "../core/lib";
+import Widget from './base';
+import ConfigWidgetWaterfall from '/curator/config/widget_waterfall';
+import Logger from '/curator/core/logger';
+import LayoutWaterfall from '/curator/ui/layout/waterfall';
+import Events from '/curator/core/events';
+import z from '/curator/core/lib';
 
 class Waterfall extends Widget {
 
@@ -57,7 +57,17 @@ class Waterfall extends Widget {
 
             // Load first set of posts
             this.feed.load();
+
+            this.iniListeners();
         }
+    }
+
+    iniListeners () {
+
+    }
+
+    destroyListeners () {
+
     }
 
     loadMorePosts  () {
@@ -92,8 +102,12 @@ class Waterfall extends Widget {
             }
         });
 
-        if (this.feed.allPostsLoaded && this.$more) {
-            this.$more.hide();
+        if (this.options.waterfall.showLoadMore) {
+            if (this.feed.allPostsLoaded) {
+                this.$more.hide();
+            } else {
+                this.$more.show();
+            }
         }
 
         this.popupManager.setPosts(posts);
@@ -118,6 +132,8 @@ class Waterfall extends Widget {
             this.$more.remove();
         }
         this.$container.removeClass('crt-feed-container');
+
+        this.destroyListeners();
 
         delete this.$feed;
         delete this.$scroll;

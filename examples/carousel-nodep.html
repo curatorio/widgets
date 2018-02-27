@@ -17,12 +17,12 @@
 <script type="text/javascript" src="../dist/js/curator.js"></script>
 <script type="text/javascript">
     // While you're testing
-    Curator.debug = true;
+    Curator.Logger.debug = true;
 
     var feedId = 'd770f4ab-f2cc-4514-a8d2-c2a03122' ;
 
     // Change FEED_ID to your unique FEED_ID
-    var widget = new Curator.Carousel({
+    var widget = new Curator.Widgets.Carousel({
         container:'#curator-feed',
         feedId:feedId,
         carousel:{

@@ -8,10 +8,11 @@
  * (http://suprb.com/apps/gridalicious/)
  *
  */
-import Logger from "../../core/logger";
-import CommonUtils from "../../utils/common";
-import makeArray from '../../../libraries/make-array';
-import z from "../../core/lib";
+
+import Logger from '/curator/core/logger';
+import CommonUtils from '/curator/utils/common';
+import makeArray from '/libraries/make-array';
+import z from '/curator/core/lib';
 
 let LayoutWaterfallSettings = {
     selector: '.item',

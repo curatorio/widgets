@@ -3,6 +3,8 @@
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 // Configuration
 
+let path = require('path');
+
 const dest        = "dist/";
 const destCss     = dest+"css/";
 const destJs      = dest+"js/";
@@ -10,6 +12,8 @@ const destJs      = dest+"js/";
 const src         = "src/";
 const srcScss     = src+"scss/";
 const srcJs       = src+"js/";
+
+console.log();
 
 const watchPaths  = [
     dest+'/**',
@@ -27,6 +31,11 @@ const bubleConfig = {
     transforms: {
         dangerousForOf: true
     }
+};
+
+const aliasConfig = {
+    '/curator': path.resolve(__dirname,srcJs+'/curator'),
+    '/libraries': path.resolve(__dirname,srcJs+'/libraries')
 };
 
 function bubleError (err) {
@@ -59,7 +68,8 @@ const gulp = require('gulp'),
     // buble = require('gulp-buble'),
     rollup = require('gulp-better-rollup'),
     uglify = require('gulp-uglify'),
-    rollupBuble = require('rollup-plugin-buble');
+    rollupBuble = require('rollup-plugin-buble'),
+    rollupAlias = require('rollup-plugin-alias');
 
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -82,7 +92,7 @@ gulp.task('scripts:core', () =>  {
     return gulp.src(srcJs+'main.js')
         // .pipe(sourcemaps.init())
         .pipe(rollup({
-            plugins: [rollupBuble(bubleConfig)],
+            plugins: [rollupBuble(bubleConfig),rollupAlias(aliasConfig)],
         }, {
             format: 'umd',
             name : 'Curator'
