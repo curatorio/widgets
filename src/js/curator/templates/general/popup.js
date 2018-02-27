@@ -29,6 +29,7 @@ const v1PopupTemplate = `
         <div class="crt-popup-text <%=this.contentTextClasses()%>"> 
             <div class="crt-popup-text-container"> 
                 <p class="crt-date"><%=this.prettyDate(source_created_at)%></p> 
+                <a class="crt-link" href="<%= this.networkIcon() == "facebook" ? url :"" %>" target="_blank"><%= this.networkIcon() == "facebook" ? "Go to post" :"" %></a>
                 <div class="crt-popup-text-body"><%=this.parseText(text)%></div> 
             </div> 
         </div> 
