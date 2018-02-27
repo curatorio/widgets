@@ -710,6 +710,10 @@ var v2GridFeedTemple = ' \
 
 var template = "\n<div class=\"crt-grid-post crt-grid-post-minimal crt-grid-post-v2 crt-post-<%=id%> <%=this.contentImageClasses()%> <%=this.contentTextClasses()%>\" data-post=\"<%=id%>\">     <div class=\"crt-post-c\"> \n        <div class=\"crt-post-content\"> \n            <div class=\"crt-hitarea\" > \n                <img src=\"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7\" class=\"crt-spacer\" /> \n                <div class=\"crt-grid-post-image\">\n                    <div class=\"crt-post-content-image\" style=\"background-image: url(<%=image%>);\"> </div> \n                    <a href=\"javascript:;\" class=\"crt-play\"><i class=\"crt-play-icon\"></i></a> \n                    <span class=\"crt-social-icon crt-social-icon-normal\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                    <div class=\"crt-image-carousel\"><i class=\"crt-icon-image-carousel\"></i></div> \n                </div>\n                <div class=\"crt-grid-post-text\">\n                    <div class=\"crt-grid-post-text-wrap\"> \n                        <div><%=this.parseText(text)%></div> \n                    </div> \n                    <span class=\"crt-social-icon crt-social-icon-normal\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                </div>\n                <div class=\"crt-post-hover\">\n                    <div>\n                        <div class=\"crt-post-header\">\n                            <span class=\"crt-social-icon\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span>  \n                        </div> \n                        <div class=\"crt-post-minimal-stats\"> \n                            <span class=\"crt-likes\"><i class=\"crt-icon-heart\"></i>&nbsp;<%=likes%></span>\n                            <span class=\"crt-comments\"><i class=\"crt-icon-comment\"></i>&nbsp;<%=comments%></span>\n                        </div> \n                    </div> \n                </div> \n            </div> \n        </div> \n    </div>\n</div>";
 
+var template$1 = "\n<div class=\"crt-feed-window\">\n    <div class=\"crt-feed\"></div>\n</div>\n<div class=\"crt-feed-more\"><a href=\"#\">Load more</a></div>";
+
+var template$2 = "\n<div class=\"crt-list-post crt-post-<%=id%> <%=this.contentImageClasses()%> <%=this.contentTextClasses()%>\" data-post=\"<%=id%>\">     <div class=\"crt-post-c\"> \n        <div class=\"crt-post-content\"> \n            <div class=\"crt-list-post-image\">\n                <div>\n                <img class=\"crt-post-content-image\" src=\"<%=image%>\" /> \n                <a href=\"javascript:;\" class=\"crt-play\"><i class=\"crt-play-icon\"></i></a> \n                <span class=\"crt-social-icon crt-social-icon-normal\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                <span class=\"crt-image-carousel\"><i class=\"crt-icon-image-carousel\"></i></span>\n                </div> \n            </div>\n            <div class=\"crt-list-post-text\">\n                <div class=\"crt-post-header\"> \n                    <div class=\"crt-post-fullname\"><%=id%> - <a href=\"<%=this.userUrl()%>\" target=\"_blank\"><%=user_full_name%></a></div>\n                </div> \n                <div class=\"crt-list-post-text-wrap\"> \n                    <div><%=this.parseText(text)%></div> \n                </div> \n                <span class=\"crt-social-icon crt-social-icon-normal\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span>\n                 <div class=\"crt-post-footer\">\n                    <img class=\"crt-post-userimage\" src=\"<%=user_image%>\" /> \n                    <span class=\"crt-post-username\"><a href=\"<%=this.userUrl()%>\" target=\"_blank\">@<%=user_screen_name%></a></span>\n                    <span class=\"crt-date\"><%=this.prettyDate(source_created_at)%></span> \n                    <div class=\"crt-post-share\"><span class=\"crt-share-hint\"></span><a href=\"#\" class=\"crt-share-facebook\"><i class=\"crt-icon-facebook\"></i></a>  <a href=\"#\" class=\"crt-share-twitter\"><i class=\"crt-icon-twitter\"></i></a></div>\n                </div>  \n            </div>\n        </div> \n    </div>\n</div>";
+
 var Templates = {
     'filter'                : filterTemplate,
     'popup'                 : v1PopupTemplate,
@@ -725,6 +729,9 @@ var Templates = {
     'grid-post-v2'          : v2GridPostTemplate,
     'grid-post-minimal'     : template,
     'grid-feed-v2'          : v2GridFeedTemple,
+
+    'list-feed'             : template$1,
+    'list-post'             : template$2,
 };
 
 /**
@@ -1507,6 +1514,19 @@ var Feed = (function (EventBus$$1) {
 
         params.limit = this.options.postsPerPage;
         params.offset = page * this.options.postsPerPage;
+
+        this._loadPosts (params);
+    };
+
+    Feed.prototype.loadMorePaginated = function loadMorePaginated (paramsIn) {
+
+        var params = z$1.extend({},this.params,paramsIn);
+
+        if (this.pagination && this.pagination.after) {
+            params.after = this.pagination.after;
+        }
+
+        // console.log (params);
 
         this._loadPosts (params);
     };
@@ -2945,7 +2965,264 @@ var Waterfall = (function (Widget$$1) {
     return Waterfall;
 }(Widget));
 
-var ConfigWidgetGrid = z$1.extend({}, ConfigWidgetBase, {
+var ConfigWidgetList = z$1.extend({}, ConfigWidgetBase, {
+    templatePost:'list-post',
+    templateFeed:'list-feed',
+    animate:false,
+    list: {
+        showLoadMore:true,
+    }
+});
+
+var List = (function (Widget$$1) {
+    function List  (options) {
+        Widget$$1.call (this);
+
+        this.loading=false;
+        this.feed=null;
+        this.$container=null;
+        this.$feed=null;
+        this.posts=[];
+        //
+        // if ('scrollRestoration' in window.history) {
+        //     window.history.scrollRestoration = 'manual';
+        // }
+
+        if (this.init (options,  ConfigWidgetList)) {
+            Logger.log("List->init with options:");
+            Logger.log(this.options);
+
+            var tmpl = Templating.renderTemplate(this.responsiveOptions.templateFeed, {});
+            this.$container.append(tmpl);
+            this.$feed = this.$container.find('.crt-feed');
+            this.$feedWindow = this.$container.find('.crt-feed-window');
+            this.$loadMore = this.$container.find('.crt-feed-more a');
+            this.$scroller = z$1(window);
+
+            this.$container.addClass('crt-list');
+
+            if (this.responsiveOptions.list.showLoadMore) {
+                this.$feedWindow.css({
+                    'position':'relative'
+                });
+                this.$loadMore.click(this.onMoreClicked.bind(this));
+            } else {
+                this.$loadMore.hide();
+            }
+
+            this.createHandlers();
+
+            // This triggers post loading
+            this.feed.load();
+        }
+    }
+
+    if ( Widget$$1 ) List.__proto__ = Widget$$1;
+    List.prototype = Object.create( Widget$$1 && Widget$$1.prototype );
+    List.prototype.constructor = List;
+
+    List.prototype.createHandlers = function createHandlers () {
+        var this$1 = this;
+
+        var id = this.id;
+        var updateLayoutDebounced = CommonUtils.debounce( function () {
+            this$1.updateLayout ();
+        }, 100);
+
+        z$1(window).on('resize.'+id, CommonUtils.debounce(function () {
+            this$1.updateResponsiveOptions ();
+            this$1.updateLayout ();
+        }, 100));
+
+        z$1(window).on('curatorCssLoaded.'+id, updateLayoutDebounced);
+
+        z$1(document).on('ready.'+id, updateLayoutDebounced);
+
+        if (this.responsiveOptions.list.continuousScroll) {
+            z$1(window).on('scroll.'+id, CommonUtils.debounce(function () {
+                this$1.checkScroll();
+            }, 100));
+        }
+
+        this.on(Events.FILTER_CHANGED, function () {
+            this$1.$feed.find('.crt-list-post').remove();
+        });
+    };
+
+    List.prototype.destroyHandlers = function destroyHandlers () {
+        var id = this.id;
+
+        z$1(window).off('resize.'+id);
+
+        z$1(window).off('curatorCssLoaded.'+id);
+
+        z$1(document).off('ready.'+id);
+
+        z$1(window).off('scroll.'+id);
+    };
+
+    List.prototype.loadPosts = function loadPosts () {
+        // console.log ('LOAD POSTS CALLED!!!?!?!!?!?!');
+    };
+
+    List.prototype.updateLayout = function updateLayout ( ) {
+        // Logger.log("List->updateLayout ");
+        var cols = Math.floor(this.$container.width()/this.responsiveOptions.list.minWidth);
+        cols = cols < 1 ? 1 : cols;
+
+        // set col layout
+        this.$container.removeClass('crt-list-col'+this.columnCount);
+        this.columnCount = cols;
+        this.$container.addClass('crt-list-col'+this.columnCount);
+
+        // figure out if we need more posts
+        var postsNeeded = cols *  (this.rowsMax + 1);
+        // console.log ('postNeeded '+postsNeeded);
+        // console.log ('this.feed.postsLoaded '+this.feed.postsLoaded);
+        if (postsNeeded > this.feed.postsLoaded && !this.feed.allPostsLoaded) {
+            var limit = postsNeeded - this.feed.postsLoaded;
+
+            var params = {
+                limit : limit
+            };
+
+            this.feed.loadMorePaginated(params);
+        } else {
+            this.updateHeight(false);
+        }
+    };
+
+    List.prototype.updateHeight = function updateHeight (animate) {
+        var $post = this.$container.find('.crt-post-c').first();
+        var postHeight = $post.width();
+        var postMargin = parseInt($post.css("margin-left"));
+        postHeight += postMargin;
+
+        this.$feedWindow.css({'overflow':'hidden'});
+
+        var maxRows = Math.ceil(this.feed.postCount / this.columnCount);
+        var rows = this.rowsMax < maxRows ? this.rowsMax : maxRows;
+
+        // if (animate) {
+        //     this.$feedWindow.animate({height:rows * postHeight});
+        // } else {
+        var scrollTopOrig = this.$scroller.scrollTop();
+        // }
+
+        this.$feedWindow.height(rows * postHeight);
+        var scrollTopNew = this.$scroller.scrollTop();
+        // console.log(scrollTopOrig+":"+scrollTopNew);
+
+        if (scrollTopNew > scrollTopOrig+100) {
+            // chrome seems to lock scroll position relative to bottom - so scrollTop changes when we adjust height
+            // - let's reset
+            this.$scroller.scrollTop(scrollTopOrig);
+        }
+        if (this.responsiveOptions.list.showLoadMore) {
+            var postsVisible = this.columnCount * rows;
+            if (this.feed.allPostsLoaded && postsVisible >= this.feed.posts.length) {
+                this.$loadMore.hide();
+            } else {
+                this.$loadMore.show();
+            }
+        }
+    };
+
+    List.prototype.checkScroll = function checkScroll () {
+        Logger.log("List->checkScroll");
+        // console.log('scroll');
+        var top = this.$container.offset().top;
+        var feedBottom = top+this.$feedWindow.height();
+        var scrollTop = this.$scroller.scrollTop();
+        var windowBottom = scrollTop+z$1(window).height();
+        var diff = windowBottom - feedBottom;
+
+        if (diff > this.responsiveOptions.list.continuousScrollOffset) {
+            if (!this.feed.loading && !this.feed.allPostsLoaded) {
+                this.rowsMax += this.responsiveOptions.list.rowsToAdd;
+                this.updateLayout();
+            }
+        }
+    };
+
+    List.prototype.onPostsLoaded = function onPostsLoaded (event, posts) {
+        var this$1 = this;
+
+        Logger.log("List->onPostsLoaded");
+
+        this.loading = false;
+
+        if (posts.length !== 0) {
+            this.postElements = [];
+            var i = 0;
+
+            var anim = function (post) {
+                window.setTimeout (function () {
+                    post.$el.css({opacity: 0}).animate({opacity: 1});
+                }, i * 100);
+            };
+
+            for (var i$1 = 0, list = posts; i$1 < list.length; i$1 += 1) {
+                var postJson = list[i$1];
+
+                var post = this$1.createPostElement(postJson);
+                this$1.postElements.push(post);
+                this$1.$feed.append(post.$el);
+                post.layout();
+
+                if (this$1.responsiveOptions.animate) {
+                    post.$el.css({opacity: 0});
+                    anim (post, i);
+                    i++;
+                }
+            }
+
+            this.popupManager.setPosts(posts);
+
+            if (this.responsiveOptions.list.showLoadMore) {
+                if (this.feed.allPostsLoaded) {
+                    this.$loadMore.hide();
+                } else {
+                    this.$loadMore.show();
+                }
+            } else {
+                this.$loadMore.hide();
+            }
+        }
+    };
+
+    List.prototype.onMoreClicked = function onMoreClicked (ev) {
+        ev.preventDefault();
+
+        this.feed.loadMorePaginated();
+    };
+
+    List.prototype.destroy = function destroy () {
+        Widget$$1.prototype.destroy.call(this);
+
+        this.feed.destroy();
+
+        this.destroyHandlers();
+
+        this.$container.empty()
+            .removeClass('crt-list')
+            .removeClass('crt-list-col'+this.columnCount)
+            .css({'height':'','overflow':''});
+
+        delete this.$feed;
+        delete this.$container;
+        delete this.options ;
+        delete this.loading;
+
+        // TODO add code to cascade destroy down to Posts
+        // unregistering events etc
+        delete this.feed;
+    };
+
+    return List;
+}(Widget));
+
+var ConfigWidgetGrid$1 = z$1.extend({}, ConfigWidgetBase, {
     templatePost:'grid-post-v2',
     templateFeed:'grid-feed-v2',
     animate:false,
@@ -2982,7 +3259,7 @@ var Grid = (function (Widget$$1) {
         //     window.history.scrollRestoration = 'manual';
         // }
 
-        if (this.init (options,  ConfigWidgetGrid)) {
+        if (this.init (options,  ConfigWidgetGrid$1)) {
             Logger.log("Grid->init with options:");
             Logger.log(this.options);
 
@@ -3093,13 +3370,7 @@ var Grid = (function (Widget$$1) {
                 limit : limit
             };
 
-            if (this.feed.pagination && this.feed.pagination.after) {
-                params.after = this.feed.pagination.after;
-            }
-
-            // console.log (params);
-
-            this.feed._loadPosts(params);
+            this.feed.loadMorePaginated(params);
         } else {
             this.updateHeight(false);
         }
@@ -3156,17 +3427,6 @@ var Grid = (function (Widget$$1) {
                 this.updateLayout();
             }
         }
-    };
-
-    Grid.prototype.destroyHandlers = function destroyHandlers () {
-        var id = this.id;
-
-        z$1(window).off('resize.'+id);
-
-        z$1(window).off('curatorCssLoaded.'+id);
-
-        z$1(document).off('ready.'+id);
-
     };
 
     Grid.prototype.onPostsLoaded = function onPostsLoaded (event, posts) {
@@ -3840,6 +4100,7 @@ var Crt = {
         Grid: Grid,
         Carousel: Carousel,
         Panel: Panel,
+        List: List,
     },
 
     Utils: {

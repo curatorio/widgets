@@ -13,6 +13,9 @@ import gridPostTemplateV2 from "./v2/grid_post";
 import gridFeedTempleV2 from "./v2/grid_feed";
 import gridPostMinimal from "./v2/grid_post_minimal";
 
+import listFeed from "./v2/list_feed";
+import listPost from "./v2/list_post";
+
 let Templates = {
     'filter'                : filterTemplate,
     'popup'                 : popupTemplate,
@@ -28,6 +31,9 @@ let Templates = {
     'grid-post-v2'          : gridPostTemplateV2,
     'grid-post-minimal'     : gridPostMinimal,
     'grid-feed-v2'          : gridFeedTempleV2,
+
+    'list-feed'             : listFeed,
+    'list-post'             : listPost,
 };
 
 export default Templates;

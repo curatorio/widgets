@@ -191,6 +191,15 @@
 .crt-hitarea {
   cursor: pointer; }
 
+.crt-responsive-video {
+  padding-bottom: 100%; }
+  .crt-responsive-video iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%; }
+
 .crt-feed div {
   box-sizing: border-box; }
 
@@ -290,7 +299,6 @@ body.crt-popup-visible {
         width: 100%;
         display: none; }
         .crt-popup-wrapper .crt-popup .crt-popup-left .crt-video .crt-video-container {
-          padding-bottom: -60%;
           position: relative; }
           .crt-popup-wrapper .crt-popup .crt-popup-left .crt-video .crt-video-container img {
             position: relative;
