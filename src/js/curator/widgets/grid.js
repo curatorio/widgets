@@ -138,10 +138,14 @@ class Grid extends Widget {
     }
 
     updateHeight (animate) {
-        let $post = this.$container.find('.crt-post-c').first();
-        let postHeight = $post.width();
-        let postMargin = parseInt($post.css("margin-left"));
-        postHeight += postMargin;
+        let $post = this.$container.find('.crt-grid-post').first();
+        let postHeight = $post.height();
+        let postMarginBottom = parseInt($post.css("margin-bottom"));
+        // let postMarginTop = parseInt($post.css("margin-top"));
+        // let postPaddingBottom = parseInt($post.css("padding-bottom"));
+        // let postPaddingTop = parseInt($post.css("padding-top"));
+
+        postHeight += postMarginBottom;
 
         this.$feedWindow.css({'overflow':'hidden'});
 
@@ -222,7 +226,9 @@ class Grid extends Widget {
 
             this.popupManager.setPosts(posts);
 
-            this.updateHeight(true);
+            window.setTimeout(() => {
+                this.updateHeight(true);
+            },10);
         }
     }
 
