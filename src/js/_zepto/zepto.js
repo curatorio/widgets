@@ -1,9 +1,12 @@
 /* Zepto v1.2.0-27-g324cd27 - zepto event ie fx fx_methods data - zeptojs.com/license */
 (function(global, factory) {
-  if (typeof define === 'function' && define.amd)
-    define(function() { return factory(global) })
-  else
-    factory(global)
+  if (typeof define === 'function' && define.amd) {
+      define('zepto', function () {
+          return factory(global);
+      });
+  } else {
+      factory(global);
+  }
 }(window, function(window) {
   var Zepto = (function() {
   var undefined, key, $, classList, emptyArray = [], concat = emptyArray.concat, filter = emptyArray.filter, slice = emptyArray.slice,

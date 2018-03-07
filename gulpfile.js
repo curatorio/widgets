@@ -58,6 +58,7 @@ const gulp = require('gulp'),
     addsrc = require('gulp-add-src'),
     insert = require('gulp-insert'),
     notify = require('gulp-notify'),
+    wrap = require('gulp-wrap'),
 
     // CSS / SCSS
     sass = require('gulp-sass'),
@@ -92,14 +93,17 @@ gulp.task('scripts:core', () =>  {
     return gulp.src(srcJs+'main.js')
         // .pipe(sourcemaps.init())
         .pipe(rollup({
-            plugins: [rollupBuble(bubleConfig),rollupAlias(aliasConfig)],
+            plugins: [
+                rollupBuble(bubleConfig),
+                rollupAlias(aliasConfig)],
         }, {
-            format: 'umd',
+            format: 'iife', //'amd', 'cjs', 'es', 'iife' or 'umd'
             name : 'Curator'
         }))
         .on('error', bubleError)
 
         // .pipe(sourcemaps.write()) // inlining the sourcemap into the exported .js file
+        .pipe(wrap({ src: 'src/umd-templates/core.js'}))
         .pipe(rename('curator.core.js'))
         .pipe(gulp.dest(destJs))
         .pipe(notify({ message: 'scripts:core task complete' }));
@@ -159,7 +163,7 @@ gulp.task('watch', () =>  {
 
     // Watch .js files
     console.log ('Watching: '+srcJs+'**/*.js');
-    gulp.watch(srcJs+'**/*.js', ['scripts']);
+    gulp.watch([srcJs+'**/*.js','src/umd-templates/*.js'], ['scripts']);
 
     // Create LiveReload server
     livereload.listen();
