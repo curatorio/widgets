@@ -21,7 +21,7 @@ CDN hosted Curator.io Widgets are a great way to get up and running quickly:
 In your `<head>` add:
 
 ```html
-<link rel="stylesheet" type="text/css" href="//cdn.curator.io/3.0/css/curator.css"/>
+<link rel="stylesheet" type="text/css" href="//cdn.curator.io/3.1/css/curator.css"/>
 ```
 
 In your ```<body>``` where you want the feed to appear:
@@ -33,7 +33,7 @@ In your ```<body>``` where you want the feed to appear:
 Then, before your closing ```<body>``` tag add:
 
 ```html
-<script type="text/javascript" src="//cdn.curator.io/3.0/js/curator.js"></script>
+<script type="text/javascript" src="//cdn.curator.io/3.1/js/curator.js"></script>
 <script type="text/javascript">
 	// While you're testing
     Curator.debug = true;
@@ -42,6 +42,35 @@ Then, before your closing ```<body>``` tag add:
     var widget = new Curator.Widgets.Waterfall({
         container:'#curator-feed',
         feedId:FEED_ID
+    });
+</script>
+```
+
+### RequireJS
+
+Curator can be loaded via RequireJS using the following method. 
+
+Note that the `require(["curator"],..)` statement needs to be wrapped in a the `require(["jquery"],..)` or `require(["zepto"],..)` statement.  
+
+```html
+<script type="text/javascript" src="js/require.js"></script>
+<script type="text/javascript">
+    require.config({
+        paths: {
+            'jquery': '//code.jquery.com/jquery-3.3.1.min', // or zepto
+            'curator': '//cdn.curator.io/3.1/js/curator.core.min',
+        }
+    });
+    require(["jquery"], function($) { // jquery or zepto
+        require(["curator"], function(Curator) {
+
+            // // Change FEED_ID to your unique FEED_ID
+            var widget = new Curator.Widgets.Waterfall({
+                debug:false, // While we're testing
+                container:'#curator-feed',
+                feedId:"6dab8d1e-abe9-4fb7-8475-99ab8d5e"
+            });
+        });
     });
 </script>
 ```
