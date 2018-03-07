@@ -1,19 +1,12 @@
 ;(function(root, factory) {
 	if (typeof define === 'function' && define.amd) {
-		var lib = require.specified('zepto') ? 'zepto' : (require.specified('jquery') ? 'jquery' : '');
-		if (lib) {
-			// found a lib - load it
-            define('curator', [lib], factory);
-        } else {
-            define('curator', factory);
-		}
+		define('curator', factory);
     } else if (typeof exports === 'object') {
 		module.exports = factory(require('jquery'));
 	} else {
 		root.Curator = factory(root.jQuery || root.Zepto);
 	}
 }(this, function($local) {
-	console.log($local);
 	if ($local == undefined) {
 		window.alert ("jQuery not found\n\nThe Curator Widget is running in dependency mode - this requires jQuery of Zepto. Try disabling DEPENDENCY MODE in the Admin on the Publish page." );
 		return false;
@@ -1158,15 +1151,23 @@ var helpers = {
 
 /* globals $local */
 
-// $local is passed into the factory wrapper - it's either jQuery or Zepto
+// Change to use $local is passed into the factory wrapper - it's either jQuery or Zepto
+var z = null;
 
-var z = $local;
+if (window.$crt) {
+    z = window.$crt;
+} else if (window.Zepto) {
+    z = window.Zepto;
+} else if (window.jQuery) {
+    z = window.jQuery;
+}
 
-console.log(z);
 
 if (!z) {
     window.alert('Curator requires jQuery or Zepto. \n\nPlease include jQuery in your HTML before the Curator widget script tag.\n\nVisit http://jquery.com/download/ to get the latest version');
 }
+
+var z$1 = z;
 
 // Simple JavaScript Templating
 // John Resig - http://ejohn.org/ - MIT Licensed
@@ -1176,7 +1177,7 @@ var _rendererTmplCache = {};
 var Templating = {
     renderTemplate: function renderTemplate (templateId, data) {
         var source = '';
-        var $t = z('#'+templateId);
+        var $t = z$1('#'+templateId);
 
         if ($t.length===1)
         {
@@ -1192,11 +1193,11 @@ var Templating = {
         }
 
         var tmpl = Templating.render(source, data);
-        if (z.parseHTML) {
+        if (z$1.parseHTML) {
             // breaks with jquery < 1.8
-            tmpl = z.parseHTML(tmpl);
+            tmpl = z$1.parseHTML(tmpl);
         }
-        return z(tmpl).filter('div');
+        return z$1(tmpl).filter('div');
     },
 
     render: function render (str, data) {
@@ -1230,6 +1231,13 @@ var Templating = {
         return " # ERROR: " + err + " # ";
     }
 };
+
+/**
+* ==================================================================
+* Post
+* ==================================================================
+*/
+
 
 var Post = (function (EventBus$$1) {
     function Post (postJson, options, widget) {
@@ -1310,7 +1318,7 @@ var Post = (function (EventBus$$1) {
 
     Post.prototype.onPostClick = function onPostClick (ev) {
         Logger.log('Post->click');
-        var target = z(ev.target);
+        var target = z$1(ev.target);
 
         if (target.is('a') && target.attr('href') !== '#') {
             this.widget.track('click:link');
@@ -1381,7 +1389,7 @@ var Post = (function (EventBus$$1) {
 var HtmlUtils = {
     checkContainer: function (container) {
         Logger.log("Curator->checkContainer: " + container);
-        if (z(container).length === 0) {
+        if (z$1(container).length === 0) {
             if (window.console) {
                 window.console.log('Curator could not find the element ' + container + '. Please ensure this element existings in your HTML code. Exiting.');
             }
@@ -1527,7 +1535,7 @@ var Feed = (function (EventBus$$1) {
             this.postsLoaded = 0;
         }
 
-        var params = z.extend({},this.params,paramsIn);
+        var params = z$1.extend({},this.params,paramsIn);
 
         params.limit = this.options.postsPerPage;
         params.offset = page * this.options.postsPerPage;
@@ -1537,7 +1545,7 @@ var Feed = (function (EventBus$$1) {
 
     Feed.prototype.loadMorePaginated = function loadMorePaginated (paramsIn) {
 
-        var params = z.extend({},this.params,paramsIn);
+        var params = z$1.extend({},this.params,paramsIn);
 
         if (this.pagination && this.pagination.after) {
             params.after = this.pagination.after;
@@ -1557,7 +1565,7 @@ var Feed = (function (EventBus$$1) {
         var params = {
             limit:this.options.postsPerPage
         };
-        z.extend(params,this.options.feedParams, paramsIn);
+        z$1.extend(params,this.options.feedParams, paramsIn);
 
         params.offset = this.posts.length;
 
@@ -1577,7 +1585,7 @@ var Feed = (function (EventBus$$1) {
         }
         this.currentPage = 0;
 
-        var loadPostParams = z.extend(this.params, params);
+        var loadPostParams = z$1.extend(this.params, params);
 
         this._loadPosts (loadPostParams);
     };
@@ -1594,7 +1602,7 @@ var Feed = (function (EventBus$$1) {
         }
         this.currentPage = 0;
 
-        var params = z.extend({},this.params);
+        var params = z$1.extend({},this.params);
 
         // TODO should we check we have after?
         if (this.pagination && this.pagination.after) {
@@ -1680,7 +1688,7 @@ var Feed = (function (EventBus$$1) {
             this.getUrl('/post/' + id + '/inappropriate'),
             params,
             function (data, textStatus, jqXHR) {
-                data = z.parseJSON(data);
+                data = z$1.parseJSON(data);
 
                 if (data.success === true) {
                     success();
@@ -1694,8 +1702,8 @@ var Feed = (function (EventBus$$1) {
     Feed.prototype.lovePost = function lovePost (id, success, failure) {
         var params = {};
 
-        z.post(this.getUrl('/post/' + id + '/love'), params, function (data, textStatus, jqXHR) {
-            data = z.parseJSON(data);
+        z$1.post(this.getUrl('/post/' + id + '/love'), params, function (data, textStatus, jqXHR) {
+            data = z$1.parseJSON(data);
 
             if (data.success === true) {
                 success(data.loves);
@@ -1764,6 +1772,12 @@ var networks = {
     },
 };
 
+/**
+* ==================================================================
+* Filter
+* ==================================================================
+*/
+
 var Filter = (function (EventBus$$1) {
     function Filter (widget) {
         var this$1 = this;
@@ -1785,7 +1799,7 @@ var Filter = (function (EventBus$$1) {
 
         this.$filter.on('click','.crt-filter-networks a', function (ev) {
             ev.preventDefault();
-            var t = z(ev.target);
+            var t = z$1(ev.target);
             var networkId = t.data('network');
 
             this$1.$filter.find('.crt-filter-networks li').removeClass('active');
@@ -1804,7 +1818,7 @@ var Filter = (function (EventBus$$1) {
 
         this.$filter.on('click','.crt-filter-sources a', function (ev) {
             ev.preventDefault();
-            var t = z(ev.target);
+            var t = z$1(ev.target);
             var sourceId = t.data('source');
 
             this$1.$filter.find('.crt-filter-sources li').removeClass('active');
@@ -1877,6 +1891,12 @@ var Filter = (function (EventBus$$1) {
     return Filter;
 }(EventBus));
 
+/**
+ * ==================================================================
+ * Popup
+ * ==================================================================
+ */
+
 var Popup = function Popup (popupManager, post, widget) {
     var this$1 = this;
 
@@ -1947,14 +1967,14 @@ var Popup = function Popup (popupManager, post, widget) {
     this.$popup.on('click','.crt-share-facebook',this.onShareFacebookClick.bind(this));
     this.$popup.on('click','.crt-share-twitter',this.onShareTwitterClick.bind(this));
 
-    z(window).on('resize.crt-popup',CommonUtils.debounce(this.onResize.bind(this),50));
+    z$1(window).on('resize.crt-popup',CommonUtils.debounce(this.onResize.bind(this),50));
 
     this.onResize ();
 };
 
 Popup.prototype.onResize = function onResize () {
     Logger.log('Popup->onResize');
-    var windowWidth = z(window).width ();
+    var windowWidth = z$1(window).width ();
     var padding = 60;
     var paddingMobile = 40;
     var rightPanel = 335;
@@ -1973,7 +1993,7 @@ Popup.prototype.onResize = function onResize () {
 
 Popup.prototype.onPageClick = function onPageClick (ev) {
     ev.preventDefault();
-    var a = z(ev.target);
+    var a = z$1(ev.target);
     var page = a.data('page');
 
     var image = this.json.images[page];
@@ -2089,7 +2109,7 @@ Popup.prototype.destroy = function destroy () {
         }
     }
 
-    z(window).off('resize.crt-popup');
+    z$1(window).off('resize.crt-popup');
 
     delete this.$popup;
 };
@@ -2110,7 +2130,7 @@ var PopupManager = function PopupManager (widget) {
     this.$popupContainer = this.$wrapper.find('.crt-popup-container');
     this.$underlay = this.$wrapper.find('.crt-popup-underlay');
 
-    z('body').append(this.$wrapper);
+    z$1('body').append(this.$wrapper);
     this.$underlay.click(this.onUnderlayClick.bind(this));
 };
 
@@ -2141,7 +2161,7 @@ PopupManager.prototype.showPopup2 = function showPopup2 (post) {
     }
     this.popup.show();
 
-    z('body').addClass('crt-popup-visible');
+    z$1('body').addClass('crt-popup-visible');
 
     this.currentPostNum = 0;
     for(var i=0;i < this.posts.length;i++)
@@ -2195,7 +2215,7 @@ PopupManager.prototype.hide = function hide () {
 
     Logger.log('PopupManager->hide');
     this.widget.track('popup:hide');
-    z('body').removeClass('crt-popup-visible');
+    z$1('body').removeClass('crt-popup-visible');
     this.currentPostNum = 0;
     this.popup = null;
     this.$underlay.fadeOut(function () {
@@ -2235,13 +2255,13 @@ var Widget = (function (EventBus$$1) {
         var this$1 = this;
 
 
-        this.options = z.extend(true,{}, defaults, options);
+        this.options = z$1.extend(true,{}, defaults, options);
 
         if (!HtmlUtils.checkContainer(this.options.container)) {
             return false;
         }
 
-        this.$container = z(this.options.container);
+        this.$container = z$1(this.options.container);
         this.$container.addClass('crt-feed');
 
         // get inline options
@@ -2277,11 +2297,11 @@ var Widget = (function (EventBus$$1) {
     Widget.prototype.updateResponsiveOptions = function updateResponsiveOptions () {
         // console.log('updateResponsiveOptions');
         if (!this.options.responsive) {
-            this.responsiveOptions = z.extend(true, {}, this.options);
+            this.responsiveOptions = z$1.extend(true, {}, this.options);
             return;
         }
 
-        var width = z(window).width();
+        var width = z$1(window).width();
         var keys = Object.keys(this.options.responsive);
         keys = keys.map(function (x) { return parseInt(x); });
         keys = keys.sort(function (a, b) {
@@ -2299,13 +2319,13 @@ var Widget = (function (EventBus$$1) {
         }
         if (!foundKey) {
             this.responsiveKey = null;
-            this.responsiveOptions = z.extend(true, {}, this.options);
+            this.responsiveOptions = z$1.extend(true, {}, this.options);
         }
 
         if (this.responsiveKey !== foundKey) {
             // console.log('CHANGING RESPONSIVE SETTINGS '+foundKey);
             this.responsiveKey = foundKey;
-            this.responsiveOptions = z.extend(true, {}, this.options, this.options.responsive[foundKey]);
+            this.responsiveOptions = z$1.extend(true, {}, this.options, this.options.responsive[foundKey]);
         }
     };
 
@@ -2338,7 +2358,7 @@ var Widget = (function (EventBus$$1) {
     {
         var that = this;
         var postElements = [];
-        z(posts).each(function(){
+        z$1(posts).each(function(){
             var p = that.createPostElement(this);
             postElements.push(p.$el);
         });
@@ -2464,7 +2484,7 @@ var ConfigWidgetBase = {
     }
 };
 
-var ConfigWidgetWaterfall = z.extend({}, ConfigWidgetBase, {
+var ConfigWidgetWaterfall = z$1.extend({}, ConfigWidgetBase, {
     waterfall: {
         showLoadMore:true,
         continuousScroll:false,
@@ -2511,7 +2531,7 @@ var LayoutWaterfallSettings = {
 
 var LayoutWaterfall = function LayoutWaterfall(options, element) {
     Logger.log("WaterfallLayout->onPostsLoaded");
-    this.element = z(element);
+    this.element = z$1(element);
     this.id = CommonUtils.uId ();
 
     // let container = this;
@@ -2529,7 +2549,7 @@ var LayoutWaterfall = function LayoutWaterfall(options, element) {
     this.ifCallback = true;
     this.box = this.element;
     this.boxWidth = this.box.width();
-    this.options = z.extend(true, {}, LayoutWaterfallSettings, options);
+    this.options = z$1.extend(true, {}, LayoutWaterfallSettings, options);
     this.gridArr = makeArray(this.box.find(this.options.selector));
     this.isResizing = false;
     this.w = 0;
@@ -2543,7 +2563,7 @@ var LayoutWaterfall = function LayoutWaterfall(options, element) {
     // build grid
     this._renderGrid('append');
     // add class 'gridalicious' to container
-    z(this.box).addClass('gridalicious');
+    z$1(this.box).addClass('gridalicious');
 
     this.createHandlers ();
 };
@@ -2552,14 +2572,14 @@ LayoutWaterfall.prototype.createHandlers = function createHandlers () {
         var this$1 = this;
 
     Logger.log("WaterfallLayout->createHandlers");
-    z(window).on('resize.'+this.id, CommonUtils.debounce( function () {
+    z$1(window).on('resize.'+this.id, CommonUtils.debounce( function () {
         this$1.resize();
     }, 100));
 };
 
 LayoutWaterfall.prototype.destroyHandlers = function destroyHandlers () {
     Logger.log("WaterfallLayout->destroyHandlers");
-    z(window).off('resize.'+this.id);
+    z$1(window).off('resize.'+this.id);
 };
 
 LayoutWaterfall.prototype._setName = function _setName (length, current) {
@@ -2586,7 +2606,7 @@ LayoutWaterfall.prototype._setCols = function _setCols () {
 
     // add columns to box
     for (var i = 0; i < this.cols; i++) {
-        var div = z('<div></div>').addClass('galcolumn').attr('id', 'item' + i + this$1.name).css({
+        var div = z$1('<div></div>').addClass('galcolumn').attr('id', 'item' + i + this$1.name).css({
             'width': w + '%',
             'paddingLeft': this$1.options.gutter,
             'paddingBottom': this$1.options.gutter,
@@ -2639,7 +2659,7 @@ LayoutWaterfall.prototype._renderGrid = function _renderGrid (method, arr, count
     }
     else {
         boxes = this.gridArr;
-        appendCount = z(this.gridArr).length;
+        appendCount = z$1(this.gridArr).length;
     }
 
     // push out the items to the columns
@@ -2666,11 +2686,11 @@ LayoutWaterfall.prototype._renderGrid = function _renderGrid (method, arr, count
 
         // prepend or append to shortest column
         if (method === 'prepend') {
-            z("#item" + shortestCol + name).prepend(item);
+            z$1("#item" + shortestCol + name).prepend(item);
             items.push(item);
 
         } else {
-            z("#item" + shortestCol + name).append(item);
+            z$1("#item" + shortestCol + name).append(item);
             items.push(item);
             if (appendCount >= cols) {
                 appendCount = (appendCount - cols);
@@ -2698,8 +2718,8 @@ LayoutWaterfall.prototype._renderGrid = function _renderGrid (method, arr, count
 
 LayoutWaterfall.prototype._collectItems = function _collectItems () {
     var collection = [];
-    z(this.box).find(this.options.selector).each(function () {
-        collection.push(z(this));
+    z$1(this.box).find(this.options.selector).each(function () {
+        collection.push(z$1(this));
     });
     return collection;
 };
@@ -2722,9 +2742,9 @@ LayoutWaterfall.prototype._renderItem = function _renderItem (items) {
         // fadeInOnAppear
         if (queue === true && effect === "fadeInOnAppear") {
             if (this.isPrepending) { items.reverse(); }
-            z.each(items, function (index, value) {
+            z$1.each(items, function (index, value) {
                 window.setTimeout(function () {
-                    z(value).animate({
+                    z$1(value).animate({
                         opacity: '1.0'
                     }, duration);
                     t++;
@@ -2736,8 +2756,8 @@ LayoutWaterfall.prototype._renderItem = function _renderItem (items) {
             });
         } else if (queue === false && effect === "fadeInOnAppear") {
             if (this.isPrepending) { items.reverse(); }
-            z.each(items, function (index, value) {
-                z(value).animate({
+            z$1.each(items, function (index, value) {
+                z$1(value).animate({
                     opacity: '1.0'
                 }, duration);
                 t++;
@@ -2751,8 +2771,8 @@ LayoutWaterfall.prototype._renderItem = function _renderItem (items) {
 
         // no effect but queued
         if (queue === true && !effect) {
-            z.each(items, function (index, value) {
-                z(value).css({
+            z$1.each(items, function (index, value) {
+                z$1(value).css({
                     'opacity': '1',
                     'filter': 'alpha(opacity=100)'
                 });
@@ -2767,8 +2787,8 @@ LayoutWaterfall.prototype._renderItem = function _renderItem (items) {
 
         // don not animate & no queue
     } else {
-        z.each(items, function (index, value) {
-            z(value).css({
+        z$1.each(items, function (index, value) {
+            z$1(value).css({
                 'opacity': '1',
                 'filter': 'alpha(opacity=100)'
             });
@@ -2782,7 +2802,7 @@ LayoutWaterfall.prototype._renderItem = function _renderItem (items) {
 LayoutWaterfall.prototype._updateAfterPrepend = function _updateAfterPrepend (prevItems, newItems) {
     var gridArr = this.gridArr;
     // add new items to gridArr
-    z.each(newItems, function (index, value) {
+    z$1.each(newItems, function (index, value) {
         gridArr.unshift(value);
     });
     this.gridArr = gridArr;
@@ -2800,7 +2820,7 @@ LayoutWaterfall.prototype.resize = function resize () {
     }
 
     // delete columns in box
-    this.box.find(z('.galcolumn')).remove();
+    this.box.find(z$1('.galcolumn')).remove();
     // build columns
     this._setCols();
     // build grid
@@ -2815,16 +2835,16 @@ LayoutWaterfall.prototype.resize = function resize () {
 LayoutWaterfall.prototype.append = function append (items) {
     var gridArr = this.gridArr;
     var gridArrAppend = this.gridArrPrepend;
-    z.each(items, function (index, value) {
+    z$1.each(items, function (index, value) {
         gridArr.push(value);
         gridArrAppend.push(value);
     });
-    this._renderGrid('append', items, z(items).length);
+    this._renderGrid('append', items, z$1(items).length);
 };
 
 LayoutWaterfall.prototype.prepend = function prepend (items) {
     this.ifCallback = false;
-    this._renderGrid('prepend', items, z(items).length);
+    this._renderGrid('prepend', items, z$1(items).length);
     this.ifCallback = true;
 };
 
@@ -2842,12 +2862,12 @@ var Waterfall = (function (Widget$$1) {
             Logger.log("Waterfall->init with options:");
             Logger.log(this.options);
 
-            this.$scroll = z('<div class="crt-feed-scroll"></div>').appendTo(this.$container);
-            this.$feed = z('<div class="crt-feed"></div>').appendTo(this.$scroll);
+            this.$scroll = z$1('<div class="crt-feed-scroll"></div>').appendTo(this.$container);
+            this.$feed = z$1('<div class="crt-feed"></div>').appendTo(this.$scroll);
             this.$container.addClass('crt-feed-container');
 
             if (this.options.continuousScroll) {
-                z(this.$scroll).scroll(function () {
+                z$1(this.$scroll).scroll(function () {
                     var height = this$1.$scroll.height();
                     var cHeight = this$1.$feed.height();
                     var scrollTop = this$1.$scroll.scrollTop();
@@ -2859,7 +2879,7 @@ var Waterfall = (function (Widget$$1) {
 
             if (this.options.waterfall.showLoadMore) {
                 // default to more
-                this.$more = z('<div class="crt-load-more"><a href="#"><span>' + this._t('Load more') + '</span></a></div>')
+                this.$more = z$1('<div class="crt-load-more"><a href="#"><span>' + this._t('Load more') + '</span></a></div>')
                     .appendTo(this.$scroll);
                 this.$more.find('a').on('click', function (ev) {
                     ev.preventDefault();
@@ -2925,7 +2945,7 @@ var Waterfall = (function (Widget$$1) {
         this.ui.append(postElements);
 
         var that = this;
-        z.each(postElements,function () {
+        z$1.each(postElements,function () {
             var post = this;
             if (that.options.waterfall.showReadMore) {
                 post.find('.crt-post')
@@ -2982,7 +3002,7 @@ var Waterfall = (function (Widget$$1) {
     return Waterfall;
 }(Widget));
 
-var ConfigWidgetList = z.extend({}, ConfigWidgetBase, {
+var ConfigWidgetList = z$1.extend({}, ConfigWidgetBase, {
     templatePost:'list-post',
     templateFeed:'list-feed',
     animate:false,
@@ -3014,7 +3034,7 @@ var List = (function (Widget$$1) {
             this.$feed = this.$container.find('.crt-feed');
             this.$feedWindow = this.$container.find('.crt-feed-window');
             this.$loadMore = this.$container.find('.crt-feed-more a');
-            this.$scroller = z(window);
+            this.$scroller = z$1(window);
 
             this.$container.addClass('crt-list');
 
@@ -3046,17 +3066,17 @@ var List = (function (Widget$$1) {
             this$1.updateLayout ();
         }, 100);
 
-        z(window).on('resize.'+id, CommonUtils.debounce(function () {
+        z$1(window).on('resize.'+id, CommonUtils.debounce(function () {
             this$1.updateResponsiveOptions ();
             this$1.updateLayout ();
         }, 100));
 
-        z(window).on('curatorCssLoaded.'+id, updateLayoutDebounced);
+        z$1(window).on('curatorCssLoaded.'+id, updateLayoutDebounced);
 
-        z(document).on('ready.'+id, updateLayoutDebounced);
+        z$1(document).on('ready.'+id, updateLayoutDebounced);
 
         if (this.responsiveOptions.list.continuousScroll) {
-            z(window).on('scroll.'+id, CommonUtils.debounce(function () {
+            z$1(window).on('scroll.'+id, CommonUtils.debounce(function () {
                 this$1.checkScroll();
             }, 100));
         }
@@ -3069,13 +3089,13 @@ var List = (function (Widget$$1) {
     List.prototype.destroyHandlers = function destroyHandlers () {
         var id = this.id;
 
-        z(window).off('resize.'+id);
+        z$1(window).off('resize.'+id);
 
-        z(window).off('curatorCssLoaded.'+id);
+        z$1(window).off('curatorCssLoaded.'+id);
 
-        z(document).off('ready.'+id);
+        z$1(document).off('ready.'+id);
 
-        z(window).off('scroll.'+id);
+        z$1(window).off('scroll.'+id);
     };
 
     List.prototype.loadPosts = function loadPosts () {
@@ -3151,7 +3171,7 @@ var List = (function (Widget$$1) {
         var top = this.$container.offset().top;
         var feedBottom = top+this.$feedWindow.height();
         var scrollTop = this.$scroller.scrollTop();
-        var windowBottom = scrollTop+z(window).height();
+        var windowBottom = scrollTop+z$1(window).height();
         var diff = windowBottom - feedBottom;
 
         if (diff > this.responsiveOptions.list.continuousScrollOffset) {
@@ -3239,7 +3259,7 @@ var List = (function (Widget$$1) {
     return List;
 }(Widget));
 
-var ConfigWidgetGrid$1 = z.extend({}, ConfigWidgetBase, {
+var ConfigWidgetGrid$1 = z$1.extend({}, ConfigWidgetBase, {
     templatePost:'grid-post-v2',
     templateFeed:'grid-feed-v2',
     animate:false,
@@ -3285,7 +3305,7 @@ var Grid = (function (Widget$$1) {
             this.$feed = this.$container.find('.crt-feed');
             this.$feedWindow = this.$container.find('.crt-feed-window');
             this.$loadMore = this.$container.find('.crt-feed-more a');
-            this.$scroller = z(window);
+            this.$scroller = z$1(window);
 
             this.$container.addClass('crt-grid');
 
@@ -3330,17 +3350,17 @@ var Grid = (function (Widget$$1) {
             this$1.updateLayout ();
         }, 100);
 
-        z(window).on('resize.'+id, CommonUtils.debounce(function () {
+        z$1(window).on('resize.'+id, CommonUtils.debounce(function () {
             this$1.updateResponsiveOptions ();
             this$1.updateLayout ();
         }, 100));
 
-        z(window).on('curatorCssLoaded.'+id, updateLayoutDebounced);
+        z$1(window).on('curatorCssLoaded.'+id, updateLayoutDebounced);
 
-        z(document).on('ready.'+id, updateLayoutDebounced);
+        z$1(document).on('ready.'+id, updateLayoutDebounced);
 
         if (this.responsiveOptions.grid.continuousScroll) {
-            z(window).on('scroll.'+id, CommonUtils.debounce(function () {
+            z$1(window).on('scroll.'+id, CommonUtils.debounce(function () {
                 this$1.checkScroll();
             }, 100));
         }
@@ -3353,13 +3373,13 @@ var Grid = (function (Widget$$1) {
     Grid.prototype.destroyHandlers = function destroyHandlers () {
         var id = this.id;
 
-        z(window).off('resize.'+id);
+        z$1(window).off('resize.'+id);
 
-        z(window).off('curatorCssLoaded.'+id);
+        z$1(window).off('curatorCssLoaded.'+id);
 
-        z(document).off('ready.'+id);
+        z$1(document).off('ready.'+id);
 
-        z(window).off('scroll.'+id);
+        z$1(window).off('scroll.'+id);
     };
 
     Grid.prototype.loadPosts = function loadPosts () {
@@ -3439,7 +3459,7 @@ var Grid = (function (Widget$$1) {
         var top = this.$container.offset().top;
         var feedBottom = top+this.$feedWindow.height();
         var scrollTop = this.$scroller.scrollTop();
-        var windowBottom = scrollTop+z(window).height();
+        var windowBottom = scrollTop+z$1(window).height();
         var diff = windowBottom - feedBottom;
 
         if (diff > this.responsiveOptions.grid.continuousScrollOffset) {
@@ -3546,7 +3566,7 @@ var LayoutCarouselSettings = {
 	useCss : true
 };
 
-if (z.zepto) {
+if (z$1.zepto) {
     LayoutCarouselSettings.easing = 'ease-in-out';
 }
 
@@ -3563,20 +3583,20 @@ var LayoutCarousel = (function (EventBus$$1) {
 		this.FAKE_NUM=0;
 		this.PANES_VISIBLE=0;
 
-		this.options = z.extend({}, LayoutCarouselSettings, options);
+		this.options = z$1.extend({}, LayoutCarouselSettings, options);
 
 		// Validate options
         if (!this.options.minWidth || this.options.minWidth < 100) {
             this.options.minWidth = LayoutCarouselSettings.minWidth;
 		}
 
-		this.$viewport = z(container); // <div> slider, known as $viewport
+		this.$viewport = z$1(container); // <div> slider, known as $viewport
 
 		this.$panes = this.$viewport.children();
 		this.$panes.detach();
 
-		this.$stage = z('<div class="crt-carousel-stage"></div>').appendTo(this.$viewport);
-		this.$pane_slider = z('<div class="crt-carousel-slider"></div>').appendTo(this.$stage);
+		this.$stage = z$1('<div class="crt-carousel-stage"></div>').appendTo(this.$viewport);
+		this.$pane_slider = z$1('<div class="crt-carousel-slider"></div>').appendTo(this.$stage);
 
 		if (this.options.matchHeights) {
             this.$stage.addClass('crt-match-heights');
@@ -3594,14 +3614,14 @@ var LayoutCarousel = (function (EventBus$$1) {
     LayoutCarousel.prototype.createHandlers = function createHandlers () {
         var this$1 = this;
 
-        z(window).on('resize.'+this.id, CommonUtils.debounce( function () {
+        z$1(window).on('resize.'+this.id, CommonUtils.debounce( function () {
             this$1.updateLayout ();
         }, 100));
     };
 
     LayoutCarousel.prototype.destroyHandlers = function destroyHandlers () {
 
-        z(window).off('resize.'+this.id);
+        z$1(window).off('resize.'+this.id);
         // z(window).off('curatorCssLoaded.'+id);
         // z(document).off('ready.'+id);
     };
@@ -3668,7 +3688,7 @@ var LayoutCarousel = (function (EventBus$$1) {
 		}
 
 		this.$panes.each(function (index, pane) {
-			z(pane).css( {width: this$1.PANE_WIDTH+'px'});
+			z$1(pane).css( {width: this$1.PANE_WIDTH+'px'});
 		});
 	};
 
@@ -3810,7 +3830,7 @@ var LayoutCarousel = (function (EventBus$$1) {
 
         if (this.options.matchHeights) {
             for (var i = min; i < max; i++) {
-                var $pane = z(this$1.$panes[i]);
+                var $pane = z$1(this$1.$panes[i]);
                 $pane.find('.crt-post-c').height((paneMaxHeight - 2));
             }
         }
@@ -3825,7 +3845,7 @@ var LayoutCarousel = (function (EventBus$$1) {
         for (var i = min; i < max; i++)
         {
         	if (this$1.$panes[i]) {
-                var $pane = z(this$1.$panes[i]);
+                var $pane = z$1(this$1.$panes[i]);
                 var contentHeight = $pane.find('.crt-post-content').height();
                 var footerHeight = $pane.find('.crt-post-footer').height();
                 var h = contentHeight + footerHeight + 2;
@@ -3855,7 +3875,7 @@ var LayoutCarousel = (function (EventBus$$1) {
 	return LayoutCarousel;
 }(EventBus));
 
-var ConfigCarousel = z.extend({}, ConfigWidgetBase, {
+var ConfigCarousel = z$1.extend({}, ConfigWidgetBase, {
     scroll:'more',
     carousel:{
         autoPlay:true,
@@ -3884,7 +3904,7 @@ var Carousel = (function (Widget$$1) {
             this.allLoaded = false;
 
             // this.$wrapper = z('<div class="crt-carousel-wrapper"></div>').appendTo(this.$container);
-            this.$feed = z('<div class="crt-carousel-feed"></div>').appendTo(this.$container);
+            this.$feed = z$1('<div class="crt-carousel-feed"></div>').appendTo(this.$container);
             this.$container.addClass('crt-carousel');
 
             this.carousel = new LayoutCarousel(this.$feed, this.options.carousel);
@@ -3921,7 +3941,7 @@ var Carousel = (function (Widget$$1) {
         } else {
              var that = this;
              var $els = [];
-            z(posts).each(function(i){
+            z$1(posts).each(function(i){
                 var p = that.createPostElement(this);
                 $els.push(p.$el);
 
@@ -3975,7 +3995,7 @@ var Carousel = (function (Widget$$1) {
     return Carousel;
 }(Widget));
 
-var ConfigPanel = z.extend({}, ConfigWidgetBase, {
+var ConfigPanel = z$1.extend({}, ConfigWidgetBase, {
     panel: {
         // speed: 500,
         autoPlay: true,
@@ -4003,7 +4023,7 @@ var Panel = (function (Widget$$1) {
 
             this.allLoaded = false;
 
-            this.$feed = z('<div class="crt-feed"></div>').appendTo(this.$container);
+            this.$feed = z$1('<div class="crt-feed"></div>').appendTo(this.$container);
             this.$container.addClass('crt-carousel');
             this.$container.addClass('crt-panel');
 
@@ -4039,7 +4059,7 @@ var Panel = (function (Widget$$1) {
         } else {
             var that = this;
             var $els = [];
-            z(posts).each(function() {
+            z$1(posts).each(function() {
                 var p = that.createPostElement(this);
                 $els.push(p.$el);
             });
@@ -4103,7 +4123,7 @@ var Crt = {
 
     loadWidget: loadWidget,
     loadCSS: function () {/* depreciated */},
-    z: z,
+    z: z$1,
     _t: function _t (s, n, lang) {
         return mod.t (s, n, lang);
     },
