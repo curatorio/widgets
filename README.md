@@ -35,13 +35,11 @@ Then, before your closing ```<body>``` tag add:
 ```html
 <script type="text/javascript" src="//cdn.curator.io/3.1/js/curator.js"></script>
 <script type="text/javascript">
-	// While you're testing
-    Curator.debug = true;
-
     // Change FEED_ID to your unique FEED_ID
     var widget = new Curator.Widgets.Waterfall({
+        debug:true, // While you're testing
         container:'#curator-feed',
-        feedId:FEED_ID
+        feedId:'FEED_ID'
     });
 </script>
 ```
@@ -56,20 +54,20 @@ Note that the `require(["curator"],..)` statement needs to be wrapped in a the `
 <script type="text/javascript" src="js/require.js"></script>
 <script type="text/javascript">
     require.config({
-        paths: {
-            'jquery': '//code.jquery.com/jquery-3.3.1.min', // or zepto
-            'curator': '//cdn.curator.io/3.1/js/curator.core.min',
-        }
+    paths: {
+        'jquery': '//code.jquery.com/jquery-3.3.1.min', // or zepto
+        'curator': '//cdn.curator.io/3.1/js/curator.core.min',
+    },
+    shim:{
+        'curator': {deps: ['jquery'] }, // jquery or zepto
+    }
     });
-    require(["jquery"], function($) { // jquery or zepto
-        require(["curator"], function(Curator) {
-
-            // // Change FEED_ID to your unique FEED_ID
-            var widget = new Curator.Widgets.Waterfall({
-                debug:false, // While we're testing
-                container:'#curator-feed',
-                feedId:"6dab8d1e-abe9-4fb7-8475-99ab8d5e"
-            });
+    require(['curator'], function(Curator) {
+        // // Change FEED_ID to your unique FEED_ID
+        var widget = new Curator.Widgets.Waterfall({
+            debug:true, // While we're testing
+            container:'#curator-feed',
+            feedId:'FEED_ID'
         });
     });
 </script>
