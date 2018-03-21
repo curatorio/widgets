@@ -11,19 +11,19 @@ const v1PopupTemplate = `
                 <video preload="none">
                 <source src="<%=video%>" type="video/mp4">
                 </video>
-                <img src="<%=image%>" />
+                <img src="<%=image%>" alt="Image from <%=this.networkName()%>" />
                 <a href="javascript:;" class="crt-play"><i class="crt-play-icon"></i></a> 
             </div> 
         </div> 
         <div class="crt-image"> 
-            <img src="<%=image%>" /> 
+            <img src="<%=image%>" alt="Image from <%=this.networkName()%>" /> 
         </div> 
         <div class="crt-pagination"><ul></ul></div>
     </div> 
     <div class="crt-popup-right"> 
         <div class="crt-popup-header"> 
             <span class="crt-social-icon"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> 
-            <img src="<%=user_image%>"  /> 
+            <img src="<%=user_image%>" alt="Profile image for <%=user_full_name%>"  /> 
             <div class="crt-post-name"><span><%=user_full_name%></span><br/><a href="<%=this.userUrl()%>" target="_blank">@<%=user_screen_name%></a></div> 
         </div> 
         <div class="crt-popup-text <%=this.contentTextClasses()%>"> 
