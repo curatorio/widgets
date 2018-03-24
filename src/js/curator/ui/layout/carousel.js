@@ -99,6 +99,7 @@ class LayoutCarousel extends EventBus {
 		this.$pane_slider.css({width: PANE_WRAPPER_WIDTH}); // set css on pane slider
 
 		this.VIEWPORT_WIDTH = this.$viewport.width();
+        Logger.log('VIEWPORT_WIDTH = '+this.VIEWPORT_WIDTH);
 
 		if (this.options.panesVisible) {
 			// TODO - change to check if it's a function or a number
@@ -279,9 +280,15 @@ class LayoutCarousel extends EventBus {
         {
         	if (this.$panes[i]) {
                 let $pane = z(this.$panes[i]);
-                let contentHeight = $pane.find('.crt-post-content').height();
-                let footerHeight = $pane.find('.crt-post-footer').height();
-                let h = contentHeight + footerHeight + 2;
+
+                let h = 0;
+                if ($pane.hasClass('crt-post-max-height')) {
+                    h = $pane.height();
+                } else {
+                    let contentHeight = $pane.find('.crt-post-content').height();
+                    let footerHeight = $pane.find('.crt-post-footer').height();
+                    h = contentHeight + footerHeight + 2;
+                }
                 // Logger.log('LayoutCarousel->updateHeight i: '+i+' = '+h);
                 if (h > paneMaxHeight) {
                     paneMaxHeight = h;

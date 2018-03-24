@@ -5,6 +5,7 @@ import {} from './libraries/es5shim-object-keys';
 import {} from './libraries/twitter-text-regex';
 
 import EventBus from '/curator/core/bus';
+import Globals from '/curator/core/globals';
 
 import Post from '/curator/ui/post';
 import StringUtils from './curator/utils/string';
@@ -41,6 +42,7 @@ let Crt = {
     EventBus: EventBus,
     Events: Events,
     Logger: Logger,
+    Globals: Globals,
 
     Ui: {
         Post: Post,

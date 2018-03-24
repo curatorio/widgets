@@ -87,22 +87,22 @@
         }
     }
 
+    .crt-post-max-height-read-more,
     .crt-post-read-more {
         display: none;
         text-align: center;
-
         margin: 0.5em;
+    }
 
-        .crt-post-read-more-button {
-            display: inline-block;
-            background-color: #ddd;
-            text-decoration: none;
-            height: 2.5em;
-            line-height: 2.5em;
-            padding: 0 1em;
-            border-radius: 00.1em;
-            color: #666;
-        }
+    .crt-post-read-more-button {
+        display: inline-block;
+        background-color: #ddd;
+        text-decoration: none;
+        height: 2.5em;
+        line-height: 2.5em;
+        padding: 0 1em;
+        border-radius: 00.1em;
+        color: #666;
     }
 
     &.crt-post-show-read-more {
@@ -155,7 +155,7 @@
             }
         }
 
-        .crt-post-read-more {
+        .crt-post-max-height-read-more {
             display: block;
             position: absolute;
             bottom: 0;

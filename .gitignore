@@ -2,3 +2,4 @@
 node_modules
 tests
 deploy*
+yarn-error.log

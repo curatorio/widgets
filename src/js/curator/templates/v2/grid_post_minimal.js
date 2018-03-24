@@ -5,7 +5,7 @@ const template = `
     <div class="crt-post-c"> 
         <div class="crt-post-content"> 
             <div class="crt-hitarea" > 
-                <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="crt-spacer" alt="Image from <%=this.networkName()%>" /> 
+                <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="crt-spacer" alt="Image posted by <%=user_screen_name%> to <%=this.networkName()%>" /> 
                 <div class="crt-grid-post-image">
                     <div class="crt-post-content-image" style="background-image: url(<%=image%>);"> </div> 
                     <a href="javascript:;" class="crt-play"><i class="crt-play-icon"></i></a> 

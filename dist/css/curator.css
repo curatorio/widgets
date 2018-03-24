@@ -824,19 +824,20 @@ body.crt-popup-visible {
         .crt-post-v1 .crt-post .crt-post-share A i.crt-icon-twitter {
           font-size: 1.1em;
           margin-top: 0.1em; }
-  .crt-post-v1 .crt-post .crt-post-read-more {
+  .crt-post-v1 .crt-post .crt-post-read-more,
+  .crt-post-v1 .crt-post .crt-post-max-height-read-more {
     display: none;
     text-align: center;
     margin: 0.5em; }
-    .crt-post-v1 .crt-post .crt-post-read-more .crt-post-read-more-button {
-      display: inline-block;
-      background-color: #ddd;
-      text-decoration: none;
-      height: 2.5em;
-      line-height: 2.5em;
-      padding: 0 1em;
-      border-radius: 00.1em;
-      color: #666; }
+  .crt-post-v1 .crt-post .crt-post-read-more-button {
+    display: inline-block;
+    background-color: #ddd;
+    text-decoration: none;
+    height: 2.5em;
+    line-height: 2.5em;
+    padding: 0 1em;
+    border-radius: 00.1em;
+    color: #666; }
   .crt-post-v1 .crt-post.crt-post-show-read-more .crt-post-read-more {
     display: block; }
   .crt-post-v1 .crt-post .crt-play {
@@ -1042,19 +1043,20 @@ body.crt-popup-visible {
         color: black; }
     .crt-post-v2 .crt-post-content-text .crt-image {
       display: none; }
+  .crt-post-v2 .crt-post-max-height-read-more,
   .crt-post-v2 .crt-post-read-more {
     display: none;
     text-align: center;
     margin: 0.5em; }
-    .crt-post-v2 .crt-post-read-more .crt-post-read-more-button {
-      display: inline-block;
-      background-color: #ddd;
-      text-decoration: none;
-      height: 2.5em;
-      line-height: 2.5em;
-      padding: 0 1em;
-      border-radius: 00.1em;
-      color: #666; }
+  .crt-post-v2 .crt-post-read-more-button {
+    display: inline-block;
+    background-color: #ddd;
+    text-decoration: none;
+    height: 2.5em;
+    line-height: 2.5em;
+    padding: 0 1em;
+    border-radius: 00.1em;
+    color: #666; }
   .crt-post-v2.crt-post-show-read-more .crt-post-read-more {
     display: block; }
   .crt-post-v2 .crt-play {
@@ -1122,7 +1124,7 @@ body.crt-popup-visible {
   .crt-post-v2.crt-post-max-height .crt-post .crt-post-share {
     bottom: -50px;
     display: none; }
-  .crt-post-v2.crt-post-max-height .crt-post-read-more {
+  .crt-post-v2.crt-post-max-height .crt-post-max-height-read-more {
     display: block;
     position: absolute;
     bottom: 0;
@@ -1371,7 +1373,8 @@ body.crt-popup-visible {
         display: table-cell;
         vertical-align: middle;
         text-overflow: ellipsis; }
-  .crt-grid-post-v2 .crt-post-read-more {
+  .crt-grid-post-v2 .crt-post-read-more,
+  .crt-grid-post-v2 .crt-post-max-height-read-more {
     display: none; }
   .crt-grid-post-v2.crt-post-has-image .crt-grid-post-image {
     display: block; }

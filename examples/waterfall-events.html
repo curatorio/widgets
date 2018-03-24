@@ -9,7 +9,7 @@
 </head>
 <body>
 <h1>Curator.io Examples</h1>
-<h2>Waterfall Widget</h2>
+<h2>Waterfall - Events Example</h2>
 <p class="center"><a href="index.html">Examples</a></p>
 
 <div class="container">
@@ -22,18 +22,21 @@
 
 <script type="text/javascript" src="../dist/js/curator.js"></script>
 <script type="text/javascript">
-    // While you're testing
-    Curator.Logger.debug = true;
 
     // Change FEED_ID to your unique FEED_ID
+
+    console.log(Curator);
+
     var widget = new Curator.Widgets.Waterfall({
         container:'#curator-feed',
         feedId:"927447a8-2d33-4b3f-939b-ddc414ff",
-        filter: {
-            showNetworks: true,
-            showSources: true,
-        }
+        postClickAction:Curator.Globals.POST_CLICK_ACTION_NOTHING,
+        debug:true // While you're testing
     });
+
+    widget.on(Curator.Events.POST_CLICK, function(evt, post, postJson) {
+        window.alert('Some click on post '+postJson.id)
+    })
 </script>
 </body>
 </html>

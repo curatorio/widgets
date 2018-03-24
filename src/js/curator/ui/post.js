@@ -124,6 +124,17 @@ class Post extends EventBus {
         this.layout();
     }
 
+    getHeight () {
+        if (this.$el.hasClass('crt-post-max-height')) {
+            return this.$postC.height();
+        } else {
+            // let $pane = z(this.$panes[i]);
+            let contentHeight = this.$el.find('.crt-post-content').height();
+            let footerHeight = this.$el.find('.crt-post-footer').height();
+            return contentHeight + footerHeight + 2;
+        }
+    }
+
     layout () {
         // Logger.log("Post->layout");
         this.layoutFooter();

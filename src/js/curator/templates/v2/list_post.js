@@ -6,7 +6,7 @@ const template = `
         <div class="crt-post-content"> 
             <div class="crt-list-post-image">
                 <div>
-                <img class="crt-post-content-image" src="<%=image%>" alt="Image from <%=this.networkName()%>" /> 
+                <img class="crt-post-content-image" src="<%=image%>" alt="Image posted by <%=user_screen_name%> to <%=this.networkName()%>" /> 
                 <a href="javascript:;" class="crt-play"><i class="crt-play-icon"></i></a> 
                 <span class="crt-social-icon crt-social-icon-normal"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> 
                 <span class="crt-image-carousel"><i class="crt-icon-image-carousel"></i></span>

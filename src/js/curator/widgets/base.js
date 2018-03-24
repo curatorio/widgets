@@ -156,9 +156,10 @@ class Widget extends EventBus {
     onPostClick (ev, post, postJson) {
         Logger.log('Widget->onPostClick');
         Logger.log(ev);
+        Logger.log(post);
         Logger.log(postJson);
 
-        console.log(this.options.postClickAction);
+        this.trigger(Events.POST_CLICK, post, postJson);
 
         if (this.options.postClickAction === Globals.POST_CLICK_ACTION_OPEN_POPUP) {
             this.popupManager.showPopup(post.json);

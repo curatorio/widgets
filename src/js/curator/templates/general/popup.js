@@ -11,12 +11,12 @@ const v1PopupTemplate = `
                 <video preload="none">
                 <source src="<%=video%>" type="video/mp4">
                 </video>
-                <img src="<%=image%>" alt="Image from <%=this.networkName()%>" />
+                <img src="<%=image%>" alt="Image posted by <%=user_screen_name%> to <%=this.networkName()%>" />
                 <a href="javascript:;" class="crt-play"><i class="crt-play-icon"></i></a> 
             </div> 
         </div> 
         <div class="crt-image"> 
-            <img src="<%=image%>" alt="Image from <%=this.networkName()%>" /> 
+            <img src="<%=image%>" alt="Image posted by <%=user_screen_name%> to <%=this.networkName()%>" /> 
         </div> 
         <div class="crt-pagination"><ul></ul></div>
     </div> 

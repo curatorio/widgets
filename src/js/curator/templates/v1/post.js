@@ -14,7 +14,7 @@ const v1PostTemplate = ' \
         </div> \
         <div class="crt-post-content"> \
             <div class="crt-image crt-hitarea crt-post-content-image <%=this.contentImageClasses()%>" > \
-                <div class="crt-image-c"><img src="<%=image%>" class="crt-post-image" alt="Image from <%=this.networkName()%>" /></div> \
+                <div class="crt-image-c"><img src="<%=image%>" class="crt-post-image" alt="Image posted by <%=user_screen_name%> to <%=this.networkName()%>" /></div> \
                 <span class="crt-play"><i class="crt-play-icon"></i></span> \
             </div> \
             <div class="text crt-post-content-text <%=this.contentTextClasses()%>"> \
