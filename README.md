@@ -119,6 +119,8 @@ var widget = new Curator.Widgets.Watterfall({
     debug: false,                    // turn debugging on or off
     lang: 'en',                      // translation used - en, de, it, nl, es
     postClickAction:'open-popup',    // what to do when a post is clicked - open-popup | goto-source | nothing
+    postClickReadMoreAction:'open-popup',    // what to do when a post read more button is clicked - open-popup | goto-source | nothing
+    maxHeight:0,                     // if > 0 sets the maximum height of a post 
     filter: {
         showNetworks: false,         // show Networks filter bar
         showSources: false           // show Sources filter bar
