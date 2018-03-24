@@ -67,3 +67,15 @@ h1,h2 {
     padding:5px 10px;
     margin: 0;
 }
+
+#log {
+    position: fixed;
+    top:0;
+    right:0;
+    z-index: 100;
+    background-color: rgba(0,0,0,0.25);
+    padding: 10px;
+    max-height: 100%;
+    overflow-y: scroll;
+    color:#ffffff;
+}

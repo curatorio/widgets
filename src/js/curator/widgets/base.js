@@ -133,7 +133,7 @@ class Widget extends EventBus {
     createPostElement (postJson) {
         let post = new Post(postJson, this.options, this);
         post.on(Events.POST_CLICK,this.onPostClick.bind(this));
-        post.on(Events.POST_CLICK_READ_MORE,this.onPostClick.bind(this));
+        post.on(Events.POST_CLICK_READ_MORE,this.onPostClickReadMore.bind(this));
         post.on(Events.POST_IMAGE_LOADED, this.onPostImageLoaded.bind(this));
 
         this.trigger(Events.POST_CREATED, post);
@@ -153,22 +153,35 @@ class Widget extends EventBus {
         Logger.log(data);
     }
 
-    onPostClick (ev, post, postJson) {
+    onPostClick (ev, post) {
         Logger.log('Widget->onPostClick');
         Logger.log(ev);
         Logger.log(post);
-        Logger.log(postJson);
 
-        this.trigger(Events.POST_CLICK, post, postJson);
+        this.trigger(Events.POST_CLICK, post);
 
         if (this.options.postClickAction === Globals.POST_CLICK_ACTION_OPEN_POPUP) {
             this.popupManager.showPopup(post.json);
         } else if (this.options.postClickAction === Globals.POST_CLICK_ACTION_GOTO_SOURCE) {
-            window.open(postJson.url);
+            window.open(post.json.url);
         }
     }
 
-    onPostImageLoaded (event, post) {
+    onPostClickReadMore (ev, post) {
+        Logger.log('Widget->onPostClickReadMore');
+        Logger.log(ev);
+        Logger.log(post);
+
+        this.trigger(Events.POST_CLICK_READ_MORE, post);
+
+        if (this.options.postClickReadMoreAction === Globals.POST_CLICK_ACTION_OPEN_POPUP) {
+            this.popupManager.showPopup(post.json);
+        } else if (this.options.postClickAction === Globals.POST_CLICK_ACTION_GOTO_SOURCE) {
+            window.open(post.json.url);
+        }
+    }
+
+    onPostImageLoaded (ev, post) {
         // Logger.log('Widget->onPostImageLoaded');
         // Logger.log(event);
         // Logger.log(post);

@@ -12,8 +12,9 @@ let Events = {
     POST_CLICK              :'post:click',
     POST_CLICK_READ_MORE    :'post:clickReadMore',
     POST_IMAGE_LOADED       :'post:imageLoaded',
+    POST_IMAGE_FAILED       :'post:imageFailed',
 
-    CAROUSEL_CHANGED        :'curator:changed',
+    CAROUSEL_CHANGED        :'carousel:changed',
 };
 
 export default Events;

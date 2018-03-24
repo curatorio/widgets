@@ -38,7 +38,7 @@ class Filter extends EventBus {
             this.$filter.find('.crt-filter-networks li').removeClass('active');
             t.parent().addClass('active');
 
-            this.widget.trigger(Events.FILTER_CHANGED);
+            this.widget.trigger(Events.FILTER_CHANGED, this);
 
             if (networkId) {
                 this.widget.feed.params.network_id = networkId;
@@ -57,7 +57,7 @@ class Filter extends EventBus {
             this.$filter.find('.crt-filter-sources li').removeClass('active');
             t.parent().addClass('active');
 
-            this.widget.trigger(Events.FILTER_CHANGED);
+            this.widget.trigger(Events.FILTER_CHANGED, this);
 
             if (sourceId) {
                 this.widget.feed.params.source_id = sourceId;

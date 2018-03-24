@@ -87,15 +87,30 @@ class Post extends EventBus {
 
     onPostClick (ev) {
         Logger.log('Post->click');
+
         let target = z(ev.target);
+
+        console.log(target[0].className.indexOf('read-more'));
+
+        if (target[0] && target[0].className.indexOf('read-more') > 0) {
+            // ignore read more clicks
+            return;
+        }
 
         if (target.is('a') && target.attr('href') !== '#') {
             this.widget.track('click:link');
         } else {
             ev.preventDefault();
-            this.trigger(Events.POST_CLICK, this, this.json, ev);
+            this.trigger(Events.POST_CLICK, this, ev);
         }
 
+    }
+
+    onReadMoreClick (ev) {
+        ev.preventDefault();
+
+        this.widget.track('click:read-more');
+        this.trigger(Events.POST_CLICK_READ_MORE, this, this.json, ev);
     }
 
     onImageLoaded () {
@@ -104,6 +119,7 @@ class Post extends EventBus {
         this.setHeight();
 
         this.trigger(Events.POST_IMAGE_LOADED, this);
+        this.widget.trigger(Events.POST_IMAGE_LOADED, this);
     }
 
     onImageError () {
@@ -111,6 +127,9 @@ class Post extends EventBus {
         this.$image.hide();
 
         this.setHeight();
+
+        this.trigger(Events.POST_IMAGE_FAILED, this);
+        this.widget.trigger(Events.POST_IMAGE_FAILED, this);
     }
 
     setHeight () {
@@ -155,12 +174,6 @@ class Post extends EventBus {
         if (elementsWidth > footerWidth) {
             $userName.hide();
         }
-    }
-
-    onReadMoreClick (ev) {
-        ev.preventDefault();
-        this.widget.track('click:read-more');
-        this.trigger(Events.POST_CLICK_READ_MORE, this, this.json, ev);
     }
 }
 

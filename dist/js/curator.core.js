@@ -639,8 +639,9 @@ var Events = {
     POST_CLICK              :'post:click',
     POST_CLICK_READ_MORE    :'post:clickReadMore',
     POST_IMAGE_LOADED       :'post:imageLoaded',
+    POST_IMAGE_FAILED       :'post:imageFailed',
 
-    CAROUSEL_CHANGED        :'curator:changed',
+    CAROUSEL_CHANGED        :'carousel:changed',
 };
 
 var v1PopupUnderlayTemplate = '';
@@ -1324,15 +1325,30 @@ var Post = (function (EventBus$$1) {
 
     Post.prototype.onPostClick = function onPostClick (ev) {
         Logger.log('Post->click');
+
         var target = z$1(ev.target);
+
+        console.log(target[0].className.indexOf('read-more'));
+
+        if (target[0] && target[0].className.indexOf('read-more') > 0) {
+            // ignore read more clicks
+            return;
+        }
 
         if (target.is('a') && target.attr('href') !== '#') {
             this.widget.track('click:link');
         } else {
             ev.preventDefault();
-            this.trigger(Events.POST_CLICK, this, this.json, ev);
+            this.trigger(Events.POST_CLICK, this, ev);
         }
 
+    };
+
+    Post.prototype.onReadMoreClick = function onReadMoreClick (ev) {
+        ev.preventDefault();
+
+        this.widget.track('click:read-more');
+        this.trigger(Events.POST_CLICK_READ_MORE, this, this.json, ev);
     };
 
     Post.prototype.onImageLoaded = function onImageLoaded () {
@@ -1341,6 +1357,7 @@ var Post = (function (EventBus$$1) {
         this.setHeight();
 
         this.trigger(Events.POST_IMAGE_LOADED, this);
+        this.widget.trigger(Events.POST_IMAGE_LOADED, this);
     };
 
     Post.prototype.onImageError = function onImageError () {
@@ -1348,6 +1365,9 @@ var Post = (function (EventBus$$1) {
         this.$image.hide();
 
         this.setHeight();
+
+        this.trigger(Events.POST_IMAGE_FAILED, this);
+        this.widget.trigger(Events.POST_IMAGE_FAILED, this);
     };
 
     Post.prototype.setHeight = function setHeight () {
@@ -1392,12 +1412,6 @@ var Post = (function (EventBus$$1) {
         if (elementsWidth > footerWidth) {
             $userName.hide();
         }
-    };
-
-    Post.prototype.onReadMoreClick = function onReadMoreClick (ev) {
-        ev.preventDefault();
-        this.widget.track('click:read-more');
-        this.trigger(Events.POST_CLICK_READ_MORE, this, this.json, ev);
     };
 
     return Post;
@@ -1659,12 +1673,13 @@ var Feed = (function (EventBus$$1) {
                     }
 
                     this$1.widget.trigger(Events.FEED_LOADED, data);
-                    this$1.widget.trigger(Events.POSTS_LOADED, data.posts);
-
                     this$1.trigger(Events.FEED_LOADED, data);
+
+                    this$1.widget.trigger(Events.POSTS_LOADED, data.posts);
                     this$1.trigger(Events.POSTS_LOADED, data.posts);
                 } else {
-                    this$1.trigger(Events.POSTS_FAILED, data.posts);
+                    this$1.trigger(Events.POSTS_FAILED, data);
+                    this$1.widget.trigger(Events.POSTS_FAILED, data);
                 }
                 this$1.loading = false;
             },
@@ -1822,7 +1837,7 @@ var Filter = (function (EventBus$$1) {
             this$1.$filter.find('.crt-filter-networks li').removeClass('active');
             t.parent().addClass('active');
 
-            this$1.widget.trigger(Events.FILTER_CHANGED);
+            this$1.widget.trigger(Events.FILTER_CHANGED, this$1);
 
             if (networkId) {
                 this$1.widget.feed.params.network_id = networkId;
@@ -1841,7 +1856,7 @@ var Filter = (function (EventBus$$1) {
             this$1.$filter.find('.crt-filter-sources li').removeClass('active');
             t.parent().addClass('active');
 
-            this$1.widget.trigger(Events.FILTER_CHANGED);
+            this$1.widget.trigger(Events.FILTER_CHANGED, this$1);
 
             if (sourceId) {
                 this$1.widget.feed.params.source_id = sourceId;
@@ -2379,7 +2394,7 @@ var Widget = (function (EventBus$$1) {
     Widget.prototype.createPostElement = function createPostElement (postJson) {
         var post = new Post(postJson, this.options, this);
         post.on(Events.POST_CLICK,this.onPostClick.bind(this));
-        post.on(Events.POST_CLICK_READ_MORE,this.onPostClick.bind(this));
+        post.on(Events.POST_CLICK_READ_MORE,this.onPostClickReadMore.bind(this));
         post.on(Events.POST_IMAGE_LOADED, this.onPostImageLoaded.bind(this));
 
         this.trigger(Events.POST_CREATED, post);
@@ -2399,22 +2414,35 @@ var Widget = (function (EventBus$$1) {
         Logger.log(data);
     };
 
-    Widget.prototype.onPostClick = function onPostClick (ev, post, postJson) {
+    Widget.prototype.onPostClick = function onPostClick (ev, post) {
         Logger.log('Widget->onPostClick');
         Logger.log(ev);
         Logger.log(post);
-        Logger.log(postJson);
 
-        this.trigger(Events.POST_CLICK, post, postJson);
+        this.trigger(Events.POST_CLICK, post);
 
         if (this.options.postClickAction === Globals.POST_CLICK_ACTION_OPEN_POPUP) {
             this.popupManager.showPopup(post.json);
         } else if (this.options.postClickAction === Globals.POST_CLICK_ACTION_GOTO_SOURCE) {
-            window.open(postJson.url);
+            window.open(post.json.url);
         }
     };
 
-    Widget.prototype.onPostImageLoaded = function onPostImageLoaded (event, post) {
+    Widget.prototype.onPostClickReadMore = function onPostClickReadMore (ev, post) {
+        Logger.log('Widget->onPostClickReadMore');
+        Logger.log(ev);
+        Logger.log(post);
+
+        this.trigger(Events.POST_CLICK_READ_MORE, post);
+
+        if (this.options.postClickReadMoreAction === Globals.POST_CLICK_ACTION_OPEN_POPUP) {
+            this.popupManager.showPopup(post.json);
+        } else if (this.options.postClickAction === Globals.POST_CLICK_ACTION_GOTO_SOURCE) {
+            window.open(post.json.url);
+        }
+    };
+
+    Widget.prototype.onPostImageLoaded = function onPostImageLoaded (ev, post) {
         // Logger.log('Widget->onPostImageLoaded');
         // Logger.log(event);
         // Logger.log(post);
@@ -2486,10 +2514,10 @@ var ConfigWidgetBase = {
     templatePopup:'popup',
     templatePopupWrapper:'popup-wrapper',
     templateFilter:'filter',
-    showPopupOnClick:true,
     lang:'en',
     debug:false,
     postClickAction:'open-popup',     // open-popup | goto-source | nothing
+    postClickReadMoreAction:'open-popup',     // open-popup | goto-source | nothing
     filter: {
         showNetworks: false,
         showSources: false,

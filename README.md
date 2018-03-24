@@ -1,16 +1,18 @@
 # Curator.io Social Feed Widgets
 
 
-### Demo
+## Demo
 
 [Curator.io](https://curator.io/showcase)
 
+
 ## Setup
 
-Sign up to [Curator.io](https://admin.curator.io/auth/register) to set up a social feed - it's free :)
+Sign up to [Curator.io](https://admin.curator.io/auth/register) to set up a social feed.
+
 You'll need your unique `FEED_ID` to use the widgets.
 
-You can find the FEED_ID here:
+You can find the `FEED_ID` here:
 
 ![Screenshot of Curator Admin showing FEED ID](https://admin.curator.io/assets/images/github-feed-id.jpg)
 
@@ -48,7 +50,7 @@ Then, before your closing ```<body>``` tag add:
 
 Curator can be loaded via RequireJS using the following method. 
 
-Note that the `require(["curator"],..)` statement needs to be wrapped in a the `require(["jquery"],..)` or `require(["zepto"],..)` statement.  
+Note the shim `'curator': {deps: ['jquery'] }`.  
 
 ```html
 <script type="text/javascript" src="js/require.js"></script>
@@ -58,7 +60,7 @@ Note that the `require(["curator"],..)` statement needs to be wrapped in a the `
         'jquery': '//code.jquery.com/jquery-3.3.1.min', // or zepto
         'curator': '//cdn.curator.io/3.1/js/curator.core.min',
     },
-    shim:{
+    shim: {
         'curator': {deps: ['jquery'] }, // jquery or zepto
     }
     });
@@ -116,11 +118,10 @@ var widget = new Curator.Widgets.Watterfall({
     postsPerPage: 12,                // number of posts per page
     debug: false,                    // turn debugging on or off
     lang: 'en',                      // translation used - en, de, it, nl, es
+    postClickAction:'open-popup',    // what to do when a post is clicked - open-popup | goto-source | nothing
     filter: {
         showNetworks: false,         // show Networks filter bar
-        networksLabel: 'Networks:',  // Networks filter bar label
-        showSources: false,          // show Sources filter bar
-        sourcesLabel: 'Sources:',    // Sources filter bar label
+        showSources: false           // show Sources filter bar
     }
 });
 ```
@@ -177,6 +178,35 @@ var widget = new Curator.Widgets.Panel({
     }
 });
 ```
+
+### Events
+
+The widget will broadcast events when users interaction with it or various system events take place.
+
+You can subscribe to events like so:
+
+```
+widget.on(Curator.Events.POST_CLICK, function(evt, post, postJson) {
+    window.alert('Someone clicked on post '+postJson.id)
+})
+```
+
+
+| Event                 | Args       | Description |
+| -------------         | ---------- | ------------- |
+| `feed:loaded`         | `data`     | AJAX loaded feed successfully |
+| `feed:failed`         | `data`     | AJAX failed to load feed |
+| `filter:changed`      | `filter`   | Filter option selected |
+| `posts:loaded`        | `posts`    | AJAX loaded posts successfully (basically same as  `feed:loaded` but just returns the `feed.posts`)
+| `posts:failed`        | `data`     | AJAX failed to load feed (basically same as  `feed:failed` but just returns the `feed.posts`) |
+| `post:created`        | `post`     | Post was added to the widget DOM |
+| `post:click`          | `post`     | Widget post was clicked on by the user |
+| `post:clickReadMore`  | `post`     | Post read more button was clicked by a user |
+| `post:imageLoaded`    | `post`     | Post image loaded successfully |
+| `post:imageFailed`    | `post`     | Image failed to load |
+| `posts:rendered`      | `widget`   | Post have been rendered and added to the DOM |
+| `carousel:changed`    | `widget`   | Carousel or Panel widget completed a rotation |  
+
 
 ### Changing Post HTML
 

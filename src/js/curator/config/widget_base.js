@@ -8,10 +8,10 @@ let ConfigWidgetBase = {
     templatePopup:'popup',
     templatePopupWrapper:'popup-wrapper',
     templateFilter:'filter',
-    showPopupOnClick:true,
     lang:'en',
     debug:false,
     postClickAction:'open-popup',     // open-popup | goto-source | nothing
+    postClickReadMoreAction:'open-popup',     // open-popup | goto-source | nothing
     filter: {
         showNetworks: false,
         showSources: false,

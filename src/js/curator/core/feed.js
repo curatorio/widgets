@@ -152,12 +152,13 @@ class Feed extends EventBus {
                     }
 
                     this.widget.trigger(Events.FEED_LOADED, data);
-                    this.widget.trigger(Events.POSTS_LOADED, data.posts);
-
                     this.trigger(Events.FEED_LOADED, data);
+
+                    this.widget.trigger(Events.POSTS_LOADED, data.posts);
                     this.trigger(Events.POSTS_LOADED, data.posts);
                 } else {
-                    this.trigger(Events.POSTS_FAILED, data.posts);
+                    this.trigger(Events.POSTS_FAILED, data);
+                    this.widget.trigger(Events.POSTS_FAILED, data);
                 }
                 this.loading = false;
             },

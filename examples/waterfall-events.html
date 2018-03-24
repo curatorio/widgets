@@ -11,7 +11,9 @@
 <h1>Curator.io Examples</h1>
 <h2>Waterfall - Events Example</h2>
 <p class="center"><a href="index.html">Examples</a></p>
-
+<div id="log">
+    <div id="log-text">LOG:<br></div>
+</div>
 <div class="container">
     <div class="row">
         <div id="curator-feed">
@@ -23,20 +25,61 @@
 <script type="text/javascript" src="../dist/js/curator.js"></script>
 <script type="text/javascript">
 
+    function log (s) {
+        var logText = $('#log-text').html();
+        logText += s +'<br>';
+        $('#log-text').html(logText);
+    }
+
     // Change FEED_ID to your unique FEED_ID
-
-    console.log(Curator);
-
     var widget = new Curator.Widgets.Waterfall({
         container:'#curator-feed',
         feedId:"927447a8-2d33-4b3f-939b-ddc414ff",
-        postClickAction:Curator.Globals.POST_CLICK_ACTION_NOTHING,
-        debug:true // While you're testing
+        // postClickAction:Curator.Globals.POST_CLICK_ACTION_NOTHING,
+        debug:false, // While you're testing,
+        maxHeight:550,
+        filter : {
+            showNetworks:true
+        }
     });
 
-    widget.on(Curator.Events.POST_CLICK, function(evt, post, postJson) {
-        window.alert('Some click on post '+postJson.id)
-    })
+    widget.on('feed:loaded', function(evt) {
+        log('Event: '+evt.type);
+    });
+    widget.on('feed:failed', function(evt) {
+        log('Event: '+evt.type);
+    });
+    widget.on('filter:changed', function(evt) {
+        log('Event: '+evt.type);
+    });
+    widget.on('posts:loaded', function(evt) {
+        log('Event: '+evt.type);
+    });
+    widget.on('posts:failed', function(evt) {
+        log('Event: '+evt.type);
+    });
+    widget.on('post:created', function(evt, post) {
+        log('Event: '+evt.type+' for post '+post.json.id)
+    });
+    widget.on('post:click', function(evt, post) {
+        log('Event: '+evt.type+' for post '+post.json.id)
+    });
+    widget.on('post:clickReadMore', function(evt, post) {
+        log('Event: '+evt.type+' for post '+post.json.id)
+    });
+    widget.on('post:imageLoaded', function(evt, post) {
+        log('Event: '+evt.type);
+    });
+    widget.on('post:imageFailed', function(evt, post) {
+        log('Event: '+evt.type);
+    });
+    widget.on('posts:rendered', function(evt, widget) {
+        log('Event: '+evt.type);
+    });
+    widget.on('carousel:changed', function(evt, widget) {
+        log('Event: '+evt.type);
+    });
+
 </script>
 </body>
 </html>
