@@ -46,14 +46,23 @@ const HtmlUtils = {
     loadCSS () {
         // not used!
     },
-    
+
     isTouch () {
         let b = false;
         try {
             b = ("ontouchstart" in document.documentElement);
-        } catch (e) {}
-        
+        } catch (e) {
+        }
+
         return b;
+    },
+    
+    isVisible (el) {
+        if(el.css('display')!=='none' && el.css('visibility')!=='hidden' && el.width()>0) {
+            return true;
+        } else {
+            return false;
+        }
     }
 };
 

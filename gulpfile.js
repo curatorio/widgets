@@ -35,7 +35,8 @@ const bubleConfig = {
 
 const aliasConfig = {
     '/curator': path.resolve(__dirname,srcJs+'/curator'),
-    '/libraries': path.resolve(__dirname,srcJs+'/libraries')
+    '/libraries': path.resolve(__dirname,srcJs+'/libraries'),
+    '/node_modules': path.resolve(__dirname,'node_modules'),
 };
 
 function bubleError (err) {

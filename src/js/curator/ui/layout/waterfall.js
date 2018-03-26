@@ -11,8 +11,10 @@
 
 import Logger from '/curator/core/logger';
 import CommonUtils from '/curator/utils/common';
+import HtmlUtils from '/curator/utils/html';
 import makeArray from '/libraries/make-array';
 import z from '/curator/core/lib';
+import ResizeObserver from '/node_modules/resize-observer-polyfill/dist/ResizeObserver.es';
 
 let LayoutWaterfallSettings = {
     selector: '.item',
@@ -56,8 +58,29 @@ class LayoutWaterfall {
         this.w = 0;
         this.boxArr = [];
 
+        // this.element.is(':visible')
 
-        // this.offscreenRender = z('<div class="grid-rendered"></div>').appendTo('body');
+        if (!HtmlUtils.isVisible(this.element)) {
+            console.log('NOT VISIBLE='+this.element.width());
+            // let parents = this.element.parents();
+            // console.log(parents);
+            // for(let el in parents) {
+            //
+            // }
+            const ro = new ResizeObserver((entries, observer) => {
+                for (const entry of entries) {
+                    const {left, top, width, height} = entry.contentRect;
+
+                    console.log('Element:', entry.target);
+                    console.log(`Element's size: ${ width }px x ${ height }px`);
+                    console.log(`Element's paddings: ${ top }px ; ${ left }px`);
+                }
+            });
+
+            ro.observe(this.element[0]);
+        } else {
+
+        }
 
         // build columns
         this._setCols();
