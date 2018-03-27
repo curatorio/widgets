@@ -115,6 +115,7 @@ var widget = new Curator.Widgets.Panel({
 ```js
 var widget = new Curator.Widgets.Waterfall({    
     feedId: 'ABC123',                // FEED_ID to load
+    container:'#curator-feed',       // HTML element to hold the feed
     postsPerPage: 12,                // number of posts per page
     debug: false,                    // turn debugging on or off
     lang: 'en',                      // translation used - en, de, it, nl, es
