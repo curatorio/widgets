@@ -15,6 +15,7 @@ let Events = {
     POST_IMAGE_FAILED       :'post:imageFailed',
 
     CAROUSEL_CHANGED        :'carousel:changed',
+    GRID_HEIGHT_CHANGED     :'grid:heightChanged',
 };
 
 export default Events;

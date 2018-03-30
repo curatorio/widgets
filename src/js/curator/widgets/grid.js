@@ -175,6 +175,8 @@ class Grid extends Widget {
                 this.$loadMore.show();
             }
         }
+
+        this.trigger(Events.GRID_HEIGHT_CHANGED,this);
     }
 
     checkScroll () {
