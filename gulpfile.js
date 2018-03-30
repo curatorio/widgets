@@ -13,8 +13,6 @@ const src         = "src/";
 const srcScss     = src+"scss/";
 const srcJs       = src+"js/";
 
-console.log();
-
 const watchPaths  = [
     dest+'/**',
     'tests/**/*.html',

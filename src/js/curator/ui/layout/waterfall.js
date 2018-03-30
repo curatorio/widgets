@@ -57,30 +57,9 @@ class LayoutWaterfall {
         this.isResizing = false;
         this.w = 0;
         this.boxArr = [];
+        this.visible = false;
 
         // this.element.is(':visible')
-
-        if (!HtmlUtils.isVisible(this.element)) {
-            console.log('NOT VISIBLE='+this.element.width());
-            // let parents = this.element.parents();
-            // console.log(parents);
-            // for(let el in parents) {
-            //
-            // }
-            const ro = new ResizeObserver((entries, observer) => {
-                for (const entry of entries) {
-                    const {left, top, width, height} = entry.contentRect;
-
-                    console.log('Element:', entry.target);
-                    console.log(`Element's size: ${ width }px x ${ height }px`);
-                    console.log(`Element's paddings: ${ top }px ; ${ left }px`);
-                }
-            });
-
-            ro.observe(this.element[0]);
-        } else {
-
-        }
 
         // build columns
         this._setCols();
@@ -94,14 +73,31 @@ class LayoutWaterfall {
 
     createHandlers () {
         Logger.log("WaterfallLayout->createHandlers");
-        z(window).on('resize.'+this.id, CommonUtils.debounce( () => {
+
+        this.resizeDebounced = CommonUtils.debounce( () => {
             this.resize();
-        }, 100));
+        }, 100);
+
+        this.ro = new ResizeObserver((entries, observer) => {
+            if (entries.length > 0) {
+                let entry = entries[0];
+
+                this.redraw ();
+            }
+        });
+
+        this.ro.observe(this.element[0]);
+
+        this.redraw();
     }
 
     destroyHandlers () {
         Logger.log("WaterfallLayout->destroyHandlers");
-        z(window).off('resize.'+this.id);
+        this.ro.disconnect();
+    }
+
+    redraw () {
+        this.resizeDebounced ();
     }
 
     _setName(length, current) {
@@ -330,15 +326,24 @@ class LayoutWaterfall {
     }
 
     resize() {
-        if (this.box.width() === this.boxWidth) {
-            return;
-        }
+        // if (this.box.width() === this.boxWidth) {
+        //     return;
+        // }
 
         let newCols = Math.floor(this.box.width() / this.options.width);
         if (this.cols === newCols) {
             // nothings changed yet
+            // console.log('NOTHING CHANGED');
             return;
         }
+
+        if (!HtmlUtils.isVisible(this.element)) {
+            // console.log('NOT VISIBLE');
+            this.visible = false;
+            return;
+        }
+
+        this.visible = true;
 
         // delete columns in box
         this.box.find(z('.galcolumn')).remove();
