@@ -22,7 +22,7 @@ class Carousel extends Widget {
     constructor (options) {
         super ();
 
-        options.postsPerPage = 30;
+        options.postsPerPage = 100;
 
         this.loading=false;
         this.posts=[];
@@ -38,7 +38,7 @@ class Carousel extends Widget {
             this.$feed = z('<div class="crt-carousel-feed"></div>').appendTo(this.$container);
             this.$container.addClass('crt-carousel');
 
-            this.carousel = new LayoutCarousel(this.$feed, this.options.carousel);
+            this.carousel = new LayoutCarousel(this, this.$feed, this.options.carousel);
             this.carousel.on(Events.CAROUSEL_CHANGED, this.onCarouselChange.bind(this));
 
             this.on(Events.FILTER_CHANGED, () => {
@@ -66,31 +66,18 @@ class Carousel extends Widget {
         if (posts.length === 0) {
             this.allLoaded = true;
         } else {
-             let that = this;
-             let $els = [];
-            z(posts).each(function(i){
-                let p = that.createPostElement(this);
-                $els.push(p.$el);
-
-                if (that.options.animate && that.firstLoad) {
-                    p.$el.css({opacity: 0});
-                    window.setTimeout(function () {
-                        p.$el.css({opacity: 0}).animate({opacity: 1});
-                    }, i * 100);
-                }
-            });
-
-            this.carousel.add($els);
-            this.carousel.update();
+            this.carousel.addPosts(posts);
 
             this.popupManager.setPosts(posts);
         }
         this.firstLoad = false;
     }
 
-    onCarouselChange (event, currentSlide) {
+    onCarouselChange (event, carouselLayout, currentSlide) {
+        Logger.log("Carousel->onCarouselChange currentSlide: "+currentSlide);
         if (this.options && this.options.carousel.autoLoad) {
-            if (currentSlide >= this.feed.postsLoaded - this.carousel.PANES_VISIBLE) {
+            let pos = this.feed.postsLoaded - (this.carousel.PANES_VISIBLE * 2);
+            if (currentSlide >= pos) {
                 this.loadMorePosts();
             }
         }
