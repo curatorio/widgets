@@ -2,7 +2,7 @@ import Logger from '/curator/core/logger';
 import z from '/curator/core/lib';
 
 const HtmlUtils = {
-    checkContainer: function (container) {
+    checkContainer (container) {
         Logger.log("Curator->checkContainer: " + container);
         if (z(container).length === 0) {
             if (window.console) {
@@ -13,7 +13,7 @@ const HtmlUtils = {
         return true;
     },
 
-    checkPowered: function (jQuerytag) {
+    checkPowered (jQuerytag) {
         Logger.log("Curator->checkPowered");
         let h = jQuerytag.html();
         // Logger.log (h);
@@ -25,7 +25,7 @@ const HtmlUtils = {
         }
     },
 
-    addCSSRule: function (sheet, selector, rules, index) {
+    addCSSRule (sheet, selector, rules, index) {
         index = index || 0;
         if ('insertRule' in sheet) {
             sheet.insertRule(selector + '{' + rules + '}', 0);
@@ -35,7 +35,7 @@ const HtmlUtils = {
         }
     },
 
-    createSheet: function () {
+    createSheet () {
         let style = document.createElement("style");
         // WebKit hack :(
         style.appendChild(document.createTextNode(""));
@@ -43,8 +43,17 @@ const HtmlUtils = {
         return style.sheet;
     },
 
-    loadCSS: function () {
+    loadCSS () {
         // not used!
+    },
+    
+    isTouch () {
+        let b = false;
+        try {
+            b = ("ontouchstart" in document.documentElement);
+        } catch (e) {}
+        
+        return b;
     }
 };
 

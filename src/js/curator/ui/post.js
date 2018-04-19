@@ -90,7 +90,8 @@ class Post extends EventBus {
 
         let target = z(ev.target);
 
-        console.log(target[0].className.indexOf('read-more'));
+        // console.log(target[0].className.indexOf('read-more'));
+        // console.log(target.attr('href'));
 
         if (target[0] && target[0].className.indexOf('read-more') > 0) {
             // ignore read more clicks

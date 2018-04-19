@@ -2,7 +2,7 @@
 
 let StringUtils = {
 
-    camelize: function (s) {
+    camelize (s) {
         return s.replace (/(?:^|[-_])(\w)/g, function (_, c) {
             return c ? c.toUpperCase () : '';
         });

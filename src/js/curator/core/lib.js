@@ -1,4 +1,3 @@
-/* globals $local */
 
 // Change to use $local is passed into the factory wrapper - it's either jQuery or Zepto
 var z = null;

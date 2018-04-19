@@ -1,6 +1,6 @@
 
 let CommonUtils = {
-    postUrl : function (post)
+    postUrl (post)
     {
         if (post.url && post.url !== "" && post.url !== "''")
         {

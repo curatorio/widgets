@@ -33,6 +33,12 @@ class Widget extends EventBus {
         this.$container = z(this.options.container);
         this.$container.addClass('crt-feed');
 
+        if (HtmlUtils.isTouch()) {
+            this.$container.addClass('crt-touch');
+        } else {
+            this.$container.addClass('crt-no-touch');
+        }
+
         // get inline options
         let inlineOptions = [
             'lang',

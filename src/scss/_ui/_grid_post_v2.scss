@@ -233,17 +233,19 @@
 
     }
 
-    .crt-hitarea:hover {
-        .crt-social-icon-normal {
-            opacity: 0;
+    .crt-no-touch & {
+        .crt-hitarea:hover {
+            .crt-social-icon-normal {
+                opacity: 0;
 
-        }
-        .crt-image-carousel {
-            opacity: 0;
-        }
-        .crt-post-hover {
-            visibility: visible;
-            opacity: 1;
+            }
+            .crt-image-carousel {
+                opacity: 0;
+            }
+            .crt-post-hover {
+                visibility: visible;
+                opacity: 1;
+            }
         }
     }
 

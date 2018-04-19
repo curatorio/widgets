@@ -579,14 +579,15 @@ body.crt-popup-visible {
     max-width: 600px;
     right: auto;
     height: auto;
-    padding-bottom: 20px; }
+    padding-bottom: 40px; }
     .crt-popup-wrapper .crt-popup .crt-popup-right .crt-popup-text {
       position: relative;
       top: auto;
       left: auto;
       right: auto;
       bottom: auto;
-      max-height: 300px; }
+      max-height: 300px;
+      padding-bottom: 15px; }
   .crt-popup-wrapper .crt-popup .crt-popup-left {
     padding-right: 0; }
     .crt-popup-wrapper .crt-popup .crt-popup-left .crt-pagination {
@@ -596,8 +597,7 @@ body.crt-popup-visible {
     width: auto;
     max-width: 600px;
     right: auto;
-    height: auto;
-    padding-bottom: 20px; }
+    height: auto; }
     .crt-popup-wrapper .crt-popup.has-image .crt-popup-right .crt-popup-text {
       position: relative;
       top: auto;
@@ -1416,11 +1416,11 @@ body.crt-popup-visible {
       bottom: 0;
       left: 0;
       right: 0; }
-  .crt-grid-post-v2 .crt-hitarea:hover .crt-social-icon-normal {
+  .crt-no-touch .crt-grid-post-v2 .crt-hitarea:hover .crt-social-icon-normal {
     opacity: 0; }
-  .crt-grid-post-v2 .crt-hitarea:hover .crt-image-carousel {
+  .crt-no-touch .crt-grid-post-v2 .crt-hitarea:hover .crt-image-carousel {
     opacity: 0; }
-  .crt-grid-post-v2 .crt-hitarea:hover .crt-post-hover {
+  .crt-no-touch .crt-grid-post-v2 .crt-hitarea:hover .crt-post-hover {
     visibility: visible;
     opacity: 1; }
   .crt-grid-post-v2.crt-post-has-image .crt-post-content-text-c {

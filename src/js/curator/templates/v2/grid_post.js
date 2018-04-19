@@ -1,6 +1,6 @@
 
 
-const v2GridPostTemplate = `
+const template = `
 <div class="crt-grid-post crt-grid-post-v2 crt-post-<%=id%> <%=this.contentImageClasses()%> <%=this.contentTextClasses()%>" data-post="<%=id%>"> \
     <div class="crt-post-c"> 
         <div class="crt-post-content"> 
@@ -8,7 +8,7 @@ const v2GridPostTemplate = `
                 <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="crt-spacer" alt="Image posted by <%=user_screen_name%> to <%=this.networkName()%>" /> 
                 <div class="crt-grid-post-image">
                     <div class="crt-post-content-image" style="background-image: url(<%=image%>);"> </div> 
-                    <a href="javascript:;" class="crt-play"><i class="crt-play-icon"></i></a> 
+                    <span class="crt-play"><i class="crt-play-icon"></i></span> 
                     <span class="crt-social-icon crt-social-icon-normal"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> 
                     <div class="crt-image-carousel"><i class="crt-icon-image-carousel"></i></div> 
                 </div>
@@ -41,4 +41,4 @@ const v2GridPostTemplate = `
     </div>
 </div>`;
 
-export default v2GridPostTemplate;
+export default template;
