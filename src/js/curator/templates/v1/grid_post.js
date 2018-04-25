@@ -5,7 +5,7 @@ const gridPostTemplate = ' \
         <div class="crt-post-content"> \
             <div class="crt-hitarea" > \
                 <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer" alt="Image posted by <%=user_screen_name%> to <%=this.networkName()%>" /> \
-                <div class="crt-post-content-image" style="background-image: url(<%=image%>);"> </div> \
+                <div class="crt-post-content-image" style="background-image:url(\'<%=image%>\');"></div> \
                 <div class="crt-post-content-text-c"> \
                     <div class="crt-post-content-text"> \
                         <%=this.parseText(text)%> \
