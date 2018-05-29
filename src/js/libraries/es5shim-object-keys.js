@@ -42,5 +42,4 @@ if (!Object.keys) {
         }
         return keys;
     };
-
 }

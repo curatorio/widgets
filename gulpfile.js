@@ -31,12 +31,6 @@ const bubleConfig = {
     }
 };
 
-const aliasConfig = {
-    '/curator': path.resolve(__dirname,srcJs+'/curator'),
-    '/libraries': path.resolve(__dirname,srcJs+'/libraries'),
-    '/node_modules': path.resolve(__dirname,'node_modules'),
-};
-
 function bubleError (err) {
     console.log('[Buble ERROR]');
     console.log(err.fileName + ( err.loc ? '( '+err.loc.line+', '+err.loc.column+' ): ' : ': '));
@@ -68,8 +62,7 @@ const gulp = require('gulp'),
     // buble = require('gulp-buble'),
     rollup = require('gulp-better-rollup'),
     uglify = require('gulp-uglify'),
-    rollupBuble = require('rollup-plugin-buble'),
-    rollupAlias = require('rollup-plugin-alias');
+    rollupBuble = require('rollup-plugin-buble');
 
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -93,8 +86,7 @@ gulp.task('scripts:core', () =>  {
         // .pipe(sourcemaps.init())
         .pipe(rollup({
             plugins: [
-                rollupBuble(bubleConfig),
-                rollupAlias(aliasConfig)],
+                rollupBuble(bubleConfig)],
         }, {
             format: 'iife', //'amd', 'cjs', 'es', 'iife' or 'umd'
             name : 'Curator'
