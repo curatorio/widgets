@@ -1,6 +1,6 @@
 
 let ConfigWidgetBase = {
-    apiEndpoint: 'https://api.curator.io/v1.1',
+    apiEndpoint: 'https://api.curator.io/v1.2',
     feedId:'',
     postsPerPage:12,
     maxPosts:0,

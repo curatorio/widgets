@@ -30,6 +30,8 @@ class Feed extends EventBus {
 
         this.params = this.options.feedParams || {};
         this.params.limit = this.options.postsPerPage;
+        this.params.hasPoweredBy = this.widget.hasPoweredBy;
+        this.params.version = '1.2';
 
         this.feedBase = this.options.apiEndpoint+'/feeds';
     }

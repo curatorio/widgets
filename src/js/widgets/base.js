@@ -25,22 +25,25 @@ class Widget extends EventBus {
     init (options, defaults) {
         if (!options) {
             console.error('options missing');
-            return;
-        } else if(!options.container) {
-            console.error('options.container missing');
-            return;
-        } else if(!options.feedId) {
-            console.error('options.feedId missing');
-            return;
+            return false;
         }
 
         this.options = z.extend(true,{}, defaults, options);
 
-        if (!HtmlUtils.checkContainer(this.options.container)) {
+        if(!options.container) {
+            console.error('options.container missing');
             return false;
         }
 
+        if (!HtmlUtils.checkContainer(this.options.container)) {
+            return false;
+        }
         this.$container = z(this.options.container);
+
+        if (!this.options.feedId) {
+            console.error('options.feedId missing');
+        }
+
         this.$container.addClass('crt-feed');
 
         if (HtmlUtils.isTouch()) {
@@ -70,6 +73,7 @@ class Widget extends EventBus {
         Logger.log ('Setting language to: '+this.options.lang);
         translate.setLang(this.options.lang);
 
+        this.checkPoweredBy ();
         this.createFeed();
         this.createFilter();
         this.createPopupManager();
@@ -236,6 +240,12 @@ class Widget extends EventBus {
 
     _t (s) {
         return translate.t (s);
+    }
+
+    checkPoweredBy () {
+        let html = this.$container.text().trim();
+
+        this.hasPoweredBy = html.indexOf('Powered by Curator.io') > -1;
     }
 
     destroy () {
