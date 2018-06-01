@@ -27,6 +27,10 @@ let Templating = {
             throw new Error ('Could not find template '+templateId);
         }
 
+        return Templating.renderDiv(source, data);
+    },
+
+    renderDiv (source, data) {
         let tmpl = Templating.render(source, data);
         if (z.parseHTML) {
             // breaks with jquery < 1.8
