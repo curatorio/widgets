@@ -23,9 +23,43 @@ import Grid from './curator/widgets/grid';
 import Carousel from './curator/widgets/carousel';
 import Panel from './curator/widgets/panel';
 
+let findContainer = function (config) {
+    // find with data-crt-feed-id
+    let container = z('[data-crt-feed-id="'+config.feedId+'"]');
+    if (container.length > 0) {
+        return container.get(0);
+    }
+
+    // could not find container ... try using the class feedId
+    container = z('.crt-feed-'+config.feedId);
+    if (container.length > 0) {
+        return container.get(0);
+    }
+
+    // could not find container ... try using the feedId
+    container = z('#curator-'+config.feedId);
+    if (container.length > 0) {
+        return container.get(0);
+    }
+
+    container = z(config.container);
+    if (container.length) {
+        return container.get(0);
+    }
+    return false;
+};
+
 let loadWidget = function (config) {
-    let ConstructorClass = Crt.Widgets[config.type];
-    return new ConstructorClass(config);
+    let container = findContainer (config);
+
+    if (!container) {
+        Logger.error('Curator - could not find container');
+        return false;
+    } else {
+        config.container = container;
+        let ConstructorClass = Crt.Widgets[config.type];
+        return new ConstructorClass(config);
+    }
 };
 
 let Crt = {
