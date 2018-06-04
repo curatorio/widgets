@@ -24,9 +24,15 @@ import Carousel from './widgets/carousel';
 import Panel from './widgets/panel';
 
 let findContainer = function (config) {
+    // find with data-crt-feed-id
+    let container = z('[data-crt-feed-id="'+config.feedId+'"]');
+    if (container.length > 0) {
+        return container.get(0);
+    }
 
-    let container = z(config.container);
-    if (container.length) {
+    // could not find container ... try using the class feedId
+    container = z('.crt-feed-'+config.feedId);
+    if (container.length > 0) {
         return container.get(0);
     }
 
@@ -36,9 +42,8 @@ let findContainer = function (config) {
         return container.get(0);
     }
 
-    // find with data-crt-feed-id
-    container = z('[data-crt-feed-id="'+config.feedId+'"]');
-    if (container.length > 0) {
+    container = z(config.container);
+    if (container.length) {
         return container.get(0);
     }
     return false;
