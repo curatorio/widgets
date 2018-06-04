@@ -12,8 +12,10 @@
 		return false;
 	}
 
-	var Curator = (function () {
+	var Curator = (function (ResizeObserver) {
 'use strict';
+
+ResizeObserver = ResizeObserver && ResizeObserver.hasOwnProperty('default') ? ResizeObserver['default'] : ResizeObserver;
 
 /**
  * Props to https://github.com/yanatan16/nanoajax
@@ -182,97 +184,92 @@ if (!Object.keys) {
         }
         return keys;
     };
-
 }
 
 // From https://cdn.rawgit.com/twitter/twitter-text/v1.13.4/js/twitter-text.js
 // Cut down to only include RegEx functions
 
-(function () {
-    var twttr = {};
-    twttr.txt = {};
-    twttr.txt.regexen = {};
+var twttr = {};
+twttr.txt = {};
+twttr.txt.regexen = {};
 
-    var HTML_ENTITIES = {
-        '&': '&amp;',
-        '>': '&gt;',
-        '<': '&lt;',
-        '"': '&quot;',
-        "'": '&#39;'
-    };
+var HTML_ENTITIES = {
+    '&': '&amp;',
+    '>': '&gt;',
+    '<': '&lt;',
+    '"': '&quot;',
+    "'": '&#39;'
+};
 
-    // HTML escaping
-    twttr.txt.htmlEscape = function(text) {
-        return text && text.replace(/[&"'><]/g, function(character) {
-            return HTML_ENTITIES[character];
-        });
-    };
+// HTML escaping
+twttr.txt.htmlEscape = function(text) {
+    return text && text.replace(/[&"'><]/g, function(character) {
+        return HTML_ENTITIES[character];
+    });
+};
 
-    // Builds a RegExp
-    function regexSupplant(regex, flags) {
-        flags = flags || "";
-        if (typeof regex !== "string") {
-            if (regex.global && flags.indexOf("g") < 0) {
-                flags += "g";
-            }
-            if (regex.ignoreCase && flags.indexOf("i") < 0) {
-                flags += "i";
-            }
-            if (regex.multiline && flags.indexOf("m") < 0) {
-                flags += "m";
-            }
-
-            regex = regex.source;
+// Builds a RegExp
+function regexSupplant(regex, flags) {
+    flags = flags || "";
+    if (typeof regex !== "string") {
+        if (regex.global && flags.indexOf("g") < 0) {
+            flags += "g";
+        }
+        if (regex.ignoreCase && flags.indexOf("i") < 0) {
+            flags += "i";
+        }
+        if (regex.multiline && flags.indexOf("m") < 0) {
+            flags += "m";
         }
 
-        return new RegExp(regex.replace(/#\{(\w+)\}/g, function(match, name) {
-            var newRegex = twttr.txt.regexen[name] || "";
-            if (typeof newRegex !== "string") {
-                newRegex = newRegex.source;
-            }
-            return newRegex;
-        }), flags);
+        regex = regex.source;
     }
 
-    twttr.txt.regexSupplant = regexSupplant;
-
-    // simple string interpolation
-    function stringSupplant(str, values) {
-        return str.replace(/#\{(\w+)\}/g, function(match, name) {
-            return values[name] || "";
-        });
-    }
-
-    twttr.txt.stringSupplant = stringSupplant;
-
-    function addCharsToCharClass(charClass, start, end) {
-        var s = String.fromCharCode(start);
-        if (end !== start) {
-            s += "-" + String.fromCharCode(end);
+    return new RegExp(regex.replace(/#\{(\w+)\}/g, function(match, name) {
+        var newRegex = twttr.txt.regexen[name] || "";
+        if (typeof newRegex !== "string") {
+            newRegex = newRegex.source;
         }
-        charClass.push(s);
-        return charClass;
+        return newRegex;
+    }), flags);
+}
+
+twttr.txt.regexSupplant = regexSupplant;
+
+// simple string interpolation
+function stringSupplant(str, values) {
+    return str.replace(/#\{(\w+)\}/g, function(match, name) {
+        return values[name] || "";
+    });
+}
+
+twttr.txt.stringSupplant = stringSupplant;
+
+function addCharsToCharClass(charClass, start, end) {
+    var s = String.fromCharCode(start);
+    if (end !== start) {
+        s += "-" + String.fromCharCode(end);
     }
+    charClass.push(s);
+    return charClass;
+}
 
-    twttr.txt.addCharsToCharClass = addCharsToCharClass;
+twttr.txt.addCharsToCharClass = addCharsToCharClass;
 
-    // Some minimizers convert string escapes into their literal values, which leads to intermittent Unicode normalization bugs and
-    // increases the gzipped download size. Use RegEx literals as opposed to string literals to prevent that.
-    var unicodeLettersAndMarks = /A-Za-z\xAA\xB5\xBA\xC0-\xD6\xD8-\xF6\xF8-\u02C1\u02C6-\u02D1\u02E0-\u02E4\u02EC\u02EE\u0370-\u0374\u0376\u0377\u037A-\u037D\u037F\u0386\u0388-\u038A\u038C\u038E-\u03A1\u03A3-\u03F5\u03F7-\u0481\u048A-\u052F\u0531-\u0556\u0559\u0561-\u0587\u05D0-\u05EA\u05F0-\u05F2\u0620-\u064A\u066E\u066F\u0671-\u06D3\u06D5\u06E5\u06E6\u06EE\u06EF\u06FA-\u06FC\u06FF\u0710\u0712-\u072F\u074D-\u07A5\u07B1\u07CA-\u07EA\u07F4\u07F5\u07FA\u0800-\u0815\u081A\u0824\u0828\u0840-\u0858\u08A0-\u08B2\u0904-\u0939\u093D\u0950\u0958-\u0961\u0971-\u0980\u0985-\u098C\u098F\u0990\u0993-\u09A8\u09AA-\u09B0\u09B2\u09B6-\u09B9\u09BD\u09CE\u09DC\u09DD\u09DF-\u09E1\u09F0\u09F1\u0A05-\u0A0A\u0A0F\u0A10\u0A13-\u0A28\u0A2A-\u0A30\u0A32\u0A33\u0A35\u0A36\u0A38\u0A39\u0A59-\u0A5C\u0A5E\u0A72-\u0A74\u0A85-\u0A8D\u0A8F-\u0A91\u0A93-\u0AA8\u0AAA-\u0AB0\u0AB2\u0AB3\u0AB5-\u0AB9\u0ABD\u0AD0\u0AE0\u0AE1\u0B05-\u0B0C\u0B0F\u0B10\u0B13-\u0B28\u0B2A-\u0B30\u0B32\u0B33\u0B35-\u0B39\u0B3D\u0B5C\u0B5D\u0B5F-\u0B61\u0B71\u0B83\u0B85-\u0B8A\u0B8E-\u0B90\u0B92-\u0B95\u0B99\u0B9A\u0B9C\u0B9E\u0B9F\u0BA3\u0BA4\u0BA8-\u0BAA\u0BAE-\u0BB9\u0BD0\u0C05-\u0C0C\u0C0E-\u0C10\u0C12-\u0C28\u0C2A-\u0C39\u0C3D\u0C58\u0C59\u0C60\u0C61\u0C85-\u0C8C\u0C8E-\u0C90\u0C92-\u0CA8\u0CAA-\u0CB3\u0CB5-\u0CB9\u0CBD\u0CDE\u0CE0\u0CE1\u0CF1\u0CF2\u0D05-\u0D0C\u0D0E-\u0D10\u0D12-\u0D3A\u0D3D\u0D4E\u0D60\u0D61\u0D7A-\u0D7F\u0D85-\u0D96\u0D9A-\u0DB1\u0DB3-\u0DBB\u0DBD\u0DC0-\u0DC6\u0E01-\u0E30\u0E32\u0E33\u0E40-\u0E46\u0E81\u0E82\u0E84\u0E87\u0E88\u0E8A\u0E8D\u0E94-\u0E97\u0E99-\u0E9F\u0EA1-\u0EA3\u0EA5\u0EA7\u0EAA\u0EAB\u0EAD-\u0EB0\u0EB2\u0EB3\u0EBD\u0EC0-\u0EC4\u0EC6\u0EDC-\u0EDF\u0F00\u0F40-\u0F47\u0F49-\u0F6C\u0F88-\u0F8C\u1000-\u102A\u103F\u1050-\u1055\u105A-\u105D\u1061\u1065\u1066\u106E-\u1070\u1075-\u1081\u108E\u10A0-\u10C5\u10C7\u10CD\u10D0-\u10FA\u10FC-\u1248\u124A-\u124D\u1250-\u1256\u1258\u125A-\u125D\u1260-\u1288\u128A-\u128D\u1290-\u12B0\u12B2-\u12B5\u12B8-\u12BE\u12C0\u12C2-\u12C5\u12C8-\u12D6\u12D8-\u1310\u1312-\u1315\u1318-\u135A\u1380-\u138F\u13A0-\u13F4\u1401-\u166C\u166F-\u167F\u1681-\u169A\u16A0-\u16EA\u16F1-\u16F8\u1700-\u170C\u170E-\u1711\u1720-\u1731\u1740-\u1751\u1760-\u176C\u176E-\u1770\u1780-\u17B3\u17D7\u17DC\u1820-\u1877\u1880-\u18A8\u18AA\u18B0-\u18F5\u1900-\u191E\u1950-\u196D\u1970-\u1974\u1980-\u19AB\u19C1-\u19C7\u1A00-\u1A16\u1A20-\u1A54\u1AA7\u1B05-\u1B33\u1B45-\u1B4B\u1B83-\u1BA0\u1BAE\u1BAF\u1BBA-\u1BE5\u1C00-\u1C23\u1C4D-\u1C4F\u1C5A-\u1C7D\u1CE9-\u1CEC\u1CEE-\u1CF1\u1CF5\u1CF6\u1D00-\u1DBF\u1E00-\u1F15\u1F18-\u1F1D\u1F20-\u1F45\u1F48-\u1F4D\u1F50-\u1F57\u1F59\u1F5B\u1F5D\u1F5F-\u1F7D\u1F80-\u1FB4\u1FB6-\u1FBC\u1FBE\u1FC2-\u1FC4\u1FC6-\u1FCC\u1FD0-\u1FD3\u1FD6-\u1FDB\u1FE0-\u1FEC\u1FF2-\u1FF4\u1FF6-\u1FFC\u2071\u207F\u2090-\u209C\u2102\u2107\u210A-\u2113\u2115\u2119-\u211D\u2124\u2126\u2128\u212A-\u212D\u212F-\u2139\u213C-\u213F\u2145-\u2149\u214E\u2183\u2184\u2C00-\u2C2E\u2C30-\u2C5E\u2C60-\u2CE4\u2CEB-\u2CEE\u2CF2\u2CF3\u2D00-\u2D25\u2D27\u2D2D\u2D30-\u2D67\u2D6F\u2D80-\u2D96\u2DA0-\u2DA6\u2DA8-\u2DAE\u2DB0-\u2DB6\u2DB8-\u2DBE\u2DC0-\u2DC6\u2DC8-\u2DCE\u2DD0-\u2DD6\u2DD8-\u2DDE\u2E2F\u3005\u3006\u3031-\u3035\u303B\u303C\u3041-\u3096\u309D-\u309F\u30A1-\u30FA\u30FC-\u30FF\u3105-\u312D\u3131-\u318E\u31A0-\u31BA\u31F0-\u31FF\u3400-\u4DB5\u4E00-\u9FCC\uA000-\uA48C\uA4D0-\uA4FD\uA500-\uA60C\uA610-\uA61F\uA62A\uA62B\uA640-\uA66E\uA67F-\uA69D\uA6A0-\uA6E5\uA717-\uA71F\uA722-\uA788\uA78B-\uA78E\uA790-\uA7AD\uA7B0\uA7B1\uA7F7-\uA801\uA803-\uA805\uA807-\uA80A\uA80C-\uA822\uA840-\uA873\uA882-\uA8B3\uA8F2-\uA8F7\uA8FB\uA90A-\uA925\uA930-\uA946\uA960-\uA97C\uA984-\uA9B2\uA9CF\uA9E0-\uA9E4\uA9E6-\uA9EF\uA9FA-\uA9FE\uAA00-\uAA28\uAA40-\uAA42\uAA44-\uAA4B\uAA60-\uAA76\uAA7A\uAA7E-\uAAAF\uAAB1\uAAB5\uAAB6\uAAB9-\uAABD\uAAC0\uAAC2\uAADB-\uAADD\uAAE0-\uAAEA\uAAF2-\uAAF4\uAB01-\uAB06\uAB09-\uAB0E\uAB11-\uAB16\uAB20-\uAB26\uAB28-\uAB2E\uAB30-\uAB5A\uAB5C-\uAB5F\uAB64\uAB65\uABC0-\uABE2\uAC00-\uD7A3\uD7B0-\uD7C6\uD7CB-\uD7FB\uF900-\uFA6D\uFA70-\uFAD9\uFB00-\uFB06\uFB13-\uFB17\uFB1D\uFB1F-\uFB28\uFB2A-\uFB36\uFB38-\uFB3C\uFB3E\uFB40\uFB41\uFB43\uFB44\uFB46-\uFBB1\uFBD3-\uFD3D\uFD50-\uFD8F\uFD92-\uFDC7\uFDF0-\uFDFB\uFE70-\uFE74\uFE76-\uFEFC\uFF21-\uFF3A\uFF41-\uFF5A\uFF66-\uFFBE\uFFC2-\uFFC7\uFFCA-\uFFCF\uFFD2-\uFFD7\uFFDA-\uFFDC\u0300-\u036F\u0483-\u0489\u0591-\u05BD\u05BF\u05C1\u05C2\u05C4\u05C5\u05C7\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06DC\u06DF-\u06E4\u06E7\u06E8\u06EA-\u06ED\u0711\u0730-\u074A\u07A6-\u07B0\u07EB-\u07F3\u0816-\u0819\u081B-\u0823\u0825-\u0827\u0829-\u082D\u0859-\u085B\u08E4-\u0903\u093A-\u093C\u093E-\u094F\u0951-\u0957\u0962\u0963\u0981-\u0983\u09BC\u09BE-\u09C4\u09C7\u09C8\u09CB-\u09CD\u09D7\u09E2\u09E3\u0A01-\u0A03\u0A3C\u0A3E-\u0A42\u0A47\u0A48\u0A4B-\u0A4D\u0A51\u0A70\u0A71\u0A75\u0A81-\u0A83\u0ABC\u0ABE-\u0AC5\u0AC7-\u0AC9\u0ACB-\u0ACD\u0AE2\u0AE3\u0B01-\u0B03\u0B3C\u0B3E-\u0B44\u0B47\u0B48\u0B4B-\u0B4D\u0B56\u0B57\u0B62\u0B63\u0B82\u0BBE-\u0BC2\u0BC6-\u0BC8\u0BCA-\u0BCD\u0BD7\u0C00-\u0C03\u0C3E-\u0C44\u0C46-\u0C48\u0C4A-\u0C4D\u0C55\u0C56\u0C62\u0C63\u0C81-\u0C83\u0CBC\u0CBE-\u0CC4\u0CC6-\u0CC8\u0CCA-\u0CCD\u0CD5\u0CD6\u0CE2\u0CE3\u0D01-\u0D03\u0D3E-\u0D44\u0D46-\u0D48\u0D4A-\u0D4D\u0D57\u0D62\u0D63\u0D82\u0D83\u0DCA\u0DCF-\u0DD4\u0DD6\u0DD8-\u0DDF\u0DF2\u0DF3\u0E31\u0E34-\u0E3A\u0E47-\u0E4E\u0EB1\u0EB4-\u0EB9\u0EBB\u0EBC\u0EC8-\u0ECD\u0F18\u0F19\u0F35\u0F37\u0F39\u0F3E\u0F3F\u0F71-\u0F84\u0F86\u0F87\u0F8D-\u0F97\u0F99-\u0FBC\u0FC6\u102B-\u103E\u1056-\u1059\u105E-\u1060\u1062-\u1064\u1067-\u106D\u1071-\u1074\u1082-\u108D\u108F\u109A-\u109D\u135D-\u135F\u1712-\u1714\u1732-\u1734\u1752\u1753\u1772\u1773\u17B4-\u17D3\u17DD\u180B-\u180D\u18A9\u1920-\u192B\u1930-\u193B\u19B0-\u19C0\u19C8\u19C9\u1A17-\u1A1B\u1A55-\u1A5E\u1A60-\u1A7C\u1A7F\u1AB0-\u1ABE\u1B00-\u1B04\u1B34-\u1B44\u1B6B-\u1B73\u1B80-\u1B82\u1BA1-\u1BAD\u1BE6-\u1BF3\u1C24-\u1C37\u1CD0-\u1CD2\u1CD4-\u1CE8\u1CED\u1CF2-\u1CF4\u1CF8\u1CF9\u1DC0-\u1DF5\u1DFC-\u1DFF\u20D0-\u20F0\u2CEF-\u2CF1\u2D7F\u2DE0-\u2DFF\u302A-\u302F\u3099\u309A\uA66F-\uA672\uA674-\uA67D\uA69F\uA6F0\uA6F1\uA802\uA806\uA80B\uA823-\uA827\uA880\uA881\uA8B4-\uA8C4\uA8E0-\uA8F1\uA926-\uA92D\uA947-\uA953\uA980-\uA983\uA9B3-\uA9C0\uA9E5\uAA29-\uAA36\uAA43\uAA4C\uAA4D\uAA7B-\uAA7D\uAAB0\uAAB2-\uAAB4\uAAB7\uAAB8\uAABE\uAABF\uAAC1\uAAEB-\uAAEF\uAAF5\uAAF6\uABE3-\uABEA\uABEC\uABED\uFB1E\uFE00-\uFE0F\uFE20-\uFE2D/.source;
-    var unicodeNumbers = /0-9\u0660-\u0669\u06F0-\u06F9\u07C0-\u07C9\u0966-\u096F\u09E6-\u09EF\u0A66-\u0A6F\u0AE6-\u0AEF\u0B66-\u0B6F\u0BE6-\u0BEF\u0C66-\u0C6F\u0CE6-\u0CEF\u0D66-\u0D6F\u0DE6-\u0DEF\u0E50-\u0E59\u0ED0-\u0ED9\u0F20-\u0F29\u1040-\u1049\u1090-\u1099\u17E0-\u17E9\u1810-\u1819\u1946-\u194F\u19D0-\u19D9\u1A80-\u1A89\u1A90-\u1A99\u1B50-\u1B59\u1BB0-\u1BB9\u1C40-\u1C49\u1C50-\u1C59\uA620-\uA629\uA8D0-\uA8D9\uA900-\uA909\uA9D0-\uA9D9\uA9F0-\uA9F9\uAA50-\uAA59\uABF0-\uABF9\uFF10-\uFF19/.source;
-    var hashtagSpecialChars = /_\u200c\u200d\ua67e\u05be\u05f3\u05f4\uff5e\u301c\u309b\u309c\u30a0\u30fb\u3003\u0f0b\u0f0c\u00b7/.source;
-    var hashTagSpecialChars2 = /\.-/.source;
-    // A hashtag must contain at least one unicode letter or mark, as well as numbers, underscores, and select special characters.
-    twttr.txt.regexen.hashSigns = /[#＃]/;
-    twttr.txt.regexen.hashtagAlpha = new RegExp("[" + unicodeLettersAndMarks + "]");
-    twttr.txt.regexen.hashtagAlphaNumeric = new RegExp("[" + unicodeLettersAndMarks + unicodeNumbers + hashtagSpecialChars + hashTagSpecialChars2 + "]");
-    twttr.txt.regexen.endHashtagMatch = regexSupplant(/^(?:#{hashSigns}|:\/\/)/);
-    twttr.txt.regexen.hashtagBoundary = new RegExp("(?:^|$|[^&" + unicodeLettersAndMarks + unicodeNumbers + hashtagSpecialChars + "])");
-    // twttr.txt.regexen.validHashtag = regexSupplant(/(#{hashtagBoundary})(#{hashSigns})(?!\ufe0f|\u20e3)(#{hashtagAlphaNumeric}*#{hashtagAlpha}#{hashtagAlphaNumeric}*)/gi);
-    twttr.txt.regexen.validHashtag = regexSupplant(/[#]+(#{hashtagAlphaNumeric}*)/gi);
-
-    window.twttr = twttr;
-}());
+// Some minimizers convert string escapes into their literal values, which leads to intermittent Unicode normalization bugs and
+// increases the gzipped download size. Use RegEx literals as opposed to string literals to prevent that.
+var unicodeLettersAndMarks = /A-Za-z\xAA\xB5\xBA\xC0-\xD6\xD8-\xF6\xF8-\u02C1\u02C6-\u02D1\u02E0-\u02E4\u02EC\u02EE\u0370-\u0374\u0376\u0377\u037A-\u037D\u037F\u0386\u0388-\u038A\u038C\u038E-\u03A1\u03A3-\u03F5\u03F7-\u0481\u048A-\u052F\u0531-\u0556\u0559\u0561-\u0587\u05D0-\u05EA\u05F0-\u05F2\u0620-\u064A\u066E\u066F\u0671-\u06D3\u06D5\u06E5\u06E6\u06EE\u06EF\u06FA-\u06FC\u06FF\u0710\u0712-\u072F\u074D-\u07A5\u07B1\u07CA-\u07EA\u07F4\u07F5\u07FA\u0800-\u0815\u081A\u0824\u0828\u0840-\u0858\u08A0-\u08B2\u0904-\u0939\u093D\u0950\u0958-\u0961\u0971-\u0980\u0985-\u098C\u098F\u0990\u0993-\u09A8\u09AA-\u09B0\u09B2\u09B6-\u09B9\u09BD\u09CE\u09DC\u09DD\u09DF-\u09E1\u09F0\u09F1\u0A05-\u0A0A\u0A0F\u0A10\u0A13-\u0A28\u0A2A-\u0A30\u0A32\u0A33\u0A35\u0A36\u0A38\u0A39\u0A59-\u0A5C\u0A5E\u0A72-\u0A74\u0A85-\u0A8D\u0A8F-\u0A91\u0A93-\u0AA8\u0AAA-\u0AB0\u0AB2\u0AB3\u0AB5-\u0AB9\u0ABD\u0AD0\u0AE0\u0AE1\u0B05-\u0B0C\u0B0F\u0B10\u0B13-\u0B28\u0B2A-\u0B30\u0B32\u0B33\u0B35-\u0B39\u0B3D\u0B5C\u0B5D\u0B5F-\u0B61\u0B71\u0B83\u0B85-\u0B8A\u0B8E-\u0B90\u0B92-\u0B95\u0B99\u0B9A\u0B9C\u0B9E\u0B9F\u0BA3\u0BA4\u0BA8-\u0BAA\u0BAE-\u0BB9\u0BD0\u0C05-\u0C0C\u0C0E-\u0C10\u0C12-\u0C28\u0C2A-\u0C39\u0C3D\u0C58\u0C59\u0C60\u0C61\u0C85-\u0C8C\u0C8E-\u0C90\u0C92-\u0CA8\u0CAA-\u0CB3\u0CB5-\u0CB9\u0CBD\u0CDE\u0CE0\u0CE1\u0CF1\u0CF2\u0D05-\u0D0C\u0D0E-\u0D10\u0D12-\u0D3A\u0D3D\u0D4E\u0D60\u0D61\u0D7A-\u0D7F\u0D85-\u0D96\u0D9A-\u0DB1\u0DB3-\u0DBB\u0DBD\u0DC0-\u0DC6\u0E01-\u0E30\u0E32\u0E33\u0E40-\u0E46\u0E81\u0E82\u0E84\u0E87\u0E88\u0E8A\u0E8D\u0E94-\u0E97\u0E99-\u0E9F\u0EA1-\u0EA3\u0EA5\u0EA7\u0EAA\u0EAB\u0EAD-\u0EB0\u0EB2\u0EB3\u0EBD\u0EC0-\u0EC4\u0EC6\u0EDC-\u0EDF\u0F00\u0F40-\u0F47\u0F49-\u0F6C\u0F88-\u0F8C\u1000-\u102A\u103F\u1050-\u1055\u105A-\u105D\u1061\u1065\u1066\u106E-\u1070\u1075-\u1081\u108E\u10A0-\u10C5\u10C7\u10CD\u10D0-\u10FA\u10FC-\u1248\u124A-\u124D\u1250-\u1256\u1258\u125A-\u125D\u1260-\u1288\u128A-\u128D\u1290-\u12B0\u12B2-\u12B5\u12B8-\u12BE\u12C0\u12C2-\u12C5\u12C8-\u12D6\u12D8-\u1310\u1312-\u1315\u1318-\u135A\u1380-\u138F\u13A0-\u13F4\u1401-\u166C\u166F-\u167F\u1681-\u169A\u16A0-\u16EA\u16F1-\u16F8\u1700-\u170C\u170E-\u1711\u1720-\u1731\u1740-\u1751\u1760-\u176C\u176E-\u1770\u1780-\u17B3\u17D7\u17DC\u1820-\u1877\u1880-\u18A8\u18AA\u18B0-\u18F5\u1900-\u191E\u1950-\u196D\u1970-\u1974\u1980-\u19AB\u19C1-\u19C7\u1A00-\u1A16\u1A20-\u1A54\u1AA7\u1B05-\u1B33\u1B45-\u1B4B\u1B83-\u1BA0\u1BAE\u1BAF\u1BBA-\u1BE5\u1C00-\u1C23\u1C4D-\u1C4F\u1C5A-\u1C7D\u1CE9-\u1CEC\u1CEE-\u1CF1\u1CF5\u1CF6\u1D00-\u1DBF\u1E00-\u1F15\u1F18-\u1F1D\u1F20-\u1F45\u1F48-\u1F4D\u1F50-\u1F57\u1F59\u1F5B\u1F5D\u1F5F-\u1F7D\u1F80-\u1FB4\u1FB6-\u1FBC\u1FBE\u1FC2-\u1FC4\u1FC6-\u1FCC\u1FD0-\u1FD3\u1FD6-\u1FDB\u1FE0-\u1FEC\u1FF2-\u1FF4\u1FF6-\u1FFC\u2071\u207F\u2090-\u209C\u2102\u2107\u210A-\u2113\u2115\u2119-\u211D\u2124\u2126\u2128\u212A-\u212D\u212F-\u2139\u213C-\u213F\u2145-\u2149\u214E\u2183\u2184\u2C00-\u2C2E\u2C30-\u2C5E\u2C60-\u2CE4\u2CEB-\u2CEE\u2CF2\u2CF3\u2D00-\u2D25\u2D27\u2D2D\u2D30-\u2D67\u2D6F\u2D80-\u2D96\u2DA0-\u2DA6\u2DA8-\u2DAE\u2DB0-\u2DB6\u2DB8-\u2DBE\u2DC0-\u2DC6\u2DC8-\u2DCE\u2DD0-\u2DD6\u2DD8-\u2DDE\u2E2F\u3005\u3006\u3031-\u3035\u303B\u303C\u3041-\u3096\u309D-\u309F\u30A1-\u30FA\u30FC-\u30FF\u3105-\u312D\u3131-\u318E\u31A0-\u31BA\u31F0-\u31FF\u3400-\u4DB5\u4E00-\u9FCC\uA000-\uA48C\uA4D0-\uA4FD\uA500-\uA60C\uA610-\uA61F\uA62A\uA62B\uA640-\uA66E\uA67F-\uA69D\uA6A0-\uA6E5\uA717-\uA71F\uA722-\uA788\uA78B-\uA78E\uA790-\uA7AD\uA7B0\uA7B1\uA7F7-\uA801\uA803-\uA805\uA807-\uA80A\uA80C-\uA822\uA840-\uA873\uA882-\uA8B3\uA8F2-\uA8F7\uA8FB\uA90A-\uA925\uA930-\uA946\uA960-\uA97C\uA984-\uA9B2\uA9CF\uA9E0-\uA9E4\uA9E6-\uA9EF\uA9FA-\uA9FE\uAA00-\uAA28\uAA40-\uAA42\uAA44-\uAA4B\uAA60-\uAA76\uAA7A\uAA7E-\uAAAF\uAAB1\uAAB5\uAAB6\uAAB9-\uAABD\uAAC0\uAAC2\uAADB-\uAADD\uAAE0-\uAAEA\uAAF2-\uAAF4\uAB01-\uAB06\uAB09-\uAB0E\uAB11-\uAB16\uAB20-\uAB26\uAB28-\uAB2E\uAB30-\uAB5A\uAB5C-\uAB5F\uAB64\uAB65\uABC0-\uABE2\uAC00-\uD7A3\uD7B0-\uD7C6\uD7CB-\uD7FB\uF900-\uFA6D\uFA70-\uFAD9\uFB00-\uFB06\uFB13-\uFB17\uFB1D\uFB1F-\uFB28\uFB2A-\uFB36\uFB38-\uFB3C\uFB3E\uFB40\uFB41\uFB43\uFB44\uFB46-\uFBB1\uFBD3-\uFD3D\uFD50-\uFD8F\uFD92-\uFDC7\uFDF0-\uFDFB\uFE70-\uFE74\uFE76-\uFEFC\uFF21-\uFF3A\uFF41-\uFF5A\uFF66-\uFFBE\uFFC2-\uFFC7\uFFCA-\uFFCF\uFFD2-\uFFD7\uFFDA-\uFFDC\u0300-\u036F\u0483-\u0489\u0591-\u05BD\u05BF\u05C1\u05C2\u05C4\u05C5\u05C7\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06DC\u06DF-\u06E4\u06E7\u06E8\u06EA-\u06ED\u0711\u0730-\u074A\u07A6-\u07B0\u07EB-\u07F3\u0816-\u0819\u081B-\u0823\u0825-\u0827\u0829-\u082D\u0859-\u085B\u08E4-\u0903\u093A-\u093C\u093E-\u094F\u0951-\u0957\u0962\u0963\u0981-\u0983\u09BC\u09BE-\u09C4\u09C7\u09C8\u09CB-\u09CD\u09D7\u09E2\u09E3\u0A01-\u0A03\u0A3C\u0A3E-\u0A42\u0A47\u0A48\u0A4B-\u0A4D\u0A51\u0A70\u0A71\u0A75\u0A81-\u0A83\u0ABC\u0ABE-\u0AC5\u0AC7-\u0AC9\u0ACB-\u0ACD\u0AE2\u0AE3\u0B01-\u0B03\u0B3C\u0B3E-\u0B44\u0B47\u0B48\u0B4B-\u0B4D\u0B56\u0B57\u0B62\u0B63\u0B82\u0BBE-\u0BC2\u0BC6-\u0BC8\u0BCA-\u0BCD\u0BD7\u0C00-\u0C03\u0C3E-\u0C44\u0C46-\u0C48\u0C4A-\u0C4D\u0C55\u0C56\u0C62\u0C63\u0C81-\u0C83\u0CBC\u0CBE-\u0CC4\u0CC6-\u0CC8\u0CCA-\u0CCD\u0CD5\u0CD6\u0CE2\u0CE3\u0D01-\u0D03\u0D3E-\u0D44\u0D46-\u0D48\u0D4A-\u0D4D\u0D57\u0D62\u0D63\u0D82\u0D83\u0DCA\u0DCF-\u0DD4\u0DD6\u0DD8-\u0DDF\u0DF2\u0DF3\u0E31\u0E34-\u0E3A\u0E47-\u0E4E\u0EB1\u0EB4-\u0EB9\u0EBB\u0EBC\u0EC8-\u0ECD\u0F18\u0F19\u0F35\u0F37\u0F39\u0F3E\u0F3F\u0F71-\u0F84\u0F86\u0F87\u0F8D-\u0F97\u0F99-\u0FBC\u0FC6\u102B-\u103E\u1056-\u1059\u105E-\u1060\u1062-\u1064\u1067-\u106D\u1071-\u1074\u1082-\u108D\u108F\u109A-\u109D\u135D-\u135F\u1712-\u1714\u1732-\u1734\u1752\u1753\u1772\u1773\u17B4-\u17D3\u17DD\u180B-\u180D\u18A9\u1920-\u192B\u1930-\u193B\u19B0-\u19C0\u19C8\u19C9\u1A17-\u1A1B\u1A55-\u1A5E\u1A60-\u1A7C\u1A7F\u1AB0-\u1ABE\u1B00-\u1B04\u1B34-\u1B44\u1B6B-\u1B73\u1B80-\u1B82\u1BA1-\u1BAD\u1BE6-\u1BF3\u1C24-\u1C37\u1CD0-\u1CD2\u1CD4-\u1CE8\u1CED\u1CF2-\u1CF4\u1CF8\u1CF9\u1DC0-\u1DF5\u1DFC-\u1DFF\u20D0-\u20F0\u2CEF-\u2CF1\u2D7F\u2DE0-\u2DFF\u302A-\u302F\u3099\u309A\uA66F-\uA672\uA674-\uA67D\uA69F\uA6F0\uA6F1\uA802\uA806\uA80B\uA823-\uA827\uA880\uA881\uA8B4-\uA8C4\uA8E0-\uA8F1\uA926-\uA92D\uA947-\uA953\uA980-\uA983\uA9B3-\uA9C0\uA9E5\uAA29-\uAA36\uAA43\uAA4C\uAA4D\uAA7B-\uAA7D\uAAB0\uAAB2-\uAAB4\uAAB7\uAAB8\uAABE\uAABF\uAAC1\uAAEB-\uAAEF\uAAF5\uAAF6\uABE3-\uABEA\uABEC\uABED\uFB1E\uFE00-\uFE0F\uFE20-\uFE2D/.source;
+var unicodeNumbers = /0-9\u0660-\u0669\u06F0-\u06F9\u07C0-\u07C9\u0966-\u096F\u09E6-\u09EF\u0A66-\u0A6F\u0AE6-\u0AEF\u0B66-\u0B6F\u0BE6-\u0BEF\u0C66-\u0C6F\u0CE6-\u0CEF\u0D66-\u0D6F\u0DE6-\u0DEF\u0E50-\u0E59\u0ED0-\u0ED9\u0F20-\u0F29\u1040-\u1049\u1090-\u1099\u17E0-\u17E9\u1810-\u1819\u1946-\u194F\u19D0-\u19D9\u1A80-\u1A89\u1A90-\u1A99\u1B50-\u1B59\u1BB0-\u1BB9\u1C40-\u1C49\u1C50-\u1C59\uA620-\uA629\uA8D0-\uA8D9\uA900-\uA909\uA9D0-\uA9D9\uA9F0-\uA9F9\uAA50-\uAA59\uABF0-\uABF9\uFF10-\uFF19/.source;
+var hashtagSpecialChars = /_\u200c\u200d\ua67e\u05be\u05f3\u05f4\uff5e\u301c\u309b\u309c\u30a0\u30fb\u3003\u0f0b\u0f0c\u00b7/.source;
+var hashTagSpecialChars2 = /\.-/.source;
+// A hashtag must contain at least one unicode letter or mark, as well as numbers, underscores, and select special characters.
+twttr.txt.regexen.hashSigns = /[#＃]/;
+twttr.txt.regexen.hashtagAlpha = new RegExp("[" + unicodeLettersAndMarks + "]");
+twttr.txt.regexen.hashtagAlphaNumeric = new RegExp("[" + unicodeLettersAndMarks + unicodeNumbers + hashtagSpecialChars + hashTagSpecialChars2 + "]");
+twttr.txt.regexen.endHashtagMatch = regexSupplant(/^(?:#{hashSigns}|:\/\/)/);
+twttr.txt.regexen.hashtagBoundary = new RegExp("(?:^|$|[^&" + unicodeLettersAndMarks + unicodeNumbers + hashtagSpecialChars + "])");
+// twttr.txt.regexen.validHashtag = regexSupplant(/(#{hashtagBoundary})(#{hashSigns})(?!\ufe0f|\u20e3)(#{hashtagAlphaNumeric}*#{hashtagAlpha}#{hashtagAlphaNumeric}*)/gi);
+twttr.txt.regexen.validHashtag = regexSupplant(/[#]+(#{hashtagAlphaNumeric}*)/gi);
 
 var EventBus = function EventBus() {
     this.listeners = {};
@@ -453,8 +450,6 @@ var CommonUtils = {
     }
 };
 
-/* globals twttr, document */
-
 var StringUtils = {
 
     camelize: function camelize (s) {
@@ -622,6 +617,13 @@ var Logger = {
         if (window.console && Logger.debug) {
             window.console.log(s);
         }
+    },
+
+    error: function (s) {
+
+        if (window.console) {
+            window.console.error(s);
+        }
     }
 };
 
@@ -642,6 +644,7 @@ var Events = {
     POST_IMAGE_FAILED       :'post:imageFailed',
 
     CAROUSEL_CHANGED        :'carousel:changed',
+    GRID_HEIGHT_CHANGED     :'grid:heightChanged',
 };
 
 var v1PopupUnderlayTemplate = '';
@@ -664,7 +667,7 @@ var gridPostTemplate = ' \
         <div class="crt-post-content"> \
             <div class="crt-hitarea" > \
                 <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer" alt="Image posted by <%=user_screen_name%> to <%=this.networkName()%>" /> \
-                <div class="crt-post-content-image" style="background-image: url(<%=image%>);"> </div> \
+                <div class="crt-post-content-image" style="background-image:url(\'<%=image%>\');"></div> \
                 <div class="crt-post-content-text-c"> \
                     <div class="crt-post-content-text"> \
                         <%=this.parseText(text)%> \
@@ -718,7 +721,7 @@ var v1PostTemplate = ' \
 
 var v2PostTemplate = " \n<div class=\"crt-post-v2 crt-post crt-post-<%=this.networkIcon()%> <%=this.contentTextClasses()%>  <%=this.contentImageClasses()%>\" data-post=\"<%=id%>\"> \n    <div class=\"crt-post-border\">\n        <div class=\"crt-post-c\">\n            <div class=\"crt-post-content\">\n                <div class=\"crt-image crt-hitarea crt-post-content-image\" > \n                    <div class=\"crt-image-c\"><img src=\"<%=image%>\" class=\"crt-post-image\" alt=\"Image posted by <%=user_screen_name%> to <%=this.networkName()%>\" /></div>   \n                    <span class=\"crt-play\"><i class=\"crt-play-icon\"></i></span> \n                    <div class=\"crt-image-carousel\"><i class=\"crt-icon-image-carousel\"></i></div> \n                </div> \n                <div class=\"crt-post-header\"> \n                    <span class=\"crt-social-icon\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                    <div class=\"crt-post-fullname\"><a href=\"<%=this.userUrl()%>\" target=\"_blank\"><%=user_full_name%></a></div>\n                </div> \n                <div class=\"text crt-post-content-text\"> \n                    <%=this.parseText(text)%> \n                </div> \n            </div> \n            <div class=\"crt-post-footer\"> \n                <img class=\"crt-post-userimage\" src=\"<%=user_image%>\" alt=\"Profile image for <%=user_screen_name%>\" /> \n                <span class=\"crt-post-username\"><a href=\"<%=this.userUrl()%>\" target=\"_blank\">@<%=user_screen_name%></a></span>\n                <span class=\"crt-date\"><%=this.prettyDate(source_created_at)%></span> \n                <div class=\"crt-post-share\"><span class=\"crt-share-hint\"></span><a href=\"#\" class=\"crt-share-facebook\"><i class=\"crt-icon-facebook\"></i></a>  <a href=\"#\" class=\"crt-share-twitter\"><i class=\"crt-icon-twitter\"></i></a></div>\n            </div> \n            <div class=\"crt-post-max-height-read-more\"><a href=\"#\" class=\"crt-post-read-more-button\"><%=this._t(\"read-more\")%></a></div> \n        </div> \n    </div> \n</div>";
 
-var template = "\n<div class=\"crt-grid-post crt-grid-post-v2 crt-post-<%=id%> <%=this.contentImageClasses()%> <%=this.contentTextClasses()%>\" data-post=\"<%=id%>\">     <div class=\"crt-post-c\"> \n        <div class=\"crt-post-content\"> \n            <div class=\"crt-hitarea\" > \n                <img src=\"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7\" class=\"crt-spacer\" alt=\"Image posted by <%=user_screen_name%> to <%=this.networkName()%>\" /> \n                <div class=\"crt-grid-post-image\">\n                    <div class=\"crt-post-content-image\" style=\"background-image: url(<%=image%>);\"> </div> \n                    <span class=\"crt-play\"><i class=\"crt-play-icon\"></i></span> \n                    <span class=\"crt-social-icon crt-social-icon-normal\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                    <div class=\"crt-image-carousel\"><i class=\"crt-icon-image-carousel\"></i></div> \n                </div>\n                <div class=\"crt-grid-post-text\">\n                    <div class=\"crt-grid-post-text-wrap\"> \n                        <div><%=this.parseText(text)%></div> \n                    </div> \n                    <span class=\"crt-social-icon crt-social-icon-normal\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                </div>\n                <div class=\"crt-post-hover\">\n                    <div>\n                        <div class=\"crt-post-header\"> \n                            <span class=\"crt-social-icon\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                            <div class=\"crt-post-fullname\"><a href=\"<%=this.userUrl()%>\" target=\"_blank\"><%=user_full_name%></a></div>\n                        </div> \n                        <div class=\"crt-post-content-text\"> \n                            <%=this.parseText(text)%> \n                        </div> \n                        <div class=\"crt-post-read-more\"><a href=\"#\" class=\"crt-post-read-more-button\"><%=this._t(\"read-more\")%></a></div> \n                        <div class=\"crt-post-footer\">\n                            <img class=\"crt-post-userimage\" src=\"<%=user_image%>\" alt=\"Profile image for <%=user_full_name%>\" /> \n                            <span class=\"crt-post-username\"><a href=\"<%=this.userUrl()%>\" target=\"_blank\">@<%=user_screen_name%></a></span>\n                            <span class=\"crt-date\"><%=this.prettyDate(source_created_at)%></span> \n                            <div class=\"crt-post-share\"><span class=\"crt-share-hint\"></span><a href=\"#\" class=\"crt-share-facebook\"><i class=\"crt-icon-facebook\"></i></a>  <a href=\"#\" class=\"crt-share-twitter\"><i class=\"crt-icon-twitter\"></i></a></div>\n                        </div> \n                    </div>\n                </div> \n            </div> \n        </div> \n    </div>\n</div>";
+var template = "\n<div class=\"crt-grid-post crt-grid-post-v2 crt-post-<%=id%> <%=this.contentImageClasses()%> <%=this.contentTextClasses()%>\" data-post=\"<%=id%>\">     <div class=\"crt-post-c\"> \n        <div class=\"crt-post-content\"> \n            <div class=\"crt-hitarea\" > \n                <img src=\"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7\" class=\"crt-spacer\" alt=\"Image posted by <%=user_screen_name%> to <%=this.networkName()%>\" /> \n                <div class=\"crt-grid-post-image\">\n                    <div class=\"crt-post-content-image\" style=\"background-image:url('<%=image%>');\"></div> \n                    <span class=\"crt-play\"><i class=\"crt-play-icon\"></i></span> \n                    <span class=\"crt-social-icon crt-social-icon-normal\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                    <div class=\"crt-image-carousel\"><i class=\"crt-icon-image-carousel\"></i></div> \n                </div>\n                <div class=\"crt-grid-post-text\">\n                    <div class=\"crt-grid-post-text-wrap\"> \n                        <div><%=this.parseText(text)%></div> \n                    </div> \n                    <span class=\"crt-social-icon crt-social-icon-normal\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                </div>\n                <div class=\"crt-post-hover\">\n                    <div>\n                        <div class=\"crt-post-header\"> \n                            <span class=\"crt-social-icon\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                            <div class=\"crt-post-fullname\"><a href=\"<%=this.userUrl()%>\" target=\"_blank\"><%=user_full_name%></a></div>\n                        </div> \n                        <div class=\"crt-post-content-text\"> \n                            <%=this.parseText(text)%> \n                        </div> \n                        <div class=\"crt-post-read-more\"><a href=\"#\" class=\"crt-post-read-more-button\"><%=this._t(\"read-more\")%></a></div> \n                        <div class=\"crt-post-footer\">\n                            <img class=\"crt-post-userimage\" src=\"<%=user_image%>\" alt=\"Profile image for <%=user_full_name%>\" /> \n                            <span class=\"crt-post-username\"><a href=\"<%=this.userUrl()%>\" target=\"_blank\">@<%=user_screen_name%></a></span>\n                            <span class=\"crt-date\"><%=this.prettyDate(source_created_at)%></span> \n                            <div class=\"crt-post-share\"><span class=\"crt-share-hint\"></span><a href=\"#\" class=\"crt-share-facebook\"><i class=\"crt-icon-facebook\"></i></a>  <a href=\"#\" class=\"crt-share-twitter\"><i class=\"crt-icon-twitter\"></i></a></div>\n                        </div> \n                    </div>\n                </div> \n            </div> \n        </div> \n    </div>\n</div>";
 
 var v2GridFeedTemple = ' \
 <div class="crt-feed-window">\
@@ -726,7 +729,7 @@ var v2GridFeedTemple = ' \
 </div>\
 <div class="crt-feed-more"><a href="#">Load more</a></div>';
 
-var template$1 = "\n<div class=\"crt-grid-post crt-grid-post-minimal crt-grid-post-v2 crt-post-<%=id%> <%=this.contentImageClasses()%> <%=this.contentTextClasses()%>\" data-post=\"<%=id%>\">     <div class=\"crt-post-c\"> \n        <div class=\"crt-post-content\"> \n            <div class=\"crt-hitarea\" > \n                <img src=\"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7\" class=\"crt-spacer\" alt=\"Image posted by <%=user_screen_name%> to <%=this.networkName()%>\" /> \n                <div class=\"crt-grid-post-image\">\n                    <div class=\"crt-post-content-image\" style=\"background-image: url(<%=image%>);\"> </div> \n                    <a href=\"javascript:;\" class=\"crt-play\"><i class=\"crt-play-icon\"></i></a> \n                    <span class=\"crt-social-icon crt-social-icon-normal\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                    <div class=\"crt-image-carousel\"><i class=\"crt-icon-image-carousel\"></i></div> \n                </div>\n                <div class=\"crt-grid-post-text\">\n                    <div class=\"crt-grid-post-text-wrap\"> \n                        <div><%=this.parseText(text)%></div> \n                    </div> \n                    <span class=\"crt-social-icon crt-social-icon-normal\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                </div>\n                <div class=\"crt-post-hover\">\n                    <div>\n                        <div class=\"crt-post-header\">\n                            <span class=\"crt-social-icon\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span>  \n                        </div> \n                        <div class=\"crt-post-minimal-stats\"> \n                            <span class=\"crt-likes\"><i class=\"crt-icon-heart\"></i>&nbsp;<%=likes%></span>\n                            <span class=\"crt-comments\"><i class=\"crt-icon-comment\"></i>&nbsp;<%=comments%></span>\n                        </div> \n                    </div> \n                </div> \n            </div> \n        </div> \n    </div>\n</div>";
+var template$1 = "\n<div class=\"crt-grid-post crt-grid-post-minimal crt-grid-post-v2 crt-post-<%=id%> <%=this.contentImageClasses()%> <%=this.contentTextClasses()%>\" data-post=\"<%=id%>\">     <div class=\"crt-post-c\"> \n        <div class=\"crt-post-content\"> \n            <div class=\"crt-hitarea\" > \n                <img src=\"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7\" class=\"crt-spacer\" alt=\"Image posted by <%=user_screen_name%> to <%=this.networkName()%>\" /> \n                <div class=\"crt-grid-post-image\">\n                    <div class=\"crt-post-content-image\" style=\"background-image:url('<%=image%>');\"></div> \n                    <a href=\"javascript:;\" class=\"crt-play\"><i class=\"crt-play-icon\"></i></a> \n                    <span class=\"crt-social-icon crt-social-icon-normal\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                    <div class=\"crt-image-carousel\"><i class=\"crt-icon-image-carousel\"></i></div> \n                </div>\n                <div class=\"crt-grid-post-text\">\n                    <div class=\"crt-grid-post-text-wrap\"> \n                        <div><%=this.parseText(text)%></div> \n                    </div> \n                    <span class=\"crt-social-icon crt-social-icon-normal\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                </div>\n                <div class=\"crt-post-hover\">\n                    <div>\n                        <div class=\"crt-post-header\">\n                            <span class=\"crt-social-icon\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span>  \n                        </div> \n                        <div class=\"crt-post-minimal-stats\"> \n                            <span class=\"crt-likes\"><i class=\"crt-icon-heart\"></i>&nbsp;<%=likes%></span>\n                            <span class=\"crt-comments\"><i class=\"crt-icon-comment\"></i>&nbsp;<%=comments%></span>\n                        </div> \n                    </div> \n                </div> \n            </div> \n        </div> \n    </div>\n</div>";
 
 var template$2 = "\n<div class=\"crt-feed-window\">\n    <div class=\"crt-feed\"></div>\n</div>\n<div class=\"crt-feed-more\"><a href=\"#\">Load more</a></div>";
 
@@ -1197,6 +1200,10 @@ var Templating = {
             throw new Error ('Could not find template '+templateId);
         }
 
+        return Templating.renderDiv(source, data);
+    },
+
+    renderDiv: function renderDiv (source, data) {
         var tmpl = Templating.render(source, data);
         if (z$1.parseHTML) {
             // breaks with jquery < 1.8
@@ -1236,13 +1243,6 @@ var Templating = {
         return " # ERROR: " + err + " # ";
     }
 };
-
-/**
-* ==================================================================
-* Post
-* ==================================================================
-*/
-
 
 var Post = (function (EventBus$$1) {
     function Post (postJson, options, widget) {
@@ -1421,7 +1421,7 @@ var HtmlUtils = {
         Logger.log("Curator->checkContainer: " + container);
         if (z$1(container).length === 0) {
             if (window.console) {
-                window.console.log('Curator could not find the element ' + container + '. Please ensure this element existings in your HTML code. Exiting.');
+                window.console.error('Curator could not find the element ' + container + '. Please ensure this element existing in your HTML code. Exiting.');
             }
             return false;
         }
@@ -1461,14 +1461,23 @@ var HtmlUtils = {
     loadCSS: function loadCSS () {
         // not used!
     },
-    
+
     isTouch: function isTouch () {
         var b = false;
         try {
             b = ("ontouchstart" in document.documentElement);
-        } catch (e) {}
-        
+        } catch (e) {
+        }
+
         return b;
+    },
+
+    isVisible: function isVisible (el) {
+        if(el.css('display')!=='none' && el.css('visibility')!=='hidden' && el.width()>0) {
+            return true;
+        } else {
+            return false;
+        }
     }
 };
 
@@ -1553,6 +1562,8 @@ var Feed = (function (EventBus$$1) {
 
         this.params = this.options.feedParams || {};
         this.params.limit = this.options.postsPerPage;
+        this.params.hasPoweredBy = this.widget.hasPoweredBy;
+        this.params.version = '1.2';
 
         this.feedBase = this.options.apiEndpoint+'/feeds';
     }
@@ -1702,6 +1713,88 @@ var Feed = (function (EventBus$$1) {
         );
     };
 
+    /**
+     * Loads new posts
+     * @returns {boolean}
+     */
+    Feed.prototype.loadNewPosts = function loadNewPosts () {
+        var this$1 = this;
+
+        Logger.log ('Feed->loadNewPosts '+this.loading);
+
+        if (this.loading) {
+            return false;
+        }
+        this.currentPage = 0;
+
+        var params = z$1.extend({},this.params);
+
+        // TODO should we check we have after?
+        if (this.pagination && this.pagination.before) {
+            params.before = this.pagination.before;
+            delete params.after;
+        }
+
+        // console.log(params.before);
+
+        return new Promise (function (resolve, reject) {
+            this$1.loading = true;
+
+            params.rnd = (new Date ()).getTime();
+
+            ajax.get(
+                this$1.getUrl('/posts'),
+                params,
+                function (data) {
+                    Logger.log('Feed->_loadPosts success');
+                    this$1.loading = false;
+
+
+                    if (data.success) {
+                        // this.postCount = data.postCount;
+                        // this.postsLoaded += data.posts.length;
+                        //
+                        // this.allPostsLoaded = this.postsLoaded >= this.postCount;
+                        //
+                        // this.posts = this.posts.concat(data.posts);
+                        // this.networks = data.networks;
+                        //
+                        if (data.pagination && data.pagination.before) {
+                            this$1.pagination.before = data.pagination.before;
+                        }
+                        //
+                        // this.widget.trigger(Events.FEED_LOADED, data);
+                        // this.trigger(Events.FEED_LOADED, data);
+                        //
+                        // this.widget.trigger(Events.POSTS_LOADED, data.posts);
+                        // this.trigger(Events.POSTS_LOADED, data.posts);
+
+                        // add to the beginning
+                        if (data.posts.length > 0) {
+                            this$1.posts = data.posts.concat(this$1.posts);
+                        }
+
+                        resolve (data.posts);
+                    } else {
+                        // this.trigger(Events.POSTS_FAILED, data);
+                        // this.widget.trigger(Events.POSTS_FAILED, data);
+                        reject();
+                    }
+                },
+                function (jqXHR, textStatus, errorThrown) {
+                    Logger.log('Feed->_loadNewPosts fail');
+                    Logger.log(textStatus);
+                    Logger.log(errorThrown);
+
+                    this$1.trigger(Events.POSTS_FAILED, []);
+                    this$1.loading = false;
+                }
+            );
+        });
+    };
+
+
+
     Feed.prototype.loadPost = function loadPost (id, successCallback, failCallback) {
         failCallback = failCallback || function(){};
         ajax.get(
@@ -1811,12 +1904,6 @@ var networks = {
         icon:'crt-icon-linkedin'
     },
 };
-
-/**
-* ==================================================================
-* Filter
-* ==================================================================
-*/
 
 var Filter = (function (EventBus$$1) {
     function Filter (widget) {
@@ -1930,12 +2017,6 @@ var Filter = (function (EventBus$$1) {
 
     return Filter;
 }(EventBus));
-
-/**
- * ==================================================================
- * Popup
- * ==================================================================
- */
 
 var Popup = function Popup (popupManager, post, widget) {
     var this$1 = this;
@@ -2288,14 +2369,27 @@ var Widget = (function (EventBus$$1) {
     Widget.prototype.init = function init (options, defaults) {
         var this$1 = this;
 
+        if (!options) {
+            console.error('options missing');
+            return false;
+        }
 
         this.options = z$1.extend(true,{}, defaults, options);
+
+        if(!options.container) {
+            console.error('options.container missing');
+            return false;
+        }
 
         if (!HtmlUtils.checkContainer(this.options.container)) {
             return false;
         }
-
         this.$container = z$1(this.options.container);
+
+        if (!this.options.feedId) {
+            console.error('options.feedId missing');
+        }
+
         this.$container.addClass('crt-feed');
 
         if (HtmlUtils.isTouch()) {
@@ -2327,6 +2421,7 @@ var Widget = (function (EventBus$$1) {
         Logger.log ('Setting language to: '+this.options.lang);
         mod.setLang(this.options.lang);
 
+        this.checkPoweredBy ();
         this.createFeed();
         this.createFilter();
         this.createPopupManager();
@@ -2497,6 +2592,12 @@ var Widget = (function (EventBus$$1) {
         return mod.t (s);
     };
 
+    Widget.prototype.checkPoweredBy = function checkPoweredBy () {
+        var html = this.$container.text().trim();
+
+        this.hasPoweredBy = html.indexOf('Powered by Curator.io') > -1;
+    };
+
     Widget.prototype.destroy = function destroy () {
         Logger.log('Widget->destroy');
 
@@ -2520,7 +2621,7 @@ var Widget = (function (EventBus$$1) {
 }(EventBus));
 
 var ConfigWidgetBase = {
-    apiEndpoint: 'https://api.curator.io/v1.1',
+    apiEndpoint: 'https://api.curator.io/v1.2',
     feedId:'',
     postsPerPage:12,
     maxPosts:0,
@@ -2530,7 +2631,7 @@ var ConfigWidgetBase = {
     templateFilter:'filter',
     lang:'en',
     debug:false,
-    postClickAction:'open-popup',     // open-popup | goto-source | nothing
+    postClickAction:'open-popup',             // open-popup | goto-source | nothing
     postClickReadMoreAction:'open-popup',     // open-popup | goto-source | nothing
     filter: {
         showNetworks: false,
@@ -2544,7 +2645,8 @@ var ConfigWidgetWaterfall = z$1.extend({}, ConfigWidgetBase, {
         continuousScroll:false,
         gridWidth:300,
         animate:true,
-        animateSpeed:400
+        animateSpeed:400,
+        handleResize:true
     }
 });
 
@@ -2608,9 +2710,9 @@ var LayoutWaterfall = function LayoutWaterfall(options, element) {
     this.isResizing = false;
     this.w = 0;
     this.boxArr = [];
+    this.visible = false;
 
-
-    // this.offscreenRender = z('<div class="grid-rendered"></div>').appendTo('body');
+    // this.element.is(':visible')
 
     // build columns
     this._setCols();
@@ -2626,14 +2728,36 @@ LayoutWaterfall.prototype.createHandlers = function createHandlers () {
         var this$1 = this;
 
     Logger.log("WaterfallLayout->createHandlers");
-    z$1(window).on('resize.'+this.id, CommonUtils.debounce( function () {
+
+    this.resizeDebounced = CommonUtils.debounce( function () {
         this$1.resize();
-    }, 100));
+    }, 100);
+
+    if (this.options.handleResize) {
+        this.ro = new ResizeObserver(function (entries, observer) {
+            if (entries.length > 0) {
+                // let entry = entries[0];
+
+                this$1.redraw();
+            }
+        });
+
+        this.ro.observe(this.element[0]);
+    }
+    this.redraw();
 };
 
 LayoutWaterfall.prototype.destroyHandlers = function destroyHandlers () {
     Logger.log("WaterfallLayout->destroyHandlers");
-    z$1(window).off('resize.'+this.id);
+
+    if (this.ro) {
+        this.ro.disconnect();
+    }
+
+};
+
+LayoutWaterfall.prototype.redraw = function redraw () {
+    this.resizeDebounced ();
 };
 
 LayoutWaterfall.prototype._setName = function _setName (length, current) {
@@ -2644,6 +2768,7 @@ LayoutWaterfall.prototype._setName = function _setName (length, current) {
 LayoutWaterfall.prototype._setCols = function _setCols () {
         var this$1 = this;
 
+    Logger.log("WaterfallLayout->_setCols");
     // calculate columns
     this.cols = Math.floor(this.box.width() / this.options.width);
     //If Cols lower than 1, the grid disappears
@@ -2863,18 +2988,28 @@ LayoutWaterfall.prototype._updateAfterPrepend = function _updateAfterPrepend (pr
 };
 
 LayoutWaterfall.prototype.resize = function resize () {
-    if (this.box.width() === this.boxWidth) {
-        return;
-    }
+    Logger.log("WaterfallLayout->resize");
+    // if (this.box.width() === this.boxWidth) {
+    // return;
+    // }
 
     var newCols = Math.floor(this.box.width() / this.options.width);
     if (this.cols === newCols) {
         // nothings changed yet
+        // console.log('NOTHING CHANGED');
         return;
     }
 
+    if (!HtmlUtils.isVisible(this.element)) {
+        // console.log('NOT VISIBLE');
+        this.visible = false;
+        return;
+    }
+
+    this.visible = true;
+
     // delete columns in box
-    this.box.find(z$1('.galcolumn')).remove();
+    this.box.find('.galcolumn').remove();
     // build columns
     this._setCols();
     // build grid
@@ -2946,6 +3081,7 @@ var Waterfall = (function (Widget$$1) {
                 gutter:0,
                 width:this.options.waterfall.gridWidth,
                 animate:this.options.waterfall.animate,
+                handleResize:this.options.waterfall.handleResize,
                 animationOptions: {
                     speed: (this.options.waterfall.animateSpeed/2),
                     duration: this.options.waterfall.animateSpeed
@@ -3505,6 +3641,8 @@ var Grid = (function (Widget$$1) {
                 this.$loadMore.show();
             }
         }
+
+        this.trigger(Events.GRID_HEIGHT_CHANGED,this);
     };
 
     Grid.prototype.checkScroll = function checkScroll () {
@@ -3625,17 +3763,21 @@ if (z$1.zepto) {
 }
 
 var LayoutCarousel = (function (EventBus$$1) {
-	function LayoutCarousel (container, options) {
+    function LayoutCarousel (widget, container, options) {
 		Logger.log('LayoutCarousel->construct');
 
         EventBus$$1.call (this);
 
         this.id = CommonUtils.uId ();
-		this.current_position=0;
-		this.animating=false;
-		this.timeout=null;
-		this.FAKE_NUM=0;
-		this.PANES_VISIBLE=0;
+        this.widget = widget;
+		this.currentPost = 0;
+		this.animating = false;
+		this.timeout = null;
+		this.PANES_VISIBLE = 0;
+		this.PANE_WIDTH = 0;
+		this.posts = [];
+		this.paneCache = {};
+        this.$panes = [];
 
 		this.options = z$1.extend({}, LayoutCarouselSettings, options);
 
@@ -3646,11 +3788,8 @@ var LayoutCarousel = (function (EventBus$$1) {
 
 		this.$viewport = z$1(container); // <div> slider, known as $viewport
 
-		this.$panes = this.$viewport.children();
-		this.$panes.detach();
-
 		this.$stage = z$1('<div class="crt-carousel-stage"></div>').appendTo(this.$viewport);
-		this.$pane_slider = z$1('<div class="crt-carousel-slider"></div>').appendTo(this.$stage);
+		this.$paneSlider = z$1('<div class="crt-carousel-slider"></div>').appendTo(this.$stage);
 
 		if (this.options.matchHeights) {
             this.$stage.addClass('crt-match-heights');
@@ -3658,12 +3797,19 @@ var LayoutCarousel = (function (EventBus$$1) {
 
 		this.addControls();
 		this.createHandlers();
-        this.update ();
 	}
 
-	if ( EventBus$$1 ) LayoutCarousel.__proto__ = EventBus$$1;
-	LayoutCarousel.prototype = Object.create( EventBus$$1 && EventBus$$1.prototype );
-	LayoutCarousel.prototype.constructor = LayoutCarousel;
+    if ( EventBus$$1 ) LayoutCarousel.__proto__ = EventBus$$1;
+    LayoutCarousel.prototype = Object.create( EventBus$$1 && EventBus$$1.prototype );
+    LayoutCarousel.prototype.constructor = LayoutCarousel;
+
+    LayoutCarousel.prototype.addControls = function addControls () {
+        this.$viewport.append('<button type="button" data-role="none" class="crt-panel-prev crt-panel-arrow" aria-label="Previous" role="button" aria-disabled="false">Previous</button>');
+        this.$viewport.append('<button type="button" data-role="none" class="crt-panel-next crt-panel-arrow" aria-label="Next" role="button" aria-disabled="false">Next</button>');
+
+        this.$viewport.on('click','.crt-panel-prev', this.prev.bind(this));
+        this.$viewport.on('click','.crt-panel-next', this.next.bind(this));
+    };
 
     LayoutCarousel.prototype.createHandlers = function createHandlers () {
         var this$1 = this;
@@ -3680,87 +3826,167 @@ var LayoutCarousel = (function (EventBus$$1) {
         // z(document).off('ready.'+id);
     };
 
-	LayoutCarousel.prototype.update = function update () {
-        Logger.log('LayoutCarousel->update ');
-		this.$panes = this.$pane_slider.children(); // <li> list items, known as $panes
-		this.NUM_PANES = this.$panes.length;
+	LayoutCarousel.prototype.addPosts = function addPosts (posts) {
+        Logger.log('LayoutCarousel->addPosts '+posts.length);
+        var firstLoad = this.posts.length === 0;
+		this.posts = this.posts.concat(posts);
 
-		if (this.NUM_PANES > 0) {
-			this.resize();
-			this.move (this.current_position, true);
+		if (firstLoad) {
+            this.calcSizes();
 
-			if (!this.animating) {
-				if (this.options.autoPlay) {
-					this.animate();
-				}
-			}
+            this.currentPost = 0;
+
+            this.updatePanes();
+
+			var x = 0-(this.PANES_VISIBLE * this.PANE_WIDTH);
+            this.$paneSlider.width (this.PANE_WIDTH * (this.PANES_VISIBLE * 3));
+            this.$paneSlider.css({'transform': 'translate3d('+x+'px, 0px, 0px)'});
+
+			this.updateHeight();
+
+            if (this.options.autoPlay) {
+                this.tick();
+            }
 		}
 	};
 
-	LayoutCarousel.prototype.add = function add ($els) {
-        Logger.log('LayoutCarousel->add '+$els.length);
+	LayoutCarousel.prototype.calcSizes = function calcSizes () {
 
-		this.$pane_slider.append($els);
-		this.$panes = this.$pane_slider.children();
-	};
-
-	LayoutCarousel.prototype.resize = function resize () {
-		var this$1 = this;
-
-		var PANE_WRAPPER_WIDTH = this.options.infinite ? ((this.NUM_PANES+1) * 100) + '%' : (this.NUM_PANES * 100) + '%'; // % width of slider (total panes * 100)
-
-		this.$pane_slider.css({width: PANE_WRAPPER_WIDTH}); // set css on pane slider
-
-		this.VIEWPORT_WIDTH = this.$viewport.width();
+        this.VIEWPORT_WIDTH = this.$viewport.width();
         Logger.log('VIEWPORT_WIDTH = '+this.VIEWPORT_WIDTH);
 
-		if (this.options.panesVisible) {
-			// TODO - change to check if it's a function or a number
-			this.PANES_VISIBLE = this.options.panesVisible();
-			this.PANE_WIDTH = (this.VIEWPORT_WIDTH / this.PANES_VISIBLE);
-		} else {
-			this.PANES_VISIBLE = this.VIEWPORT_WIDTH < this.options.minWidth ? 1 : Math.floor(this.VIEWPORT_WIDTH / this.options.minWidth);
-			this.PANE_WIDTH = (this.VIEWPORT_WIDTH / this.PANES_VISIBLE);
-		}
+        if (this.options.panesVisible) {
+            // TODO - change to check if it's a function or a number
+            this.PANES_VISIBLE = this.options.panesVisible();
+            this.PANE_WIDTH = (this.VIEWPORT_WIDTH / this.PANES_VISIBLE);
+        } else {
+            this.PANES_VISIBLE = this.VIEWPORT_WIDTH < this.options.minWidth ? 1 : Math.floor(this.VIEWPORT_WIDTH / this.options.minWidth);
+            this.PANE_WIDTH = (this.VIEWPORT_WIDTH / this.PANES_VISIBLE);
+        }
+	};
 
-		if (this.options.infinite) {
+	LayoutCarousel.prototype.updatePanes = function updatePanes () {
+        var this$1 = this;
 
-			this.$panes.filter('.crt-clone').remove();
 
-			for(var i = this.NUM_PANES-1; i > this.NUM_PANES - 1 - this.PANES_VISIBLE; i--)
-			{
-				// console.log(i);
-				var first = this$1.$panes.eq(i).clone();
-				first.addClass('crt-clone');
-				first.css('opacity','1');
-				// Should probably move this out to an event
-				first.find('.crt-post-image').css({opacity:1});
-				this$1.$pane_slider.prepend(first);
-				this$1.FAKE_NUM = this$1.PANES_VISIBLE;
-			}
-			this.$panes = this.$pane_slider.children();
+        var panes = this.createPanes();
 
-		}
+        this.$paneSlider.empty();
 
-		this.$panes.each(function (index, pane) {
-			z$1(pane).css( {width: this$1.PANE_WIDTH+'px'});
-		});
+        var currentIds = [];
+
+        for(var i = 0, list = panes; i < list.length; i += 1) {
+            var pane = list[i];
+
+            this$1.$paneSlider.append(pane.$el);
+            currentIds.push(pane.paneIndex);
+        }
+
+        this.currentPanes = panes;
+
+        // TODO - clean up cache - needs work
+        // console.log('----- clean cache -----');
+        // // clean up cache
+        // let keys = Object.keys(this.paneCache);
+        // let start  = this.currentPost - (this.PANES_VISIBLE * 2);
+        // let end  = this.currentPost + (this.PANES_VISIBLE * 3);
+        // console.log('start '+start);
+        // console.log('end '+end);
+        // for (let key of keys) {
+        //     let pos = key.replace('idx','');
+        //     if (pos < start || pos > end) {
+        //         console.log('cleaning '+key);
+        //         if (this.paneCache[key]) {
+        //             this.paneCache[key].destroy();
+        //             delete this.paneCache[key];
+        //         }
+        //     } else {
+        //         console.log('keeping '+key);
+        //     }
+        // }
+	};
+
+	LayoutCarousel.prototype.createPanes = function createPanes () {
+        var this$1 = this;
+
+
+        var panes = [];
+        var start  = this.currentPost - this.PANES_VISIBLE;
+        for (var counter = 0 ; counter < this.PANES_VISIBLE * 3; counter++) {
+            var postObject = this$1.getPane(start + counter);
+
+            z$1(postObject.$el).css( {width: this$1.PANE_WIDTH+'px'});
+
+            panes.push(postObject);
+        }
+
+        return panes;
+	};
+
+    LayoutCarousel.prototype.getPane = function getPane (paneIndex) {
+
+        var postToLoad = paneIndex;
+        if (paneIndex < 0) {
+            postToLoad = this.posts.length + paneIndex;
+        } else if (paneIndex > this.posts.length - 1) {
+            postToLoad = paneIndex - this.posts.length;
+        }
+
+        // console.log(paneIndex + " : " + postToLoad);
+
+        var pane = null;
+        if (this.paneCache['idx'+paneIndex]) {
+            // console.log('cache hit '+paneIndex);
+            pane = this.paneCache['idx'+paneIndex];
+        } else {
+            // console.log('cache miss '+paneIndex);
+            var post = this.posts[postToLoad];
+            pane = this.widget.createPostElement(post);
+            this.paneCache['idx'+paneIndex] = pane;
+        }
+
+        pane.paneIndex = 'idx'+paneIndex;
+        return pane;
+    };
+
+    LayoutCarousel.prototype.resize = function resize () {
+	    var this$1 = this;
+
+	    var oldPanesVisible = this.PANES_VISIBLE;
+
+		this.calcSizes();
+
+        this.$paneSlider.width (this.PANE_WIDTH * (this.PANES_VISIBLE * 3));
+
+        if (oldPanesVisible !== this.PANES_VISIBLE)
+        {
+            // layout needs changing
+            this.updatePanes();
+        } else {
+            // just resize current panes
+            for (var i = 0 ; i < this.currentPanes.length ; i++) {
+                this$1.currentPanes[i].$el.css( {width: this$1.PANE_WIDTH+'px'});
+            }
+        }
+
+        var x = 0-(this.PANES_VISIBLE * this.PANE_WIDTH);
+        this.$paneSlider.width (this.PANE_WIDTH * (this.PANES_VISIBLE * 3));
+        this.$paneSlider.css({'transform': 'translate3d('+x+'px, 0px, 0px)'});
 	};
 
 	LayoutCarousel.prototype.updateLayout = function updateLayout () {
         this.resize();
-        this.move (this.current_position, true);
+        this.move (0, true);
 
         // reset animation timer
         if (this.options.autoPlay) {
-            this.animate();
+            this.tick();
         }
 	};
 
-	LayoutCarousel.prototype.animate = function animate () {
+	LayoutCarousel.prototype.tick = function tick () {
 		var this$1 = this;
 
-		this.animating = true;
 		window.clearTimeout(this.timeout);
 		this.timeout = window.setTimeout(function () {
 			this$1.next();
@@ -3769,139 +3995,145 @@ var LayoutCarousel = (function (EventBus$$1) {
 
 	LayoutCarousel.prototype.next = function next () {
 		var move = this.options.moveAmount ? this.options.moveAmount : this.PANES_VISIBLE;
-		this.move(this.current_position + move, false);
+		this.move(move, false);
 	};
 
 	LayoutCarousel.prototype.prev = function prev () {
 		var move = this.options.moveAmount ? this.options.moveAmount : this.PANES_VISIBLE;
-		this.move(this.current_position - move, false);
+		this.move(0 - move, false);
 	};
 
-	LayoutCarousel.prototype.move = function move (i, noAnimate) {
-        Logger.log('LayoutCarousel->move '+i);
-		this.current_position = i;
+	LayoutCarousel.prototype.move = function move (moveAmt, noAnimate) {
+        Logger.log('LayoutCarousel->move currentPost:'+this.currentPost+' moveAmt:'+moveAmt);
+        var previousPost = this.currentPost;
+		var newPost = this.currentPost + moveAmt;
+        this.animating = true;
 
-		var maxPos = this.NUM_PANES - this.PANES_VISIBLE;
-
-		if (this.current_position < 0) {
-			this.current_position = 0;
-		} else if (this.current_position > maxPos) {
-			this.current_position = maxPos;
+		if (this.options.infinite) {
+            if (newPost < 0) {
+                newPost = this.posts.length + newPost;
+            } else if (newPost > this.posts.length) {
+                newPost = newPost - this.posts.length;
+            }
+        } else {
+            if (newPost < 0) {
+                newPost = 0;
+            } else if (newPost > (this.posts.length - this.PANES_VISIBLE)) {
+                newPost = this.posts.length - this.PANES_VISIBLE;
+            }
+            moveAmt = newPost - previousPost;
 		}
 
-		var curIncFake = (this.FAKE_NUM + this.current_position);
-		var left = curIncFake * this.PANE_WIDTH;
-		var max = this.options.infinite ? (this.PANE_WIDTH * this.NUM_PANES) : (this.PANE_WIDTH * this.NUM_PANES) - this.VIEWPORT_WIDTH;
+		this.currentPost = newPost;
 
-		this.currentLeft = left;
+		if (moveAmt) {
 
-		if (left < 0) {
-			this.currentLeft = 0;
-		} else if (left > max) {
-			this.currentLeft = max;
-		} else {
-			this.currentLeft = left;
-		}
-        var x = (0 - this.currentLeft);
+            var x = (0 - (this.PANES_VISIBLE * this.PANE_WIDTH)) - (moveAmt * this.PANE_WIDTH);
 
-        Logger.log('LayoutCarousel->move x:'+x);
-		if (noAnimate) {
-			this.$pane_slider.css({'transform': 'translate3d('+x+'px, 0px, 0px)'});
-			this.moveComplete();
-		} else {
-			// let options = {
-			// 	duration: this.options.duration,
-			// 	complete: this.moveComplete.bind(this),
-			// 	// easing:'asd'
-			// };
-			// if (this.options.easing) {
-			// 	options.easing = this.options.easing;
-			// }
-            // this.$pane_slider.addClass('crt-animate-transform');
-			// this.$pane_slider.animate({'transform': 'translate3d('+x+'px, 0px, 0px)'},
-			// 	options
-			// );
-			var options = {
-				duration: this.options.duration,
-				complete: this.moveComplete.bind(this),
-				// easing:'asd'
-			};
-			if (this.options.easing) {
-				options.easing = this.options.easing;
-			}
-            this.$pane_slider.addClass('crt-animate-transform');
-			this.$pane_slider.animate({'transform': 'translate3d('+x+'px, 0px, 0px)'},
-				options
-			);
-		}
+            if (noAnimate) {
+                this.$paneSlider.removeClass('crt-animate-transform');
+                this.$paneSlider.css({'transform': 'translate3d(' + x + 'px, 0px, 0px)'});
+                this.moveComplete();
+            } else {
+                // let options = {
+                // 	duration: this.options.duration,
+                // 	complete: this.moveComplete.bind(this),
+                // 	// easing:'asd'
+                // };
+                // if (this.options.easing) {
+                // 	options.easing = this.options.easing;
+                // }
+                // this.$paneSlider.addClass('crt-animate-transform');
+                // this.$paneSlider.animate({'transform': 'translate3d('+x+'px, 0px, 0px)'},
+                // 	options
+                // );
+                var options = {
+                    duration: this.options.duration,
+                    complete: this.moveComplete.bind(this),
+                    // easing:'asd'
+                };
+                if (this.options.easing) {
+                    options.easing = this.options.easing;
+                }
+                this.$paneSlider.addClass('crt-animate-transform');
+                this.$paneSlider.animate({'transform': 'translate3d(' + x + 'px, 0px, 0px)'},
+                    options
+                );
+            }
+        }
 	};
 
 	LayoutCarousel.prototype.moveComplete = function moveComplete () {
         var this$1 = this;
 
         Logger.log('LayoutCarousel->moveComplete');
-		if (this.options.infinite && (this.current_position >= (this.NUM_PANES - this.PANES_VISIBLE))) {
-			// infinite and we're off the end!
-			// re-e-wind, the crowd says 'bo selecta!'
-			this.$pane_slider.css({'transform': 'translate3d(0px, 0px, 0px)'});
-			this.current_position = 0 - this.PANES_VISIBLE;
-			this.currentLeft = 0;
-		}
-		window.setTimeout(function () {
+
+        window.setTimeout(function () {
 			this$1.updateHeight();
 		}, 50);
 
-		this.trigger(Events.CAROUSEL_CHANGED, [this, this.current_position]);
+		this.updatePanes();
+
+		// reset x position
+        var x = 0-(this.PANES_VISIBLE * this.PANE_WIDTH);
+        this.$paneSlider.css({'transform': 'translate3d('+x+'px, 0px, 0px)'});
+
+        // trigger change event
+		this.trigger(Events.CAROUSEL_CHANGED, this, this.currentPost);
 
 		if (this.options.autoPlay) {
-			this.animate();
+			this.tick();
 		}
 	};
 
 	LayoutCarousel.prototype.updateHeight = function updateHeight () {
         Logger.log('LayoutCarousel->updateHeight');
 
-        var min = this.options.infinite ? this.current_position + this.FAKE_NUM: this.current_position;
-        var paneMaxHeight = this.getMaxHeight(min);
+        var paneMaxHeight = this.getMaxHeight();
 
         if (this.$stage.height() !== paneMaxHeight) {
             this.$stage.animate({height: paneMaxHeight}, 300);
         }
 
         if (this.options.matchHeights) {
-        	this.setPaneHeights (min);
-        	this.setPaneHeights (min + this.PANES_VISIBLE);
+        	this.setPaneHeights ();
         }
 	};
 
-	LayoutCarousel.prototype.setPaneHeights = function setPaneHeights (min) {
+	LayoutCarousel.prototype.setPaneHeights = function setPaneHeights () {
         var this$1 = this;
 
-        Logger.log('LayoutCarousel->setPaneHeights '+min);
-
-        var max = min + this.PANES_VISIBLE;
-        var paneMaxHeight = this.getMaxHeight(min);
-
+        Logger.log('LayoutCarousel->setPaneHeights ');
 
         if (this.options.matchHeights) {
-            for (var i = min; i < max; i++) {
-                var $pane = z$1(this$1.$panes[i]);
-                $pane.find('.crt-post-c').height((paneMaxHeight - 2));
+            var paneMaxHeight = this.getMaxHeight();
+            var h = paneMaxHeight - 2;
+
+            for (var i = 0, list = this$1.currentPanes; i < list.length; i += 1)
+            {
+                var pane = list[i];
+
+                var $pane = pane.$el;
+                // TODO - could move this to ui.post
+                $pane.find('.crt-post-c').animate({height: h}, 300);
             }
         }
 	};
 
-	LayoutCarousel.prototype.getMaxHeight = function getMaxHeight (min) {
+	LayoutCarousel.prototype.getMaxHeight = function getMaxHeight () {
         var this$1 = this;
 
-        Logger.log('LayoutCarousel->getMaxHeight '+min);
+        Logger.log('LayoutCarousel->getMaxHeight ');
+
         var paneMaxHeight = 0;
+        var min = this.PANES_VISIBLE;
         var max = min + this.PANES_VISIBLE;
         for (var i = min; i < max; i++)
         {
-        	if (this$1.$panes[i]) {
-                var $pane = z$1(this$1.$panes[i]);
+        	if (this$1.currentPanes[i]) {
+                var $pane = this$1.currentPanes[i].$el;
 
+                // TODO - could move this to ui.post
                 var h = 0;
                 if ($pane.hasClass('crt-post-max-height')) {
                     h = $pane.height();
@@ -3920,20 +4152,21 @@ var LayoutCarousel = (function (EventBus$$1) {
         return paneMaxHeight;
 	};
 
-	LayoutCarousel.prototype.addControls = function addControls () {
-		this.$viewport.append('<button type="button" data-role="none" class="crt-panel-prev crt-panel-arrow" aria-label="Previous" role="button" aria-disabled="false">Previous</button>');
-		this.$viewport.append('<button type="button" data-role="none" class="crt-panel-next crt-panel-arrow" aria-label="Next" role="button" aria-disabled="false">Next</button>');
-
-		this.$viewport.on('click','.crt-panel-prev', this.prev.bind(this));
-		this.$viewport.on('click','.crt-panel-next', this.next.bind(this));
-	};
+	LayoutCarousel.prototype.reset = function reset () {
+        window.clearTimeout(this.timeout);
+        this.$paneSlider.empty();
+        this.$paneSlider.css({'transform': 'translate3d(0px, 0px, 0px)'});
+        this.posts = [];
+        this.currentPost = 0;
+        this.paneCache = [];
+    };
 
     LayoutCarousel.prototype.destroy = function destroy () {
         this.destroyHandlers ();
         window.clearTimeout(this.timeout);
     };
 
-	return LayoutCarousel;
+    return LayoutCarousel;
 }(EventBus));
 
 var ConfigCarousel = z$1.extend({}, ConfigWidgetBase, {
@@ -3952,7 +4185,7 @@ var Carousel = (function (Widget$$1) {
 
         Widget$$1.call (this);
 
-        options.postsPerPage = 30;
+        options.postsPerPage = 100;
 
         this.loading=false;
         this.posts=[];
@@ -3968,11 +4201,11 @@ var Carousel = (function (Widget$$1) {
             this.$feed = z$1('<div class="crt-carousel-feed"></div>').appendTo(this.$container);
             this.$container.addClass('crt-carousel');
 
-            this.carousel = new LayoutCarousel(this.$feed, this.options.carousel);
+            this.carousel = new LayoutCarousel(this, this.$feed, this.options.carousel);
             this.carousel.on(Events.CAROUSEL_CHANGED, this.onCarouselChange.bind(this));
 
             this.on(Events.FILTER_CHANGED, function () {
-                this$1.$feed.find('.crt-post').remove();
+                this$1.carousel.reset ();
             });
 
             // load first set of posts
@@ -4000,31 +4233,18 @@ var Carousel = (function (Widget$$1) {
         if (posts.length === 0) {
             this.allLoaded = true;
         } else {
-             var that = this;
-             var $els = [];
-            z$1(posts).each(function(i){
-                var p = that.createPostElement(this);
-                $els.push(p.$el);
-
-                if (that.options.animate && that.firstLoad) {
-                    p.$el.css({opacity: 0});
-                    window.setTimeout(function () {
-                        p.$el.css({opacity: 0}).animate({opacity: 1});
-                    }, i * 100);
-                }
-            });
-
-            this.carousel.add($els);
-            this.carousel.update();
+            this.carousel.addPosts(posts);
 
             this.popupManager.setPosts(posts);
         }
         this.firstLoad = false;
     };
 
-    Carousel.prototype.onCarouselChange = function onCarouselChange (event, currentSlide) {
+    Carousel.prototype.onCarouselChange = function onCarouselChange (event, carouselLayout, currentSlide) {
+        Logger.log("Carousel->onCarouselChange currentSlide: "+currentSlide);
         if (this.options && this.options.carousel.autoLoad) {
-            if (currentSlide >= this.feed.postsLoaded - this.carousel.PANES_VISIBLE) {
+            var pos = this.feed.postsLoaded - (this.carousel.PANES_VISIBLE * 2);
+            if (currentSlide >= pos) {
                 this.loadMorePosts();
             }
         }
@@ -4092,7 +4312,7 @@ var Panel = (function (Widget$$1) {
                 this.$container.addClass('crt-panel-fixed-height');
             }
 
-            this.carousel = new LayoutCarousel(this.$feed, this.options.panel);
+            this.carousel = new LayoutCarousel(this, this.$feed, this.options.panel);
             this.carousel.on(Events.CAROUSEL_CHANGED, this.onCarouselChange.bind(this));
 
             // load first set of posts
@@ -4118,16 +4338,7 @@ var Panel = (function (Widget$$1) {
         if (posts.length === 0) {
             this.allLoaded = true;
         } else {
-            var that = this;
-            var $els = [];
-            z$1(posts).each(function() {
-                var p = that.createPostElement(this);
-                $els.push(p.$el);
-            });
-
-
-            this.carousel.add($els);
-            this.carousel.update();
+            this.carousel.addPosts(posts);
 
             this.popupManager.setPosts(posts);
         }
@@ -4175,9 +4386,38 @@ var Panel = (function (Widget$$1) {
     return Panel;
 }(Widget));
 
+var findContainer = function (config) {
+
+    var container = z$1(config.container);
+    if (container.length) {
+        return container.get(0);
+    }
+
+    // could not find container ... try using the feedId
+    container = z$1('#curator-'+config.feedId);
+    if (container.length > 0) {
+        return container.get(0);
+    }
+
+    // find with data-crt-feed-id
+    container = z$1('[data-crt-feed-id="'+config.feedId+'"]');
+    if (container.length > 0) {
+        return container.get(0);
+    }
+    return false;
+};
+
 var loadWidget = function (config) {
-    var ConstructorClass = Crt.Widgets[config.type];
-    return new ConstructorClass(config);
+    var container = findContainer (config);
+
+    if (!container) {
+        Logger.error('Curator - could not find container');
+        return false;
+    } else {
+        config.container = container;
+        var ConstructorClass = Crt.Widgets[config.type];
+        return new ConstructorClass(config);
+    }
 };
 
 var Crt = {
@@ -4216,7 +4456,7 @@ var Crt = {
 
 return Crt;
 
-}());
+}(ResizeObserver));
 
 
 	return Curator;

@@ -48,7 +48,7 @@ let loadWidget = function (config) {
     let container = findContainer (config);
 
     if (!container) {
-        console.error('Curator - could not find container');
+        Logger.error('Curator - could not find container');
         return false;
     } else {
         config.container = container;

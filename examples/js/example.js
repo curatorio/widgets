@@ -13,7 +13,7 @@ var panel = '<div class="example-panel">\
 </div>';
 
     $(document).ready (function () {
-        $('body').append(Curator.render(panel, data));
+        $('body').append(Curator.Templating.render(panel, data));
 
         var pId = '.example-panel';
 

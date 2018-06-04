@@ -3,7 +3,6 @@ import EventBus from '../../core/bus';
 import Logger from '../../core/logger';
 import Events from '../../core/events';
 import z from '../../core/lib';
-import ArrayUtils from '../../utils/array';
 
 const LayoutCarouselSettings = {
     infinite: false,
@@ -224,7 +223,7 @@ class LayoutCarousel extends EventBus {
 
         // reset animation timer
         if (this.options.autoPlay) {
-            this.animate();
+            this.tick();
         }
 	}
 
@@ -385,6 +384,15 @@ class LayoutCarousel extends EventBus {
 
         return paneMaxHeight;
 	}
+
+	reset () {
+        window.clearTimeout(this.timeout);
+        this.$paneSlider.empty();
+        this.$paneSlider.css({'transform': 'translate3d(0px, 0px, 0px)'});
+        this.posts = [];
+        this.currentPost = 0;
+        this.paneCache = [];
+    }
 
     destroy () {
         this.destroyHandlers ();

@@ -42,7 +42,7 @@ class Carousel extends Widget {
             this.carousel.on(Events.CAROUSEL_CHANGED, this.onCarouselChange.bind(this));
 
             this.on(Events.FILTER_CHANGED, () => {
-                this.$feed.find('.crt-post').remove();
+                this.carousel.reset ();
             });
 
             // load first set of posts
