@@ -38,6 +38,7 @@ class Grid extends Widget {
             this.$scroller = z(window);
 
             this.$container.addClass('crt-grid');
+            this.$container.addClass('crt-widget-grid');
 
             if (this.responsiveOptions.grid.showLoadMore) {
                 this.$feedWindow.css({
