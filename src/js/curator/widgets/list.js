@@ -34,6 +34,7 @@ class List extends Widget {
             this.$scroller = z(window);
 
             this.$container.addClass('crt-list');
+            this.$container.addClass('crt-widget-list');
 
             if (this.responsiveOptions.list.showLoadMore) {
                 this.$feedWindow.css({

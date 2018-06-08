@@ -32,6 +32,7 @@ class Widget extends EventBus {
 
         this.$container = z(this.options.container);
         this.$container.addClass('crt-feed');
+        this.$container.addClass('crt-feed-container');
 
         if (HtmlUtils.isTouch()) {
             this.$container.addClass('crt-touch');

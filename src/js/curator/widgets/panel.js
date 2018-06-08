@@ -36,8 +36,8 @@ class Panel extends Widget {
             this.allLoaded = false;
 
             this.$feed = z('<div class="crt-feed"></div>').appendTo(this.$container);
-            this.$container.addClass('crt-carousel');
-            this.$container.addClass('crt-panel');
+            this.$container.addClass('crt-widget-carousel');
+            this.$container.addClass('crt-widget-panel');
 
             if (this.options.panel.fixedHeight) {
                 this.$container.addClass('crt-panel-fixed-height');

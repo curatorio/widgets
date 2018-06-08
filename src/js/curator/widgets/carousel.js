@@ -37,6 +37,7 @@ class Carousel extends Widget {
             // this.$wrapper = z('<div class="crt-carousel-wrapper"></div>').appendTo(this.$container);
             this.$feed = z('<div class="crt-carousel-feed"></div>').appendTo(this.$container);
             this.$container.addClass('crt-carousel');
+            this.$container.addClass('crt-widget-carousel');
 
             this.carousel = new LayoutCarousel(this.$feed, this.options.carousel);
             this.carousel.on(Events.CAROUSEL_CHANGED, this.onCarouselChange.bind(this));

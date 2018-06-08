@@ -17,7 +17,7 @@ class Waterfall extends Widget {
 
             this.$scroll = z('<div class="crt-feed-scroll"></div>').appendTo(this.$container);
             this.$feed = z('<div class="crt-feed"></div>').appendTo(this.$scroll);
-            this.$container.addClass('crt-feed-container');
+            this.$container.addClass('crt-widget-waterfall');
 
             if (this.options.continuousScroll) {
                 z(this.$scroll).scroll(() => {
