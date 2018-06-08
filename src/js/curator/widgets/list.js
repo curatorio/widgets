@@ -30,7 +30,7 @@ class List extends Widget {
             this.$container.append(tmpl);
             this.$feed = this.$container.find('.crt-feed');
             this.$feedWindow = this.$container.find('.crt-feed-window');
-            this.$loadMore = this.$container.find('.crt-feed-more a');
+            this.$loadMore = this.$container.find('.crt-load-more a');
             this.$scroller = z(window);
 
             this.$container.addClass('crt-list');
