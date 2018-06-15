@@ -24,7 +24,7 @@ class Post extends EventBus {
         let templateId = this.widget.options.templatePost;
 
         this.json = postJson;
-        this.$el = Templating.renderTemplate(templateId, postJson);
+        this.$el = Templating.renderTemplate(templateId, postJson, this.widget.options);
 
         this.$postC = this.$el.find('.crt-post-c');
         this.$image = this.$el.find('.crt-post-image');

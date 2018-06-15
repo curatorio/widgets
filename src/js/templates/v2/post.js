@@ -1,6 +1,6 @@
 
 
-const v2PostTemplate = ` 
+const template = ` 
 <div class="crt-post-v2 crt-post crt-post-<%=this.networkIcon()%> <%=this.contentTextClasses()%>  <%=this.contentImageClasses()%>" data-post="<%=id%>"> 
     <div class="crt-post-border">
         <div class="crt-post-c">
@@ -18,6 +18,11 @@ const v2PostTemplate = `
                     <%=this.parseText(text)%> 
                 </div> 
             </div> 
+            <% if (options.showComments || options.showLikes) { %>
+                <div class="crt-comments-likes">
+                    <% if (options.showLikes) { %><span><%=likes%></span> <%=this._t("likes", likes)%><% } %><% if (options.showComments && options.showLikes) { %> <span class="crt-sep"></span> <% } %><% if (options.showComments) { %><span><%=comments%></span> <%=this._t("comments", comments)%><% } %>
+                </div>
+            <% } %>
             <div class="crt-post-footer"> 
                 <img class="crt-post-userimage" src="<%=user_image%>" alt="Profile image for <%=user_screen_name%>" /> 
                 <span class="crt-post-username"><a href="<%=this.userUrl()%>" target="_blank">@<%=user_screen_name%></a></span>
@@ -29,4 +34,4 @@ const v2PostTemplate = `
     </div> 
 </div>`;
 
-export default v2PostTemplate;
+export default template;

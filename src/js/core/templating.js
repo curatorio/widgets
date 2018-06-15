@@ -10,7 +10,12 @@ import z from './lib';
 let _rendererTmplCache = {};
 
 let Templating = {
-    renderTemplate (templateId, data) {
+    renderTemplate (templateId, data, options) {
+
+        if (options) {
+            data.options = options;
+        }
+
         let source = '';
         let $t = z('#'+templateId);
 

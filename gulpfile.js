@@ -44,6 +44,10 @@ function bubleError (err) {
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 // Gulp modules
 
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// CSS / SCSS
+
+
 const gulp = require('gulp'),
     rename = require('gulp-rename'),
     concat = require('gulp-concat'),
@@ -62,11 +66,8 @@ const gulp = require('gulp'),
     // buble = require('gulp-buble'),
     rollup = require('gulp-better-rollup'),
     uglify = require('gulp-uglify'),
+    rollupResolve = require('rollup-plugin-node-resolve'),
     rollupBuble = require('rollup-plugin-buble');
-
-
-// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-// CSS / SCSS
 
 gulp.task('styles', () =>  {
     return gulp.src(srcScss+'*.scss')
@@ -86,7 +87,9 @@ gulp.task('scripts:core', () =>  {
         // .pipe(sourcemaps.init())
         .pipe(rollup({
             plugins: [
-                rollupBuble(bubleConfig)],
+                rollupBuble(bubleConfig),
+                rollupResolve()
+            ],
         }, {
             format: 'iife', //'amd', 'cjs', 'es', 'iife' or 'umd'
             name : 'Curator'

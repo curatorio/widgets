@@ -12,3 +12,22 @@
         height:100%;
     }
 }
+
+.crt-sep {
+    width: 4px;
+    height: 1em;
+    display: inline-block;
+    margin: 0 4px;
+    position: relative;
+
+    &:before {
+        position: absolute;
+        background-color: #CCCCCC;
+        width: 4px;
+        height: 4px;
+        display: block;
+        content:'';
+        top: 50%;
+        margin-top: -1px;
+    }
+}

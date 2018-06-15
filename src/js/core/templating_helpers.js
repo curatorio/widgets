@@ -3,6 +3,8 @@ import DateUtils from '../utils/date';
 import StringUtils from '../utils/string';
 import translate from './translate';
 
+let options = {};
+
 let helpers = {
     networkIcon () {
         return this.data.network_name.toLowerCase();

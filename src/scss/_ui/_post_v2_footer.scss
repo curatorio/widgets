@@ -24,6 +24,23 @@
 
 .crt-grid-post-v2,
 .crt-post-v2 {
+	.crt-comments-likes {
+		position: relative;
+		//height: 40px;
+		//line-height: 40px;
+		//border-top: 1px solid $color-v2-post-border;
+		//background-color: transparent;
+		padding: 0 0 13px;
+		font-size: .8em;
+		text-transform: uppercase;
+		text-align: center;
+		color: #999;
+
+		span {
+			color: #000;
+		}
+	}
+
 	.crt-post-footer {
 		position: relative;
 		height: 40px;
