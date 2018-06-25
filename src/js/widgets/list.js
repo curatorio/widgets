@@ -168,7 +168,7 @@ class List extends Widget {
 
         if (diff > this.responsiveOptions.list.continuousScrollOffset) {
             if (!this.feed.loading && !this.feed.allPostsLoaded) {
-                this.rowsMax += this.responsiveOptions.list.rowsToAdd;
+                this.rowsMax += this.responsiveOptions.list.loadMoreRows;
                 this.updateLayout();
             }
         }

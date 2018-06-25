@@ -191,7 +191,7 @@ class Grid extends Widget {
 
         if (diff > this.responsiveOptions.grid.continuousScrollOffset) {
             if (!this.feed.loading && !this.feed.allPostsLoaded) {
-                this.rowsMax += this.responsiveOptions.grid.rowsToAdd;
+                this.rowsMax += this.responsiveOptions.grid.loadMoreRows;
                 this.updateLayout();
             }
         }
@@ -238,15 +238,7 @@ class Grid extends Widget {
     onMoreClicked (ev) {
         ev.preventDefault();
 
-        let rowsToAdd = 1;
-
-        if (this.columnCount <= 1) {
-            rowsToAdd = 4;
-        } else if (this.columnCount === 2) {
-            rowsToAdd = 2;
-        }
-
-        this.rowsMax += rowsToAdd;
+        this.rowsMax += this.responsiveOptions.grid.loadMoreRows;
 
         this.updateLayout();
     }
