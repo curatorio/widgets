@@ -175,11 +175,13 @@ body {
                             border-radius: 50%;
                             width: 13px;
                             height: 13px;
+                            box-shadow: 0 0 5px rgba(0,0,0,0.5);
                         }
 
                         &.selected {
                             a {
-                                background-color: #FFF;
+                                background-color: #f6f6f6;
+                                border: 2px solid #f6f6f6;
                             }
                         }
 
