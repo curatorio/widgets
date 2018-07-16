@@ -98,7 +98,7 @@ class Post extends EventBus {
             return;
         }
 
-        if (target.is('a') && target.attr('href') !== '#') {
+        if (target.is('a') && target.attr('href') !== '#' && target.attr('href') !== 'javascript:;') {
             this.widget.track('click:link');
         } else {
             ev.preventDefault();
