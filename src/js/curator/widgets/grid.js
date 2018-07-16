@@ -257,6 +257,7 @@ class Grid extends Widget {
         this.destroyHandlers();
 
         this.$container.empty()
+            .removeClass('crt-widget-grid')
             .removeClass('crt-grid')
             .removeClass('crt-grid-col'+this.columnCount)
             .css({'height':'','overflow':''});

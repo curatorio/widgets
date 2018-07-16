@@ -231,6 +231,7 @@ class List extends Widget {
 
         this.$container.empty()
             .removeClass('crt-list')
+            .removeClass('crt-widget-list')
             .removeClass('crt-list-col'+this.columnCount)
             .css({'height':'','overflow':''});
 

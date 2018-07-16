@@ -131,7 +131,8 @@ class Waterfall extends Widget {
         if (this.$more) {
             this.$more.remove();
         }
-        this.$container.removeClass('crt-feed-container');
+        this.$container.removeClass('crt-feed-container')
+            .removeClass('crt-widget-waterfall');
 
         this.destroyListeners();
 
