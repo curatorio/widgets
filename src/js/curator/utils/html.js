@@ -5,9 +5,7 @@ const HtmlUtils = {
     checkContainer (container) {
         Logger.log("Curator->checkContainer: " + container);
         if (z(container).length === 0) {
-            if (window.console) {
-                window.console.log('Curator could not find the element ' + container + '. Please ensure this element existings in your HTML code. Exiting.');
-            }
+            Logger.error('Curator could not find the element ' + container + '. Please ensure this element existings in your HTML code. Exiting.');
             return false;
         }
         return true;

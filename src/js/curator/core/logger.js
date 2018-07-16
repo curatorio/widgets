@@ -8,7 +8,13 @@ let Logger = {
         if (window.console && Logger.debug) {
             window.console.log(s);
         }
-    }
+    },
+
+    error: function (s) {
+        if (window.console) {
+            window.console.error(s);
+        }
+    },
 };
 
 export default Logger;
