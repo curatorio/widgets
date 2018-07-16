@@ -11,7 +11,6 @@ let Logger = {
     },
 
     error: function (s) {
-
         if (window.console) {
             window.console.error(s);
         }
