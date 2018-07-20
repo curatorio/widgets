@@ -32,7 +32,7 @@ class Waterfall extends Widget {
 
             if (this.options.waterfall.showLoadMore) {
                 // default to more
-                this.$more = z('<div class="crt-load-more"><a href="#"><span>' + this._t('Load more') + '</span></a></div>')
+                this.$more = z('<div class="crt-load-more"><a href="#"><span>' + this._t('load-more') + '</span></a></div>')
                     .appendTo(this.$scroll);
                 this.$more.find('a').on('click', (ev) => {
                     ev.preventDefault();
