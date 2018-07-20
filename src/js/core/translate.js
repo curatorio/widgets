@@ -24,8 +24,6 @@ const mod = {
         key = key.toLowerCase();
         key = key.replace(' ','-');
 
-        // console.log(key);
-
         return _cache[lang](key, n);
     }
 };
