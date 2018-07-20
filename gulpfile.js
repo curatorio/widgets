@@ -63,6 +63,7 @@ const gulp = require('gulp'),
     // CSS / SCSS
     sass = require('gulp-sass'),
     autoprefixer = require('gulp-autoprefixer'),
+    cleanCSS = require('gulp-clean-css'),
 
     // JS
     jshint = require('gulp-jshint'),
@@ -80,6 +81,20 @@ gulp.task('styles', () =>  {
     return gulp.src(srcScss+'*.scss')
         .pipe(sass({ style: 'expanded' }).on('error', sass.logError))
         .pipe(autoprefixer('last 2 version', 'safari 5', 'ie 8', 'ie 9', 'opera 12.1', 'ios 6', 'android 4'))
+        .pipe(gulp.dest(destCss))
+        .pipe(notify({ message: 'Styles task complete' }));
+});
+
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// CSS / SCSS - minified
+
+gulp.task('styles:prod', () =>  {
+    return gulp.src(srcScss+'*.scss')
+        .pipe(sass({ style: 'expanded' }).on('error', sass.logError))
+        .pipe(autoprefixer('last 2 version', 'safari 5', 'ie 8', 'ie 9', 'opera 12.1', 'ios 6', 'android 4'))
+        .pipe(gulp.dest(destCss))
+        .pipe(rename({suffix: '.min'}))
+        .pipe(cleanCSS({compatibility: 'ie8'}))
         .pipe(gulp.dest(destCss))
         .pipe(notify({ message: 'Styles task complete' }));
 });
@@ -177,5 +192,5 @@ gulp.task('scripts', [
     'scripts:core',
     'scripts:bundle'
 ]);
-gulp.task('prod', ['scripts:prod']);
+gulp.task('prod', ['styles:prod','scripts:prod']);
 gulp.task('default', ['styles','scripts']);
