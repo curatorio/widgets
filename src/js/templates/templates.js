@@ -16,6 +16,8 @@ import gridPostMinimal from "./v2/grid_post_minimal";
 import listFeed from "./v2/list_feed";
 import listPost from "./v2/list_post";
 
+import waterfallFeed from "./v2/waterfall_feed";
+
 let Templates = {
     'filter'                : filterTemplate,
     'popup'                 : popupTemplate,
@@ -34,6 +36,8 @@ let Templates = {
 
     'list-feed'             : listFeed,
     'list-post'             : listPost,
+
+    'waterfall-feed'        : waterfallFeed,
 };
 
 export default Templates;

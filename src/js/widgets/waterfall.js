@@ -3,6 +3,7 @@ import Widget from './base';
 import ConfigWidgetWaterfall from '../config/widget_waterfall';
 import Logger from '../core/logger';
 import LayoutWaterfall from '../ui/layout/waterfall';
+import TemplatingUtils from '../core/templating';
 import Events from '../core/events';
 import z from '../core/lib';
 
@@ -14,10 +15,18 @@ class Waterfall extends Widget {
         if (this.init (options,  ConfigWidgetWaterfall)) {
             Logger.log("Waterfall->init with options:");
             Logger.log(this.options);
+            // console.log('TEST');
+            let tmpl = TemplatingUtils.renderTemplate(this.options.waterfall.templateFeed, {});
+            this.$container.append(tmpl);
 
-            this.$scroll = z('<div class="crt-feed-scroll"></div>').appendTo(this.$container);
-            this.$feed = z('<div class="crt-feed"></div>').appendTo(this.$scroll);
+            this.$scroll = this.$container.find('.crt-feed-scroll');
+            this.$feed = this.$container.find('.crt-feed');
             this.$container.addClass('crt-widget-waterfall');
+            this.$loadMore = this.$container.find('.crt-load-more');
+
+            // console.log(this.$loadMore);
+            // console.log(this.options.waterfall.templateFeed);
+            // return;
 
             if (this.options.continuousScroll) {
                 z(this.$scroll).scroll(() => {
@@ -32,12 +41,18 @@ class Waterfall extends Widget {
 
             if (this.options.waterfall.showLoadMore) {
                 // default to more
-                this.$more = z('<div class="crt-load-more"><a href="#"><span>' + this._t('load-more') + '</span></a></div>')
-                    .appendTo(this.$scroll);
-                this.$more.find('a').on('click', (ev) => {
+                let $aLoadMore = this.$loadMore.find('a');
+                console.log($aLoadMore);
+                $aLoadMore.on('click', (ev) => {
+                    console.log('click1');
+                });
+                $aLoadMore.on('click', (ev) => {
+                    console.log('click');
                     ev.preventDefault();
                     this.loadMorePosts();
                 });
+            } else {
+                this.$loadMore.remove();
             }
 
             this.ui = new LayoutWaterfall({
@@ -50,7 +65,7 @@ class Waterfall extends Widget {
                     speed: (this.options.waterfall.animateSpeed/2),
                     duration: this.options.waterfall.animateSpeed
                 }
-            },this.$feed);
+            }, this.$feed);
 
             this.on(Events.FILTER_CHANGED, () => {
                 this.$feed.find('.crt-post').remove();
@@ -105,9 +120,9 @@ class Waterfall extends Widget {
 
         if (this.options.waterfall.showLoadMore) {
             if (this.feed.allPostsLoaded) {
-                this.$more.hide();
+                this.$loadMore.hide();
             } else {
-                this.$more.show();
+                this.$loadMore.show();
             }
         }
 
@@ -129,8 +144,8 @@ class Waterfall extends Widget {
 
         this.$feed.remove();
         this.$scroll.remove();
-        if (this.$more) {
-            this.$more.remove();
+        if (this.$loadMore) {
+            this.$loadMore.remove();
         }
         this.$container.removeClass('crt-feed-container')
             .removeClass('crt-widget-waterfall');

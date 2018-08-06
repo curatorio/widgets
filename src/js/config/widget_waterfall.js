@@ -10,7 +10,8 @@ let ConfigWidgetWaterfall = z.extend({}, ConfigWidgetBase, {
         gridWidth:300,
         animate:true,
         animateSpeed:400,
-        handleResize:true
+        handleResize:true,
+        templateFeed:'waterfall-feed'
     }
 });
 
