@@ -174,10 +174,10 @@ class LayoutCarousel extends EventBus {
         if (paneIndex < 0) {
             postToLoad = this.posts.length + paneIndex;
         } else if (paneIndex > this.posts.length - 1) {
-            postToLoad = paneIndex - this.posts.length;
+            postToLoad = paneIndex % this.posts.length;
         }
 
-        // console.log(paneIndex + " : " + postToLoad);
+        // console.log(paneIndex + " : " + postToLoad );
 
         let pane = null;
         if (this.paneCache['idx'+paneIndex]) {
