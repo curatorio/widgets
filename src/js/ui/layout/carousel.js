@@ -187,6 +187,7 @@ class LayoutCarousel extends EventBus {
             // console.log('cache miss '+paneIndex);
             let post = this.posts[postToLoad];
             pane = this.widget.createPostElement(post);
+            pane.on(Events.POST_LAYOUT_CHANGED,this.onPostLayoutChanged.bind(this));
             this.paneCache['idx'+paneIndex] = pane;
         }
 
@@ -364,17 +365,9 @@ class LayoutCarousel extends EventBus {
         for (let i = min; i < max; i++)
         {
         	if (this.currentPanes[i]) {
-                let $pane = this.currentPanes[i].$el;
+                // let $pane = this.currentPanes[i].$el;
+                let h = this.currentPanes[i].getHeight();
 
-                // TODO - could move this to ui.post
-                let h = 0;
-                if ($pane.hasClass('crt-post-max-height')) {
-                    h = $pane.height();
-                } else {
-                    let contentHeight = $pane.find('.crt-post-content').height();
-                    let footerHeight = $pane.find('.crt-post-footer').height();
-                    h = contentHeight + footerHeight + 2;
-                }
                 // Logger.log('LayoutCarousel->updateHeight i: '+i+' = '+h);
                 if (h > paneMaxHeight) {
                     paneMaxHeight = h;
@@ -382,8 +375,17 @@ class LayoutCarousel extends EventBus {
             }
         }
 
+        Logger.log(paneMaxHeight);
+
         return paneMaxHeight;
 	}
+
+    onPostLayoutChanged (post) {
+	    window.clearTimeout(this.postLayoutChangedTO);
+	    this.postLayoutChangedTO = window.setTimeout(()=>{
+	        this.updateHeight ();
+        },100);
+    }
 
 	reset () {
         window.clearTimeout(this.timeout);

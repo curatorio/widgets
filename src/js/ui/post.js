@@ -158,6 +158,7 @@ class Post extends EventBus {
     layout () {
         // Logger.log("Post->layout");
         this.layoutFooter();
+        this.trigger(Events.POST_LAYOUT_CHANGED, this);
     }
 
     layoutFooter () {

@@ -13,6 +13,7 @@ let Events = {
     POST_CLICK_READ_MORE    :'post:clickReadMore',
     POST_IMAGE_LOADED       :'post:imageLoaded',
     POST_IMAGE_FAILED       :'post:imageFailed',
+    POST_LAYOUT_CHANGED     :'post:layoutChanged',
 
     CAROUSEL_CHANGED        :'carousel:changed',
     GRID_HEIGHT_CHANGED     :'grid:heightChanged',
