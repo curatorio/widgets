@@ -297,10 +297,25 @@ class LayoutCarousel extends EventBus {
                 if (this.options.easing) {
                     options.easing = this.options.easing;
                 }
-                this.$paneSlider.addClass('crt-animate-transform');
-                this.$paneSlider.animate({'transform': 'translate3d(' + x + 'px, 0px, 0px)'},
-                    options
-                );
+
+                if (z.zepto) {
+                    this.$pane_slider.addClass('crt-animate-transform');
+                    this.$pane_slider.animate({'transform': 'translate3d('+x+'px, 0px, 0px)'},
+                        options
+                    );
+                } else {
+                    // Jquery doesn't animate transform
+                    options.step = function(now, fx) {
+                        z(this).css('-webkit-transform','translate3d('+now+'px, 0px, 0px)');
+                        z(this).css('-moz-transform','translate3d('+now+'px, 0px, 0px)');
+                        z(this).css('transform','translate3d('+now+'px, 0px, 0px)');
+                    };
+
+                    this.$pane_slider.addClass('crt-animate-transform');
+                    this.$pane_slider.animate({'transformX': x},
+                        options
+                    );
+                }
             }
         }
 	}
