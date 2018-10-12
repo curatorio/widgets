@@ -3806,10 +3806,25 @@ var LayoutCarousel = (function (EventBus$$1) {
 			if (this.options.easing) {
 				options.easing = this.options.easing;
 			}
-            this.$pane_slider.addClass('crt-animate-transform');
-			this.$pane_slider.animate({'transform': 'translate3d('+x+'px, 0px, 0px)'},
-				options
-			);
+
+            if (z$1.zepto) {
+                this.$pane_slider.addClass('crt-animate-transform');
+                this.$pane_slider.animate({'transform': 'translate3d('+x+'px, 0px, 0px)'},
+                    options
+                );
+            } else {
+            	// Jquery doesn't animate transform
+                options.step = function(now, fx) {
+                    z$1(this).css('-webkit-transform','translate3d('+now+'px, 0px, 0px)');
+                    z$1(this).css('-moz-transform','translate3d('+now+'px, 0px, 0px)');
+                    z$1(this).css('transform','translate3d('+now+'px, 0px, 0px)');
+                };
+
+                this.$pane_slider.addClass('crt-animate-transform');
+                this.$pane_slider.animate({'transformX': x},
+                    options
+                );
+			}
 		}
 	};
 
