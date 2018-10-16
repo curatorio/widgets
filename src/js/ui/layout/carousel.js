@@ -299,8 +299,8 @@ class LayoutCarousel extends EventBus {
                 }
 
                 if (z.zepto) {
-                    this.$pane_slider.addClass('crt-animate-transform');
-                    this.$pane_slider.animate({'transform': 'translate3d('+x+'px, 0px, 0px)'},
+                    this.$paneSlider.addClass('crt-animate-transform');
+                    this.$paneSlider.animate({'transform': 'translate3d('+x+'px, 0px, 0px)'},
                         options
                     );
                 } else {
@@ -311,8 +311,8 @@ class LayoutCarousel extends EventBus {
                         z(this).css('transform','translate3d('+now+'px, 0px, 0px)');
                     };
 
-                    this.$pane_slider.addClass('crt-animate-transform');
-                    this.$pane_slider.animate({'transformX': x},
+                    this.$paneSlider.addClass('crt-animate-transform');
+                    this.$paneSlider.animate({'transformX': x},
                         options
                     );
                 }

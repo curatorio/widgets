@@ -107,12 +107,12 @@ gulp.task('scripts:core', () =>  {
             ],
         }, {
             format: 'iife', //'amd', 'cjs', 'es', 'iife' or 'umd'
-            name : 'Curator'
+            name : 'Curator',
         }))
         .on('error', bubleError)
 
         // .pipe(sourcemaps.write()) // inlining the sourcemap into the exported .js file
-        .pipe(wrap({ src: 'src/umd-templates/core.js'}))
+        // .pipe(wrap({ src: 'src/umd-templates/core.js'}))
         .pipe(rename('curator.core.js'))
         .pipe(gulp.dest(destJs))
         .pipe(notify({ message: 'scripts:core task complete' }));
@@ -122,7 +122,6 @@ gulp.task('scripts:core', () =>  {
 // Scripts - bundled Curator and Zepto
 
 gulp.task('scripts:bundle', ['scripts:core'], () =>  {
-
     return gulp.src(jsZepto)
         .pipe(insert.append(';')) // missing ;
         .pipe(addsrc.append(destJs+'curator.core.js'))
@@ -130,6 +129,21 @@ gulp.task('scripts:bundle', ['scripts:core'], () =>  {
         // .pipe(sourcemaps.write()) // inlining the sourcemap into the exported .js file
         // .pipe(addsrc.prepend(jsZepto))
         .pipe(concat('curator.js'))
+        .pipe(wrap({ src: 'src/umd-templates/curator.js'}))
+        .pipe(gulp.dest(destJs))
+        .pipe(notify({ message: 'scripts:all task complete' }));
+});
+
+gulp.task('scripts:umd', ['scripts:core'], () =>  {
+
+    return gulp.src(destJs+'curator.core.js')
+        // .pipe(insert.append(';')) // missing ;
+        // .pipe(addsrc.append(destJs+'curator.core.js'))
+
+        // .pipe(sourcemaps.write()) // inlining the sourcemap into the exported .js file
+        // .pipe(addsrc.prepend(jsZepto))
+        .pipe(concat('curator.umd.js'))
+        .pipe(wrap({ src: 'src/umd-templates/curator.umd.js'}))
         .pipe(gulp.dest(destJs))
         .pipe(notify({ message: 'scripts:all task complete' }));
 });
@@ -151,7 +165,8 @@ gulp.task('scripts:lint', () =>  {
 gulp.task('scripts:prod', ['scripts'], () =>  {
     return gulp.src([
             destJs+'curator.js',
-            destJs+'curator.core.js'
+            destJs+'curator.core.js',
+            destJs+'curator.umd.js'
         ])
         // .pipe(jshint.reporter('default'))
         .pipe(gulp.dest(destJs))
@@ -184,7 +199,8 @@ gulp.task('watch', () =>  {
 gulp.task('dev', ['watch']);
 gulp.task('scripts', [
     'scripts:core',
-    'scripts:bundle'
+    'scripts:bundle',
+    'scripts:umd'
 ]);
 gulp.task('prod', ['styles:prod','scripts:prod']);
 gulp.task('default', ['styles','scripts']);

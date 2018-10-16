@@ -1,1543 +1,1645 @@
-/* Zepto v1.2.0-27-g324cd27 - zepto event ie fx fx_methods data - zeptojs.com/license */
-(function(global, factory) {
-  if (typeof define === 'function' && define.amd) {
-      define('zepto', function () {
-          return factory(global);
-      });
-  } else {
-      factory(global);
-  }
-}(window, function(window) {
-  var Zepto = (function() {
-  var undefined, key, $, classList, emptyArray = [], concat = emptyArray.concat, filter = emptyArray.filter, slice = emptyArray.slice,
-    document = window.document,
-    elementDisplay = {}, classCache = {},
-    cssNumber = { 'column-count': 1, 'columns': 1, 'font-weight': 1, 'line-height': 1,'opacity': 1, 'z-index': 1, 'zoom': 1 },
-    fragmentRE = /^\s*<(\w+|!)[^>]*>/,
-    singleTagRE = /^<(\w+)\s*\/?>(?:<\/\1>|)$/,
-    tagExpanderRE = /<(?!area|br|col|embed|hr|img|input|link|meta|param)(([\w:]+)[^>]*)\/>/ig,
-    rootNodeRE = /^(?:body|html)$/i,
-    capitalRE = /([A-Z])/g,
-
-    // special attributes that should be get/set via method calls
-    methodAttributes = ['val', 'css', 'html', 'text', 'data', 'width', 'height', 'offset'],
-
-    adjacencyOperators = [ 'after', 'prepend', 'before', 'append' ],
-    table = document.createElement('table'),
-    tableRow = document.createElement('tr'),
-    containers = {
-      'tr': document.createElement('tbody'),
-      'tbody': table, 'thead': table, 'tfoot': table,
-      'td': tableRow, 'th': tableRow,
-      '*': document.createElement('div')
-    },
-    simpleSelectorRE = /^[\w-]*$/,
-    class2type = {},
-    toString = class2type.toString,
-    zepto = {},
-    camelize, uniq,
-    tempParent = document.createElement('div'),
-    propMap = {
-      'tabindex': 'tabIndex',
-      'readonly': 'readOnly',
-      'for': 'htmlFor',
-      'class': 'className',
-      'maxlength': 'maxLength',
-      'cellspacing': 'cellSpacing',
-      'cellpadding': 'cellPadding',
-      'rowspan': 'rowSpan',
-      'colspan': 'colSpan',
-      'usemap': 'useMap',
-      'frameborder': 'frameBorder',
-      'contenteditable': 'contentEditable'
-    },
-    isArray = Array.isArray ||
-      function(object){ return object instanceof Array }
-
-  zepto.matches = function(element, selector) {
-    if (!selector || !element || element.nodeType !== 1) return false
-    var matchesSelector = element.matches || element.webkitMatchesSelector ||
-                          element.mozMatchesSelector || element.oMatchesSelector ||
-                          element.matchesSelector
-    if (matchesSelector) return matchesSelector.call(element, selector)
-    // fall back to performing a selector:
-    var match, parent = element.parentNode, temp = !parent
-    if (temp) (parent = tempParent).appendChild(element)
-    match = ~zepto.qsa(parent, selector).indexOf(element)
-    temp && tempParent.removeChild(element)
-    return match
-  }
-
-  function type(obj) {
-    return obj == null ? String(obj) :
-      class2type[toString.call(obj)] || "object"
-  }
-
-  function isFunction(value) { return type(value) == "function" }
-  function isWindow(obj)     { return obj != null && obj == obj.window }
-  function isDocument(obj)   { return obj != null && obj.nodeType == obj.DOCUMENT_NODE }
-  function isObject(obj)     { return type(obj) == "object" }
-  function isPlainObject(obj) {
-    return isObject(obj) && !isWindow(obj) && Object.getPrototypeOf(obj) == Object.prototype
-  }
-
-  function likeArray(obj) {
-    var length = !!obj && 'length' in obj && obj.length,
-      type = $.type(obj)
-
-    return 'function' != type && !isWindow(obj) && (
-      'array' == type || length === 0 ||
-        (typeof length == 'number' && length > 0 && (length - 1) in obj)
-    )
-  }
-
-  function compact(array) { return filter.call(array, function(item){ return item != null }) }
-  function flatten(array) { return array.length > 0 ? $.fn.concat.apply([], array) : array }
-  camelize = function(str){ return str.replace(/-+(.)?/g, function(match, chr){ return chr ? chr.toUpperCase() : '' }) }
-  function dasherize(str) {
-    return str.replace(/::/g, '/')
-           .replace(/([A-Z]+)([A-Z][a-z])/g, '$1_$2')
-           .replace(/([a-z\d])([A-Z])/g, '$1_$2')
-           .replace(/_/g, '-')
-           .toLowerCase()
-  }
-  uniq = function(array){ return filter.call(array, function(item, idx){ return array.indexOf(item) == idx }) }
-
-  function classRE(name) {
-    return name in classCache ?
-      classCache[name] : (classCache[name] = new RegExp('(^|\\s)' + name + '(\\s|$)'))
-  }
-
-  function maybeAddPx(name, value) {
-    return (typeof value == "number" && !cssNumber[dasherize(name)]) ? value + "px" : value
-  }
-
-  function defaultDisplay(nodeName) {
-    var element, display
-    if (!elementDisplay[nodeName]) {
-      element = document.createElement(nodeName)
-      document.body.appendChild(element)
-      display = getComputedStyle(element, '').getPropertyValue("display")
-      element.parentNode.removeChild(element)
-      display == "none" && (display = "block")
-      elementDisplay[nodeName] = display
-    }
-    return elementDisplay[nodeName]
-  }
-
-  function children(element) {
-    return 'children' in element ?
-      slice.call(element.children) :
-      $.map(element.childNodes, function(node){ if (node.nodeType == 1) return node })
-  }
-
-  function Z(dom, selector) {
-    var i, len = dom ? dom.length : 0
-    for (i = 0; i < len; i++) this[i] = dom[i]
-    this.length = len
-    this.selector = selector || ''
-  }
-
-  // `$.zepto.fragment` takes a html string and an optional tag name
-  // to generate DOM nodes from the given html string.
-  // The generated DOM nodes are returned as an array.
-  // This function can be overridden in plugins for example to make
-  // it compatible with browsers that don't support the DOM fully.
-  zepto.fragment = function(html, name, properties) {
-    var dom, nodes, container
-
-    // A special case optimization for a single tag
-    if (singleTagRE.test(html)) dom = $(document.createElement(RegExp.$1))
-
-    if (!dom) {
-      if (html.replace) html = html.replace(tagExpanderRE, "<$1></$2>")
-      if (name === undefined) name = fragmentRE.test(html) && RegExp.$1
-      if (!(name in containers)) name = '*'
-
-      container = containers[name]
-      container.innerHTML = '' + html
-      dom = $.each(slice.call(container.childNodes), function(){
-        container.removeChild(this)
-      })
-    }
-
-    if (isPlainObject(properties)) {
-      nodes = $(dom)
-      $.each(properties, function(key, value) {
-        if (methodAttributes.indexOf(key) > -1) nodes[key](value)
-        else nodes.attr(key, value)
-      })
-    }
-
-    return dom
-  }
-
-  // `$.zepto.Z` swaps out the prototype of the given `dom` array
-  // of nodes with `$.fn` and thus supplying all the Zepto functions
-  // to the array. This method can be overridden in plugins.
-  zepto.Z = function(dom, selector) {
-    return new Z(dom, selector)
-  }
-
-  // `$.zepto.isZ` should return `true` if the given object is a Zepto
-  // collection. This method can be overridden in plugins.
-  zepto.isZ = function(object) {
-    return object instanceof zepto.Z
-  }
-
-  // `$.zepto.init` is Zepto's counterpart to jQuery's `$.fn.init` and
-  // takes a CSS selector and an optional context (and handles various
-  // special cases).
-  // This method can be overridden in plugins.
-  zepto.init = function(selector, context) {
-    var dom
-    // If nothing given, return an empty Zepto collection
-    if (!selector) return zepto.Z()
-    // Optimize for string selectors
-    else if (typeof selector == 'string') {
-      selector = selector.trim()
-      // If it's a html fragment, create nodes from it
-      // Note: In both Chrome 21 and Firefox 15, DOM error 12
-      // is thrown if the fragment doesn't begin with <
-      if (selector[0] == '<' && fragmentRE.test(selector))
-        dom = zepto.fragment(selector, RegExp.$1, context), selector = null
-      // If there's a context, create a collection on that context first, and select
-      // nodes from there
-      else if (context !== undefined) return $(context).find(selector)
-      // If it's a CSS selector, use it to select nodes.
-      else dom = zepto.qsa(document, selector)
-    }
-    // If a function is given, call it when the DOM is ready
-    else if (isFunction(selector)) return $(document).ready(selector)
-    // If a Zepto collection is given, just return it
-    else if (zepto.isZ(selector)) return selector
-    else {
-      // normalize array if an array of nodes is given
-      if (isArray(selector)) dom = compact(selector)
-      // Wrap DOM nodes.
-      else if (isObject(selector))
-        dom = [selector], selector = null
-      // If it's a html fragment, create nodes from it
-      else if (fragmentRE.test(selector))
-        dom = zepto.fragment(selector.trim(), RegExp.$1, context), selector = null
-      // If there's a context, create a collection on that context first, and select
-      // nodes from there
-      else if (context !== undefined) return $(context).find(selector)
-      // And last but no least, if it's a CSS selector, use it to select nodes.
-      else dom = zepto.qsa(document, selector)
-    }
-    // create a new Zepto collection from the nodes found
-    return zepto.Z(dom, selector)
-  }
-
-  // `$` will be the base `Zepto` object. When calling this
-  // function just call `$.zepto.init, which makes the implementation
-  // details of selecting nodes and creating Zepto collections
-  // patchable in plugins.
-  $ = function(selector, context){
-    return zepto.init(selector, context)
-  }
-
-  function extend(target, source, deep) {
-    for (key in source)
-      if (deep && (isPlainObject(source[key]) || isArray(source[key]))) {
-        if (isPlainObject(source[key]) && !isPlainObject(target[key]))
-          target[key] = {}
-        if (isArray(source[key]) && !isArray(target[key]))
-          target[key] = []
-        extend(target[key], source[key], deep)
-      }
-      else if (source[key] !== undefined) target[key] = source[key]
-  }
-
-  // Copy all but undefined properties from one or more
-  // objects to the `target` object.
-  $.extend = function(target){
-    var deep, args = slice.call(arguments, 1)
-    if (typeof target == 'boolean') {
-      deep = target
-      target = args.shift()
-    }
-    args.forEach(function(arg){ extend(target, arg, deep) })
-    return target
-  }
-
-  // `$.zepto.qsa` is Zepto's CSS selector implementation which
-  // uses `document.querySelectorAll` and optimizes for some special cases, like `#id`.
-  // This method can be overridden in plugins.
-  zepto.qsa = function(element, selector){
-    var found,
-        maybeID = selector[0] == '#',
-        maybeClass = !maybeID && selector[0] == '.',
-        nameOnly = maybeID || maybeClass ? selector.slice(1) : selector, // Ensure that a 1 char tag name still gets checked
-        isSimple = simpleSelectorRE.test(nameOnly)
-    return (element.getElementById && isSimple && maybeID) ? // Safari DocumentFragment doesn't have getElementById
-      ( (found = element.getElementById(nameOnly)) ? [found] : [] ) :
-      (element.nodeType !== 1 && element.nodeType !== 9 && element.nodeType !== 11) ? [] :
-      slice.call(
-        isSimple && !maybeID && element.getElementsByClassName ? // DocumentFragment doesn't have getElementsByClassName/TagName
-          maybeClass ? element.getElementsByClassName(nameOnly) : // If it's simple, it could be a class
-          element.getElementsByTagName(selector) : // Or a tag
-          element.querySelectorAll(selector) // Or it's not simple, and we need to query all
-      )
-  }
-
-  function filtered(nodes, selector) {
-    return selector == null ? $(nodes) : $(nodes).filter(selector)
-  }
-
-  $.contains = document.documentElement.contains ?
-    function(parent, node) {
-      return parent !== node && parent.contains(node)
-    } :
-    function(parent, node) {
-      while (node && (node = node.parentNode))
-        if (node === parent) return true
-      return false
-    }
-
-  function funcArg(context, arg, idx, payload) {
-    return isFunction(arg) ? arg.call(context, idx, payload) : arg
-  }
-
-  function setAttribute(node, name, value) {
-    value == null ? node.removeAttribute(name) : node.setAttribute(name, value)
-  }
-
-  // access className property while respecting SVGAnimatedString
-  function className(node, value){
-    var klass = node.className || '',
-        svg   = klass && klass.baseVal !== undefined
-
-    if (value === undefined) return svg ? klass.baseVal : klass
-    svg ? (klass.baseVal = value) : (node.className = value)
-  }
-
-  // "true"  => true
-  // "false" => false
-  // "null"  => null
-  // "42"    => 42
-  // "42.5"  => 42.5
-  // "08"    => "08"
-  // JSON    => parse if valid
-  // String  => self
-  function deserializeValue(value) {
-    try {
-      return value ?
-        value == "true" ||
-        ( value == "false" ? false :
-          value == "null" ? null :
-          +value + "" == value ? +value :
-          /^[\[\{]/.test(value) ? $.parseJSON(value) :
-          value )
-        : value
-    } catch(e) {
-      return value
-    }
-  }
-
-  $.type = type
-  $.isFunction = isFunction
-  $.isWindow = isWindow
-  $.isArray = isArray
-  $.isPlainObject = isPlainObject
-
-  $.isEmptyObject = function(obj) {
-    var name
-    for (name in obj) return false
-    return true
-  }
-
-  $.isNumeric = function(val) {
-    var num = Number(val), type = typeof val
-    return val != null && type != 'boolean' &&
-      (type != 'string' || val.length) &&
-      !isNaN(num) && isFinite(num) || false
-  }
-
-  $.inArray = function(elem, array, i){
-    return emptyArray.indexOf.call(array, elem, i)
-  }
-
-  $.camelCase = camelize
-  $.trim = function(str) {
-    return str == null ? "" : String.prototype.trim.call(str)
-  }
-
-  // plugin compatibility
-  $.uuid = 0
-  $.support = { }
-  $.expr = { }
-  $.noop = function() {}
-
-  $.map = function(elements, callback){
-    var value, values = [], i, key
-    if (likeArray(elements))
-      for (i = 0; i < elements.length; i++) {
-        value = callback(elements[i], i)
-        if (value != null) values.push(value)
-      }
-    else
-      for (key in elements) {
-        value = callback(elements[key], key)
-        if (value != null) values.push(value)
-      }
-    return flatten(values)
-  }
-
-  $.each = function(elements, callback){
-    var i, key
-    if (likeArray(elements)) {
-      for (i = 0; i < elements.length; i++)
-        if (callback.call(elements[i], i, elements[i]) === false) return elements
-    } else {
-      for (key in elements)
-        if (callback.call(elements[key], key, elements[key]) === false) return elements
-    }
-
-    return elements
-  }
-
-  $.grep = function(elements, callback){
-    return filter.call(elements, callback)
-  }
-
-  if (window.JSON) $.parseJSON = JSON.parse
-
-  // Populate the class2type map
-  $.each("Boolean Number String Function Array Date RegExp Object Error".split(" "), function(i, name) {
-    class2type[ "[object " + name + "]" ] = name.toLowerCase()
-  })
-
-  // Define methods that will be available on all
-  // Zepto collections
-  $.fn = {
-    constructor: zepto.Z,
-    length: 0,
-
-    // Because a collection acts like an array
-    // copy over these useful array functions.
-    forEach: emptyArray.forEach,
-    reduce: emptyArray.reduce,
-    push: emptyArray.push,
-    sort: emptyArray.sort,
-    splice: emptyArray.splice,
-    indexOf: emptyArray.indexOf,
-    concat: function(){
-      var i, value, args = []
-      for (i = 0; i < arguments.length; i++) {
-        value = arguments[i]
-        args[i] = zepto.isZ(value) ? value.toArray() : value
-      }
-      return concat.apply(zepto.isZ(this) ? this.toArray() : this, args)
-    },
-
-    // `map` and `slice` in the jQuery API work differently
-    // from their array counterparts
-    map: function(fn){
-      return $($.map(this, function(el, i){ return fn.call(el, i, el) }))
-    },
-    slice: function(){
-      return $(slice.apply(this, arguments))
-    },
-
-    ready: function(callback){
-      // don't use "interactive" on IE <= 10 (it can fired premature)
-      if (document.readyState === "complete" ||
-          (document.readyState !== "loading" && !document.documentElement.doScroll))
-        setTimeout(function(){ callback($) }, 0)
-      else {
-        var handler = function() {
-          document.removeEventListener("DOMContentLoaded", handler, false)
-          window.removeEventListener("load", handler, false)
-          callback($)
-        }
-        document.addEventListener("DOMContentLoaded", handler, false)
-        window.addEventListener("load", handler, false)
-      }
-      return this
-    },
-    get: function(idx){
-      return idx === undefined ? slice.call(this) : this[idx >= 0 ? idx : idx + this.length]
-    },
-    toArray: function(){ return this.get() },
-    size: function(){
-      return this.length
-    },
-    remove: function(){
-      return this.each(function(){
-        if (this.parentNode != null)
-          this.parentNode.removeChild(this)
-      })
-    },
-    each: function(callback){
-      emptyArray.every.call(this, function(el, idx){
-        return callback.call(el, idx, el) !== false
-      })
-      return this
-    },
-    filter: function(selector){
-      if (isFunction(selector)) return this.not(this.not(selector))
-      return $(filter.call(this, function(element){
-        return zepto.matches(element, selector)
-      }))
-    },
-    add: function(selector,context){
-      return $(uniq(this.concat($(selector,context))))
-    },
-    is: function(selector){
-      return typeof selector == 'string' ? this.length > 0 && zepto.matches(this[0], selector) : 
-          selector && this.selector == selector.selector
-    },
-    not: function(selector){
-      var nodes=[]
-      if (isFunction(selector) && selector.call !== undefined)
-        this.each(function(idx){
-          if (!selector.call(this,idx)) nodes.push(this)
-        })
-      else {
-        var excludes = typeof selector == 'string' ? this.filter(selector) :
-          (likeArray(selector) && isFunction(selector.item)) ? slice.call(selector) : $(selector)
-        this.forEach(function(el){
-          if (excludes.indexOf(el) < 0) nodes.push(el)
-        })
-      }
-      return $(nodes)
-    },
-    has: function(selector){
-      return this.filter(function(){
-        return isObject(selector) ?
-          $.contains(this, selector) :
-          $(this).find(selector).size()
-      })
-    },
-    eq: function(idx){
-      return idx === -1 ? this.slice(idx) : this.slice(idx, + idx + 1)
-    },
-    first: function(){
-      var el = this[0]
-      return el && !isObject(el) ? el : $(el)
-    },
-    last: function(){
-      var el = this[this.length - 1]
-      return el && !isObject(el) ? el : $(el)
-    },
-    find: function(selector){
-      var result, $this = this
-      if (!selector) result = $()
-      else if (typeof selector == 'object')
-        result = $(selector).filter(function(){
-          var node = this
-          return emptyArray.some.call($this, function(parent){
-            return $.contains(parent, node)
-          })
-        })
-      else if (this.length == 1) result = $(zepto.qsa(this[0], selector))
-      else result = this.map(function(){ return zepto.qsa(this, selector) })
-      return result
-    },
-    closest: function(selector, context){
-      var nodes = [], collection = typeof selector == 'object' && $(selector)
-      this.each(function(_, node){
-        while (node && !(collection ? collection.indexOf(node) >= 0 : zepto.matches(node, selector)))
-          node = node !== context && !isDocument(node) && node.parentNode
-        if (node && nodes.indexOf(node) < 0) nodes.push(node)
-      })
-      return $(nodes)
-    },
-    parents: function(selector){
-      var ancestors = [], nodes = this
-      while (nodes.length > 0)
-        nodes = $.map(nodes, function(node){
-          if ((node = node.parentNode) && !isDocument(node) && ancestors.indexOf(node) < 0) {
-            ancestors.push(node)
-            return node
-          }
-        })
-      return filtered(ancestors, selector)
-    },
-    parent: function(selector){
-      return filtered(uniq(this.pluck('parentNode')), selector)
-    },
-    children: function(selector){
-      return filtered(this.map(function(){ return children(this) }), selector)
-    },
-    contents: function() {
-      return this.map(function() { return this.contentDocument || slice.call(this.childNodes) })
-    },
-    siblings: function(selector){
-      return filtered(this.map(function(i, el){
-        return filter.call(children(el.parentNode), function(child){ return child!==el })
-      }), selector)
-    },
-    empty: function(){
-      return this.each(function(){ this.innerHTML = '' })
-    },
-    // `pluck` is borrowed from Prototype.js
-    pluck: function(property){
-      return $.map(this, function(el){ return el[property] })
-    },
-    show: function(){
-      return this.each(function(){
-        this.style.display == "none" && (this.style.display = '')
-        if (getComputedStyle(this, '').getPropertyValue("display") == "none")
-          this.style.display = defaultDisplay(this.nodeName)
-      })
-    },
-    replaceWith: function(newContent){
-      return this.before(newContent).remove()
-    },
-    wrap: function(structure){
-      var func = isFunction(structure)
-      if (this[0] && !func)
-        var dom   = $(structure).get(0),
-            clone = dom.parentNode || this.length > 1
-
-      return this.each(function(index){
-        $(this).wrapAll(
-          func ? structure.call(this, index) :
-            clone ? dom.cloneNode(true) : dom
-        )
-      })
-    },
-    wrapAll: function(structure){
-      if (this[0]) {
-        $(this[0]).before(structure = $(structure))
-        var children
-        // drill down to the inmost element
-        while ((children = structure.children()).length) structure = children.first()
-        $(structure).append(this)
-      }
-      return this
-    },
-    wrapInner: function(structure){
-      var func = isFunction(structure)
-      return this.each(function(index){
-        var self = $(this), contents = self.contents(),
-            dom  = func ? structure.call(this, index) : structure
-        contents.length ? contents.wrapAll(dom) : self.append(dom)
-      })
-    },
-    unwrap: function(){
-      this.parent().each(function(){
-        $(this).replaceWith($(this).children())
-      })
-      return this
-    },
-    clone: function(){
-      return this.map(function(){ return this.cloneNode(true) })
-    },
-    hide: function(){
-      return this.css("display", "none")
-    },
-    toggle: function(setting){
-      return this.each(function(){
-        var el = $(this)
-        ;(setting === undefined ? el.css("display") == "none" : setting) ? el.show() : el.hide()
-      })
-    },
-    prev: function(selector){ return $(this.pluck('previousElementSibling')).filter(selector || '*') },
-    next: function(selector){ return $(this.pluck('nextElementSibling')).filter(selector || '*') },
-    html: function(html){
-      return 0 in arguments ?
-        this.each(function(idx){
-          var originHtml = this.innerHTML
-          $(this).empty().append( funcArg(this, html, idx, originHtml) )
-        }) :
-        (0 in this ? this[0].innerHTML : null)
-    },
-    text: function(text){
-      return 0 in arguments ?
-        this.each(function(idx){
-          var newText = funcArg(this, text, idx, this.textContent)
-          this.textContent = newText == null ? '' : ''+newText
-        }) :
-        (0 in this ? this.pluck('textContent').join("") : null)
-    },
-    attr: function(name, value){
-      var result
-      return (typeof name == 'string' && !(1 in arguments)) ?
-        (0 in this && this[0].nodeType == 1 && (result = this[0].getAttribute(name)) != null ? result : undefined) :
-        this.each(function(idx){
-          if (this.nodeType !== 1) return
-          if (isObject(name)) for (key in name) setAttribute(this, key, name[key])
-          else setAttribute(this, name, funcArg(this, value, idx, this.getAttribute(name)))
-        })
-    },
-    removeAttr: function(name){
-      return this.each(function(){ this.nodeType === 1 && name.split(' ').forEach(function(attribute){
-        setAttribute(this, attribute)
-      }, this)})
-    },
-    prop: function(name, value){
-      name = propMap[name] || name
-      return (typeof name == 'string' && !(1 in arguments)) ?
-        (this[0] && this[0][name]) :
-        this.each(function(idx){
-          if (isObject(name)) for (key in name) this[propMap[key] || key] = name[key]
-          else this[name] = funcArg(this, value, idx, this[name])
-        })
-    },
-    removeProp: function(name){
-      name = propMap[name] || name
-      return this.each(function(){ delete this[name] })
-    },
-    data: function(name, value){
-      var attrName = 'data-' + name.replace(capitalRE, '-$1').toLowerCase()
-
-      var data = (1 in arguments) ?
-        this.attr(attrName, value) :
-        this.attr(attrName)
-
-      return data !== null ? deserializeValue(data) : undefined
-    },
-    val: function(value){
-      if (0 in arguments) {
-        if (value == null) value = ""
-        return this.each(function(idx){
-          this.value = funcArg(this, value, idx, this.value)
-        })
-      } else {
-        return this[0] && (this[0].multiple ?
-           $(this[0]).find('option').filter(function(){ return this.selected }).pluck('value') :
-           this[0].value)
-      }
-    },
-    offset: function(coordinates){
-      if (coordinates) return this.each(function(index){
-        var $this = $(this),
-            coords = funcArg(this, coordinates, index, $this.offset()),
-            parentOffset = $this.offsetParent().offset(),
-            props = {
-              top:  coords.top  - parentOffset.top,
-              left: coords.left - parentOffset.left
-            }
-
-        if ($this.css('position') == 'static') props['position'] = 'relative'
-        $this.css(props)
-      })
-      if (!this.length) return null
-      if (document.documentElement !== this[0] && !$.contains(document.documentElement, this[0]))
-        return {top: 0, left: 0}
-      var obj = this[0].getBoundingClientRect()
-      return {
-        left: obj.left + window.pageXOffset,
-        top: obj.top + window.pageYOffset,
-        width: Math.round(obj.width),
-        height: Math.round(obj.height)
-      }
-    },
-    css: function(property, value){
-      if (arguments.length < 2) {
-        var element = this[0]
-        if (typeof property == 'string') {
-          if (!element) return
-          return element.style[camelize(property)] || getComputedStyle(element, '').getPropertyValue(property)
-        } else if (isArray(property)) {
-          if (!element) return
-          var props = {}
-          var computedStyle = getComputedStyle(element, '')
-          $.each(property, function(_, prop){
-            props[prop] = (element.style[camelize(prop)] || computedStyle.getPropertyValue(prop))
-          })
-          return props
-        }
-      }
-
-      var css = ''
-      if (type(property) == 'string') {
-        if (!value && value !== 0)
-          this.each(function(){ this.style.removeProperty(dasherize(property)) })
-        else
-          css = dasherize(property) + ":" + maybeAddPx(property, value)
-      } else {
-        for (key in property)
-          if (!property[key] && property[key] !== 0)
-            this.each(function(){ this.style.removeProperty(dasherize(key)) })
-          else
-            css += dasherize(key) + ':' + maybeAddPx(key, property[key]) + ';'
-      }
-
-      return this.each(function(){ this.style.cssText += ';' + css })
-    },
-    index: function(element){
-      return element ? this.indexOf($(element)[0]) : this.parent().children().indexOf(this[0])
-    },
-    hasClass: function(name){
-      if (!name) return false
-      return emptyArray.some.call(this, function(el){
-        return this.test(className(el))
-      }, classRE(name))
-    },
-    addClass: function(name){
-      if (!name) return this
-      return this.each(function(idx){
-        if (!('className' in this)) return
-        classList = []
-        var cls = className(this), newName = funcArg(this, name, idx, cls)
-        newName.split(/\s+/g).forEach(function(klass){
-          if (!$(this).hasClass(klass)) classList.push(klass)
-        }, this)
-        classList.length && className(this, cls + (cls ? " " : "") + classList.join(" "))
-      })
-    },
-    removeClass: function(name){
-      return this.each(function(idx){
-        if (!('className' in this)) return
-        if (name === undefined) return className(this, '')
-        classList = className(this)
-        funcArg(this, name, idx, classList).split(/\s+/g).forEach(function(klass){
-          classList = classList.replace(classRE(klass), " ")
-        })
-        className(this, classList.trim())
-      })
-    },
-    toggleClass: function(name, when){
-      if (!name) return this
-      return this.each(function(idx){
-        var $this = $(this), names = funcArg(this, name, idx, className(this))
-        names.split(/\s+/g).forEach(function(klass){
-          (when === undefined ? !$this.hasClass(klass) : when) ?
-            $this.addClass(klass) : $this.removeClass(klass)
-        })
-      })
-    },
-    scrollTop: function(value){
-      if (!this.length) return
-      var hasScrollTop = 'scrollTop' in this[0]
-      if (value === undefined) return hasScrollTop ? this[0].scrollTop : this[0].pageYOffset
-      return this.each(hasScrollTop ?
-        function(){ this.scrollTop = value } :
-        function(){ this.scrollTo(this.scrollX, value) })
-    },
-    scrollLeft: function(value){
-      if (!this.length) return
-      var hasScrollLeft = 'scrollLeft' in this[0]
-      if (value === undefined) return hasScrollLeft ? this[0].scrollLeft : this[0].pageXOffset
-      return this.each(hasScrollLeft ?
-        function(){ this.scrollLeft = value } :
-        function(){ this.scrollTo(value, this.scrollY) })
-    },
-    position: function() {
-      if (!this.length) return
-
-      var elem = this[0],
-        // Get *real* offsetParent
-        offsetParent = this.offsetParent(),
-        // Get correct offsets
-        offset       = this.offset(),
-        parentOffset = rootNodeRE.test(offsetParent[0].nodeName) ? { top: 0, left: 0 } : offsetParent.offset()
-
-      // Subtract element margins
-      // note: when an element has margin: auto the offsetLeft and marginLeft
-      // are the same in Safari causing offset.left to incorrectly be 0
-      offset.top  -= parseFloat( $(elem).css('margin-top') ) || 0
-      offset.left -= parseFloat( $(elem).css('margin-left') ) || 0
-
-      // Add offsetParent borders
-      parentOffset.top  += parseFloat( $(offsetParent[0]).css('border-top-width') ) || 0
-      parentOffset.left += parseFloat( $(offsetParent[0]).css('border-left-width') ) || 0
-
-      // Subtract the two offsets
-      return {
-        top:  offset.top  - parentOffset.top,
-        left: offset.left - parentOffset.left
-      }
-    },
-    offsetParent: function() {
-      return this.map(function(){
-        var parent = this.offsetParent || document.body
-        while (parent && !rootNodeRE.test(parent.nodeName) && $(parent).css("position") == "static")
-          parent = parent.offsetParent
-        return parent
-      })
-    }
-  }
-
-  // for now
-  $.fn.detach = $.fn.remove
-
-  // Generate the `width` and `height` functions
-  ;['width', 'height'].forEach(function(dimension){
-    var dimensionProperty =
-      dimension.replace(/./, function(m){ return m[0].toUpperCase() })
-
-    $.fn[dimension] = function(value){
-      var offset, el = this[0]
-      if (value === undefined) return isWindow(el) ? el['inner' + dimensionProperty] :
-        isDocument(el) ? el.documentElement['scroll' + dimensionProperty] :
-        (offset = this.offset()) && offset[dimension]
-      else return this.each(function(idx){
-        el = $(this)
-        el.css(dimension, funcArg(this, value, idx, el[dimension]()))
-      })
-    }
-  })
-
-  function traverseNode(node, fun) {
-    fun(node)
-    for (var i = 0, len = node.childNodes.length; i < len; i++)
-      traverseNode(node.childNodes[i], fun)
-  }
-
-  // Generate the `after`, `prepend`, `before`, `append`,
-  // `insertAfter`, `insertBefore`, `appendTo`, and `prependTo` methods.
-  adjacencyOperators.forEach(function(operator, operatorIndex) {
-    var inside = operatorIndex % 2 //=> prepend, append
-
-    $.fn[operator] = function(){
-      // arguments can be nodes, arrays of nodes, Zepto objects and HTML strings
-      var argType, nodes = $.map(arguments, function(arg) {
-            var arr = []
-            argType = type(arg)
-            if (argType == "array") {
-              arg.forEach(function(el) {
-                if (el.nodeType !== undefined) return arr.push(el)
-                else if ($.zepto.isZ(el)) return arr = arr.concat(el.get())
-                arr = arr.concat(zepto.fragment(el))
-              })
-              return arr
-            }
-            return argType == "object" || arg == null ?
-              arg : zepto.fragment(arg)
-          }),
-          parent, copyByClone = this.length > 1
-      if (nodes.length < 1) return this
-
-      return this.each(function(_, target){
-        parent = inside ? target : target.parentNode
-
-        // convert all methods to a "before" operation
-        target = operatorIndex == 0 ? target.nextSibling :
-                 operatorIndex == 1 ? target.firstChild :
-                 operatorIndex == 2 ? target :
-                 null
-
-        var parentInDocument = $.contains(document.documentElement, parent)
-
-        nodes.forEach(function(node){
-          if (copyByClone) node = node.cloneNode(true)
-          else if (!parent) return $(node).remove()
-
-          parent.insertBefore(node, target)
-          if (parentInDocument) traverseNode(node, function(el){
-            if (el.nodeName != null && el.nodeName.toUpperCase() === 'SCRIPT' &&
-               (!el.type || el.type === 'text/javascript') && !el.src){
-              var target = el.ownerDocument ? el.ownerDocument.defaultView : window
-              target['eval'].call(target, el.innerHTML)
-            }
-          })
-        })
-      })
-    }
-
-    // after    => insertAfter
-    // prepend  => prependTo
-    // before   => insertBefore
-    // append   => appendTo
-    $.fn[inside ? operator+'To' : 'insert'+(operatorIndex ? 'Before' : 'After')] = function(html){
-      $(html)[operator](this)
-      return this
-    }
-  })
-
-  zepto.Z.prototype = Z.prototype = $.fn
-
-  // Export internal API functions in the `$.zepto` namespace
-  zepto.uniq = uniq
-  zepto.deserializeValue = deserializeValue
-  $.zepto = zepto
-
-  return $
-})()
-
-window.Zepto = Zepto
-window.$crt = Zepto
-window.$ === undefined && (window.$ = Zepto)
-
-;(function($){
-  var _zid = 1, undefined,
-      slice = Array.prototype.slice,
-      isFunction = $.isFunction,
-      isString = function(obj){ return typeof obj == 'string' },
-      handlers = {},
-      specialEvents={},
-      focusinSupported = 'onfocusin' in window,
-      focus = { focus: 'focusin', blur: 'focusout' },
-      hover = { mouseenter: 'mouseover', mouseleave: 'mouseout' }
-
-  specialEvents.click = specialEvents.mousedown = specialEvents.mouseup = specialEvents.mousemove = 'MouseEvents'
-
-  function zid(element) {
-    return element._zid || (element._zid = _zid++)
-  }
-  function findHandlers(element, event, fn, selector) {
-    event = parse(event)
-    if (event.ns) var matcher = matcherFor(event.ns)
-    return (handlers[zid(element)] || []).filter(function(handler) {
-      return handler
-        && (!event.e  || handler.e == event.e)
-        && (!event.ns || matcher.test(handler.ns))
-        && (!fn       || zid(handler.fn) === zid(fn))
-        && (!selector || handler.sel == selector)
-    })
-  }
-  function parse(event) {
-    var parts = ('' + event).split('.')
-    return {e: parts[0], ns: parts.slice(1).sort().join(' ')}
-  }
-  function matcherFor(ns) {
-    return new RegExp('(?:^| )' + ns.replace(' ', ' .* ?') + '(?: |$)')
-  }
-
-  function eventCapture(handler, captureSetting) {
-    return handler.del &&
-      (!focusinSupported && (handler.e in focus)) ||
-      !!captureSetting
-  }
-
-  function realEvent(type) {
-    return hover[type] || (focusinSupported && focus[type]) || type
-  }
-
-  function add(element, events, fn, data, selector, delegator, capture){
-    var id = zid(element), set = (handlers[id] || (handlers[id] = []))
-    events.split(/\s/).forEach(function(event){
-      if (event == 'ready') return $(document).ready(fn)
-      var handler   = parse(event)
-      handler.fn    = fn
-      handler.sel   = selector
-      // emulate mouseenter, mouseleave
-      if (handler.e in hover) fn = function(e){
-        var related = e.relatedTarget
-        if (!related || (related !== this && !$.contains(this, related)))
-          return handler.fn.apply(this, arguments)
-      }
-      handler.del   = delegator
-      var callback  = delegator || fn
-      handler.proxy = function(e){
-        e = compatible(e)
-        if (e.isImmediatePropagationStopped()) return
-        e.data = data
-        var result = callback.apply(element, e._args == undefined ? [e] : [e].concat(e._args))
-        if (result === false) e.preventDefault(), e.stopPropagation()
-        return result
-      }
-      handler.i = set.length
-      set.push(handler)
-      if ('addEventListener' in element)
-        element.addEventListener(realEvent(handler.e), handler.proxy, eventCapture(handler, capture))
-    })
-  }
-  function remove(element, events, fn, selector, capture){
-    var id = zid(element)
-    ;(events || '').split(/\s/).forEach(function(event){
-      findHandlers(element, event, fn, selector).forEach(function(handler){
-        delete handlers[id][handler.i]
-      if ('removeEventListener' in element)
-        element.removeEventListener(realEvent(handler.e), handler.proxy, eventCapture(handler, capture))
-      })
-    })
-  }
-
-  $.event = { add: add, remove: remove }
-
-  $.proxy = function(fn, context) {
-    var args = (2 in arguments) && slice.call(arguments, 2)
-    if (isFunction(fn)) {
-      var proxyFn = function(){ return fn.apply(context, args ? args.concat(slice.call(arguments)) : arguments) }
-      proxyFn._zid = zid(fn)
-      return proxyFn
-    } else if (isString(context)) {
-      if (args) {
-        args.unshift(fn[context], fn)
-        return $.proxy.apply(null, args)
-      } else {
-        return $.proxy(fn[context], fn)
-      }
-    } else {
-      throw new TypeError("expected function")
-    }
-  }
-
-  $.fn.bind = function(event, data, callback){
-    return this.on(event, data, callback)
-  }
-  $.fn.unbind = function(event, callback){
-    return this.off(event, callback)
-  }
-  $.fn.one = function(event, selector, data, callback){
-    return this.on(event, selector, data, callback, 1)
-  }
-
-  var returnTrue = function(){return true},
-      returnFalse = function(){return false},
-      ignoreProperties = /^([A-Z]|returnValue$|layer[XY]$|webkitMovement[XY]$)/,
-      eventMethods = {
-        preventDefault: 'isDefaultPrevented',
-        stopImmediatePropagation: 'isImmediatePropagationStopped',
-        stopPropagation: 'isPropagationStopped'
-      }
-
-  function compatible(event, source) {
-    if (source || !event.isDefaultPrevented) {
-      source || (source = event)
-
-      $.each(eventMethods, function(name, predicate) {
-        var sourceMethod = source[name]
-        event[name] = function(){
-          this[predicate] = returnTrue
-          return sourceMethod && sourceMethod.apply(source, arguments)
-        }
-        event[predicate] = returnFalse
-      })
-
-      try {
-        event.timeStamp || (event.timeStamp = Date.now())
-      } catch (ignored) { }
-
-      if (source.defaultPrevented !== undefined ? source.defaultPrevented :
-          'returnValue' in source ? source.returnValue === false :
-          source.getPreventDefault && source.getPreventDefault())
-        event.isDefaultPrevented = returnTrue
-    }
-    return event
-  }
-
-  function createProxy(event) {
-    var key, proxy = { originalEvent: event }
-    for (key in event)
-      if (!ignoreProperties.test(key) && event[key] !== undefined) proxy[key] = event[key]
-
-    return compatible(proxy, event)
-  }
-
-  $.fn.delegate = function(selector, event, callback){
-    return this.on(event, selector, callback)
-  }
-  $.fn.undelegate = function(selector, event, callback){
-    return this.off(event, selector, callback)
-  }
-
-  $.fn.live = function(event, callback){
-    $(document.body).delegate(this.selector, event, callback)
-    return this
-  }
-  $.fn.die = function(event, callback){
-    $(document.body).undelegate(this.selector, event, callback)
-    return this
-  }
-
-  $.fn.on = function(event, selector, data, callback, one){
-    var autoRemove, delegator, $this = this
-    if (event && !isString(event)) {
-      $.each(event, function(type, fn){
-        $this.on(type, selector, data, fn, one)
-      })
-      return $this
-    }
-
-    if (!isString(selector) && !isFunction(callback) && callback !== false)
-      callback = data, data = selector, selector = undefined
-    if (callback === undefined || data === false)
-      callback = data, data = undefined
-
-    if (callback === false) callback = returnFalse
-
-    return $this.each(function(_, element){
-      if (one) autoRemove = function(e){
-        remove(element, e.type, callback)
-        return callback.apply(this, arguments)
-      }
-
-      if (selector) delegator = function(e){
-        var evt, match = $(e.target).closest(selector, element).get(0)
-        if (match && match !== element) {
-          evt = $.extend(createProxy(e), {currentTarget: match, liveFired: element})
-          return (autoRemove || callback).apply(match, [evt].concat(slice.call(arguments, 1)))
-        }
-      }
-
-      add(element, event, callback, data, selector, delegator || autoRemove)
-    })
-  }
-  $.fn.off = function(event, selector, callback){
-    var $this = this
-    if (event && !isString(event)) {
-      $.each(event, function(type, fn){
-        $this.off(type, selector, fn)
-      })
-      return $this
-    }
-
-    if (!isString(selector) && !isFunction(callback) && callback !== false)
-      callback = selector, selector = undefined
-
-    if (callback === false) callback = returnFalse
-
-    return $this.each(function(){
-      remove(this, event, callback, selector)
-    })
-  }
-
-  $.fn.trigger = function(event, args){
-    event = (isString(event) || $.isPlainObject(event)) ? $.Event(event) : compatible(event)
-    event._args = args
-    return this.each(function(){
-      // handle focus(), blur() by calling them directly
-      if (event.type in focus && typeof this[event.type] == "function") this[event.type]()
-      // items in the collection might not be DOM elements
-      else if ('dispatchEvent' in this) this.dispatchEvent(event)
-      else $(this).triggerHandler(event, args)
-    })
-  }
-
-  // triggers event handlers on current element just as if an event occurred,
-  // doesn't trigger an actual event, doesn't bubble
-  $.fn.triggerHandler = function(event, args){
-    var e, result
-    this.each(function(i, element){
-      e = createProxy(isString(event) ? $.Event(event) : event)
-      e._args = args
-      e.target = element
-      $.each(findHandlers(element, event.type || event), function(i, handler){
-        result = handler.proxy(e)
-        if (e.isImmediatePropagationStopped()) return false
-      })
-    })
-    return result
-  }
-
-  // shortcut methods for `.bind(event, fn)` for each event type
-  ;('focusin focusout focus blur load resize scroll unload click dblclick '+
-  'mousedown mouseup mousemove mouseover mouseout mouseenter mouseleave '+
-  'change select keydown keypress keyup error').split(' ').forEach(function(event) {
-    $.fn[event] = function(callback) {
-      return (0 in arguments) ?
-        this.bind(event, callback) :
-        this.trigger(event)
-    }
-  })
-
-  $.Event = function(type, props) {
-    if (!isString(type)) props = type, type = props.type
-    var event = document.createEvent(specialEvents[type] || 'Events'), bubbles = true
-    if (props) for (var name in props) (name == 'bubbles') ? (bubbles = !!props[name]) : (event[name] = props[name])
-    event.initEvent(type, bubbles, true)
-    return compatible(event)
-  }
-
-})(Zepto)
-
-;(function(){
-  // getComputedStyle shouldn't freak out when called
-  // without a valid element as argument
-  try {
-    getComputedStyle(undefined)
-  } catch(e) {
-    var nativeGetComputedStyle = getComputedStyle
-    window.getComputedStyle = function(element, pseudoElement){
-      try {
-        return nativeGetComputedStyle(element, pseudoElement)
-      } catch(e) {
-        return null
-      }
-    }
-  }
-})()
-
-;(function($, undefined){
-  var prefix = '', eventPrefix,
-    vendors = { Webkit: 'webkit', Moz: '', O: 'o' },
-    testEl = document.createElement('div'),
-    supportedTransforms = /^((translate|rotate|scale)(X|Y|Z|3d)?|matrix(3d)?|perspective|skew(X|Y)?)$/i,
-    transform,
-    transitionProperty, transitionDuration, transitionTiming, transitionDelay,
-    animationName, animationDuration, animationTiming, animationDelay,
-    cssReset = {}
-
-  function dasherize(str) { return str.replace(/([A-Z])/g, '-$1').toLowerCase() }
-  function normalizeEvent(name) { return eventPrefix ? eventPrefix + name : name.toLowerCase() }
-
-  if (testEl.style.transform === undefined) $.each(vendors, function(vendor, event){
-    if (testEl.style[vendor + 'TransitionProperty'] !== undefined) {
-      prefix = '-' + vendor.toLowerCase() + '-'
-      eventPrefix = event
-      return false
-    }
-  })
-
-  transform = prefix + 'transform'
-  cssReset[transitionProperty = prefix + 'transition-property'] =
-  cssReset[transitionDuration = prefix + 'transition-duration'] =
-  cssReset[transitionDelay    = prefix + 'transition-delay'] =
-  cssReset[transitionTiming   = prefix + 'transition-timing-function'] =
-  cssReset[animationName      = prefix + 'animation-name'] =
-  cssReset[animationDuration  = prefix + 'animation-duration'] =
-  cssReset[animationDelay     = prefix + 'animation-delay'] =
-  cssReset[animationTiming    = prefix + 'animation-timing-function'] = ''
-
-  $.fx = {
-    off: (eventPrefix === undefined && testEl.style.transitionProperty === undefined),
-    speeds: { _default: 400, fast: 200, slow: 600 },
-    cssPrefix: prefix,
-    transitionEnd: normalizeEvent('TransitionEnd'),
-    animationEnd: normalizeEvent('AnimationEnd')
-  }
-
-  $.fn.animate = function(properties, duration, ease, callback, delay){
-    if ($.isFunction(duration))
-      callback = duration, ease = undefined, duration = undefined
-    if ($.isFunction(ease))
-      callback = ease, ease = undefined
-    if ($.isPlainObject(duration))
-      ease = duration.easing, callback = duration.complete, delay = duration.delay, duration = duration.duration
-    if (duration) duration = (typeof duration == 'number' ? duration :
-                    ($.fx.speeds[duration] || $.fx.speeds._default)) / 1000
-    if (delay) delay = parseFloat(delay) / 1000
-    return this.anim(properties, duration, ease, callback, delay)
-  }
-
-  $.fn.anim = function(properties, duration, ease, callback, delay){
-    var key, cssValues = {}, cssProperties, transforms = '',
-        that = this, wrappedCallback, endEvent = $.fx.transitionEnd,
-        fired = false
-
-    if (duration === undefined) duration = $.fx.speeds._default / 1000
-    if (delay === undefined) delay = 0
-    if ($.fx.off) duration = 0
-
-    if (typeof properties == 'string') {
-      // keyframe animation
-      cssValues[animationName] = properties
-      cssValues[animationDuration] = duration + 's'
-      cssValues[animationDelay] = delay + 's'
-      cssValues[animationTiming] = (ease || 'linear')
-      endEvent = $.fx.animationEnd
-    } else {
-      cssProperties = []
-      // CSS transitions
-      for (key in properties)
-        if (supportedTransforms.test(key)) transforms += key + '(' + properties[key] + ') '
-        else cssValues[key] = properties[key], cssProperties.push(dasherize(key))
-
-      if (transforms) cssValues[transform] = transforms, cssProperties.push(transform)
-      if (duration > 0 && typeof properties === 'object') {
-        cssValues[transitionProperty] = cssProperties.join(', ')
-        cssValues[transitionDuration] = duration + 's'
-        cssValues[transitionDelay] = delay + 's'
-        cssValues[transitionTiming] = (ease || 'linear')
-      }
-    }
-
-    wrappedCallback = function(event){
-      if (typeof event !== 'undefined') {
-        if (event.target !== event.currentTarget) return // makes sure the event didn't bubble from "below"
-        $(event.target).unbind(endEvent, wrappedCallback)
-      } else
-        $(this).unbind(endEvent, wrappedCallback) // triggered by setTimeout
-
-      fired = true
-      $(this).css(cssReset)
-      callback && callback.call(this)
-    }
-    if (duration > 0){
-      this.bind(endEvent, wrappedCallback)
-      // transitionEnd is not always firing on older Android phones
-      // so make sure it gets fired
-      setTimeout(function(){
-        if (fired) return
-        wrappedCallback.call(that)
-      }, ((duration + delay) * 1000) + 25)
-    }
-
-    // trigger page reflow so new elements can animate
-    this.size() && this.get(0).clientLeft
-
-    this.css(cssValues)
-
-    if (duration <= 0) setTimeout(function() {
-      that.each(function(){ wrappedCallback.call(this) })
-    }, 0)
-
-    return this
-  }
-
-  testEl = null
-})(Zepto)
-
-;(function($, undefined){
-  var document = window.document,
-    origShow = $.fn.show, origHide = $.fn.hide, origToggle = $.fn.toggle
-
-  function anim(el, speed, opacity, scale, callback) {
-    if (typeof speed == 'function' && !callback) callback = speed, speed = undefined
-    var props = { opacity: opacity }
-    if (scale) {
-      props.scale = scale
-      el.css($.fx.cssPrefix + 'transform-origin', '0 0')
-    }
-    return el.animate(props, speed, null, callback)
-  }
-
-  function hide(el, speed, scale, callback) {
-    return anim(el, speed, 0, scale, function(){
-      origHide.call($(this))
-      callback && callback.call(this)
-    })
-  }
-
-  $.fn.show = function(speed, callback) {
-    origShow.call(this)
-    if (speed === undefined) speed = 0
-    else this.css('opacity', 0)
-    return anim(this, speed, 1, '1,1', callback)
-  }
-
-  $.fn.hide = function(speed, callback) {
-    if (speed === undefined) return origHide.call(this)
-    else return hide(this, speed, '0,0', callback)
-  }
-
-  $.fn.toggle = function(speed, callback) {
-    if (speed === undefined || typeof speed == 'boolean')
-      return origToggle.call(this, speed)
-    else return this.each(function(){
-      var el = $(this)
-      el[el.css('display') == 'none' ? 'show' : 'hide'](speed, callback)
-    })
-  }
-
-  $.fn.fadeTo = function(speed, opacity, callback) {
-    return anim(this, speed, opacity, null, callback)
-  }
-
-  $.fn.fadeIn = function(speed, callback) {
-    var target = this.css('opacity')
-    if (target > 0) this.css('opacity', 0)
-    else target = 1
-    return origShow.call(this).fadeTo(speed, target, callback)
-  }
-
-  $.fn.fadeOut = function(speed, callback) {
-    return hide(this, speed, null, callback)
-  }
-
-  $.fn.fadeToggle = function(speed, callback) {
-    return this.each(function(){
-      var el = $(this)
-      el[
-        (el.css('opacity') == 0 || el.css('display') == 'none') ? 'fadeIn' : 'fadeOut'
-      ](speed, callback)
-    })
-  }
-
-})(Zepto)
-
-;(function($){
-  var data = {}, dataAttr = $.fn.data, camelize = $.camelCase,
-    exp = $.expando = 'Zepto' + (+new Date()), emptyArray = []
-
-  // Get value from node:
-  // 1. first try key as given,
-  // 2. then try camelized key,
-  // 3. fall back to reading "data-*" attribute.
-  function getData(node, name) {
-    var id = node[exp], store = id && data[id]
-    if (name === undefined) return store || setData(node)
-    else {
-      if (store) {
-        if (name in store) return store[name]
-        var camelName = camelize(name)
-        if (camelName in store) return store[camelName]
-      }
-      return dataAttr.call($(node), name)
-    }
-  }
-
-  // Store value under camelized key on node
-  function setData(node, name, value) {
-    var id = node[exp] || (node[exp] = ++$.uuid),
-      store = data[id] || (data[id] = attributeData(node))
-    if (name !== undefined) store[camelize(name)] = value
-    return store
-  }
-
-  // Read all "data-*" attributes from a node
-  function attributeData(node) {
-    var store = {}
-    $.each(node.attributes || emptyArray, function(i, attr){
-      if (attr.name.indexOf('data-') == 0)
-        store[camelize(attr.name.replace('data-', ''))] =
-          $.zepto.deserializeValue(attr.value)
-    })
-    return store
-  }
-
-  $.fn.data = function(name, value) {
-    return value === undefined ?
-      // set multiple values via object
-      $.isPlainObject(name) ?
-        this.each(function(i, node){
-          $.each(name, function(key, value){ setData(node, key, value) })
-        }) :
-        // get value from first element
-        (0 in this ? getData(this[0], name) : undefined) :
-      // set value on all elements
-      this.each(function(){ setData(this, name, value) })
-  }
-
-  $.data = function(elem, name, value) {
-    return $(elem).data(name, value)
-  }
-
-  $.hasData = function(elem) {
-    var id = elem[exp], store = id && data[id]
-    return store ? !$.isEmptyObject(store) : false
-  }
-
-  $.fn.removeData = function(names) {
-    if (typeof names == 'string') names = names.split(/\s+/)
-    return this.each(function(){
-      var id = this[exp], store = id && data[id]
-      if (store) $.each(names || store, function(key){
-        delete store[names ? camelize(this) : key]
-      })
-    })
-  }
-
-  // Generate extended `remove` and `empty` functions
-  ;['remove', 'empty'].forEach(function(methodName){
-    var origFn = $.fn[methodName]
-    $.fn[methodName] = function() {
-      var elements = this.find('*')
-      if (methodName === 'remove') elements = elements.add(this)
-      elements.removeData()
-      return origFn.call(this)
-    }
-  })
-})(Zepto)
-  return Zepto
-}))
-;
 ;(function(root, factory) {
 	if (typeof define === 'function' && define.amd) {
-		define('curator', factory);
+            define('curator', factory);
     } else if (typeof exports === 'object') {
-		module.exports = factory(require('jquery'));
+		module.exports = factory();
 	} else {
-		root.Curator = factory(root.jQuery || root.Zepto);
+		root.Curator = factory();
 	}
-}(this, function($local) {
-	if ($local == undefined) {
-		window.alert ("jQuery not found\n\nThe Curator Widget is running in dependency mode - this requires jQuery of Zepto. Try disabling DEPENDENCY MODE in the Admin on the Publish page." );
-		return false;
-	}
+}(this, function() {
+    /* Zepto v1.2.0-27-g324cd27 - zepto event ie fx fx_methods data - zeptojs.com/license */
+(function(window) {
+    // console.log('zepto');
+    var Zepto = (function () {
+        var undefined, key, $, classList, emptyArray = [], concat = emptyArray.concat, filter = emptyArray.filter,
+            slice = emptyArray.slice,
+            document = window.document,
+            elementDisplay = {}, classCache = {},
+            cssNumber = {
+                'column-count': 1,
+                'columns': 1,
+                'font-weight': 1,
+                'line-height': 1,
+                'opacity': 1,
+                'z-index': 1,
+                'zoom': 1
+            },
+            fragmentRE = /^\s*<(\w+|!)[^>]*>/,
+            singleTagRE = /^<(\w+)\s*\/?>(?:<\/\1>|)$/,
+            tagExpanderRE = /<(?!area|br|col|embed|hr|img|input|link|meta|param)(([\w:]+)[^>]*)\/>/ig,
+            rootNodeRE = /^(?:body|html)$/i,
+            capitalRE = /([A-Z])/g,
 
-	var Curator = (function (ResizeObserver) {
+            // special attributes that should be get/set via method calls
+            methodAttributes = ['val', 'css', 'html', 'text', 'data', 'width', 'height', 'offset'],
+
+            adjacencyOperators = ['after', 'prepend', 'before', 'append'],
+            table = document.createElement('table'),
+            tableRow = document.createElement('tr'),
+            containers = {
+                'tr': document.createElement('tbody'),
+                'tbody': table, 'thead': table, 'tfoot': table,
+                'td': tableRow, 'th': tableRow,
+                '*': document.createElement('div')
+            },
+            simpleSelectorRE = /^[\w-]*$/,
+            class2type = {},
+            toString = class2type.toString,
+            zepto = {},
+            camelize, uniq,
+            tempParent = document.createElement('div'),
+            propMap = {
+                'tabindex': 'tabIndex',
+                'readonly': 'readOnly',
+                'for': 'htmlFor',
+                'class': 'className',
+                'maxlength': 'maxLength',
+                'cellspacing': 'cellSpacing',
+                'cellpadding': 'cellPadding',
+                'rowspan': 'rowSpan',
+                'colspan': 'colSpan',
+                'usemap': 'useMap',
+                'frameborder': 'frameBorder',
+                'contenteditable': 'contentEditable'
+            },
+            isArray = Array.isArray ||
+                function (object) {
+                    return object instanceof Array
+                }
+
+        zepto.matches = function (element, selector) {
+            if (!selector || !element || element.nodeType !== 1) return false
+            var matchesSelector = element.matches || element.webkitMatchesSelector ||
+                element.mozMatchesSelector || element.oMatchesSelector ||
+                element.matchesSelector
+            if (matchesSelector) return matchesSelector.call(element, selector)
+            // fall back to performing a selector:
+            var match, parent = element.parentNode, temp = !parent
+            if (temp) (parent = tempParent).appendChild(element)
+            match = ~zepto.qsa(parent, selector).indexOf(element)
+            temp && tempParent.removeChild(element)
+            return match
+        }
+
+        function type(obj) {
+            return obj == null ? String(obj) :
+                class2type[toString.call(obj)] || "object"
+        }
+
+        function isFunction(value) {
+            return type(value) == "function"
+        }
+
+        function isWindow(obj) {
+            return obj != null && obj == obj.window
+        }
+
+        function isDocument(obj) {
+            return obj != null && obj.nodeType == obj.DOCUMENT_NODE
+        }
+
+        function isObject(obj) {
+            return type(obj) == "object"
+        }
+
+        function isPlainObject(obj) {
+            return isObject(obj) && !isWindow(obj) && Object.getPrototypeOf(obj) == Object.prototype
+        }
+
+        function likeArray(obj) {
+            var length = !!obj && 'length' in obj && obj.length,
+                type = $.type(obj)
+
+            return 'function' != type && !isWindow(obj) && (
+                'array' == type || length === 0 ||
+                (typeof length == 'number' && length > 0 && (length - 1) in obj)
+            )
+        }
+
+        function compact(array) {
+            return filter.call(array, function (item) {
+                return item != null
+            })
+        }
+
+        function flatten(array) {
+            return array.length > 0 ? $.fn.concat.apply([], array) : array
+        }
+
+        camelize = function (str) {
+            return str.replace(/-+(.)?/g, function (match, chr) {
+                return chr ? chr.toUpperCase() : ''
+            })
+        }
+
+        function dasherize(str) {
+            return str.replace(/::/g, '/')
+                .replace(/([A-Z]+)([A-Z][a-z])/g, '$1_$2')
+                .replace(/([a-z\d])([A-Z])/g, '$1_$2')
+                .replace(/_/g, '-')
+                .toLowerCase()
+        }
+
+        uniq = function (array) {
+            return filter.call(array, function (item, idx) {
+                return array.indexOf(item) == idx
+            })
+        }
+
+        function classRE(name) {
+            return name in classCache ?
+                classCache[name] : (classCache[name] = new RegExp('(^|\\s)' + name + '(\\s|$)'))
+        }
+
+        function maybeAddPx(name, value) {
+            return (typeof value == "number" && !cssNumber[dasherize(name)]) ? value + "px" : value
+        }
+
+        function defaultDisplay(nodeName) {
+            var element, display
+            if (!elementDisplay[nodeName]) {
+                element = document.createElement(nodeName)
+                document.body.appendChild(element)
+                display = getComputedStyle(element, '').getPropertyValue("display")
+                element.parentNode.removeChild(element)
+                display == "none" && (display = "block")
+                elementDisplay[nodeName] = display
+            }
+            return elementDisplay[nodeName]
+        }
+
+        function children(element) {
+            return 'children' in element ?
+                slice.call(element.children) :
+                $.map(element.childNodes, function (node) {
+                    if (node.nodeType == 1) return node
+                })
+        }
+
+        function Z(dom, selector) {
+            var i, len = dom ? dom.length : 0
+            for (i = 0; i < len; i++) this[i] = dom[i]
+            this.length = len
+            this.selector = selector || ''
+        }
+
+        // `$.zepto.fragment` takes a html string and an optional tag name
+        // to generate DOM nodes from the given html string.
+        // The generated DOM nodes are returned as an array.
+        // This function can be overridden in plugins for example to make
+        // it compatible with browsers that don't support the DOM fully.
+        zepto.fragment = function (html, name, properties) {
+            var dom, nodes, container
+
+            // A special case optimization for a single tag
+            if (singleTagRE.test(html)) dom = $(document.createElement(RegExp.$1))
+
+            if (!dom) {
+                if (html.replace) html = html.replace(tagExpanderRE, "<$1></$2>")
+                if (name === undefined) name = fragmentRE.test(html) && RegExp.$1
+                if (!(name in containers)) name = '*'
+
+                container = containers[name]
+                container.innerHTML = '' + html
+                dom = $.each(slice.call(container.childNodes), function () {
+                    container.removeChild(this)
+                })
+            }
+
+            if (isPlainObject(properties)) {
+                nodes = $(dom)
+                $.each(properties, function (key, value) {
+                    if (methodAttributes.indexOf(key) > -1) nodes[key](value)
+                    else nodes.attr(key, value)
+                })
+            }
+
+            return dom
+        }
+
+        // `$.zepto.Z` swaps out the prototype of the given `dom` array
+        // of nodes with `$.fn` and thus supplying all the Zepto functions
+        // to the array. This method can be overridden in plugins.
+        zepto.Z = function (dom, selector) {
+            return new Z(dom, selector)
+        }
+
+        // `$.zepto.isZ` should return `true` if the given object is a Zepto
+        // collection. This method can be overridden in plugins.
+        zepto.isZ = function (object) {
+            return object instanceof zepto.Z
+        }
+
+        // `$.zepto.init` is Zepto's counterpart to jQuery's `$.fn.init` and
+        // takes a CSS selector and an optional context (and handles various
+        // special cases).
+        // This method can be overridden in plugins.
+        zepto.init = function (selector, context) {
+            var dom
+            // If nothing given, return an empty Zepto collection
+            if (!selector) return zepto.Z()
+            // Optimize for string selectors
+            else if (typeof selector == 'string') {
+                selector = selector.trim()
+                // If it's a html fragment, create nodes from it
+                // Note: In both Chrome 21 and Firefox 15, DOM error 12
+                // is thrown if the fragment doesn't begin with <
+                if (selector[0] == '<' && fragmentRE.test(selector))
+                    dom = zepto.fragment(selector, RegExp.$1, context), selector = null
+                // If there's a context, create a collection on that context first, and select
+                // nodes from there
+                else if (context !== undefined) return $(context).find(selector)
+                // If it's a CSS selector, use it to select nodes.
+                else dom = zepto.qsa(document, selector)
+            }
+            // If a function is given, call it when the DOM is ready
+            else if (isFunction(selector)) return $(document).ready(selector)
+            // If a Zepto collection is given, just return it
+            else if (zepto.isZ(selector)) return selector
+            else {
+                // normalize array if an array of nodes is given
+                if (isArray(selector)) dom = compact(selector)
+                // Wrap DOM nodes.
+                else if (isObject(selector))
+                    dom = [selector], selector = null
+                // If it's a html fragment, create nodes from it
+                else if (fragmentRE.test(selector))
+                    dom = zepto.fragment(selector.trim(), RegExp.$1, context), selector = null
+                // If there's a context, create a collection on that context first, and select
+                // nodes from there
+                else if (context !== undefined) return $(context).find(selector)
+                // And last but no least, if it's a CSS selector, use it to select nodes.
+                else dom = zepto.qsa(document, selector)
+            }
+            // create a new Zepto collection from the nodes found
+            return zepto.Z(dom, selector)
+        }
+
+        // `$` will be the base `Zepto` object. When calling this
+        // function just call `$.zepto.init, which makes the implementation
+        // details of selecting nodes and creating Zepto collections
+        // patchable in plugins.
+        $ = function (selector, context) {
+            return zepto.init(selector, context)
+        }
+
+        function extend(target, source, deep) {
+            for (key in source)
+                if (deep && (isPlainObject(source[key]) || isArray(source[key]))) {
+                    if (isPlainObject(source[key]) && !isPlainObject(target[key]))
+                        target[key] = {}
+                    if (isArray(source[key]) && !isArray(target[key]))
+                        target[key] = []
+                    extend(target[key], source[key], deep)
+                }
+                else if (source[key] !== undefined) target[key] = source[key]
+        }
+
+        // Copy all but undefined properties from one or more
+        // objects to the `target` object.
+        $.extend = function (target) {
+            var deep, args = slice.call(arguments, 1)
+            if (typeof target == 'boolean') {
+                deep = target
+                target = args.shift()
+            }
+            args.forEach(function (arg) {
+                extend(target, arg, deep)
+            })
+            return target
+        }
+
+        // `$.zepto.qsa` is Zepto's CSS selector implementation which
+        // uses `document.querySelectorAll` and optimizes for some special cases, like `#id`.
+        // This method can be overridden in plugins.
+        zepto.qsa = function (element, selector) {
+            var found,
+                maybeID = selector[0] == '#',
+                maybeClass = !maybeID && selector[0] == '.',
+                nameOnly = maybeID || maybeClass ? selector.slice(1) : selector, // Ensure that a 1 char tag name still gets checked
+                isSimple = simpleSelectorRE.test(nameOnly)
+            return (element.getElementById && isSimple && maybeID) ? // Safari DocumentFragment doesn't have getElementById
+                ((found = element.getElementById(nameOnly)) ? [found] : []) :
+                (element.nodeType !== 1 && element.nodeType !== 9 && element.nodeType !== 11) ? [] :
+                    slice.call(
+                        isSimple && !maybeID && element.getElementsByClassName ? // DocumentFragment doesn't have getElementsByClassName/TagName
+                            maybeClass ? element.getElementsByClassName(nameOnly) : // If it's simple, it could be a class
+                                element.getElementsByTagName(selector) : // Or a tag
+                            element.querySelectorAll(selector) // Or it's not simple, and we need to query all
+                    )
+        }
+
+        function filtered(nodes, selector) {
+            return selector == null ? $(nodes) : $(nodes).filter(selector)
+        }
+
+        $.contains = document.documentElement.contains ?
+            function (parent, node) {
+                return parent !== node && parent.contains(node)
+            } :
+            function (parent, node) {
+                while (node && (node = node.parentNode))
+                    if (node === parent) return true
+                return false
+            }
+
+        function funcArg(context, arg, idx, payload) {
+            return isFunction(arg) ? arg.call(context, idx, payload) : arg
+        }
+
+        function setAttribute(node, name, value) {
+            value == null ? node.removeAttribute(name) : node.setAttribute(name, value)
+        }
+
+        // access className property while respecting SVGAnimatedString
+        function className(node, value) {
+            var klass = node.className || '',
+                svg = klass && klass.baseVal !== undefined
+
+            if (value === undefined) return svg ? klass.baseVal : klass
+            svg ? (klass.baseVal = value) : (node.className = value)
+        }
+
+        // "true"  => true
+        // "false" => false
+        // "null"  => null
+        // "42"    => 42
+        // "42.5"  => 42.5
+        // "08"    => "08"
+        // JSON    => parse if valid
+        // String  => self
+        function deserializeValue(value) {
+            try {
+                return value ?
+                    value == "true" ||
+                    (value == "false" ? false :
+                        value == "null" ? null :
+                            +value + "" == value ? +value :
+                                /^[\[\{]/.test(value) ? $.parseJSON(value) :
+                                    value)
+                    : value
+            } catch (e) {
+                return value
+            }
+        }
+
+        $.type = type
+        $.isFunction = isFunction
+        $.isWindow = isWindow
+        $.isArray = isArray
+        $.isPlainObject = isPlainObject
+
+        $.isEmptyObject = function (obj) {
+            var name
+            for (name in obj) return false
+            return true
+        }
+
+        $.isNumeric = function (val) {
+            var num = Number(val), type = typeof val
+            return val != null && type != 'boolean' &&
+                (type != 'string' || val.length) &&
+                !isNaN(num) && isFinite(num) || false
+        }
+
+        $.inArray = function (elem, array, i) {
+            return emptyArray.indexOf.call(array, elem, i)
+        }
+
+        $.camelCase = camelize
+        $.trim = function (str) {
+            return str == null ? "" : String.prototype.trim.call(str)
+        }
+
+        // plugin compatibility
+        $.uuid = 0
+        $.support = {}
+        $.expr = {}
+        $.noop = function () {
+        }
+
+        $.map = function (elements, callback) {
+            var value, values = [], i, key
+            if (likeArray(elements))
+                for (i = 0; i < elements.length; i++) {
+                    value = callback(elements[i], i)
+                    if (value != null) values.push(value)
+                }
+            else
+                for (key in elements) {
+                    value = callback(elements[key], key)
+                    if (value != null) values.push(value)
+                }
+            return flatten(values)
+        }
+
+        $.each = function (elements, callback) {
+            var i, key
+            if (likeArray(elements)) {
+                for (i = 0; i < elements.length; i++)
+                    if (callback.call(elements[i], i, elements[i]) === false) return elements
+            } else {
+                for (key in elements)
+                    if (callback.call(elements[key], key, elements[key]) === false) return elements
+            }
+
+            return elements
+        }
+
+        $.grep = function (elements, callback) {
+            return filter.call(elements, callback)
+        }
+
+        if (window.JSON) $.parseJSON = JSON.parse
+
+        // Populate the class2type map
+        $.each("Boolean Number String Function Array Date RegExp Object Error".split(" "), function (i, name) {
+            class2type["[object " + name + "]"] = name.toLowerCase()
+        })
+
+        // Define methods that will be available on all
+        // Zepto collections
+        $.fn = {
+            constructor: zepto.Z,
+            length: 0,
+
+            // Because a collection acts like an array
+            // copy over these useful array functions.
+            forEach: emptyArray.forEach,
+            reduce: emptyArray.reduce,
+            push: emptyArray.push,
+            sort: emptyArray.sort,
+            splice: emptyArray.splice,
+            indexOf: emptyArray.indexOf,
+            concat: function () {
+                var i, value, args = []
+                for (i = 0; i < arguments.length; i++) {
+                    value = arguments[i]
+                    args[i] = zepto.isZ(value) ? value.toArray() : value
+                }
+                return concat.apply(zepto.isZ(this) ? this.toArray() : this, args)
+            },
+
+            // `map` and `slice` in the jQuery API work differently
+            // from their array counterparts
+            map: function (fn) {
+                return $($.map(this, function (el, i) {
+                    return fn.call(el, i, el)
+                }))
+            },
+            slice: function () {
+                return $(slice.apply(this, arguments))
+            },
+
+            ready: function (callback) {
+                // don't use "interactive" on IE <= 10 (it can fired premature)
+                if (document.readyState === "complete" ||
+                    (document.readyState !== "loading" && !document.documentElement.doScroll))
+                    setTimeout(function () {
+                        callback($)
+                    }, 0)
+                else {
+                    var handler = function () {
+                        document.removeEventListener("DOMContentLoaded", handler, false)
+                        window.removeEventListener("load", handler, false)
+                        callback($)
+                    }
+                    document.addEventListener("DOMContentLoaded", handler, false)
+                    window.addEventListener("load", handler, false)
+                }
+                return this
+            },
+            get: function (idx) {
+                return idx === undefined ? slice.call(this) : this[idx >= 0 ? idx : idx + this.length]
+            },
+            toArray: function () {
+                return this.get()
+            },
+            size: function () {
+                return this.length
+            },
+            remove: function () {
+                return this.each(function () {
+                    if (this.parentNode != null)
+                        this.parentNode.removeChild(this)
+                })
+            },
+            each: function (callback) {
+                emptyArray.every.call(this, function (el, idx) {
+                    return callback.call(el, idx, el) !== false
+                })
+                return this
+            },
+            filter: function (selector) {
+                if (isFunction(selector)) return this.not(this.not(selector))
+                return $(filter.call(this, function (element) {
+                    return zepto.matches(element, selector)
+                }))
+            },
+            add: function (selector, context) {
+                return $(uniq(this.concat($(selector, context))))
+            },
+            is: function (selector) {
+                return typeof selector == 'string' ? this.length > 0 && zepto.matches(this[0], selector) :
+                    selector && this.selector == selector.selector
+            },
+            not: function (selector) {
+                var nodes = []
+                if (isFunction(selector) && selector.call !== undefined)
+                    this.each(function (idx) {
+                        if (!selector.call(this, idx)) nodes.push(this)
+                    })
+                else {
+                    var excludes = typeof selector == 'string' ? this.filter(selector) :
+                        (likeArray(selector) && isFunction(selector.item)) ? slice.call(selector) : $(selector)
+                    this.forEach(function (el) {
+                        if (excludes.indexOf(el) < 0) nodes.push(el)
+                    })
+                }
+                return $(nodes)
+            },
+            has: function (selector) {
+                return this.filter(function () {
+                    return isObject(selector) ?
+                        $.contains(this, selector) :
+                        $(this).find(selector).size()
+                })
+            },
+            eq: function (idx) {
+                return idx === -1 ? this.slice(idx) : this.slice(idx, +idx + 1)
+            },
+            first: function () {
+                var el = this[0]
+                return el && !isObject(el) ? el : $(el)
+            },
+            last: function () {
+                var el = this[this.length - 1]
+                return el && !isObject(el) ? el : $(el)
+            },
+            find: function (selector) {
+                var result, $this = this
+                if (!selector) result = $()
+                else if (typeof selector == 'object')
+                    result = $(selector).filter(function () {
+                        var node = this
+                        return emptyArray.some.call($this, function (parent) {
+                            return $.contains(parent, node)
+                        })
+                    })
+                else if (this.length == 1) result = $(zepto.qsa(this[0], selector))
+                else result = this.map(function () {
+                        return zepto.qsa(this, selector)
+                    })
+                return result
+            },
+            closest: function (selector, context) {
+                var nodes = [], collection = typeof selector == 'object' && $(selector)
+                this.each(function (_, node) {
+                    while (node && !(collection ? collection.indexOf(node) >= 0 : zepto.matches(node, selector)))
+                        node = node !== context && !isDocument(node) && node.parentNode
+                    if (node && nodes.indexOf(node) < 0) nodes.push(node)
+                })
+                return $(nodes)
+            },
+            parents: function (selector) {
+                var ancestors = [], nodes = this
+                while (nodes.length > 0)
+                    nodes = $.map(nodes, function (node) {
+                        if ((node = node.parentNode) && !isDocument(node) && ancestors.indexOf(node) < 0) {
+                            ancestors.push(node)
+                            return node
+                        }
+                    })
+                return filtered(ancestors, selector)
+            },
+            parent: function (selector) {
+                return filtered(uniq(this.pluck('parentNode')), selector)
+            },
+            children: function (selector) {
+                return filtered(this.map(function () {
+                    return children(this)
+                }), selector)
+            },
+            contents: function () {
+                return this.map(function () {
+                    return this.contentDocument || slice.call(this.childNodes)
+                })
+            },
+            siblings: function (selector) {
+                return filtered(this.map(function (i, el) {
+                    return filter.call(children(el.parentNode), function (child) {
+                        return child !== el
+                    })
+                }), selector)
+            },
+            empty: function () {
+                return this.each(function () {
+                    this.innerHTML = ''
+                })
+            },
+            // `pluck` is borrowed from Prototype.js
+            pluck: function (property) {
+                return $.map(this, function (el) {
+                    return el[property]
+                })
+            },
+            show: function () {
+                return this.each(function () {
+                    this.style.display == "none" && (this.style.display = '')
+                    if (getComputedStyle(this, '').getPropertyValue("display") == "none")
+                        this.style.display = defaultDisplay(this.nodeName)
+                })
+            },
+            replaceWith: function (newContent) {
+                return this.before(newContent).remove()
+            },
+            wrap: function (structure) {
+                var func = isFunction(structure)
+                if (this[0] && !func)
+                    var dom = $(structure).get(0),
+                        clone = dom.parentNode || this.length > 1
+
+                return this.each(function (index) {
+                    $(this).wrapAll(
+                        func ? structure.call(this, index) :
+                            clone ? dom.cloneNode(true) : dom
+                    )
+                })
+            },
+            wrapAll: function (structure) {
+                if (this[0]) {
+                    $(this[0]).before(structure = $(structure))
+                    var children
+                    // drill down to the inmost element
+                    while ((children = structure.children()).length) structure = children.first()
+                    $(structure).append(this)
+                }
+                return this
+            },
+            wrapInner: function (structure) {
+                var func = isFunction(structure)
+                return this.each(function (index) {
+                    var self = $(this), contents = self.contents(),
+                        dom = func ? structure.call(this, index) : structure
+                    contents.length ? contents.wrapAll(dom) : self.append(dom)
+                })
+            },
+            unwrap: function () {
+                this.parent().each(function () {
+                    $(this).replaceWith($(this).children())
+                })
+                return this
+            },
+            clone: function () {
+                return this.map(function () {
+                    return this.cloneNode(true)
+                })
+            },
+            hide: function () {
+                return this.css("display", "none")
+            },
+            toggle: function (setting) {
+                return this.each(function () {
+                    var el = $(this)
+                    ;(setting === undefined ? el.css("display") == "none" : setting) ? el.show() : el.hide()
+                })
+            },
+            prev: function (selector) {
+                return $(this.pluck('previousElementSibling')).filter(selector || '*')
+            },
+            next: function (selector) {
+                return $(this.pluck('nextElementSibling')).filter(selector || '*')
+            },
+            html: function (html) {
+                return 0 in arguments ?
+                    this.each(function (idx) {
+                        var originHtml = this.innerHTML
+                        $(this).empty().append(funcArg(this, html, idx, originHtml))
+                    }) :
+                    (0 in this ? this[0].innerHTML : null)
+            },
+            text: function (text) {
+                return 0 in arguments ?
+                    this.each(function (idx) {
+                        var newText = funcArg(this, text, idx, this.textContent)
+                        this.textContent = newText == null ? '' : '' + newText
+                    }) :
+                    (0 in this ? this.pluck('textContent').join("") : null)
+            },
+            attr: function (name, value) {
+                var result
+                return (typeof name == 'string' && !(1 in arguments)) ?
+                    (0 in this && this[0].nodeType == 1 && (result = this[0].getAttribute(name)) != null ? result : undefined) :
+                    this.each(function (idx) {
+                        if (this.nodeType !== 1) return
+                        if (isObject(name)) for (key in name) setAttribute(this, key, name[key])
+                        else setAttribute(this, name, funcArg(this, value, idx, this.getAttribute(name)))
+                    })
+            },
+            removeAttr: function (name) {
+                return this.each(function () {
+                    this.nodeType === 1 && name.split(' ').forEach(function (attribute) {
+                        setAttribute(this, attribute)
+                    }, this)
+                })
+            },
+            prop: function (name, value) {
+                name = propMap[name] || name
+                return (typeof name == 'string' && !(1 in arguments)) ?
+                    (this[0] && this[0][name]) :
+                    this.each(function (idx) {
+                        if (isObject(name)) for (key in name) this[propMap[key] || key] = name[key]
+                        else this[name] = funcArg(this, value, idx, this[name])
+                    })
+            },
+            removeProp: function (name) {
+                name = propMap[name] || name
+                return this.each(function () {
+                    delete this[name]
+                })
+            },
+            data: function (name, value) {
+                var attrName = 'data-' + name.replace(capitalRE, '-$1').toLowerCase()
+
+                var data = (1 in arguments) ?
+                    this.attr(attrName, value) :
+                    this.attr(attrName)
+
+                return data !== null ? deserializeValue(data) : undefined
+            },
+            val: function (value) {
+                if (0 in arguments) {
+                    if (value == null) value = ""
+                    return this.each(function (idx) {
+                        this.value = funcArg(this, value, idx, this.value)
+                    })
+                } else {
+                    return this[0] && (this[0].multiple ?
+                        $(this[0]).find('option').filter(function () {
+                            return this.selected
+                        }).pluck('value') :
+                        this[0].value)
+                }
+            },
+            offset: function (coordinates) {
+                if (coordinates) return this.each(function (index) {
+                    var $this = $(this),
+                        coords = funcArg(this, coordinates, index, $this.offset()),
+                        parentOffset = $this.offsetParent().offset(),
+                        props = {
+                            top: coords.top - parentOffset.top,
+                            left: coords.left - parentOffset.left
+                        }
+
+                    if ($this.css('position') == 'static') props['position'] = 'relative'
+                    $this.css(props)
+                })
+                if (!this.length) return null
+                if (document.documentElement !== this[0] && !$.contains(document.documentElement, this[0]))
+                    return {top: 0, left: 0}
+                var obj = this[0].getBoundingClientRect()
+                return {
+                    left: obj.left + window.pageXOffset,
+                    top: obj.top + window.pageYOffset,
+                    width: Math.round(obj.width),
+                    height: Math.round(obj.height)
+                }
+            },
+            css: function (property, value) {
+                if (arguments.length < 2) {
+                    var element = this[0]
+                    if (typeof property == 'string') {
+                        if (!element) return
+                        return element.style[camelize(property)] || getComputedStyle(element, '').getPropertyValue(property)
+                    } else if (isArray(property)) {
+                        if (!element) return
+                        var props = {}
+                        var computedStyle = getComputedStyle(element, '')
+                        $.each(property, function (_, prop) {
+                            props[prop] = (element.style[camelize(prop)] || computedStyle.getPropertyValue(prop))
+                        })
+                        return props
+                    }
+                }
+
+                var css = ''
+                if (type(property) == 'string') {
+                    if (!value && value !== 0)
+                        this.each(function () {
+                            this.style.removeProperty(dasherize(property))
+                        })
+                    else
+                        css = dasherize(property) + ":" + maybeAddPx(property, value)
+                } else {
+                    for (key in property)
+                        if (!property[key] && property[key] !== 0)
+                            this.each(function () {
+                                this.style.removeProperty(dasherize(key))
+                            })
+                        else
+                            css += dasherize(key) + ':' + maybeAddPx(key, property[key]) + ';'
+                }
+
+                return this.each(function () {
+                    this.style.cssText += ';' + css
+                })
+            },
+            index: function (element) {
+                return element ? this.indexOf($(element)[0]) : this.parent().children().indexOf(this[0])
+            },
+            hasClass: function (name) {
+                if (!name) return false
+                return emptyArray.some.call(this, function (el) {
+                    return this.test(className(el))
+                }, classRE(name))
+            },
+            addClass: function (name) {
+                if (!name) return this
+                return this.each(function (idx) {
+                    if (!('className' in this)) return
+                    classList = []
+                    var cls = className(this), newName = funcArg(this, name, idx, cls)
+                    newName.split(/\s+/g).forEach(function (klass) {
+                        if (!$(this).hasClass(klass)) classList.push(klass)
+                    }, this)
+                    classList.length && className(this, cls + (cls ? " " : "") + classList.join(" "))
+                })
+            },
+            removeClass: function (name) {
+                return this.each(function (idx) {
+                    if (!('className' in this)) return
+                    if (name === undefined) return className(this, '')
+                    classList = className(this)
+                    funcArg(this, name, idx, classList).split(/\s+/g).forEach(function (klass) {
+                        classList = classList.replace(classRE(klass), " ")
+                    })
+                    className(this, classList.trim())
+                })
+            },
+            toggleClass: function (name, when) {
+                if (!name) return this
+                return this.each(function (idx) {
+                    var $this = $(this), names = funcArg(this, name, idx, className(this))
+                    names.split(/\s+/g).forEach(function (klass) {
+                        (when === undefined ? !$this.hasClass(klass) : when) ?
+                            $this.addClass(klass) : $this.removeClass(klass)
+                    })
+                })
+            },
+            scrollTop: function (value) {
+                if (!this.length) return
+                var hasScrollTop = 'scrollTop' in this[0]
+                if (value === undefined) return hasScrollTop ? this[0].scrollTop : this[0].pageYOffset
+                return this.each(hasScrollTop ?
+                    function () {
+                        this.scrollTop = value
+                    } :
+                    function () {
+                        this.scrollTo(this.scrollX, value)
+                    })
+            },
+            scrollLeft: function (value) {
+                if (!this.length) return
+                var hasScrollLeft = 'scrollLeft' in this[0]
+                if (value === undefined) return hasScrollLeft ? this[0].scrollLeft : this[0].pageXOffset
+                return this.each(hasScrollLeft ?
+                    function () {
+                        this.scrollLeft = value
+                    } :
+                    function () {
+                        this.scrollTo(value, this.scrollY)
+                    })
+            },
+            position: function () {
+                if (!this.length) return
+
+                var elem = this[0],
+                    // Get *real* offsetParent
+                    offsetParent = this.offsetParent(),
+                    // Get correct offsets
+                    offset = this.offset(),
+                    parentOffset = rootNodeRE.test(offsetParent[0].nodeName) ? {top: 0, left: 0} : offsetParent.offset()
+
+                // Subtract element margins
+                // note: when an element has margin: auto the offsetLeft and marginLeft
+                // are the same in Safari causing offset.left to incorrectly be 0
+                offset.top -= parseFloat($(elem).css('margin-top')) || 0
+                offset.left -= parseFloat($(elem).css('margin-left')) || 0
+
+                // Add offsetParent borders
+                parentOffset.top += parseFloat($(offsetParent[0]).css('border-top-width')) || 0
+                parentOffset.left += parseFloat($(offsetParent[0]).css('border-left-width')) || 0
+
+                // Subtract the two offsets
+                return {
+                    top: offset.top - parentOffset.top,
+                    left: offset.left - parentOffset.left
+                }
+            },
+            offsetParent: function () {
+                return this.map(function () {
+                    var parent = this.offsetParent || document.body
+                    while (parent && !rootNodeRE.test(parent.nodeName) && $(parent).css("position") == "static")
+                        parent = parent.offsetParent
+                    return parent
+                })
+            }
+        }
+
+        // for now
+        $.fn.detach = $.fn.remove
+
+        // Generate the `width` and `height` functions
+        ;['width', 'height'].forEach(function (dimension) {
+            var dimensionProperty =
+                dimension.replace(/./, function (m) {
+                    return m[0].toUpperCase()
+                })
+
+            $.fn[dimension] = function (value) {
+                var offset, el = this[0]
+                if (value === undefined) return isWindow(el) ? el['inner' + dimensionProperty] :
+                    isDocument(el) ? el.documentElement['scroll' + dimensionProperty] :
+                        (offset = this.offset()) && offset[dimension]
+                else return this.each(function (idx) {
+                    el = $(this)
+                    el.css(dimension, funcArg(this, value, idx, el[dimension]()))
+                })
+            }
+        })
+
+        function traverseNode(node, fun) {
+            fun(node)
+            for (var i = 0, len = node.childNodes.length; i < len; i++)
+                traverseNode(node.childNodes[i], fun)
+        }
+
+        // Generate the `after`, `prepend`, `before`, `append`,
+        // `insertAfter`, `insertBefore`, `appendTo`, and `prependTo` methods.
+        adjacencyOperators.forEach(function (operator, operatorIndex) {
+            var inside = operatorIndex % 2 //=> prepend, append
+
+            $.fn[operator] = function () {
+                // arguments can be nodes, arrays of nodes, Zepto objects and HTML strings
+                var argType, nodes = $.map(arguments, function (arg) {
+                        var arr = []
+                        argType = type(arg)
+                        if (argType == "array") {
+                            arg.forEach(function (el) {
+                                if (el.nodeType !== undefined) return arr.push(el)
+                                else if ($.zepto.isZ(el)) return arr = arr.concat(el.get())
+                                arr = arr.concat(zepto.fragment(el))
+                            })
+                            return arr
+                        }
+                        return argType == "object" || arg == null ?
+                            arg : zepto.fragment(arg)
+                    }),
+                    parent, copyByClone = this.length > 1
+                if (nodes.length < 1) return this
+
+                return this.each(function (_, target) {
+                    parent = inside ? target : target.parentNode
+
+                    // convert all methods to a "before" operation
+                    target = operatorIndex == 0 ? target.nextSibling :
+                        operatorIndex == 1 ? target.firstChild :
+                            operatorIndex == 2 ? target :
+                                null
+
+                    var parentInDocument = $.contains(document.documentElement, parent)
+
+                    nodes.forEach(function (node) {
+                        if (copyByClone) node = node.cloneNode(true)
+                        else if (!parent) return $(node).remove()
+
+                        parent.insertBefore(node, target)
+                        if (parentInDocument) traverseNode(node, function (el) {
+                            if (el.nodeName != null && el.nodeName.toUpperCase() === 'SCRIPT' &&
+                                (!el.type || el.type === 'text/javascript') && !el.src) {
+                                var target = el.ownerDocument ? el.ownerDocument.defaultView : window
+                                target['eval'].call(target, el.innerHTML)
+                            }
+                        })
+                    })
+                })
+            }
+
+            // after    => insertAfter
+            // prepend  => prependTo
+            // before   => insertBefore
+            // append   => appendTo
+            $.fn[inside ? operator + 'To' : 'insert' + (operatorIndex ? 'Before' : 'After')] = function (html) {
+                $(html)[operator](this)
+                return this
+            }
+        })
+
+        zepto.Z.prototype = Z.prototype = $.fn
+
+        // Export internal API functions in the `$.zepto` namespace
+        zepto.uniq = uniq
+        zepto.deserializeValue = deserializeValue
+        $.zepto = zepto
+
+        return $
+    })()
+
+    // window.Zepto = Zepto
+    window.$crtZepto = Zepto;
+    // window.$ === undefined && (window.$ = Zepto)
+
+    ;(function ($) {
+        var _zid = 1, undefined,
+            slice = Array.prototype.slice,
+            isFunction = $.isFunction,
+            isString = function (obj) {
+                return typeof obj == 'string'
+            },
+            handlers = {},
+            specialEvents = {},
+            focusinSupported = 'onfocusin' in window,
+            focus = {focus: 'focusin', blur: 'focusout'},
+            hover = {mouseenter: 'mouseover', mouseleave: 'mouseout'}
+
+        specialEvents.click = specialEvents.mousedown = specialEvents.mouseup = specialEvents.mousemove = 'MouseEvents'
+
+        function zid(element) {
+            return element._zid || (element._zid = _zid++)
+        }
+
+        function findHandlers(element, event, fn, selector) {
+            event = parse(event)
+            if (event.ns) var matcher = matcherFor(event.ns)
+            return (handlers[zid(element)] || []).filter(function (handler) {
+                return handler
+                    && (!event.e || handler.e == event.e)
+                    && (!event.ns || matcher.test(handler.ns))
+                    && (!fn || zid(handler.fn) === zid(fn))
+                    && (!selector || handler.sel == selector)
+            })
+        }
+
+        function parse(event) {
+            var parts = ('' + event).split('.')
+            return {e: parts[0], ns: parts.slice(1).sort().join(' ')}
+        }
+
+        function matcherFor(ns) {
+            return new RegExp('(?:^| )' + ns.replace(' ', ' .* ?') + '(?: |$)')
+        }
+
+        function eventCapture(handler, captureSetting) {
+            return handler.del &&
+                (!focusinSupported && (handler.e in focus)) ||
+                !!captureSetting
+        }
+
+        function realEvent(type) {
+            return hover[type] || (focusinSupported && focus[type]) || type
+        }
+
+        function add(element, events, fn, data, selector, delegator, capture) {
+            var id = zid(element), set = (handlers[id] || (handlers[id] = []))
+            events.split(/\s/).forEach(function (event) {
+                if (event == 'ready') return $(document).ready(fn)
+                var handler = parse(event)
+                handler.fn = fn
+                handler.sel = selector
+                // emulate mouseenter, mouseleave
+                if (handler.e in hover) fn = function (e) {
+                    var related = e.relatedTarget
+                    if (!related || (related !== this && !$.contains(this, related)))
+                        return handler.fn.apply(this, arguments)
+                }
+                handler.del = delegator
+                var callback = delegator || fn
+                handler.proxy = function (e) {
+                    e = compatible(e)
+                    if (e.isImmediatePropagationStopped()) return
+                    e.data = data
+                    var result = callback.apply(element, e._args == undefined ? [e] : [e].concat(e._args))
+                    if (result === false) e.preventDefault(), e.stopPropagation()
+                    return result
+                }
+                handler.i = set.length
+                set.push(handler)
+                if ('addEventListener' in element)
+                    element.addEventListener(realEvent(handler.e), handler.proxy, eventCapture(handler, capture))
+            })
+        }
+
+        function remove(element, events, fn, selector, capture) {
+            var id = zid(element)
+            ;(events || '').split(/\s/).forEach(function (event) {
+                findHandlers(element, event, fn, selector).forEach(function (handler) {
+                    delete handlers[id][handler.i]
+                    if ('removeEventListener' in element)
+                        element.removeEventListener(realEvent(handler.e), handler.proxy, eventCapture(handler, capture))
+                })
+            })
+        }
+
+        $.event = {add: add, remove: remove}
+
+        $.proxy = function (fn, context) {
+            var args = (2 in arguments) && slice.call(arguments, 2)
+            if (isFunction(fn)) {
+                var proxyFn = function () {
+                    return fn.apply(context, args ? args.concat(slice.call(arguments)) : arguments)
+                }
+                proxyFn._zid = zid(fn)
+                return proxyFn
+            } else if (isString(context)) {
+                if (args) {
+                    args.unshift(fn[context], fn)
+                    return $.proxy.apply(null, args)
+                } else {
+                    return $.proxy(fn[context], fn)
+                }
+            } else {
+                throw new TypeError("expected function")
+            }
+        }
+
+        $.fn.bind = function (event, data, callback) {
+            return this.on(event, data, callback)
+        }
+        $.fn.unbind = function (event, callback) {
+            return this.off(event, callback)
+        }
+        $.fn.one = function (event, selector, data, callback) {
+            return this.on(event, selector, data, callback, 1)
+        }
+
+        var returnTrue = function () {
+                return true
+            },
+            returnFalse = function () {
+                return false
+            },
+            ignoreProperties = /^([A-Z]|returnValue$|layer[XY]$|webkitMovement[XY]$)/,
+            eventMethods = {
+                preventDefault: 'isDefaultPrevented',
+                stopImmediatePropagation: 'isImmediatePropagationStopped',
+                stopPropagation: 'isPropagationStopped'
+            }
+
+        function compatible(event, source) {
+            if (source || !event.isDefaultPrevented) {
+                source || (source = event)
+
+                $.each(eventMethods, function (name, predicate) {
+                    var sourceMethod = source[name]
+                    event[name] = function () {
+                        this[predicate] = returnTrue
+                        return sourceMethod && sourceMethod.apply(source, arguments)
+                    }
+                    event[predicate] = returnFalse
+                })
+
+                try {
+                    event.timeStamp || (event.timeStamp = Date.now())
+                } catch (ignored) {
+                }
+
+                if (source.defaultPrevented !== undefined ? source.defaultPrevented :
+                    'returnValue' in source ? source.returnValue === false :
+                        source.getPreventDefault && source.getPreventDefault())
+                    event.isDefaultPrevented = returnTrue
+            }
+            return event
+        }
+
+        function createProxy(event) {
+            var key, proxy = {originalEvent: event}
+            for (key in event)
+                if (!ignoreProperties.test(key) && event[key] !== undefined) proxy[key] = event[key]
+
+            return compatible(proxy, event)
+        }
+
+        $.fn.delegate = function (selector, event, callback) {
+            return this.on(event, selector, callback)
+        }
+        $.fn.undelegate = function (selector, event, callback) {
+            return this.off(event, selector, callback)
+        }
+
+        $.fn.live = function (event, callback) {
+            $(document.body).delegate(this.selector, event, callback)
+            return this
+        }
+        $.fn.die = function (event, callback) {
+            $(document.body).undelegate(this.selector, event, callback)
+            return this
+        }
+
+        $.fn.on = function (event, selector, data, callback, one) {
+            var autoRemove, delegator, $this = this
+            if (event && !isString(event)) {
+                $.each(event, function (type, fn) {
+                    $this.on(type, selector, data, fn, one)
+                })
+                return $this
+            }
+
+            if (!isString(selector) && !isFunction(callback) && callback !== false)
+                callback = data, data = selector, selector = undefined
+            if (callback === undefined || data === false)
+                callback = data, data = undefined
+
+            if (callback === false) callback = returnFalse
+
+            return $this.each(function (_, element) {
+                if (one) autoRemove = function (e) {
+                    remove(element, e.type, callback)
+                    return callback.apply(this, arguments)
+                }
+
+                if (selector) delegator = function (e) {
+                    var evt, match = $(e.target).closest(selector, element).get(0)
+                    if (match && match !== element) {
+                        evt = $.extend(createProxy(e), {currentTarget: match, liveFired: element})
+                        return (autoRemove || callback).apply(match, [evt].concat(slice.call(arguments, 1)))
+                    }
+                }
+
+                add(element, event, callback, data, selector, delegator || autoRemove)
+            })
+        }
+        $.fn.off = function (event, selector, callback) {
+            var $this = this
+            if (event && !isString(event)) {
+                $.each(event, function (type, fn) {
+                    $this.off(type, selector, fn)
+                })
+                return $this
+            }
+
+            if (!isString(selector) && !isFunction(callback) && callback !== false)
+                callback = selector, selector = undefined
+
+            if (callback === false) callback = returnFalse
+
+            return $this.each(function () {
+                remove(this, event, callback, selector)
+            })
+        }
+
+        $.fn.trigger = function (event, args) {
+            event = (isString(event) || $.isPlainObject(event)) ? $.Event(event) : compatible(event)
+            event._args = args
+            return this.each(function () {
+                // handle focus(), blur() by calling them directly
+                if (event.type in focus && typeof this[event.type] == "function") this[event.type]()
+                // items in the collection might not be DOM elements
+                else if ('dispatchEvent' in this) this.dispatchEvent(event)
+                else $(this).triggerHandler(event, args)
+            })
+        }
+
+        // triggers event handlers on current element just as if an event occurred,
+        // doesn't trigger an actual event, doesn't bubble
+        $.fn.triggerHandler = function (event, args) {
+            var e, result
+            this.each(function (i, element) {
+                e = createProxy(isString(event) ? $.Event(event) : event)
+                e._args = args
+                e.target = element
+                $.each(findHandlers(element, event.type || event), function (i, handler) {
+                    result = handler.proxy(e)
+                    if (e.isImmediatePropagationStopped()) return false
+                })
+            })
+            return result
+        }
+
+        // shortcut methods for `.bind(event, fn)` for each event type
+        ;('focusin focusout focus blur load resize scroll unload click dblclick ' +
+            'mousedown mouseup mousemove mouseover mouseout mouseenter mouseleave ' +
+            'change select keydown keypress keyup error').split(' ').forEach(function (event) {
+            $.fn[event] = function (callback) {
+                return (0 in arguments) ?
+                    this.bind(event, callback) :
+                    this.trigger(event)
+            }
+        })
+
+        $.Event = function (type, props) {
+            if (!isString(type)) props = type, type = props.type
+            var event = document.createEvent(specialEvents[type] || 'Events'), bubbles = true
+            if (props) for (var name in props) (name == 'bubbles') ? (bubbles = !!props[name]) : (event[name] = props[name])
+            event.initEvent(type, bubbles, true)
+            return compatible(event)
+        }
+
+    })(Zepto)
+
+    ;(function () {
+        // getComputedStyle shouldn't freak out when called
+        // without a valid element as argument
+        try {
+            getComputedStyle(undefined)
+        } catch (e) {
+            var nativeGetComputedStyle = getComputedStyle
+            window.getComputedStyle = function (element, pseudoElement) {
+                try {
+                    return nativeGetComputedStyle(element, pseudoElement)
+                } catch (e) {
+                    return null
+                }
+            }
+        }
+    })()
+
+    ;(function ($, undefined) {
+        var prefix = '', eventPrefix,
+            vendors = {Webkit: 'webkit', Moz: '', O: 'o'},
+            testEl = document.createElement('div'),
+            supportedTransforms = /^((translate|rotate|scale)(X|Y|Z|3d)?|matrix(3d)?|perspective|skew(X|Y)?)$/i,
+            transform,
+            transitionProperty, transitionDuration, transitionTiming, transitionDelay,
+            animationName, animationDuration, animationTiming, animationDelay,
+            cssReset = {}
+
+        function dasherize(str) {
+            return str.replace(/([A-Z])/g, '-$1').toLowerCase()
+        }
+
+        function normalizeEvent(name) {
+            return eventPrefix ? eventPrefix + name : name.toLowerCase()
+        }
+
+        if (testEl.style.transform === undefined) $.each(vendors, function (vendor, event) {
+            if (testEl.style[vendor + 'TransitionProperty'] !== undefined) {
+                prefix = '-' + vendor.toLowerCase() + '-'
+                eventPrefix = event
+                return false
+            }
+        })
+
+        transform = prefix + 'transform'
+        cssReset[transitionProperty = prefix + 'transition-property'] =
+            cssReset[transitionDuration = prefix + 'transition-duration'] =
+                cssReset[transitionDelay = prefix + 'transition-delay'] =
+                    cssReset[transitionTiming = prefix + 'transition-timing-function'] =
+                        cssReset[animationName = prefix + 'animation-name'] =
+                            cssReset[animationDuration = prefix + 'animation-duration'] =
+                                cssReset[animationDelay = prefix + 'animation-delay'] =
+                                    cssReset[animationTiming = prefix + 'animation-timing-function'] = ''
+
+        $.fx = {
+            off: (eventPrefix === undefined && testEl.style.transitionProperty === undefined),
+            speeds: {_default: 400, fast: 200, slow: 600},
+            cssPrefix: prefix,
+            transitionEnd: normalizeEvent('TransitionEnd'),
+            animationEnd: normalizeEvent('AnimationEnd')
+        }
+
+        $.fn.animate = function (properties, duration, ease, callback, delay) {
+            if ($.isFunction(duration))
+                callback = duration, ease = undefined, duration = undefined
+            if ($.isFunction(ease))
+                callback = ease, ease = undefined
+            if ($.isPlainObject(duration))
+                ease = duration.easing, callback = duration.complete, delay = duration.delay, duration = duration.duration
+            if (duration) duration = (typeof duration == 'number' ? duration :
+                ($.fx.speeds[duration] || $.fx.speeds._default)) / 1000
+            if (delay) delay = parseFloat(delay) / 1000
+            return this.anim(properties, duration, ease, callback, delay)
+        }
+
+        $.fn.anim = function (properties, duration, ease, callback, delay) {
+            var key, cssValues = {}, cssProperties, transforms = '',
+                that = this, wrappedCallback, endEvent = $.fx.transitionEnd,
+                fired = false
+
+            if (duration === undefined) duration = $.fx.speeds._default / 1000
+            if (delay === undefined) delay = 0
+            if ($.fx.off) duration = 0
+
+            if (typeof properties == 'string') {
+                // keyframe animation
+                cssValues[animationName] = properties
+                cssValues[animationDuration] = duration + 's'
+                cssValues[animationDelay] = delay + 's'
+                cssValues[animationTiming] = (ease || 'linear')
+                endEvent = $.fx.animationEnd
+            } else {
+                cssProperties = []
+                // CSS transitions
+                for (key in properties)
+                    if (supportedTransforms.test(key)) transforms += key + '(' + properties[key] + ') '
+                    else cssValues[key] = properties[key], cssProperties.push(dasherize(key))
+
+                if (transforms) cssValues[transform] = transforms, cssProperties.push(transform)
+                if (duration > 0 && typeof properties === 'object') {
+                    cssValues[transitionProperty] = cssProperties.join(', ')
+                    cssValues[transitionDuration] = duration + 's'
+                    cssValues[transitionDelay] = delay + 's'
+                    cssValues[transitionTiming] = (ease || 'linear')
+                }
+            }
+
+            wrappedCallback = function (event) {
+                if (typeof event !== 'undefined') {
+                    if (event.target !== event.currentTarget) return // makes sure the event didn't bubble from "below"
+                    $(event.target).unbind(endEvent, wrappedCallback)
+                } else
+                    $(this).unbind(endEvent, wrappedCallback) // triggered by setTimeout
+
+                fired = true
+                $(this).css(cssReset)
+                callback && callback.call(this)
+            }
+            if (duration > 0) {
+                this.bind(endEvent, wrappedCallback)
+                // transitionEnd is not always firing on older Android phones
+                // so make sure it gets fired
+                setTimeout(function () {
+                    if (fired) return
+                    wrappedCallback.call(that)
+                }, ((duration + delay) * 1000) + 25)
+            }
+
+            // trigger page reflow so new elements can animate
+            this.size() && this.get(0).clientLeft
+
+            this.css(cssValues)
+
+            if (duration <= 0) setTimeout(function () {
+                that.each(function () {
+                    wrappedCallback.call(this)
+                })
+            }, 0)
+
+            return this
+        }
+
+        testEl = null
+    })(Zepto)
+
+    ;(function ($, undefined) {
+        var document = window.document,
+            origShow = $.fn.show, origHide = $.fn.hide, origToggle = $.fn.toggle
+
+        function anim(el, speed, opacity, scale, callback) {
+            if (typeof speed == 'function' && !callback) callback = speed, speed = undefined
+            var props = {opacity: opacity}
+            if (scale) {
+                props.scale = scale
+                el.css($.fx.cssPrefix + 'transform-origin', '0 0')
+            }
+            return el.animate(props, speed, null, callback)
+        }
+
+        function hide(el, speed, scale, callback) {
+            return anim(el, speed, 0, scale, function () {
+                origHide.call($(this))
+                callback && callback.call(this)
+            })
+        }
+
+        $.fn.show = function (speed, callback) {
+            origShow.call(this)
+            if (speed === undefined) speed = 0
+            else this.css('opacity', 0)
+            return anim(this, speed, 1, '1,1', callback)
+        }
+
+        $.fn.hide = function (speed, callback) {
+            if (speed === undefined) return origHide.call(this)
+            else return hide(this, speed, '0,0', callback)
+        }
+
+        $.fn.toggle = function (speed, callback) {
+            if (speed === undefined || typeof speed == 'boolean')
+                return origToggle.call(this, speed)
+            else return this.each(function () {
+                var el = $(this)
+                el[el.css('display') == 'none' ? 'show' : 'hide'](speed, callback)
+            })
+        }
+
+        $.fn.fadeTo = function (speed, opacity, callback) {
+            return anim(this, speed, opacity, null, callback)
+        }
+
+        $.fn.fadeIn = function (speed, callback) {
+            var target = this.css('opacity')
+            if (target > 0) this.css('opacity', 0)
+            else target = 1
+            return origShow.call(this).fadeTo(speed, target, callback)
+        }
+
+        $.fn.fadeOut = function (speed, callback) {
+            return hide(this, speed, null, callback)
+        }
+
+        $.fn.fadeToggle = function (speed, callback) {
+            return this.each(function () {
+                var el = $(this)
+                el[
+                    (el.css('opacity') == 0 || el.css('display') == 'none') ? 'fadeIn' : 'fadeOut'
+                    ](speed, callback)
+            })
+        }
+
+    })(Zepto)
+
+    ;(function ($) {
+        var data = {}, dataAttr = $.fn.data, camelize = $.camelCase,
+            exp = $.expando = 'Zepto' + (+new Date()), emptyArray = []
+
+        // Get value from node:
+        // 1. first try key as given,
+        // 2. then try camelized key,
+        // 3. fall back to reading "data-*" attribute.
+        function getData(node, name) {
+            var id = node[exp], store = id && data[id]
+            if (name === undefined) return store || setData(node)
+            else {
+                if (store) {
+                    if (name in store) return store[name]
+                    var camelName = camelize(name)
+                    if (camelName in store) return store[camelName]
+                }
+                return dataAttr.call($(node), name)
+            }
+        }
+
+        // Store value under camelized key on node
+        function setData(node, name, value) {
+            var id = node[exp] || (node[exp] = ++$.uuid),
+                store = data[id] || (data[id] = attributeData(node))
+            if (name !== undefined) store[camelize(name)] = value
+            return store
+        }
+
+        // Read all "data-*" attributes from a node
+        function attributeData(node) {
+            var store = {}
+            $.each(node.attributes || emptyArray, function (i, attr) {
+                if (attr.name.indexOf('data-') == 0)
+                    store[camelize(attr.name.replace('data-', ''))] =
+                        $.zepto.deserializeValue(attr.value)
+            })
+            return store
+        }
+
+        $.fn.data = function (name, value) {
+            return value === undefined ?
+                // set multiple values via object
+                $.isPlainObject(name) ?
+                    this.each(function (i, node) {
+                        $.each(name, function (key, value) {
+                            setData(node, key, value)
+                        })
+                    }) :
+                    // get value from first element
+                    (0 in this ? getData(this[0], name) : undefined) :
+                // set value on all elements
+                this.each(function () {
+                    setData(this, name, value)
+                })
+        }
+
+        $.data = function (elem, name, value) {
+            return $(elem).data(name, value)
+        }
+
+        $.hasData = function (elem) {
+            var id = elem[exp], store = id && data[id]
+            return store ? !$.isEmptyObject(store) : false
+        }
+
+        $.fn.removeData = function (names) {
+            if (typeof names == 'string') names = names.split(/\s+/)
+            return this.each(function () {
+                var id = this[exp], store = id && data[id]
+                if (store) $.each(names || store, function (key) {
+                    delete store[names ? camelize(this) : key]
+                })
+            })
+        }
+
+        // Generate extended `remove` and `empty` functions
+        ;['remove', 'empty'].forEach(function (methodName) {
+            var origFn = $.fn[methodName]
+            $.fn[methodName] = function () {
+                var elements = this.find('*')
+                if (methodName === 'remove') elements = elements.add(this)
+                elements.removeData()
+                return origFn.call(this)
+            }
+        })
+    })(Zepto);
+
+})(this);
+;
+var Curator = (function () {
 'use strict';
-
-ResizeObserver = ResizeObserver && ResizeObserver.hasOwnProperty('default') ? ResizeObserver['default'] : ResizeObserver;
 
 /**
  * Props to https://github.com/yanatan16/nanoajax
@@ -2142,7 +2244,6 @@ var Logger = {
     },
 
     error: function (s) {
-
         if (window.console) {
             window.console.error(s);
         }
@@ -2164,6 +2265,7 @@ var Events = {
     POST_CLICK_READ_MORE    :'post:clickReadMore',
     POST_IMAGE_LOADED       :'post:imageLoaded',
     POST_IMAGE_FAILED       :'post:imageFailed',
+    POST_LAYOUT_CHANGED     :'post:layoutChanged',
 
     CAROUSEL_CHANGED        :'carousel:changed',
     GRID_HEIGHT_CHANGED     :'grid:heightChanged',
@@ -2183,79 +2285,23 @@ var v1PopupTemplate = " \n<div class=\"crt-popup\"> \n    <a href=\"#\" class=\"
 
 var filterTemplate = "<div class=\"crt-filter\"> \n<div class=\"crt-filter-networks\">\n<ul class=\"crt-networks\"> \n    <li class=\"crt-filter-label\"><label><%=this._t('filter')%>:</label></li>\n    <li class=\"active\"><a href=\"#\" data-network=\"0\"> <%=this._t('all')%></a></li>\n</ul>\n</div> \n<div class=\"crt-filter-sources\">\n<ul class=\"crt-sources\"> \n    <li class=\"crt-filter-label\"><label><%=this._t('filter')%>:</label></li>\n    <li class=\"active\"><a href=\"#\" data-source=\"0\"> <%=this._t('all')%></a></li>\n</ul>\n</div> \n</div>";
 
-var gridPostTemplate = ' \
-<div class="crt-post-c">\
-    <div class="crt-post post<%=id%> <%=this.contentImageClasses()%> <%=this.contentTextClasses()%>"> \
-        <div class="crt-post-content"> \
-            <div class="crt-hitarea" > \
-                <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer" alt="Image posted by <%=user_screen_name%> to <%=this.networkName()%>" /> \
-                <div class="crt-post-content-image" style="background-image:url(\'<%=image%>\');"></div> \
-                <div class="crt-post-content-text-c"> \
-                    <div class="crt-post-content-text"> \
-                        <%=this.parseText(text)%> \
-                    </div> \
-                </div> \
-                <a href="javascript:;" class="crt-play"><i class="crt-play-icon"></i></a> \
-                <span class="crt-social-icon crt-social-icon-normal"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \
-                <div class="crt-post-hover">\
-                    <div class="crt-post-header"> \
-                        <img src="<%=user_image%>" alt="Profile image for <%=user_full_name%>"  /> \
-                        <div class="crt-post-name"><span><%=user_full_name%></span><br/><a href="<%=this.userUrl()%>" target="_blank">@<%=user_screen_name%></a></div> \
-                    </div> \
-                    <div class="crt-post-hover-text"> \
-                        <%=this.parseText(text)%> \
-                    </div> \
-                    <span class="crt-social-icon crt-social-icon-hover"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \
-                </div> \
-            </div> \
-        </div> \
-    </div>\
-</div>';
+var gridPostTemplate = " \n<div class=\"crt-post-c\">\n    <div class=\"crt-post post<%=id%> <%=this.contentImageClasses()%> <%=this.contentTextClasses()%>\"> \n        <div class=\"crt-post-content\"> \n            <div class=\"crt-hitarea\" > \n                <img src=\"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7\" class=\"spacer\" alt=\"Image posted by <%=user_screen_name%> to <%=this.networkName()%>\" /> \n                <div class=\"crt-post-content-image\" style=\"background-image:url('<%=image%>');\"></div> \n                <div class=\"crt-post-content-text-c\"> \n                    <div class=\"crt-post-content-text\"> \n                        <%=this.parseText(text)%> \n                    </div> \n                </div> \n                <a href=\"javascript:;\" class=\"crt-play\"><i class=\"crt-play-icon\"></i></a> \n                <span class=\"crt-social-icon crt-social-icon-normal\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                <div class=\"crt-post-hover\">\n                    <div class=\"crt-post-header\"> \n                        <img src=\"<%=user_image%>\" alt=\"Profile image for <%=user_full_name%>\"  /> \n                        <div class=\"crt-post-name\"><span><%=user_full_name%></span><br/><a href=\"<%=this.userUrl()%>\" target=\"_blank\">@<%=user_screen_name%></a></div> \n                    </div> \n                    <div class=\"crt-post-hover-text\"> \n                        <%=this.parseText(text)%> \n                    </div> \n                    <span class=\"crt-social-icon crt-social-icon-hover\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                </div> \n            </div> \n        </div> \n    </div>\n</div>";
 
-var v1PostTemplate = ' \
-<div class="crt-post-v1 crt-post-c">\
-    <div class="crt-post-bg"></div> \
-    <div class="crt-post post<%=id%> crt-post-<%=this.networkIcon()%>"> \
-        <div class="crt-post-header"> \
-            <span class="crt-social-icon"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> \
-            <img src="<%=user_image%>" alt="Profile image for <%=user_full_name%>"  /> \
-            <div class="crt-post-name">\
-            <div class="crt-post-fullname"><%=user_full_name%></div>\
-            <div class="crt-post-username"><a href="<%=this.userUrl()%>" target="_blank">@<%=user_screen_name%></a></div>\
-            </div> \
-        </div> \
-        <div class="crt-post-content"> \
-            <div class="crt-image crt-hitarea crt-post-content-image <%=this.contentImageClasses()%>" > \
-                <div class="crt-image-c"><img src="<%=image%>" class="crt-post-image" alt="Image posted by <%=user_screen_name%> to <%=this.networkName()%>" /></div> \
-                <span class="crt-play"><i class="crt-play-icon"></i></span> \
-            </div> \
-            <div class="text crt-post-content-text <%=this.contentTextClasses()%>"> \
-                <div class="crt-post-text-body"><%=this.parseText(text)%></div> \
-            </div> \
-        </div> \
-        <div class="crt-post-footer">\
-            <div class="crt-date"><%=this.prettyDate(source_created_at)%></div> \
-            <div class="crt-post-share"><span class="crt-share-hint"></span><a href="#" class="crt-share-facebook"><i class="crt-icon-facebook"></i></a>  <a href="#" class="crt-share-twitter"><i class="crt-icon-twitter"></i></a></div>\
-        </div> \
-        <div class="crt-post-read-more"><a href="#" class="crt-post-read-more-button">Read more</a> </div> \
-    </div>\
-</div>';
+var template = " \n<div class=\"crt-post-v1 crt-post-c\">\n    <div class=\"crt-post-bg\"></div> \n    <div class=\"crt-post post<%=id%> crt-post-<%=this.networkIcon()%>\"> \n        <div class=\"crt-post-header\"> \n            <span class=\"crt-social-icon\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n            <img src=\"<%=user_image%>\" alt=\"Profile image for <%=user_full_name%>\"  /> \n            <div class=\"crt-post-name\">\n            <div class=\"crt-post-fullname\"><%=user_full_name%></div>\n            <div class=\"crt-post-username\"><a href=\"<%=this.userUrl()%>\" target=\"_blank\">@<%=user_screen_name%></a></div>\n            </div> \n        </div> \n        <div class=\"crt-post-content\"> \n            <div class=\"crt-image crt-hitarea crt-post-content-image <%=this.contentImageClasses()%>\" > \n                <div class=\"crt-image-c\"><img src=\"<%=image%>\" class=\"crt-post-image\" alt=\"Image posted by <%=user_screen_name%> to <%=this.networkName()%>\" /></div> \n                <span class=\"crt-play\"><i class=\"crt-play-icon\"></i></span> \n            </div> \n            <div class=\"text crt-post-content-text <%=this.contentTextClasses()%>\"> \n                <div class=\"crt-post-text-body\"><%=this.parseText(text)%></div> \n            </div> \n        </div> \n        <div class=\"crt-post-footer\">\n            <div class=\"crt-date\"><%=this.prettyDate(source_created_at)%></div> \n            <div class=\"crt-post-share\"><span class=\"crt-share-hint\"></span><a href=\"#\" class=\"crt-share-facebook\"><i class=\"crt-icon-facebook\"></i></a>  <a href=\"#\" class=\"crt-share-twitter\"><i class=\"crt-icon-twitter\"></i></a></div>\n        </div> \n        <div class=\"crt-post-read-more\"><a href=\"#\" class=\"crt-post-read-more-button\">Read more</a> </div> \n    </div>\n</div>";
 
-var v2PostTemplate = " \n<div class=\"crt-post-v2 crt-post crt-post-<%=this.networkIcon()%> <%=this.contentTextClasses()%>  <%=this.contentImageClasses()%>\" data-post=\"<%=id%>\"> \n    <div class=\"crt-post-border\">\n        <div class=\"crt-post-c\">\n            <div class=\"crt-post-content\">\n                <div class=\"crt-image crt-hitarea crt-post-content-image\" > \n                    <div class=\"crt-image-c\"><img src=\"<%=image%>\" class=\"crt-post-image\" alt=\"Image posted by <%=user_screen_name%> to <%=this.networkName()%>\" /></div>   \n                    <span class=\"crt-play\"><i class=\"crt-play-icon\"></i></span> \n                    <div class=\"crt-image-carousel\"><i class=\"crt-icon-image-carousel\"></i></div> \n                </div> \n                <div class=\"crt-post-header\"> \n                    <span class=\"crt-social-icon\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                    <div class=\"crt-post-fullname\"><a href=\"<%=this.userUrl()%>\" target=\"_blank\"><%=user_full_name%></a></div>\n                </div> \n                <div class=\"text crt-post-content-text\"> \n                    <%=this.parseText(text)%> \n                </div> \n            </div> \n            <div class=\"crt-post-footer\"> \n                <img class=\"crt-post-userimage\" src=\"<%=user_image%>\" alt=\"Profile image for <%=user_screen_name%>\" /> \n                <span class=\"crt-post-username\"><a href=\"<%=this.userUrl()%>\" target=\"_blank\">@<%=user_screen_name%></a></span>\n                <span class=\"crt-date\"><%=this.prettyDate(source_created_at)%></span> \n                <div class=\"crt-post-share\"><span class=\"crt-share-hint\"></span><a href=\"#\" class=\"crt-share-facebook\"><i class=\"crt-icon-facebook\"></i></a>  <a href=\"#\" class=\"crt-share-twitter\"><i class=\"crt-icon-twitter\"></i></a></div>\n            </div> \n            <div class=\"crt-post-max-height-read-more\"><a href=\"#\" class=\"crt-post-read-more-button\"><%=this._t(\"read-more\")%></a></div> \n        </div> \n    </div> \n</div>";
+var template$1 = " \n<div class=\"crt-post-v2 crt-post crt-post-<%=this.networkIcon()%> <%=this.contentTextClasses()%>  <%=this.contentImageClasses()%>\" data-post=\"<%=id%>\"> \n    <div class=\"crt-post-border\">\n        <div class=\"crt-post-c\">\n            <div class=\"crt-post-content\">\n                <div class=\"crt-image crt-hitarea crt-post-content-image\" > \n                    <div class=\"crt-image-c\"><img src=\"<%=image%>\" class=\"crt-post-image\" alt=\"Image posted by <%=user_screen_name%> to <%=this.networkName()%>\" /></div>   \n                    <span class=\"crt-play\"><i class=\"crt-play-icon\"></i></span> \n                    <div class=\"crt-image-carousel\"><i class=\"crt-icon-image-carousel\"></i></div> \n                </div> \n                <div class=\"crt-post-header\"> \n                    <span class=\"crt-social-icon\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                    <div class=\"crt-post-fullname\"><a href=\"<%=this.userUrl()%>\" target=\"_blank\"><%=user_full_name%></a></div>\n                </div> \n                <div class=\"text crt-post-content-text\"> \n                    <%=this.parseText(text)%> \n                </div> \n            </div> \n            <% if (options.showComments || options.showLikes) { %>\n                <div class=\"crt-comments-likes\">\n                    <% if (options.showLikes) { %><span><%=likes%></span> <%=this._t(\"likes\", likes)%><% } %><% if (options.showComments && options.showLikes) { %> <span class=\"crt-sep\"></span> <% } %><% if (options.showComments) { %><span><%=comments%></span> <%=this._t(\"comments\", comments)%><% } %>\n                </div>\n            <% } %>\n            <div class=\"crt-post-footer\"> \n                <img class=\"crt-post-userimage\" src=\"<%=user_image%>\" alt=\"Profile image for <%=user_screen_name%>\" /> \n                <span class=\"crt-post-username\"><a href=\"<%=this.userUrl()%>\" target=\"_blank\">@<%=user_screen_name%></a></span>\n                <span class=\"crt-date\"><%=this.prettyDate(source_created_at)%></span> \n                <div class=\"crt-post-share\"><span class=\"crt-share-hint\"></span><a href=\"#\" class=\"crt-share-facebook\"><i class=\"crt-icon-facebook\"></i></a>  <a href=\"#\" class=\"crt-share-twitter\"><i class=\"crt-icon-twitter\"></i></a></div>\n            </div> \n            <div class=\"crt-post-max-height-read-more\"><a href=\"#\" class=\"crt-post-read-more-button\"><%=this._t(\"read-more\")%></a></div> \n        </div> \n    </div> \n</div>";
 
-var template = "\n<div class=\"crt-grid-post crt-grid-post-v2 crt-post-<%=id%> <%=this.contentImageClasses()%> <%=this.contentTextClasses()%>\" data-post=\"<%=id%>\">     <div class=\"crt-post-c\"> \n        <div class=\"crt-post-content\"> \n            <div class=\"crt-hitarea\" > \n                <img src=\"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7\" class=\"crt-spacer\" alt=\"Image posted by <%=user_screen_name%> to <%=this.networkName()%>\" /> \n                <div class=\"crt-grid-post-image\">\n                    <div class=\"crt-post-content-image\" style=\"background-image:url('<%=image%>');\"></div> \n                    <span class=\"crt-play\"><i class=\"crt-play-icon\"></i></span> \n                    <span class=\"crt-social-icon crt-social-icon-normal\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                    <div class=\"crt-image-carousel\"><i class=\"crt-icon-image-carousel\"></i></div> \n                </div>\n                <div class=\"crt-grid-post-text\">\n                    <div class=\"crt-grid-post-text-wrap\"> \n                        <div><%=this.parseText(text)%></div> \n                    </div> \n                    <span class=\"crt-social-icon crt-social-icon-normal\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                </div>\n                <div class=\"crt-post-hover\">\n                    <div>\n                        <div class=\"crt-post-header\"> \n                            <span class=\"crt-social-icon\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                            <div class=\"crt-post-fullname\"><a href=\"<%=this.userUrl()%>\" target=\"_blank\"><%=user_full_name%></a></div>\n                        </div> \n                        <div class=\"crt-post-content-text\"> \n                            <%=this.parseText(text)%> \n                        </div> \n                        <div class=\"crt-post-read-more\"><a href=\"#\" class=\"crt-post-read-more-button\"><%=this._t(\"read-more\")%></a></div> \n                        <div class=\"crt-post-footer\">\n                            <img class=\"crt-post-userimage\" src=\"<%=user_image%>\" alt=\"Profile image for <%=user_full_name%>\" /> \n                            <span class=\"crt-post-username\"><a href=\"<%=this.userUrl()%>\" target=\"_blank\">@<%=user_screen_name%></a></span>\n                            <span class=\"crt-date\"><%=this.prettyDate(source_created_at)%></span> \n                            <div class=\"crt-post-share\"><span class=\"crt-share-hint\"></span><a href=\"#\" class=\"crt-share-facebook\"><i class=\"crt-icon-facebook\"></i></a>  <a href=\"#\" class=\"crt-share-twitter\"><i class=\"crt-icon-twitter\"></i></a></div>\n                        </div> \n                    </div>\n                </div> \n            </div> \n        </div> \n    </div>\n</div>";
+var template$2 = "\n<div class=\"crt-grid-post crt-grid-post-v2 crt-post-<%=id%> <%=this.contentImageClasses()%> <%=this.contentTextClasses()%>\" data-post=\"<%=id%>\">     <div class=\"crt-post-c\"> \n        <div class=\"crt-post-content\"> \n            <div class=\"crt-hitarea\" > \n                <img src=\"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7\" class=\"crt-spacer\" alt=\"Image posted by <%=user_screen_name%> to <%=this.networkName()%>\" /> \n                <div class=\"crt-grid-post-image\">\n                    <div class=\"crt-post-content-image\" style=\"background-image:url('<%=image%>');\"></div> \n                    <span class=\"crt-play\"><i class=\"crt-play-icon\"></i></span> \n                    <span class=\"crt-social-icon crt-social-icon-normal\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                    <div class=\"crt-image-carousel\"><i class=\"crt-icon-image-carousel\"></i></div> \n                </div>\n                <div class=\"crt-grid-post-text\">\n                    <div class=\"crt-grid-post-text-wrap\"> \n                        <div><%=this.parseText(text)%></div> \n                    </div> \n                    <span class=\"crt-social-icon crt-social-icon-normal\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                </div>\n                <div class=\"crt-post-hover\">\n                    <div>\n                        <div class=\"crt-post-header\"> \n                            <span class=\"crt-social-icon\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                            <div class=\"crt-post-fullname\"><a href=\"<%=this.userUrl()%>\" target=\"_blank\"><%=user_full_name%></a></div>\n                        </div> \n                        <div class=\"crt-post-content-text\"> \n                            <%=this.parseText(text)%> \n                        </div> \n                        <div class=\"crt-post-read-more\"><a href=\"#\" class=\"crt-post-read-more-button\"><%=this._t(\"read-more\")%></a></div> \n                        <div class=\"crt-post-footer\">\n                            <img class=\"crt-post-userimage\" src=\"<%=user_image%>\" alt=\"Profile image for <%=user_full_name%>\" /> \n                            <span class=\"crt-post-username\"><a href=\"<%=this.userUrl()%>\" target=\"_blank\">@<%=user_screen_name%></a></span>\n                            <span class=\"crt-date\"><%=this.prettyDate(source_created_at)%></span> \n                            <div class=\"crt-post-share\"><span class=\"crt-share-hint\"></span><a href=\"#\" class=\"crt-share-facebook\"><i class=\"crt-icon-facebook\"></i></a>  <a href=\"#\" class=\"crt-share-twitter\"><i class=\"crt-icon-twitter\"></i></a></div>\n                        </div> \n                    </div>\n                </div> \n            </div> \n        </div> \n    </div>\n</div>";
 
-var v2GridFeedTemple = ' \
-<div class="crt-feed-window">\
-    <div class="crt-feed"></div>\
-</div>\
-<div class="crt-feed-more"><a href="#">Load more</a></div>';
+var v2GridFeedTemple = "\n<div class=\"crt-feed-window\">\n    <div class=\"crt-feed\"></div>\n</div>\n<div class=\"crt-load-more\"><a href=\"#\"><%=this._t(\"load-more\")%></a></div>";
 
-var template$1 = "\n<div class=\"crt-grid-post crt-grid-post-minimal crt-grid-post-v2 crt-post-<%=id%> <%=this.contentImageClasses()%> <%=this.contentTextClasses()%>\" data-post=\"<%=id%>\">     <div class=\"crt-post-c\"> \n        <div class=\"crt-post-content\"> \n            <div class=\"crt-hitarea\" > \n                <img src=\"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7\" class=\"crt-spacer\" alt=\"Image posted by <%=user_screen_name%> to <%=this.networkName()%>\" /> \n                <div class=\"crt-grid-post-image\">\n                    <div class=\"crt-post-content-image\" style=\"background-image:url('<%=image%>');\"></div> \n                    <a href=\"javascript:;\" class=\"crt-play\"><i class=\"crt-play-icon\"></i></a> \n                    <span class=\"crt-social-icon crt-social-icon-normal\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                    <div class=\"crt-image-carousel\"><i class=\"crt-icon-image-carousel\"></i></div> \n                </div>\n                <div class=\"crt-grid-post-text\">\n                    <div class=\"crt-grid-post-text-wrap\"> \n                        <div><%=this.parseText(text)%></div> \n                    </div> \n                    <span class=\"crt-social-icon crt-social-icon-normal\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                </div>\n                <div class=\"crt-post-hover\">\n                    <div>\n                        <div class=\"crt-post-header\">\n                            <span class=\"crt-social-icon\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span>  \n                        </div> \n                        <div class=\"crt-post-minimal-stats\"> \n                            <span class=\"crt-likes\"><i class=\"crt-icon-heart\"></i>&nbsp;<%=likes%></span>\n                            <span class=\"crt-comments\"><i class=\"crt-icon-comment\"></i>&nbsp;<%=comments%></span>\n                        </div> \n                    </div> \n                </div> \n            </div> \n        </div> \n    </div>\n</div>";
+var template$3 = "\n<div class=\"crt-grid-post crt-grid-post-minimal crt-grid-post-v2 crt-post-<%=id%> <%=this.contentImageClasses()%> <%=this.contentTextClasses()%>\" data-post=\"<%=id%>\">     <div class=\"crt-post-c\"> \n        <div class=\"crt-post-content\"> \n            <div class=\"crt-hitarea\" > \n                <img src=\"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7\" class=\"crt-spacer\" alt=\"Image posted by <%=user_screen_name%> to <%=this.networkName()%>\" /> \n                <div class=\"crt-grid-post-image\">\n                    <div class=\"crt-post-content-image\" style=\"background-image:url('<%=image%>');\"></div> \n                    <a href=\"javascript:;\" class=\"crt-play\"><i class=\"crt-play-icon\"></i></a> \n                    <span class=\"crt-social-icon crt-social-icon-normal\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                    <div class=\"crt-image-carousel\"><i class=\"crt-icon-image-carousel\"></i></div> \n                </div>\n                <div class=\"crt-grid-post-text\">\n                    <div class=\"crt-grid-post-text-wrap\"> \n                        <div><%=this.parseText(text)%></div> \n                    </div> \n                    <span class=\"crt-social-icon crt-social-icon-normal\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                </div>\n                <div class=\"crt-post-hover\">\n                    <div>\n                        <div class=\"crt-post-header\">\n                            <span class=\"crt-social-icon\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span>  \n                        </div> \n                        <div class=\"crt-post-minimal-stats\"> \n                            <span class=\"crt-likes\"><i class=\"crt-icon-heart\"></i>&nbsp;<%=likes%></span>\n                            <span class=\"crt-comments\"><i class=\"crt-icon-comment\"></i>&nbsp;<%=comments%></span>\n                        </div> \n                    </div> \n                </div> \n            </div> \n        </div> \n    </div>\n</div>";
 
-var template$2 = "\n<div class=\"crt-feed-window\">\n    <div class=\"crt-feed\"></div>\n</div>\n<div class=\"crt-feed-more\"><a href=\"#\">Load more</a></div>";
+var template$4 = "\n<div class=\"crt-feed-window\">\n    <div class=\"crt-feed\"></div>\n</div>\n<div class=\"crt-load-more\"><a href=\"#\"><%=this._t(\"load-more\")%></a></div>";
 
-var template$3 = "\n<div class=\"crt-list-post crt-post-<%=id%> <%=this.contentImageClasses()%> <%=this.contentTextClasses()%>\" data-post=\"<%=id%>\">     <div class=\"crt-post-c\"> \n        <div class=\"crt-post-content\"> \n            <div class=\"crt-list-post-image\">\n                <div>\n                <img class=\"crt-post-content-image\" src=\"<%=image%>\" alt=\"Image posted by <%=user_screen_name%> to <%=this.networkName()%>\" /> \n                <a href=\"javascript:;\" class=\"crt-play\"><i class=\"crt-play-icon\"></i></a> \n                <span class=\"crt-social-icon crt-social-icon-normal\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                <span class=\"crt-image-carousel\"><i class=\"crt-icon-image-carousel\"></i></span>\n                </div> \n            </div>\n            <div class=\"crt-list-post-text\">\n                <div class=\"crt-post-header\"> \n                    <div class=\"crt-post-fullname\"><%=id%> - <a href=\"<%=this.userUrl()%>\" target=\"_blank\"><%=user_full_name%></a></div>\n                </div> \n                <div class=\"crt-list-post-text-wrap\"> \n                    <div><%=this.parseText(text)%></div> \n                </div> \n                <span class=\"crt-social-icon crt-social-icon-normal\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span>\n                 <div class=\"crt-post-footer\">\n                    <img class=\"crt-post-userimage\" src=\"<%=user_image%>\" alt=\"Profile image for <%=user_full_name%>\"/> \n                    <span class=\"crt-post-username\"><a href=\"<%=this.userUrl()%>\" target=\"_blank\">@<%=user_screen_name%></a></span>\n                    <span class=\"crt-date\"><%=this.prettyDate(source_created_at)%></span> \n                    <div class=\"crt-post-share\"><span class=\"crt-share-hint\"></span><a href=\"#\" class=\"crt-share-facebook\"><i class=\"crt-icon-facebook\"></i></a>  <a href=\"#\" class=\"crt-share-twitter\"><i class=\"crt-icon-twitter\"></i></a></div>\n                </div>  \n            </div>\n        </div> \n    </div>\n</div>";
+var template$5 = "\n<div class=\"crt-list-post crt-post-<%=id%> <%=this.contentImageClasses()%> <%=this.contentTextClasses()%>\" data-post=\"<%=id%>\">     <div class=\"crt-post-c\"> \n        <div class=\"crt-post-content\"> \n            <div class=\"crt-list-post-image\">\n                <div>\n                <img class=\"crt-post-content-image\" src=\"<%=image%>\" alt=\"Image posted by <%=user_screen_name%> to <%=this.networkName()%>\" /> \n                <a href=\"javascript:;\" class=\"crt-play\"><i class=\"crt-play-icon\"></i></a> \n                <span class=\"crt-social-icon crt-social-icon-normal\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                <span class=\"crt-image-carousel\"><i class=\"crt-icon-image-carousel\"></i></span>\n                </div> \n            </div>\n            <div class=\"crt-list-post-text\">\n                <div class=\"crt-post-header\"> \n                    <div class=\"crt-post-fullname\"><%=id%> - <a href=\"<%=this.userUrl()%>\" target=\"_blank\"><%=user_full_name%></a></div>\n                </div> \n                <div class=\"crt-list-post-text-wrap\"> \n                    <div><%=this.parseText(text)%></div> \n                </div> \n                <span class=\"crt-social-icon crt-social-icon-normal\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span>\n                 <div class=\"crt-post-footer\">\n                    <img class=\"crt-post-userimage\" src=\"<%=user_image%>\" alt=\"Profile image for <%=user_full_name%>\"/> \n                    <span class=\"crt-post-username\"><a href=\"<%=this.userUrl()%>\" target=\"_blank\">@<%=user_screen_name%></a></span>\n                    <span class=\"crt-date\"><%=this.prettyDate(source_created_at)%></span> \n                    <div class=\"crt-post-share\"><span class=\"crt-share-hint\"></span><a href=\"#\" class=\"crt-share-facebook\"><i class=\"crt-icon-facebook\"></i></a>  <a href=\"#\" class=\"crt-share-twitter\"><i class=\"crt-icon-twitter\"></i></a></div>\n                </div>  \n            </div>\n        </div> \n    </div>\n</div>";
+
+var template$6 = "\n<div class=\"crt-feed-scroll\">\n<div class=\"crt-feed\"></div>\n</div>\n<div class=\"crt-load-more\"><a href=\"#\"><span><%=this._t(\"load-more\")%></span></a></div>\n";
 
 var Templates = {
     'filter'                : filterTemplate,
@@ -2264,17 +2310,19 @@ var Templates = {
     'popup-wrapper'         : v1PopupWrapperTemplate,
 
     // V1
-    'post-v1'               : v1PostTemplate,
+    'post-v1'               : template,
     'grid-post-v1'          : gridPostTemplate,
 
     // V2
-    'post-v2'               : v2PostTemplate,
-    'grid-post-v2'          : template,
-    'grid-post-minimal'     : template$1,
+    'post-v2'               : template$1,
+    'grid-post-v2'          : template$2,
+    'grid-post-minimal'     : template$3,
     'grid-feed-v2'          : v2GridFeedTemple,
 
-    'list-feed'             : template$2,
-    'list-post'             : template$3,
+    'list-feed'             : template$4,
+    'list-post'             : template$5,
+
+    'waterfall-feed'        : template$6,
 };
 
 /**
@@ -2408,7 +2456,7 @@ function _k (o, key, val) {
     }
 }
 
-var langsData = "\nid,en,de,it,nl,es,fr,po,ru\nload-more,Load more,Mehr anzeigen,Di più,Laad meer,Cargar más,Voir plus,Carregar Mais,Загрузить больше\nminutes-ago.1,{n} minute ago,Vor einer Minute,Un minuto fa,{n} minuut geleden,Hace un minuto,Il y a {n} minute,Tem um minuto,Одну минуту назад\nminutes-ago.n,{n} minutes ago,Vor {n} Minuten,{n} minuti fa,{n} minuten geleden,Hace {n} minutos,Il y a {n} minutes,Tem {n} minutos,{n} минут назад\nhours-ago.1,{n} hour ago,Vor einer Stunde,Un'ora fa,{n} uur geleden,Hace una hora,Il y a {n} heure,Tem {n} hora,Один час назад\nhours-ago.n,{n} hours ago,Vor {n} Stunden,{n} ore fa,{n} uren geleden,Hace {n} horas,Il y a {n} heures,Tem {n} horas,{n} часов назад\ndays-ago.1,{n} day ago,Vor einem Tag,Un giorno fa,{n} dag geleden,Hace un día,Il y a {n} jour,Faz um dia,Один день назад\ndays-ago.n,{n} days ago,Vor {n} Tagen,{n} giorni fa,{n} dagen geleden,Hace {n} días,Il y a {n} jours,Fazem {n} dias,{n} дней назад\nweeks-ago.1,{n} week ago,Vor einer Woche,Una settimana fa,{n} week geleden,Hace una semana,Il y a {n} semaine,Faz uma semana,Одну неделю назад\nweeks-ago.n,{n} weeks ago,Vor {n} Wochen,{n} settimane fa,{n} weken geleden,Hace {n} semanas,Il y a {n} semaines,Fazem {n} semanas,{n} недель назад\nmonths-ago.1,{n} month ago,Vor einem Monat,Un mese fa,{n} maand geleden,Hace un mes,Il y a {n} mois,Tem um mês,Один месяц назад\nmonths-ago.n,{n} months ago,Vor {n} Monaten,{n} mesi,{n} maanden geleden,Hace {n} meses,Il y a {n} mois,Tem {n} meses,{n} месяцев назад\nyesterday,Yesterday,Gestern,Ieri,Gisteren,Ayer,Hier,Ontem,Вчера\njust-now,Just now,Eben,Appena,Nu,Ahora,Il y a un instant,Agora,Только что\nprevious,Previous,Zurück,Indietro,Vorige,Anterior,Précédent,Anterior,Предыдущий\nnext,Next,Weiter,Più,Volgende,Siguiente,Suivant,Próximo,Следующий\ncomments,Comments,Kommentare,Commenti,Comments,Comentarios,Commentaires,Comentários,Комментарии\nlikes,Likes,Gefällt mir,Mi piace,Likes,Me gusta,J'aime,Curtir,Лайки\nread-more,Read more,Weiterlesen,Di più,Lees meer,Leer más,En savoir plus,Leia mais,Подробнее\nfilter,Filter,Filtern,Filtrare,Filtreren,filtrar,Filtrer,Filtro,фильтровать\nall,All,Alle,Tutti,Alle,Todas,Tout,Todos,все\n";
+var langsData = "\nid,en,de,it,nl,es,fr,po,ru,sl\nload-more,Load more,Mehr anzeigen,Di più,Laad meer,Cargar más,Voir plus,Carregar Mais,Загрузить больше,Prikaži več\nminutes-ago.1,{n} minute ago,Vor einer Minute,Un minuto fa,{n} minuut geleden,Hace un minuto,Il y a {n} minute,Tem um minuto,Одну минуту назад,pred {n} minuto\nminutes-ago.n,{n} minutes ago,Vor {n} Minuten,{n} minuti fa,{n} minuten geleden,Hace {n} minutos,Il y a {n} minutes,Tem {n} minutos,{n} минут назад,pred {n} minutami\nhours-ago.1,{n} hour ago,Vor einer Stunde,Un'ora fa,{n} uur geleden,Hace una hora,Il y a {n} heure,Tem {n} hora,Один час назад,pred {n} uro\nhours-ago.n,{n} hours ago,Vor {n} Stunden,{n} ore fa,{n} uren geleden,Hace {n} horas,Il y a {n} heures,Tem {n} horas,{n} часов назад,pred {n} urami\ndays-ago.1,{n} day ago,Vor einem Tag,Un giorno fa,{n} dag geleden,Hace un día,Il y a {n} jour,Faz um dia,Один день назад,pred {n} dnevom\ndays-ago.n,{n} days ago,Vor {n} Tagen,{n} giorni fa,{n} dagen geleden,Hace {n} días,Il y a {n} jours,Fazem {n} dias,{n} дней назад,pred {n} dnevi\nweeks-ago.1,{n} week ago,Vor einer Woche,Una settimana fa,{n} week geleden,Hace una semana,Il y a {n} semaine,Faz uma semana,Одну неделю назад,pred {n} tednom\nweeks-ago.n,{n} weeks ago,Vor {n} Wochen,{n} settimane fa,{n} weken geleden,Hace {n} semanas,Il y a {n} semaines,Fazem {n} semanas,{n} недель назад,pred {n} tedni\nmonths-ago.1,{n} month ago,Vor einem Monat,Un mese fa,{n} maand geleden,Hace un mes,Il y a {n} mois,Tem um mês,Один месяц назад,pred {n} mesecem\nmonths-ago.n,{n} months ago,Vor {n} Monaten,{n} mesi,{n} maanden geleden,Hace {n} meses,Il y a {n} mois,Tem {n} meses,{n} месяцев назад,pred {n} meseci\nyesterday,Yesterday,Gestern,Leri,Gisteren,Ayer,Hier,Ontem,Вчера,Včeraj\njust-now,Just now,Eben,Appena,Nu,Ahora,Il y a un instant,Agora,Только что,Pravkar\nprevious,Previous,Zurück,Indietro,Vorige,Anterior,Précédent,Anterior,Предыдущий,Prejšnji\nnext,Next,Weiter,Più,Volgende,Siguiente,Suivant,Próximo,Следующий,Naslednji\ncomments,Comments,Kommentare,Commenti,Comments,Comentarios,Commentaires,Comentários,Комментарии,Komentarji\nlikes,Likes,Gefällt mir,Mi piace,Likes,Me gusta,J'aime,Curtir,Лайки,Všečki\nread-more,Read more,Weiterlesen,Di più,Lees meer,Leer más,En savoir plus,Leia mais,Подробнее,Preberi več\nfilter,Filter,Filtern,filtrare,Filtreren,filtrar,filtrer,Filtro,фильтровать,Filter\nall,All,Alle,Tutti,Alle,Todas,Tout,Todos,все,Vsi\n";
 
 
 var langs = {};
@@ -2451,8 +2499,6 @@ var mod = {
 
         key = key.toLowerCase();
         key = key.replace(' ','-');
-
-        // console.log(key);
 
         return _cache[lang](key, n);
     }
@@ -2684,14 +2730,17 @@ var helpers = {
 // Change to use $local is passed into the factory wrapper - it's either jQuery or Zepto
 var z = null;
 
-if (window.$crt) {
-    z = window.$crt;
+// console.log(typeof $local);
+
+if (typeof $local !== 'undefined')  {
+    z = $local;
+} else if (window.$crtZepto) {
+    z = window.$crtZepto;
 } else if (window.Zepto) {
     z = window.Zepto;
 } else if (window.jQuery) {
     z = window.jQuery;
 }
-
 
 if (!z) {
     window.alert('Curator requires jQuery or Zepto. \n\nPlease include jQuery in your HTML before the Curator widget script tag.\n\nVisit http://jquery.com/download/ to get the latest version');
@@ -2705,7 +2754,12 @@ var z$1 = z;
 var _rendererTmplCache = {};
 
 var Templating = {
-    renderTemplate: function renderTemplate (templateId, data) {
+    renderTemplate: function renderTemplate (templateId, data, options) {
+
+        if (options) {
+            data.options = options;
+        }
+
         var source = '';
         var $t = z$1('#'+templateId);
 
@@ -2766,6 +2820,13 @@ var Templating = {
     }
 };
 
+/**
+* ==================================================================
+* Post
+* ==================================================================
+*/
+
+
 var Post = (function (EventBus$$1) {
     function Post (postJson, options, widget) {
         var this$1 = this;
@@ -2778,7 +2839,7 @@ var Post = (function (EventBus$$1) {
         var templateId = this.widget.options.templatePost;
 
         this.json = postJson;
-        this.$el = Templating.renderTemplate(templateId, postJson);
+        this.$el = Templating.renderTemplate(templateId, postJson, this.widget.options);
 
         this.$postC = this.$el.find('.crt-post-c');
         this.$image = this.$el.find('.crt-post-image');
@@ -2856,7 +2917,7 @@ var Post = (function (EventBus$$1) {
             return;
         }
 
-        if (target.is('a') && target.attr('href') !== '#') {
+        if (target.is('a') && target.attr('href') !== '#' && target.attr('href') !== 'javascript:;') {
             this.widget.track('click:link');
         } else {
             ev.preventDefault();
@@ -2916,6 +2977,7 @@ var Post = (function (EventBus$$1) {
     Post.prototype.layout = function layout () {
         // Logger.log("Post->layout");
         this.layoutFooter();
+        this.trigger(Events.POST_LAYOUT_CHANGED, this);
     };
 
     Post.prototype.layoutFooter = function layoutFooter () {
@@ -2942,9 +3004,7 @@ var HtmlUtils = {
     checkContainer: function checkContainer (container) {
         Logger.log("Curator->checkContainer: " + container);
         if (z$1(container).length === 0) {
-            if (window.console) {
-                window.console.error('Curator could not find the element ' + container + '. Please ensure this element existing in your HTML code. Exiting.');
-            }
+            Logger.error('Curator could not find the element ' + container + '. Please ensure this element existings in your HTML code. Exiting.');
             return false;
         }
         return true;
@@ -3382,50 +3442,78 @@ var Feed = (function (EventBus$$1) {
 
 var networks = {
     1 : {
+        id: 1,
         name:'Twitter',
+        slug:'twitter',
         icon:'crt-icon-twitter'
     },
     2 : {
+        id: 2,
         name:'Instagram',
+        slug:'instagram',
         icon:'crt-icon-instagram'
     },
     3 : {
+        id: 3,
         name:'Facebook',
+        slug:'facebook',
         icon:'crt-icon-facebook'
     },
     4 : {
+        id: 4,
         name:'Pinterest',
+        slug:'pinterest',
         icon:'crt-icon-pinterest'
     },
     5 : {
+        id: 5,
         name:'Google',
+        slug:'google',
         icon:'crt-icon-google'
     },
     6 : {
+        id: 6,
         name:'Vine',
+        slug:'vine',
         icon:'crt-icon-vine'
     },
     7 : {
+        id: 7,
         name:'Flickr',
+        slug:'flickr',
         icon:'crt-icon-flickr'
     },
     8 : {
+        id: 8,
         name:'Youtube',
+        slug:'youtube',
         icon:'crt-icon-youtube'
     },
     9 : {
+        id: 9,
         name:'Tumblr',
+        slug:'tumblr',
         icon:'crt-icon-tumblr'
     },
     10 : {
+        id: 10,
         name:'RSS',
+        slug:'rss',
         icon:'crt-icon-rss'
     },
     11 : {
+        id: 11,
         name:'LinkedIn',
+        slug:'linkedin',
         icon:'crt-icon-linkedin'
     },
 };
+
+/**
+* ==================================================================
+* Filter
+* ==================================================================
+*/
 
 var Filter = (function (EventBus$$1) {
     function Filter (widget) {
@@ -3539,6 +3627,12 @@ var Filter = (function (EventBus$$1) {
 
     return Filter;
 }(EventBus));
+
+/**
+ * ==================================================================
+ * Popup
+ * ==================================================================
+ */
 
 var Popup = function Popup (popupManager, post, widget) {
     var this$1 = this;
@@ -3913,6 +4007,7 @@ var Widget = (function (EventBus$$1) {
         }
 
         this.$container.addClass('crt-feed');
+        this.$container.addClass('crt-feed-container');
 
         if (HtmlUtils.isTouch()) {
             this.$container.addClass('crt-touch');
@@ -4168,7 +4263,8 @@ var ConfigWidgetWaterfall = z$1.extend({}, ConfigWidgetBase, {
         gridWidth:300,
         animate:true,
         animateSpeed:400,
-        handleResize:true
+        handleResize:true,
+        templateFeed:'waterfall-feed'
     }
 });
 
@@ -4180,6 +4276,1031 @@ var makeArray = function(array, results) {
     }
     return array;
 };
+
+/**
+ * A collection of shims that provide minimal functionality of the ES6 collections.
+ *
+ * These implementations are not meant to be used outside of the ResizeObserver
+ * modules as they cover only a limited range of use cases.
+ */
+/* eslint-disable require-jsdoc, valid-jsdoc */
+var MapShim = (function () {
+    if (typeof Map !== 'undefined') {
+        return Map;
+    }
+
+    /**
+     * Returns index in provided array that matches the specified key.
+     *
+     * @param {Array<Array>} arr
+     * @param {*} key
+     * @returns {number}
+     */
+    function getIndex(arr, key) {
+        var result = -1;
+
+        arr.some(function (entry, index) {
+            if (entry[0] === key) {
+                result = index;
+
+                return true;
+            }
+
+            return false;
+        });
+
+        return result;
+    }
+
+    return (function () {
+        function anonymous() {
+            this.__entries__ = [];
+        }
+
+        var prototypeAccessors = { size: { configurable: true } };
+
+        /**
+         * @returns {boolean}
+         */
+        prototypeAccessors.size.get = function () {
+            return this.__entries__.length;
+        };
+
+        /**
+         * @param {*} key
+         * @returns {*}
+         */
+        anonymous.prototype.get = function (key) {
+            var index = getIndex(this.__entries__, key);
+            var entry = this.__entries__[index];
+
+            return entry && entry[1];
+        };
+
+        /**
+         * @param {*} key
+         * @param {*} value
+         * @returns {void}
+         */
+        anonymous.prototype.set = function (key, value) {
+            var index = getIndex(this.__entries__, key);
+
+            if (~index) {
+                this.__entries__[index][1] = value;
+            } else {
+                this.__entries__.push([key, value]);
+            }
+        };
+
+        /**
+         * @param {*} key
+         * @returns {void}
+         */
+        anonymous.prototype.delete = function (key) {
+            var entries = this.__entries__;
+            var index = getIndex(entries, key);
+
+            if (~index) {
+                entries.splice(index, 1);
+            }
+        };
+
+        /**
+         * @param {*} key
+         * @returns {void}
+         */
+        anonymous.prototype.has = function (key) {
+            return !!~getIndex(this.__entries__, key);
+        };
+
+        /**
+         * @returns {void}
+         */
+        anonymous.prototype.clear = function () {
+            this.__entries__.splice(0);
+        };
+
+        /**
+         * @param {Function} callback
+         * @param {*} [ctx=null]
+         * @returns {void}
+         */
+        anonymous.prototype.forEach = function (callback, ctx) {
+            var this$1 = this;
+            if ( ctx === void 0 ) { ctx = null; }
+
+            for (var i = 0, list = this$1.__entries__; i < list.length; i += 1) {
+                var entry = list[i];
+
+                callback.call(ctx, entry[1], entry[0]);
+            }
+        };
+
+        Object.defineProperties( anonymous.prototype, prototypeAccessors );
+
+        return anonymous;
+    }());
+})();
+
+/**
+ * Detects whether window and document objects are available in current environment.
+ */
+var isBrowser = typeof window !== 'undefined' && typeof document !== 'undefined' && window.document === document;
+
+// Returns global object of a current environment.
+var global$1 = (function () {
+    if (typeof global !== 'undefined' && global.Math === Math) {
+        return global;
+    }
+
+    if (typeof self !== 'undefined' && self.Math === Math) {
+        return self;
+    }
+
+    if (typeof window !== 'undefined' && window.Math === Math) {
+        return window;
+    }
+
+    // eslint-disable-next-line no-new-func
+    return Function('return this')();
+})();
+
+/**
+ * A shim for the requestAnimationFrame which falls back to the setTimeout if
+ * first one is not supported.
+ *
+ * @returns {number} Requests' identifier.
+ */
+var requestAnimationFrame$1 = (function () {
+    if (typeof requestAnimationFrame === 'function') {
+        // It's required to use a bounded function because IE sometimes throws
+        // an "Invalid calling object" error if rAF is invoked without the global
+        // object on the left hand side.
+        return requestAnimationFrame.bind(global$1);
+    }
+
+    return function (callback) { return setTimeout(function () { return callback(Date.now()); }, 1000 / 60); };
+})();
+
+// Defines minimum timeout before adding a trailing call.
+var trailingTimeout = 2;
+
+/**
+ * Creates a wrapper function which ensures that provided callback will be
+ * invoked only once during the specified delay period.
+ *
+ * @param {Function} callback - Function to be invoked after the delay period.
+ * @param {number} delay - Delay after which to invoke callback.
+ * @returns {Function}
+ */
+var throttle = function (callback, delay) {
+    var leadingCall = false,
+        trailingCall = false,
+        lastCallTime = 0;
+
+    /**
+     * Invokes the original callback function and schedules new invocation if
+     * the "proxy" was called during current request.
+     *
+     * @returns {void}
+     */
+    function resolvePending() {
+        if (leadingCall) {
+            leadingCall = false;
+
+            callback();
+        }
+
+        if (trailingCall) {
+            proxy();
+        }
+    }
+
+    /**
+     * Callback invoked after the specified delay. It will further postpone
+     * invocation of the original function delegating it to the
+     * requestAnimationFrame.
+     *
+     * @returns {void}
+     */
+    function timeoutCallback() {
+        requestAnimationFrame$1(resolvePending);
+    }
+
+    /**
+     * Schedules invocation of the original function.
+     *
+     * @returns {void}
+     */
+    function proxy() {
+        var timeStamp = Date.now();
+
+        if (leadingCall) {
+            // Reject immediately following calls.
+            if (timeStamp - lastCallTime < trailingTimeout) {
+                return;
+            }
+
+            // Schedule new call to be in invoked when the pending one is resolved.
+            // This is important for "transitions" which never actually start
+            // immediately so there is a chance that we might miss one if change
+            // happens amids the pending invocation.
+            trailingCall = true;
+        } else {
+            leadingCall = true;
+            trailingCall = false;
+
+            setTimeout(timeoutCallback, delay);
+        }
+
+        lastCallTime = timeStamp;
+    }
+
+    return proxy;
+};
+
+// Minimum delay before invoking the update of observers.
+var REFRESH_DELAY = 20;
+
+// A list of substrings of CSS properties used to find transition events that
+// might affect dimensions of observed elements.
+var transitionKeys = ['top', 'right', 'bottom', 'left', 'width', 'height', 'size', 'weight'];
+
+// Check if MutationObserver is available.
+var mutationObserverSupported = typeof MutationObserver !== 'undefined';
+
+/**
+ * Singleton controller class which handles updates of ResizeObserver instances.
+ */
+var ResizeObserverController = function() {
+    this.connected_ = false;
+    this.mutationEventsAdded_ = false;
+    this.mutationsObserver_ = null;
+    this.observers_ = [];
+
+    this.onTransitionEnd_ = this.onTransitionEnd_.bind(this);
+    this.refresh = throttle(this.refresh.bind(this), REFRESH_DELAY);
+};
+
+/**
+ * Adds observer to observers list.
+ *
+ * @param {ResizeObserverSPI} observer - Observer to be added.
+ * @returns {void}
+ */
+
+
+/**
+ * Holds reference to the controller's instance.
+ *
+ * @private {ResizeObserverController}
+ */
+
+
+/**
+ * Keeps reference to the instance of MutationObserver.
+ *
+ * @private {MutationObserver}
+ */
+
+/**
+ * Indicates whether DOM listeners have been added.
+ *
+ * @private {boolean}
+ */
+ResizeObserverController.prototype.addObserver = function (observer) {
+    if (!~this.observers_.indexOf(observer)) {
+        this.observers_.push(observer);
+    }
+
+    // Add listeners if they haven't been added yet.
+    if (!this.connected_) {
+        this.connect_();
+    }
+};
+
+/**
+ * Removes observer from observers list.
+ *
+ * @param {ResizeObserverSPI} observer - Observer to be removed.
+ * @returns {void}
+ */
+ResizeObserverController.prototype.removeObserver = function (observer) {
+    var observers = this.observers_;
+    var index = observers.indexOf(observer);
+
+    // Remove observer if it's present in registry.
+    if (~index) {
+        observers.splice(index, 1);
+    }
+
+    // Remove listeners if controller has no connected observers.
+    if (!observers.length && this.connected_) {
+        this.disconnect_();
+    }
+};
+
+/**
+ * Invokes the update of observers. It will continue running updates insofar
+ * it detects changes.
+ *
+ * @returns {void}
+ */
+ResizeObserverController.prototype.refresh = function () {
+    var changesDetected = this.updateObservers_();
+
+    // Continue running updates if changes have been detected as there might
+    // be future ones caused by CSS transitions.
+    if (changesDetected) {
+        this.refresh();
+    }
+};
+
+/**
+ * Updates every observer from observers list and notifies them of queued
+ * entries.
+ *
+ * @private
+ * @returns {boolean} Returns "true" if any observer has detected changes in
+ *  dimensions of it's elements.
+ */
+ResizeObserverController.prototype.updateObservers_ = function () {
+    // Collect observers that have active observations.
+    var activeObservers = this.observers_.filter(function (observer) {
+        return observer.gatherActive(), observer.hasActive();
+    });
+
+    // Deliver notifications in a separate cycle in order to avoid any
+    // collisions between observers, e.g. when multiple instances of
+    // ResizeObserver are tracking the same element and the callback of one
+    // of them changes content dimensions of the observed target. Sometimes
+    // this may result in notifications being blocked for the rest of observers.
+    activeObservers.forEach(function (observer) { return observer.broadcastActive(); });
+
+    return activeObservers.length > 0;
+};
+
+/**
+ * Initializes DOM listeners.
+ *
+ * @private
+ * @returns {void}
+ */
+ResizeObserverController.prototype.connect_ = function () {
+    // Do nothing if running in a non-browser environment or if listeners
+    // have been already added.
+    if (!isBrowser || this.connected_) {
+        return;
+    }
+
+    // Subscription to the "Transitionend" event is used as a workaround for
+    // delayed transitions. This way it's possible to capture at least the
+    // final state of an element.
+    document.addEventListener('transitionend', this.onTransitionEnd_);
+
+    window.addEventListener('resize', this.refresh);
+
+    if (mutationObserverSupported) {
+        this.mutationsObserver_ = new MutationObserver(this.refresh);
+
+        this.mutationsObserver_.observe(document, {
+            attributes: true,
+            childList: true,
+            characterData: true,
+            subtree: true
+        });
+    } else {
+        document.addEventListener('DOMSubtreeModified', this.refresh);
+
+        this.mutationEventsAdded_ = true;
+    }
+
+    this.connected_ = true;
+};
+
+/**
+ * Removes DOM listeners.
+ *
+ * @private
+ * @returns {void}
+ */
+ResizeObserverController.prototype.disconnect_ = function () {
+    // Do nothing if running in a non-browser environment or if listeners
+    // have been already removed.
+    if (!isBrowser || !this.connected_) {
+        return;
+    }
+
+    document.removeEventListener('transitionend', this.onTransitionEnd_);
+    window.removeEventListener('resize', this.refresh);
+
+    if (this.mutationsObserver_) {
+        this.mutationsObserver_.disconnect();
+    }
+
+    if (this.mutationEventsAdded_) {
+        document.removeEventListener('DOMSubtreeModified', this.refresh);
+    }
+
+    this.mutationsObserver_ = null;
+    this.mutationEventsAdded_ = false;
+    this.connected_ = false;
+};
+
+/**
+ * "Transitionend" event handler.
+ *
+ * @private
+ * @param {TransitionEvent} event
+ * @returns {void}
+ */
+ResizeObserverController.prototype.onTransitionEnd_ = function (ref) {
+        var propertyName = ref.propertyName; if ( propertyName === void 0 ) { propertyName = ''; }
+
+    // Detect whether transition may affect dimensions of an element.
+    var isReflowProperty = transitionKeys.some(function (key) {
+        return !!~propertyName.indexOf(key);
+    });
+
+    if (isReflowProperty) {
+        this.refresh();
+    }
+};
+
+/**
+ * Returns instance of the ResizeObserverController.
+ *
+ * @returns {ResizeObserverController}
+ */
+ResizeObserverController.getInstance = function () {
+    if (!this.instance_) {
+        this.instance_ = new ResizeObserverController();
+    }
+
+    return this.instance_;
+};
+
+ResizeObserverController.instance_ = null;
+
+/**
+ * Defines non-writable/enumerable properties of the provided target object.
+ *
+ * @param {Object} target - Object for which to define properties.
+ * @param {Object} props - Properties to be defined.
+ * @returns {Object} Target object.
+ */
+var defineConfigurable = (function (target, props) {
+    for (var i = 0, list = Object.keys(props); i < list.length; i += 1) {
+        var key = list[i];
+
+        Object.defineProperty(target, key, {
+            value: props[key],
+            enumerable: false,
+            writable: false,
+            configurable: true
+        });
+    }
+
+    return target;
+});
+
+/**
+ * Returns the global object associated with provided element.
+ *
+ * @param {Object} target
+ * @returns {Object}
+ */
+var getWindowOf = (function (target) {
+    // Assume that the element is an instance of Node, which means that it
+    // has the "ownerDocument" property from which we can retrieve a
+    // corresponding global object.
+    var ownerGlobal = target && target.ownerDocument && target.ownerDocument.defaultView;
+
+    // Return the local global object if it's not possible extract one from
+    // provided element.
+    return ownerGlobal || global$1;
+});
+
+// Placeholder of an empty content rectangle.
+var emptyRect = createRectInit(0, 0, 0, 0);
+
+/**
+ * Converts provided string to a number.
+ *
+ * @param {number|string} value
+ * @returns {number}
+ */
+function toFloat(value) {
+    return parseFloat(value) || 0;
+}
+
+/**
+ * Extracts borders size from provided styles.
+ *
+ * @param {CSSStyleDeclaration} styles
+ * @param {...string} positions - Borders positions (top, right, ...)
+ * @returns {number}
+ */
+function getBordersSize(styles) {
+    var arguments$1 = arguments;
+
+    var positions = [], len = arguments.length - 1;
+    while ( len-- > 0 ) { positions[ len ] = arguments$1[ len + 1 ]; }
+
+    return positions.reduce(function (size, position) {
+        var value = styles['border-' + position + '-width'];
+
+        return size + toFloat(value);
+    }, 0);
+}
+
+/**
+ * Extracts paddings sizes from provided styles.
+ *
+ * @param {CSSStyleDeclaration} styles
+ * @returns {Object} Paddings box.
+ */
+function getPaddings(styles) {
+    var positions = ['top', 'right', 'bottom', 'left'];
+    var paddings = {};
+
+    for (var i = 0, list = positions; i < list.length; i += 1) {
+        var position = list[i];
+
+        var value = styles['padding-' + position];
+
+        paddings[position] = toFloat(value);
+    }
+
+    return paddings;
+}
+
+/**
+ * Calculates content rectangle of provided SVG element.
+ *
+ * @param {SVGGraphicsElement} target - Element content rectangle of which needs
+ *      to be calculated.
+ * @returns {DOMRectInit}
+ */
+function getSVGContentRect(target) {
+    var bbox = target.getBBox();
+
+    return createRectInit(0, 0, bbox.width, bbox.height);
+}
+
+/**
+ * Calculates content rectangle of provided HTMLElement.
+ *
+ * @param {HTMLElement} target - Element for which to calculate the content rectangle.
+ * @returns {DOMRectInit}
+ */
+function getHTMLElementContentRect(target) {
+    // Client width & height properties can't be
+    // used exclusively as they provide rounded values.
+    var clientWidth = target.clientWidth;
+    var clientHeight = target.clientHeight;
+
+    // By this condition we can catch all non-replaced inline, hidden and
+    // detached elements. Though elements with width & height properties less
+    // than 0.5 will be discarded as well.
+    //
+    // Without it we would need to implement separate methods for each of
+    // those cases and it's not possible to perform a precise and performance
+    // effective test for hidden elements. E.g. even jQuery's ':visible' filter
+    // gives wrong results for elements with width & height less than 0.5.
+    if (!clientWidth && !clientHeight) {
+        return emptyRect;
+    }
+
+    var styles = getWindowOf(target).getComputedStyle(target);
+    var paddings = getPaddings(styles);
+    var horizPad = paddings.left + paddings.right;
+    var vertPad = paddings.top + paddings.bottom;
+
+    // Computed styles of width & height are being used because they are the
+    // only dimensions available to JS that contain non-rounded values. It could
+    // be possible to utilize the getBoundingClientRect if only it's data wasn't
+    // affected by CSS transformations let alone paddings, borders and scroll bars.
+    var width = toFloat(styles.width),
+        height = toFloat(styles.height);
+
+    // Width & height include paddings and borders when the 'border-box' box
+    // model is applied (except for IE).
+    if (styles.boxSizing === 'border-box') {
+        // Following conditions are required to handle Internet Explorer which
+        // doesn't include paddings and borders to computed CSS dimensions.
+        //
+        // We can say that if CSS dimensions + paddings are equal to the "client"
+        // properties then it's either IE, and thus we don't need to subtract
+        // anything, or an element merely doesn't have paddings/borders styles.
+        if (Math.round(width + horizPad) !== clientWidth) {
+            width -= getBordersSize(styles, 'left', 'right') + horizPad;
+        }
+
+        if (Math.round(height + vertPad) !== clientHeight) {
+            height -= getBordersSize(styles, 'top', 'bottom') + vertPad;
+        }
+    }
+
+    // Following steps can't be applied to the document's root element as its
+    // client[Width/Height] properties represent viewport area of the window.
+    // Besides, it's as well not necessary as the <html> itself neither has
+    // rendered scroll bars nor it can be clipped.
+    if (!isDocumentElement(target)) {
+        // In some browsers (only in Firefox, actually) CSS width & height
+        // include scroll bars size which can be removed at this step as scroll
+        // bars are the only difference between rounded dimensions + paddings
+        // and "client" properties, though that is not always true in Chrome.
+        var vertScrollbar = Math.round(width + horizPad) - clientWidth;
+        var horizScrollbar = Math.round(height + vertPad) - clientHeight;
+
+        // Chrome has a rather weird rounding of "client" properties.
+        // E.g. for an element with content width of 314.2px it sometimes gives
+        // the client width of 315px and for the width of 314.7px it may give
+        // 314px. And it doesn't happen all the time. So just ignore this delta
+        // as a non-relevant.
+        if (Math.abs(vertScrollbar) !== 1) {
+            width -= vertScrollbar;
+        }
+
+        if (Math.abs(horizScrollbar) !== 1) {
+            height -= horizScrollbar;
+        }
+    }
+
+    return createRectInit(paddings.left, paddings.top, width, height);
+}
+
+/**
+ * Checks whether provided element is an instance of the SVGGraphicsElement.
+ *
+ * @param {Element} target - Element to be checked.
+ * @returns {boolean}
+ */
+var isSVGGraphicsElement = (function () {
+    // Some browsers, namely IE and Edge, don't have the SVGGraphicsElement
+    // interface.
+    if (typeof SVGGraphicsElement !== 'undefined') {
+        return function (target) { return target instanceof getWindowOf(target).SVGGraphicsElement; };
+    }
+
+    // If it's so, then check that element is at least an instance of the
+    // SVGElement and that it has the "getBBox" method.
+    // eslint-disable-next-line no-extra-parens
+    return function (target) { return target instanceof getWindowOf(target).SVGElement && typeof target.getBBox === 'function'; };
+})();
+
+/**
+ * Checks whether provided element is a document element (<html>).
+ *
+ * @param {Element} target - Element to be checked.
+ * @returns {boolean}
+ */
+function isDocumentElement(target) {
+    return target === getWindowOf(target).document.documentElement;
+}
+
+/**
+ * Calculates an appropriate content rectangle for provided html or svg element.
+ *
+ * @param {Element} target - Element content rectangle of which needs to be calculated.
+ * @returns {DOMRectInit}
+ */
+function getContentRect(target) {
+    if (!isBrowser) {
+        return emptyRect;
+    }
+
+    if (isSVGGraphicsElement(target)) {
+        return getSVGContentRect(target);
+    }
+
+    return getHTMLElementContentRect(target);
+}
+
+/**
+ * Creates rectangle with an interface of the DOMRectReadOnly.
+ * Spec: https://drafts.fxtf.org/geometry/#domrectreadonly
+ *
+ * @param {DOMRectInit} rectInit - Object with rectangle's x/y coordinates and dimensions.
+ * @returns {DOMRectReadOnly}
+ */
+function createReadOnlyRect(ref) {
+    var x = ref.x;
+    var y = ref.y;
+    var width = ref.width;
+    var height = ref.height;
+
+    // If DOMRectReadOnly is available use it as a prototype for the rectangle.
+    var Constr = typeof DOMRectReadOnly !== 'undefined' ? DOMRectReadOnly : Object;
+    var rect = Object.create(Constr.prototype);
+
+    // Rectangle's properties are not writable and non-enumerable.
+    defineConfigurable(rect, {
+        x: x, y: y, width: width, height: height,
+        top: y,
+        right: x + width,
+        bottom: height + y,
+        left: x
+    });
+
+    return rect;
+}
+
+/**
+ * Creates DOMRectInit object based on the provided dimensions and the x/y coordinates.
+ * Spec: https://drafts.fxtf.org/geometry/#dictdef-domrectinit
+ *
+ * @param {number} x - X coordinate.
+ * @param {number} y - Y coordinate.
+ * @param {number} width - Rectangle's width.
+ * @param {number} height - Rectangle's height.
+ * @returns {DOMRectInit}
+ */
+function createRectInit(x, y, width, height) {
+    return { x: x, y: y, width: width, height: height };
+}
+
+/**
+ * Class that is responsible for computations of the content rectangle of
+ * provided DOM element and for keeping track of it's changes.
+ */
+var ResizeObservation = function(target) {
+    this.broadcastWidth = 0;
+    this.broadcastHeight = 0;
+    this.contentRect_ = createRectInit(0, 0, 0, 0);
+
+    this.target = target;
+};
+
+/**
+ * Updates content rectangle and tells whether it's width or height properties
+ * have changed since the last broadcast.
+ *
+ * @returns {boolean}
+ */
+
+
+/**
+ * Reference to the last observed content rectangle.
+ *
+ * @private {DOMRectInit}
+ */
+
+
+/**
+ * Broadcasted width of content rectangle.
+ *
+ * @type {number}
+ */
+ResizeObservation.prototype.isActive = function () {
+    var rect = getContentRect(this.target);
+
+    this.contentRect_ = rect;
+
+    return rect.width !== this.broadcastWidth || rect.height !== this.broadcastHeight;
+};
+
+/**
+ * Updates 'broadcastWidth' and 'broadcastHeight' properties with a data
+ * from the corresponding properties of the last observed content rectangle.
+ *
+ * @returns {DOMRectInit} Last observed content rectangle.
+ */
+ResizeObservation.prototype.broadcastRect = function () {
+    var rect = this.contentRect_;
+
+    this.broadcastWidth = rect.width;
+    this.broadcastHeight = rect.height;
+
+    return rect;
+};
+
+var ResizeObserverEntry = function(target, rectInit) {
+    var contentRect = createReadOnlyRect(rectInit);
+
+    // According to the specification following properties are not writable
+    // and are also not enumerable in the native implementation.
+    //
+    // Property accessors are not being used as they'd require to define a
+    // private WeakMap storage which may cause memory leaks in browsers that
+    // don't support this type of collections.
+    defineConfigurable(this, { target: target, contentRect: contentRect });
+};
+
+var ResizeObserverSPI = function(callback, controller, callbackCtx) {
+    this.activeObservations_ = [];
+    this.observations_ = new MapShim();
+
+    if (typeof callback !== 'function') {
+        throw new TypeError('The callback provided as parameter 1 is not a function.');
+    }
+
+    this.callback_ = callback;
+    this.controller_ = controller;
+    this.callbackCtx_ = callbackCtx;
+};
+
+/**
+ * Starts observing provided element.
+ *
+ * @param {Element} target - Element to be observed.
+ * @returns {void}
+ */
+
+
+/**
+ * Registry of the ResizeObservation instances.
+ *
+ * @private {Map<Element, ResizeObservation>}
+ */
+
+
+/**
+ * Public ResizeObserver instance which will be passed to the callback
+ * function and used as a value of it's "this" binding.
+ *
+ * @private {ResizeObserver}
+ */
+
+/**
+ * Collection of resize observations that have detected changes in dimensions
+ * of elements.
+ *
+ * @private {Array<ResizeObservation>}
+ */
+ResizeObserverSPI.prototype.observe = function (target) {
+    if (!arguments.length) {
+        throw new TypeError('1 argument required, but only 0 present.');
+    }
+
+    // Do nothing if current environment doesn't have the Element interface.
+    if (typeof Element === 'undefined' || !(Element instanceof Object)) {
+        return;
+    }
+
+    if (!(target instanceof getWindowOf(target).Element)) {
+        throw new TypeError('parameter 1 is not of type "Element".');
+    }
+
+    var observations = this.observations_;
+
+    // Do nothing if element is already being observed.
+    if (observations.has(target)) {
+        return;
+    }
+
+    observations.set(target, new ResizeObservation(target));
+
+    this.controller_.addObserver(this);
+
+    // Force the update of observations.
+    this.controller_.refresh();
+};
+
+/**
+ * Stops observing provided element.
+ *
+ * @param {Element} target - Element to stop observing.
+ * @returns {void}
+ */
+ResizeObserverSPI.prototype.unobserve = function (target) {
+    if (!arguments.length) {
+        throw new TypeError('1 argument required, but only 0 present.');
+    }
+
+    // Do nothing if current environment doesn't have the Element interface.
+    if (typeof Element === 'undefined' || !(Element instanceof Object)) {
+        return;
+    }
+
+    if (!(target instanceof getWindowOf(target).Element)) {
+        throw new TypeError('parameter 1 is not of type "Element".');
+    }
+
+    var observations = this.observations_;
+
+    // Do nothing if element is not being observed.
+    if (!observations.has(target)) {
+        return;
+    }
+
+    observations.delete(target);
+
+    if (!observations.size) {
+        this.controller_.removeObserver(this);
+    }
+};
+
+/**
+ * Stops observing all elements.
+ *
+ * @returns {void}
+ */
+ResizeObserverSPI.prototype.disconnect = function () {
+    this.clearActive();
+    this.observations_.clear();
+    this.controller_.removeObserver(this);
+};
+
+/**
+ * Collects observation instances the associated element of which has changed
+ * it's content rectangle.
+ *
+ * @returns {void}
+ */
+ResizeObserverSPI.prototype.gatherActive = function () {
+        var this$1 = this;
+
+    this.clearActive();
+
+    this.observations_.forEach(function (observation) {
+        if (observation.isActive()) {
+            this$1.activeObservations_.push(observation);
+        }
+    });
+};
+
+/**
+ * Invokes initial callback function with a list of ResizeObserverEntry
+ * instances collected from active resize observations.
+ *
+ * @returns {void}
+ */
+ResizeObserverSPI.prototype.broadcastActive = function () {
+    // Do nothing if observer doesn't have active observations.
+    if (!this.hasActive()) {
+        return;
+    }
+
+    var ctx = this.callbackCtx_;
+
+    // Create ResizeObserverEntry instance for every active observation.
+    var entries = this.activeObservations_.map(function (observation) {
+        return new ResizeObserverEntry(observation.target, observation.broadcastRect());
+    });
+
+    this.callback_.call(ctx, entries, ctx);
+    this.clearActive();
+};
+
+/**
+ * Clears the collection of active observations.
+ *
+ * @returns {void}
+ */
+ResizeObserverSPI.prototype.clearActive = function () {
+    this.activeObservations_.splice(0);
+};
+
+/**
+ * Tells whether observer has active observations.
+ *
+ * @returns {boolean}
+ */
+ResizeObserverSPI.prototype.hasActive = function () {
+    return this.activeObservations_.length > 0;
+};
+
+// Registry of internal observers. If WeakMap is not available use current shim
+// for the Map collection as it has all required methods and because WeakMap
+// can't be fully polyfilled anyway.
+var observers = typeof WeakMap !== 'undefined' ? new WeakMap() : new MapShim();
+
+/**
+ * ResizeObserver API. Encapsulates the ResizeObserver SPI implementation
+ * exposing only those methods and properties that are defined in the spec.
+ */
+var ResizeObserver = function(callback) {
+    if (!(this instanceof ResizeObserver)) {
+        throw new TypeError('Cannot call a class as a function.');
+    }
+    if (!arguments.length) {
+        throw new TypeError('1 argument required, but only 0 present.');
+    }
+
+    var controller = ResizeObserverController.getInstance();
+    var observer = new ResizeObserverSPI(callback, controller, this);
+
+    observers.set(this, observer);
+};
+
+// Expose public methods of ResizeObserver.
+['observe', 'unobserve', 'disconnect'].forEach(function (method) {
+    ResizeObserver.prototype[method] = function () {
+        return (ref = observers.get(this))[method].apply(ref, arguments);
+        var ref;
+    };
+});
+
+var index = (function () {
+    // Export existing implementation if available.
+    if (typeof global$1.ResizeObserver !== 'undefined') {
+        return global$1.ResizeObserver;
+    }
+
+    return ResizeObserver;
+})();
 
 /**
  * Based on the awesome jQuery Grid-A-Licious(tm)
@@ -4256,7 +5377,7 @@ LayoutWaterfall.prototype.createHandlers = function createHandlers () {
     }, 100);
 
     if (this.options.handleResize) {
-        this.ro = new ResizeObserver(function (entries, observer) {
+        this.ro = new index(function (entries, observer) {
             if (entries.length > 0) {
                 // let entry = entries[0];
 
@@ -4443,7 +5564,7 @@ LayoutWaterfall.prototype._renderItem = function _renderItem (items) {
         // fadeInOnAppear
         if (queue === true && effect === "fadeInOnAppear") {
             if (this.isPrepending) { items.reverse(); }
-            z$1.each(items, function (index, value) {
+            z$1.each(items, function (index$$1, value) {
                 window.setTimeout(function () {
                     z$1(value).animate({
                         opacity: '1.0'
@@ -4457,7 +5578,7 @@ LayoutWaterfall.prototype._renderItem = function _renderItem (items) {
             });
         } else if (queue === false && effect === "fadeInOnAppear") {
             if (this.isPrepending) { items.reverse(); }
-            z$1.each(items, function (index, value) {
+            z$1.each(items, function (index$$1, value) {
                 z$1(value).animate({
                     opacity: '1.0'
                 }, duration);
@@ -4472,7 +5593,7 @@ LayoutWaterfall.prototype._renderItem = function _renderItem (items) {
 
         // no effect but queued
         if (queue === true && !effect) {
-            z$1.each(items, function (index, value) {
+            z$1.each(items, function (index$$1, value) {
                 z$1(value).css({
                     'opacity': '1',
                     'filter': 'alpha(opacity=100)'
@@ -4488,7 +5609,7 @@ LayoutWaterfall.prototype._renderItem = function _renderItem (items) {
 
         // don not animate & no queue
     } else {
-        z$1.each(items, function (index, value) {
+        z$1.each(items, function (index$$1, value) {
             z$1(value).css({
                 'opacity': '1',
                 'filter': 'alpha(opacity=100)'
@@ -4503,7 +5624,7 @@ LayoutWaterfall.prototype._renderItem = function _renderItem (items) {
 LayoutWaterfall.prototype._updateAfterPrepend = function _updateAfterPrepend (prevItems, newItems) {
     var gridArr = this.gridArr;
     // add new items to gridArr
-    z$1.each(newItems, function (index, value) {
+    z$1.each(newItems, function (index$$1, value) {
         gridArr.unshift(value);
     });
     this.gridArr = gridArr;
@@ -4546,7 +5667,7 @@ LayoutWaterfall.prototype.resize = function resize () {
 LayoutWaterfall.prototype.append = function append (items) {
     var gridArr = this.gridArr;
     var gridArrAppend = this.gridArrPrepend;
-    z$1.each(items, function (index, value) {
+    z$1.each(items, function (index$$1, value) {
         gridArr.push(value);
         gridArrAppend.push(value);
     });
@@ -4572,10 +5693,18 @@ var Waterfall = (function (Widget$$1) {
         if (this.init (options,  ConfigWidgetWaterfall)) {
             Logger.log("Waterfall->init with options:");
             Logger.log(this.options);
+            // console.log('TEST');
+            var tmpl = Templating.renderTemplate(this.options.waterfall.templateFeed, {});
+            this.$container.append(tmpl);
 
-            this.$scroll = z$1('<div class="crt-feed-scroll"></div>').appendTo(this.$container);
-            this.$feed = z$1('<div class="crt-feed"></div>').appendTo(this.$scroll);
-            this.$container.addClass('crt-feed-container');
+            this.$scroll = this.$container.find('.crt-feed-scroll');
+            this.$feed = this.$container.find('.crt-feed');
+            this.$container.addClass('crt-widget-waterfall');
+            this.$loadMore = this.$container.find('.crt-load-more');
+
+            // console.log(this.$loadMore);
+            // console.log(this.options.waterfall.templateFeed);
+            // return;
 
             if (this.options.continuousScroll) {
                 z$1(this.$scroll).scroll(function () {
@@ -4590,12 +5719,18 @@ var Waterfall = (function (Widget$$1) {
 
             if (this.options.waterfall.showLoadMore) {
                 // default to more
-                this.$more = z$1('<div class="crt-load-more"><a href="#"><span>' + this._t('Load more') + '</span></a></div>')
-                    .appendTo(this.$scroll);
-                this.$more.find('a').on('click', function (ev) {
+                var $aLoadMore = this.$loadMore.find('a');
+                console.log($aLoadMore);
+                $aLoadMore.on('click', function (ev) {
+                    console.log('click1');
+                });
+                $aLoadMore.on('click', function (ev) {
+                    console.log('click');
                     ev.preventDefault();
                     this$1.loadMorePosts();
                 });
+            } else {
+                this.$loadMore.remove();
             }
 
             this.ui = new LayoutWaterfall({
@@ -4608,7 +5743,7 @@ var Waterfall = (function (Widget$$1) {
                     speed: (this.options.waterfall.animateSpeed/2),
                     duration: this.options.waterfall.animateSpeed
                 }
-            },this.$feed);
+            }, this.$feed);
 
             this.on(Events.FILTER_CHANGED, function () {
                 this$1.$feed.find('.crt-post').remove();
@@ -4667,9 +5802,9 @@ var Waterfall = (function (Widget$$1) {
 
         if (this.options.waterfall.showLoadMore) {
             if (this.feed.allPostsLoaded) {
-                this.$more.hide();
+                this.$loadMore.hide();
             } else {
-                this.$more.show();
+                this.$loadMore.show();
             }
         }
 
@@ -4691,10 +5826,11 @@ var Waterfall = (function (Widget$$1) {
 
         this.$feed.remove();
         this.$scroll.remove();
-        if (this.$more) {
-            this.$more.remove();
+        if (this.$loadMore) {
+            this.$loadMore.remove();
         }
-        this.$container.removeClass('crt-feed-container');
+        this.$container.removeClass('crt-feed-container')
+            .removeClass('crt-widget-waterfall');
 
         this.destroyListeners();
 
@@ -4745,10 +5881,11 @@ var List = (function (Widget$$1) {
             this.$container.append(tmpl);
             this.$feed = this.$container.find('.crt-feed');
             this.$feedWindow = this.$container.find('.crt-feed-window');
-            this.$loadMore = this.$container.find('.crt-feed-more a');
+            this.$loadMore = this.$container.find('.crt-load-more a');
             this.$scroller = z$1(window);
 
             this.$container.addClass('crt-list');
+            this.$container.addClass('crt-widget-list');
 
             if (this.responsiveOptions.list.showLoadMore) {
                 this.$feedWindow.css({
@@ -4888,7 +6025,7 @@ var List = (function (Widget$$1) {
 
         if (diff > this.responsiveOptions.list.continuousScrollOffset) {
             if (!this.feed.loading && !this.feed.allPostsLoaded) {
-                this.rowsMax += this.responsiveOptions.list.rowsToAdd;
+                this.rowsMax += this.responsiveOptions.list.loadMoreRows;
                 this.updateLayout();
             }
         }
@@ -4955,6 +6092,7 @@ var List = (function (Widget$$1) {
 
         this.$container.empty()
             .removeClass('crt-list')
+            .removeClass('crt-widget-list')
             .removeClass('crt-list-col'+this.columnCount)
             .css({'height':'','overflow':''});
 
@@ -4979,13 +6117,25 @@ var ConfigWidgetGrid$1 = z$1.extend({}, ConfigWidgetBase, {
         minWidth:200,
         rows:3,
         showLoadMore:false,
-        rowsToAdd:1,
+        loadMoreRows:1,
         continuousScroll:false,
         continuousScrollOffset:50,
         hover:{
             showName:true,
             showFooter:true,
             showText:true,
+        }
+    },
+    responsive:{
+        480:{
+            grid:{
+                loadMoreRows:4
+            }
+        },
+        768:{
+            grid:{
+                loadMoreRows:2
+            }
         }
     }
 });
@@ -5016,10 +6166,11 @@ var Grid = (function (Widget$$1) {
             this.$container.append(tmpl);
             this.$feed = this.$container.find('.crt-feed');
             this.$feedWindow = this.$container.find('.crt-feed-window');
-            this.$loadMore = this.$container.find('.crt-feed-more a');
+            this.$loadMore = this.$container.find('.crt-load-more a');
             this.$scroller = z$1(window);
 
             this.$container.addClass('crt-grid');
+            this.$container.addClass('crt-widget-grid');
 
             if (this.responsiveOptions.grid.showLoadMore) {
                 this.$feedWindow.css({
@@ -5178,7 +6329,7 @@ var Grid = (function (Widget$$1) {
 
         if (diff > this.responsiveOptions.grid.continuousScrollOffset) {
             if (!this.feed.loading && !this.feed.allPostsLoaded) {
-                this.rowsMax += this.responsiveOptions.grid.rowsToAdd;
+                this.rowsMax += this.responsiveOptions.grid.loadMoreRows;
                 this.updateLayout();
             }
         }
@@ -5229,15 +6380,7 @@ var Grid = (function (Widget$$1) {
     Grid.prototype.onMoreClicked = function onMoreClicked (ev) {
         ev.preventDefault();
 
-        var rowsToAdd = 1;
-
-        if (this.columnCount <= 1) {
-            rowsToAdd = 4;
-        } else if (this.columnCount === 2) {
-            rowsToAdd = 2;
-        }
-
-        this.rowsMax += rowsToAdd;
+        this.rowsMax += this.responsiveOptions.grid.loadMoreRows;
 
         this.updateLayout();
     };
@@ -5250,6 +6393,7 @@ var Grid = (function (Widget$$1) {
         this.destroyHandlers();
 
         this.$container.empty()
+            .removeClass('crt-widget-grid')
             .removeClass('crt-grid')
             .removeClass('crt-grid-col'+this.columnCount)
             .css({'height':'','overflow':''});
@@ -5451,10 +6595,10 @@ var LayoutCarousel = (function (EventBus$$1) {
         if (paneIndex < 0) {
             postToLoad = this.posts.length + paneIndex;
         } else if (paneIndex > this.posts.length - 1) {
-            postToLoad = paneIndex - this.posts.length;
+            postToLoad = paneIndex % this.posts.length;
         }
 
-        // console.log(paneIndex + " : " + postToLoad);
+        // console.log(paneIndex + " : " + postToLoad );
 
         var pane = null;
         if (this.paneCache['idx'+paneIndex]) {
@@ -5464,6 +6608,7 @@ var LayoutCarousel = (function (EventBus$$1) {
             // console.log('cache miss '+paneIndex);
             var post = this.posts[postToLoad];
             pane = this.widget.createPostElement(post);
+            pane.on(Events.POST_LAYOUT_CHANGED,this.onPostLayoutChanged.bind(this));
             this.paneCache['idx'+paneIndex] = pane;
         }
 
@@ -5577,10 +6722,25 @@ var LayoutCarousel = (function (EventBus$$1) {
                 if (this.options.easing) {
                     options.easing = this.options.easing;
                 }
-                this.$paneSlider.addClass('crt-animate-transform');
-                this.$paneSlider.animate({'transform': 'translate3d(' + x + 'px, 0px, 0px)'},
-                    options
-                );
+
+                if (z$1.zepto) {
+                    this.$paneSlider.addClass('crt-animate-transform');
+                    this.$paneSlider.animate({'transform': 'translate3d('+x+'px, 0px, 0px)'},
+                        options
+                    );
+                } else {
+                    // Jquery doesn't animate transform
+                    options.step = function(now, fx) {
+                        z$1(this).css('-webkit-transform','translate3d('+now+'px, 0px, 0px)');
+                        z$1(this).css('-moz-transform','translate3d('+now+'px, 0px, 0px)');
+                        z$1(this).css('transform','translate3d('+now+'px, 0px, 0px)');
+                    };
+
+                    this.$paneSlider.addClass('crt-animate-transform');
+                    this.$paneSlider.animate({'transformX': x},
+                        options
+                    );
+                }
             }
         }
 	};
@@ -5653,17 +6813,9 @@ var LayoutCarousel = (function (EventBus$$1) {
         for (var i = min; i < max; i++)
         {
         	if (this$1.currentPanes[i]) {
-                var $pane = this$1.currentPanes[i].$el;
+                // let $pane = this.currentPanes[i].$el;
+                var h = this$1.currentPanes[i].getHeight();
 
-                // TODO - could move this to ui.post
-                var h = 0;
-                if ($pane.hasClass('crt-post-max-height')) {
-                    h = $pane.height();
-                } else {
-                    var contentHeight = $pane.find('.crt-post-content').height();
-                    var footerHeight = $pane.find('.crt-post-footer').height();
-                    h = contentHeight + footerHeight + 2;
-                }
                 // Logger.log('LayoutCarousel->updateHeight i: '+i+' = '+h);
                 if (h > paneMaxHeight) {
                     paneMaxHeight = h;
@@ -5671,8 +6823,19 @@ var LayoutCarousel = (function (EventBus$$1) {
             }
         }
 
+        Logger.log(paneMaxHeight);
+
         return paneMaxHeight;
 	};
+
+    LayoutCarousel.prototype.onPostLayoutChanged = function onPostLayoutChanged (post) {
+	    var this$1 = this;
+
+	    window.clearTimeout(this.postLayoutChangedTO);
+	    this.postLayoutChangedTO = window.setTimeout(function (){
+	        this$1.updateHeight ();
+        },100);
+    };
 
 	LayoutCarousel.prototype.reset = function reset () {
         window.clearTimeout(this.timeout);
@@ -5722,6 +6885,7 @@ var Carousel = (function (Widget$$1) {
             // this.$wrapper = z('<div class="crt-carousel-wrapper"></div>').appendTo(this.$container);
             this.$feed = z$1('<div class="crt-carousel-feed"></div>').appendTo(this.$container);
             this.$container.addClass('crt-carousel');
+            this.$container.addClass('crt-widget-carousel');
 
             this.carousel = new LayoutCarousel(this, this.$feed, this.options.carousel);
             this.carousel.on(Events.CAROUSEL_CHANGED, this.onCarouselChange.bind(this));
@@ -5781,6 +6945,7 @@ var Carousel = (function (Widget$$1) {
         this.carousel.destroy();
 
         this.$feed.remove();
+        this.$container.removeClass('crt-widget-carousel');
         this.$container.removeClass('crt-carousel');
 
         delete this.$feed;
@@ -5827,8 +6992,8 @@ var Panel = (function (Widget$$1) {
             this.allLoaded = false;
 
             this.$feed = z$1('<div class="crt-feed"></div>').appendTo(this.$container);
-            this.$container.addClass('crt-carousel');
-            this.$container.addClass('crt-panel');
+            this.$container.addClass('crt-widget-carousel');
+            this.$container.addClass('crt-widget-panel');
 
             if (this.options.panel.fixedHeight) {
                 this.$container.addClass('crt-panel-fixed-height');
@@ -5890,8 +7055,9 @@ var Panel = (function (Widget$$1) {
 
         this.$feed.remove();
         this.$container.removeClass('crt-panel');
+        this.$container.removeClass('crt-widget-panel');
         this.$container.removeClass('crt-carousel');
-
+        this.$container.removeClass('crt-widget-carousel');
 
         delete this.$feed;
         delete this.$container;
@@ -5909,9 +7075,15 @@ var Panel = (function (Widget$$1) {
 }(Widget));
 
 var findContainer = function (config) {
+    // find with data-crt-feed-id
+    var container = z$1('[data-crt-feed-id="'+config.feedId+'"]');
+    if (container.length > 0) {
+        return container.get(0);
+    }
 
-    var container = z$1(config.container);
-    if (container.length) {
+    // could not find container ... try using the class feedId
+    container = z$1('.crt-feed-'+config.feedId);
+    if (container.length > 0) {
         return container.get(0);
     }
 
@@ -5921,9 +7093,8 @@ var findContainer = function (config) {
         return container.get(0);
     }
 
-    // find with data-crt-feed-id
-    container = z$1('[data-crt-feed-id="'+config.feedId+'"]');
-    if (container.length > 0) {
+    container = z$1(config.container);
+    if (container.length) {
         return container.get(0);
     }
     return false;
@@ -5978,7 +7149,7 @@ var Crt = {
 
 return Crt;
 
-}(ResizeObserver));
+}());
 
 
 	return Curator;
