@@ -79,6 +79,15 @@ class Widget extends EventBus {
         this.createFilter();
         this.createPopupManager();
 
+        let crtEvent = {
+            name:'crt:widget:created',
+            data:{
+                feedId:options.feedId
+            }
+        };
+
+        window.postMessage(crtEvent, '*');
+
         return true;
     }
 

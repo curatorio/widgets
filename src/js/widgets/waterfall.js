@@ -24,10 +24,6 @@ class Waterfall extends Widget {
             this.$container.addClass('crt-widget-waterfall');
             this.$loadMore = this.$container.find('.crt-load-more');
 
-            // console.log(this.$loadMore);
-            // console.log(this.options.waterfall.templateFeed);
-            // return;
-
             if (this.options.continuousScroll) {
                 z(this.$scroll).scroll(() => {
                     let height = this.$scroll.height();
@@ -42,12 +38,7 @@ class Waterfall extends Widget {
             if (this.options.waterfall.showLoadMore) {
                 // default to more
                 let $aLoadMore = this.$loadMore.find('a');
-                console.log($aLoadMore);
                 $aLoadMore.on('click', (ev) => {
-                    console.log('click1');
-                });
-                $aLoadMore.on('click', (ev) => {
-                    console.log('click');
                     ev.preventDefault();
                     this.loadMorePosts();
                 });

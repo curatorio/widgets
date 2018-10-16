@@ -33,7 +33,7 @@ let LayoutWaterfallSettings = {
 
 class LayoutWaterfall {
     constructor(options, element) {
-        Logger.log("WaterfallLayout->onPostsLoaded");
+        Logger.log("WaterfallLayout->constructor");
         this.element = z(element);
         this.id = CommonUtils.uId ();
 
@@ -44,7 +44,7 @@ class LayoutWaterfall {
         this.gridArrPrepend = [];
         this.setArr = false;
         this.setGrid = false;
-        this.cols = 0;
+        this.cols = -1;
         this.itemCount = 0;
         this.isPrepending = false;
         this.appendCount = 0;
@@ -62,13 +62,18 @@ class LayoutWaterfall {
         // this.element.is(':visible')
 
         // build columns
-        this._setCols();
+        // this._setCols(1);
+        this.resize();
         // build grid
-        this._renderGrid('append');
+        // this._renderGrid('append');
         // add class 'gridalicious' to container
-        z(this.box).addClass('gridalicious');
+        // z(this.box).addClass('gridalicious');
 
         this.createHandlers ();
+
+        this.$spacer = this.element.find('.crt-feed-spacer');
+
+        this.$spacer.remove();
     }
 
     createHandlers () {
@@ -110,26 +115,38 @@ class LayoutWaterfall {
         return length ? this._setName(--length, "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz".charAt(Math.floor(Math.random() * 60)) + current) : current;
     }
 
-    _setCols() {
-        Logger.log("WaterfallLayout->_setCols");
+    _setCols(newCols) {
+        Logger.log("WaterfallLayout->_setCols "+newCols);
         // calculate columns
-        this.cols = Math.floor(this.box.width() / this.options.width);
+        let boxWidth = this.box.width();
+        Logger.log('boxWidth: '+boxWidth);
+        this.cols = newCols;
         //If Cols lower than 1, the grid disappears
         if (this.cols < 1) {
             this.cols = 1;
         }
-        let diff = (this.box.width() - (this.cols * this.options.width) - this.options.gutter) / this.cols;
-        let w = (this.options.width + diff) / this.box.width() * 100;
-        this.w = w;
+        let diff = (boxWidth - (this.cols * this.options.width) - this.options.gutter) / this.cols;
+        let colWidth = (this.options.width + diff) / boxWidth * 100;
+
+        Logger.log('colWidth: '+colWidth);
+
+        if (colWidth < 0 || colWidth > 100) {
+            colWidth = 100;
+        }
+        this.w = colWidth;
         this.colHeights = new Array(this.cols);
         this.colHeights.fill(0);
         this.colItems = new Array(this.cols);
         this.colItems.fill([]);
 
+        // delete columns in box
+        this.box.find('.galcolumn').remove();
+        // build columns
+
         // add columns to box
         for (let i = 0; i < this.cols; i++) {
             let div = z('<div></div>').addClass('galcolumn').attr('id', 'item' + i + this.name).css({
-                'width': w + '%',
+                'width': colWidth + '%',
                 'paddingLeft': this.options.gutter,
                 'paddingBottom': this.options.gutter,
                 'float': 'left',
@@ -333,11 +350,16 @@ class LayoutWaterfall {
 
     resize() {
         Logger.log("WaterfallLayout->resize");
-        // if (this.box.width() === this.boxWidth) {
-        //     return;
-        // }
 
         let newCols = Math.floor(this.box.width() / this.options.width);
+
+        if (newCols < 1) {
+            newCols = 1;
+        }
+
+        Logger.log('newCols:'+newCols);
+        Logger.log('oldCol:'+this.cols);
+
         if (this.cols === newCols) {
             // nothings changed yet
             // console.log('NOTHING CHANGED');
@@ -350,15 +372,16 @@ class LayoutWaterfall {
             return;
         }
 
-        this.visible = true;
+        // if (newCols > 1) {
+        //     return;
+        // }
 
-        // delete columns in box
-        this.box.find('.galcolumn').remove();
-        // build columns
-        this._setCols();
-        // build grid
+        this.visible = true;
         this.ifCallback = false;
         this.isResizing = true;
+
+        this._setCols(newCols);
+        // build grid
         this._renderGrid('append');
         this.ifCallback = true;
         this.isResizing = false;

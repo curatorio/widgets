@@ -74,8 +74,8 @@ gulp.task('styles', () =>  {
     return gulp.src(srcScss+'*.scss')
         .pipe(sass({ style: 'expanded' }).on('error', sass.logError))
         .pipe(autoprefixer('last 2 version', 'safari 5', 'ie 8', 'ie 9', 'opera 12.1', 'ios 6', 'android 4'))
-        .pipe(gulp.dest(destCss))
-        .pipe(notify({ message: 'Styles task complete' }));
+        .pipe(gulp.dest(destCss));
+        // .pipe(notify({ message: 'Styles task complete' }));
 });
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -88,8 +88,8 @@ gulp.task('styles:prod', () =>  {
         .pipe(gulp.dest(destCss))
         .pipe(rename({suffix: '.min'}))
         .pipe(cleanCSS({compatibility: 'ie8'}))
-        .pipe(gulp.dest(destCss))
-        .pipe(notify({ message: 'Styles task complete' }));
+        .pipe(gulp.dest(destCss));
+        // .pipe(notify({ message: 'Styles task complete' }));
 });
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -114,8 +114,8 @@ gulp.task('scripts:core', () =>  {
         // .pipe(sourcemaps.write()) // inlining the sourcemap into the exported .js file
         // .pipe(wrap({ src: 'src/umd-templates/core.js'}))
         .pipe(rename('curator.core.js'))
-        .pipe(gulp.dest(destJs))
-        .pipe(notify({ message: 'scripts:core task complete' }));
+        .pipe(gulp.dest(destJs));
+        // .pipe(notify({ message: 'scripts:core task complete' }));
 });
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -130,8 +130,8 @@ gulp.task('scripts:bundle', ['scripts:core'], () =>  {
         // .pipe(addsrc.prepend(jsZepto))
         .pipe(concat('curator.js'))
         .pipe(wrap({ src: 'src/umd-templates/curator.js'}))
-        .pipe(gulp.dest(destJs))
-        .pipe(notify({ message: 'scripts:all task complete' }));
+        .pipe(gulp.dest(destJs));
+        // .pipe(notify({ message: 'scripts:all task complete' }));
 });
 
 gulp.task('scripts:umd', ['scripts:core'], () =>  {
@@ -144,8 +144,8 @@ gulp.task('scripts:umd', ['scripts:core'], () =>  {
         // .pipe(addsrc.prepend(jsZepto))
         .pipe(concat('curator.umd.js'))
         .pipe(wrap({ src: 'src/umd-templates/curator.umd.js'}))
-        .pipe(gulp.dest(destJs))
-        .pipe(notify({ message: 'scripts:all task complete' }));
+        .pipe(gulp.dest(destJs));
+        // .pipe(notify({ message: 'scripts:all task complete' }));
 });
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -156,7 +156,7 @@ gulp.task('scripts:lint', () =>  {
     return gulp.src(srcJs+'core/**/*.js')
         .pipe(jshint())
         .pipe(jshint.reporter('default'))
-        .pipe(notify({ message: 'scripts:lint task complete' }));
+        // .pipe(notify({ message: 'scripts:lint task complete' }));
 });
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -175,7 +175,7 @@ gulp.task('scripts:prod', ['scripts'], () =>  {
             mangle:false
         }))
         .pipe(gulp.dest(destJs))
-        .pipe(notify({ message: 'Scripts & Minify task complete' }));
+        // .pipe(notify({ message: 'Scripts & Minify task complete' }));
 });
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
