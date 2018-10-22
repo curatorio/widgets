@@ -82,6 +82,10 @@
         line-height: $line-height-post-text;
         text-align: center;
 
+        img {
+            max-width: 100%;
+        }
+
         a {
             color: $color-post-text-link;
 
