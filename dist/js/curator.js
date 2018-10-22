@@ -2301,7 +2301,9 @@ var template$4 = "\n<div class=\"crt-feed-window\">\n    <div class=\"crt-feed\"
 
 var template$5 = "\n<div class=\"crt-list-post crt-post-<%=id%> <%=this.contentImageClasses()%> <%=this.contentTextClasses()%>\" data-post=\"<%=id%>\">     <div class=\"crt-post-c\"> \n        <div class=\"crt-post-content\"> \n            <div class=\"crt-list-post-image\">\n                <div>\n                <img class=\"crt-post-content-image\" src=\"<%=image%>\" alt=\"Image posted by <%=user_screen_name%> to <%=this.networkName()%>\" /> \n                <a href=\"javascript:;\" class=\"crt-play\"><i class=\"crt-play-icon\"></i></a> \n                <span class=\"crt-social-icon crt-social-icon-normal\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                <span class=\"crt-image-carousel\"><i class=\"crt-icon-image-carousel\"></i></span>\n                </div> \n            </div>\n            <div class=\"crt-list-post-text\">\n                <div class=\"crt-post-header\"> \n                    <div class=\"crt-post-fullname\"><%=id%> - <a href=\"<%=this.userUrl()%>\" target=\"_blank\"><%=user_full_name%></a></div>\n                </div> \n                <div class=\"crt-list-post-text-wrap\"> \n                    <div><%=this.parseText(text)%></div> \n                </div> \n                <span class=\"crt-social-icon crt-social-icon-normal\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span>\n                 <div class=\"crt-post-footer\">\n                    <img class=\"crt-post-userimage\" src=\"<%=user_image%>\" alt=\"Profile image for <%=user_full_name%>\"/> \n                    <span class=\"crt-post-username\"><a href=\"<%=this.userUrl()%>\" target=\"_blank\">@<%=user_screen_name%></a></span>\n                    <span class=\"crt-date\"><%=this.prettyDate(source_created_at)%></span> \n                    <div class=\"crt-post-share\"><span class=\"crt-share-hint\"></span><a href=\"#\" class=\"crt-share-facebook\"><i class=\"crt-icon-facebook\"></i></a>  <a href=\"#\" class=\"crt-share-twitter\"><i class=\"crt-icon-twitter\"></i></a></div>\n                </div>  \n            </div>\n        </div> \n    </div>\n</div>";
 
-var template$6 = "\n<div class=\"crt-feed-scroll\">\n<div class=\"crt-feed\"></div>\n</div>\n<div class=\"crt-load-more\"><a href=\"#\"><span><%=this._t(\"load-more\")%></span></a></div>\n";
+// Note the .crt-feed-spacer below was added to fix issues where the feed didn't fill the full width of a browser when it (the feed
+// is a child of a flex-box that doesn't grow correctly ... pretty hacky but it works :|
+var template$6 = "\n<div class=\"crt-feed-scroll\">\n<div class=\"crt-feed\"><div class=\"crt-feed-spacer\">-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- </div></div>\n</div>\n<div class=\"crt-load-more\"><a href=\"#\"><span><%=this._t(\"load-more\")%></span></a></div>\n";
 
 var Templates = {
     'filter'                : filterTemplate,
@@ -4043,6 +4045,15 @@ var Widget = (function (EventBus$$1) {
         this.createFilter();
         this.createPopupManager();
 
+        var crtEvent = {
+            name:'crt:widget:created',
+            data:{
+                feedId:options.feedId
+            }
+        };
+
+        window.postMessage(crtEvent, '*');
+
         return true;
     };
 
@@ -5329,7 +5340,7 @@ var LayoutWaterfallSettings = {
 };
 
 var LayoutWaterfall = function LayoutWaterfall(options, element) {
-    Logger.log("WaterfallLayout->onPostsLoaded");
+    Logger.log("WaterfallLayout->constructor");
     this.element = z$1(element);
     this.id = CommonUtils.uId ();
 
@@ -5340,7 +5351,7 @@ var LayoutWaterfall = function LayoutWaterfall(options, element) {
     this.gridArrPrepend = [];
     this.setArr = false;
     this.setGrid = false;
-    this.cols = 0;
+    this.cols = -1;
     this.itemCount = 0;
     this.isPrepending = false;
     this.appendCount = 0;
@@ -5358,13 +5369,18 @@ var LayoutWaterfall = function LayoutWaterfall(options, element) {
     // this.element.is(':visible')
 
     // build columns
-    this._setCols();
+    // this._setCols(1);
+    this.resize();
     // build grid
-    this._renderGrid('append');
+    // this._renderGrid('append');
     // add class 'gridalicious' to container
-    z$1(this.box).addClass('gridalicious');
+    // z(this.box).addClass('gridalicious');
 
     this.createHandlers ();
+
+    this.$spacer = this.element.find('.crt-feed-spacer');
+
+    this.$spacer.remove();
 };
 
 LayoutWaterfall.prototype.createHandlers = function createHandlers () {
@@ -5408,28 +5424,40 @@ LayoutWaterfall.prototype._setName = function _setName (length, current) {
     return length ? this._setName(--length, "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz".charAt(Math.floor(Math.random() * 60)) + current) : current;
 };
 
-LayoutWaterfall.prototype._setCols = function _setCols () {
+LayoutWaterfall.prototype._setCols = function _setCols (newCols) {
         var this$1 = this;
 
-    Logger.log("WaterfallLayout->_setCols");
+    Logger.log("WaterfallLayout->_setCols "+newCols);
     // calculate columns
-    this.cols = Math.floor(this.box.width() / this.options.width);
+    var boxWidth = this.box.width();
+    Logger.log('boxWidth: '+boxWidth);
+    this.cols = newCols;
     //If Cols lower than 1, the grid disappears
     if (this.cols < 1) {
         this.cols = 1;
     }
-    var diff = (this.box.width() - (this.cols * this.options.width) - this.options.gutter) / this.cols;
-    var w = (this.options.width + diff) / this.box.width() * 100;
-    this.w = w;
+    var diff = (boxWidth - (this.cols * this.options.width) - this.options.gutter) / this.cols;
+    var colWidth = (this.options.width + diff) / boxWidth * 100;
+
+    Logger.log('colWidth: '+colWidth);
+
+    if (colWidth < 0 || colWidth > 100) {
+        colWidth = 100;
+    }
+    this.w = colWidth;
     this.colHeights = new Array(this.cols);
     this.colHeights.fill(0);
     this.colItems = new Array(this.cols);
     this.colItems.fill([]);
 
+    // delete columns in box
+    this.box.find('.galcolumn').remove();
+    // build columns
+
     // add columns to box
     for (var i = 0; i < this.cols; i++) {
         var div = z$1('<div></div>').addClass('galcolumn').attr('id', 'item' + i + this$1.name).css({
-            'width': w + '%',
+            'width': colWidth + '%',
             'paddingLeft': this$1.options.gutter,
             'paddingBottom': this$1.options.gutter,
             'float': 'left',
@@ -5632,11 +5660,16 @@ LayoutWaterfall.prototype._updateAfterPrepend = function _updateAfterPrepend (pr
 
 LayoutWaterfall.prototype.resize = function resize () {
     Logger.log("WaterfallLayout->resize");
-    // if (this.box.width() === this.boxWidth) {
-    // return;
-    // }
 
     var newCols = Math.floor(this.box.width() / this.options.width);
+
+    if (newCols < 1) {
+        newCols = 1;
+    }
+
+    Logger.log('newCols:'+newCols);
+    Logger.log('oldCol:'+this.cols);
+
     if (this.cols === newCols) {
         // nothings changed yet
         // console.log('NOTHING CHANGED');
@@ -5649,15 +5682,16 @@ LayoutWaterfall.prototype.resize = function resize () {
         return;
     }
 
-    this.visible = true;
+    // if (newCols > 1) {
+    // return;
+    // }
 
-    // delete columns in box
-    this.box.find('.galcolumn').remove();
-    // build columns
-    this._setCols();
-    // build grid
+    this.visible = true;
     this.ifCallback = false;
     this.isResizing = true;
+
+    this._setCols(newCols);
+    // build grid
     this._renderGrid('append');
     this.ifCallback = true;
     this.isResizing = false;
@@ -5702,10 +5736,6 @@ var Waterfall = (function (Widget$$1) {
             this.$container.addClass('crt-widget-waterfall');
             this.$loadMore = this.$container.find('.crt-load-more');
 
-            // console.log(this.$loadMore);
-            // console.log(this.options.waterfall.templateFeed);
-            // return;
-
             if (this.options.continuousScroll) {
                 z$1(this.$scroll).scroll(function () {
                     var height = this$1.$scroll.height();
@@ -5720,12 +5750,7 @@ var Waterfall = (function (Widget$$1) {
             if (this.options.waterfall.showLoadMore) {
                 // default to more
                 var $aLoadMore = this.$loadMore.find('a');
-                console.log($aLoadMore);
                 $aLoadMore.on('click', function (ev) {
-                    console.log('click1');
-                });
-                $aLoadMore.on('click', function (ev) {
-                    console.log('click');
                     ev.preventDefault();
                     this$1.loadMorePosts();
                 });

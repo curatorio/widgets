@@ -1,51 +1,53 @@
 {
-  "name": "curator-widgets",
-  "version": "3.3.1",
-  "description": "Curator Widgets - Social media aggregator widgets",
-  "homepage": "https://github.com/curatorio/widgets",
-  "repository": "https://github.com/curatorio/widgets",
-  "main": "dist/curator.core.js",
-  "author": {
-    "name": "Thomas Garrood",
-    "email": "thomas@curator.io",
-    "url": "https://curator.io"
-  },
-  "keywords": [
-    "carousel",
-    "waterfall",
-    "social",
-    "media",
-    "curator",
-    "aggregator"
-  ],
-  "bugs": {
-    "url": "https://github.com/curatorio/widgets/issues",
-    "email": "thomas@curator.io"
-  },
-  "devDependencies": {
-    "gulp": "^3.9.1",
-    "gulp-add-src": "*",
-    "gulp-autoprefixer": "*",
-    "gulp-better-rollup": "^2.0.0",
-    "gulp-buble": "^0.8.0",
-    "gulp-clean-css": "^3.9.4",
-    "gulp-concat": "*",
-    "gulp-insert": "^0.5.0",
-    "gulp-jshint": "*",
-    "gulp-livereload": "*",
-    "gulp-notify": "*",
-    "gulp-rename": "*",
-    "gulp-sass": "*",
-    "gulp-uglify": "*",
-    "gulp-wrap": "^0.13.0",
-    "jshint": "*",
-    "rollup-plugin-alias": "^1.4.0",
-    "rollup-plugin-buble": "^0.17.0",
-    "rollup-stream": "^1.24.1",
-    "rollup-plugin-node-resolve": "^3.3.0",
-    "zepto": "^1.2.0"
-  },
-  "dependencies": {
-    "resize-observer-polyfill": "^1.5.0"
-  }
+    "name": "curator-widgets",
+    "version": "3.3.1",
+    "description": "Curator Widgets - Social media aggregator widgets",
+    "homepage": "https://github.com/curatorio/widgets",
+    "repository": "https://github.com/curatorio/widgets",
+    "main": "dist/js/curator.umd.js",
+    "license": "MIT",
+    "author": {
+        "name": "Thomas Garrood",
+        "email": "thomas@curator.io",
+        "url": "https://curator.io"
+    },
+    "keywords": [
+        "carousel",
+        "waterfall",
+        "social",
+        "media",
+        "curator",
+        "aggregator"
+    ],
+    "bugs": {
+        "url": "https://github.com/curatorio/widgets/issues",
+        "email": "thomas@curator.io"
+    },
+    "devDependencies": {
+        "gulp": "^3.9.1",
+        "gulp-add-src": "*",
+        "gulp-autoprefixer": "*",
+        "gulp-better-rollup": "^2.0.0",
+        "gulp-buble": "^0.8.0",
+        "gulp-clean-css": "^3.9.4",
+        "gulp-concat": "*",
+        "gulp-insert": "^0.5.0",
+        "gulp-jshint": "*",
+        "gulp-livereload": "*",
+        "gulp-notify": "*",
+        "gulp-rename": "*",
+        "gulp-sass": "*",
+        "gulp-uglify": "*",
+        "gulp-wrap": "^0.13.0",
+        "jshint": "*",
+        "rollup-plugin-alias": "^1.4.0",
+        "rollup-plugin-buble": "^0.17.0",
+        "rollup-stream": "^1.24.1",
+        "rollup-plugin-node-resolve": "^3.3.0",
+        "zepto": "^1.2.0"
+    },
+    "dependencies": {
+        "resize-observer-polyfill": "^1.5.0",
+        "jquery": "*"
+    }
 }
