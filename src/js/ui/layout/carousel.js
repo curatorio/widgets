@@ -6,13 +6,13 @@ import z from '../../core/lib';
 
 const LayoutCarouselSettings = {
     infinite: false,
-	speed: 5000,
-	duration: 700,
-	minWidth: 250,
-	panesVisible: null,
-	moveAmount: 0,
-	autoPlay: false,
-	useCss : true
+    speed: 5000,
+    duration: 700,
+    minWidth: 250,
+    panesVisible: null,
+    moveAmount: 0,
+    autoPlay: false,
+    useCss : true
 };
 
 if (z.zepto) {
@@ -20,41 +20,45 @@ if (z.zepto) {
 }
 
 class LayoutCarousel extends EventBus {
-	constructor (widget, container, options) {
-		Logger.log('LayoutCarousel->construct');
+    constructor (widget, container, options) {
+        Logger.log('LayoutCarousel->construct');
 
         super ();
 
         this.id = CommonUtils.uId ();
         this.widget = widget;
-		this.currentPost = 0;
-		this.animating = false;
-		this.timeout = null;
-		this.PANES_VISIBLE = 0;
-		this.PANE_WIDTH = 0;
-		this.posts = [];
-		this.paneCache = {};
+        this.currentPost = 0;
+        this.animating = false;
+        this.timeout = null;
+        this.PANES_VISIBLE = 0;
+        this.PANE_WIDTH = 0;
+        this.posts = [];
+        this.paneCache = {};
         this.$panes = [];
 
-		this.options = z.extend({}, LayoutCarouselSettings, options);
+        this.options = z.extend({}, LayoutCarouselSettings, options);
 
-		// Validate options
+        // Validate options
         if (!this.options.minWidth || this.options.minWidth < 100) {
             this.options.minWidth = LayoutCarouselSettings.minWidth;
-		}
+        }
 
-		this.$viewport = z(container); // <div> slider, known as $viewport
+        this.$viewport = z(container); // <div> slider, known as $viewport
 
-		this.$stage = z('<div class="crt-carousel-stage"></div>').appendTo(this.$viewport);
-		this.$paneSlider = z('<div class="crt-carousel-slider"></div>').appendTo(this.$stage);
+        this.$stage = z('<div class="crt-carousel-stage"></div>').appendTo(this.$viewport);
+        this.$paneSlider = z('<div class="crt-carousel-slider"></div>').appendTo(this.$stage);
 
-		if (this.options.matchHeights) {
+        if (!z.zepto) {
+            this.$paneSlider[0]['crtTransformX'] = 0;
+        }
+
+        if (this.options.matchHeights) {
             this.$stage.addClass('crt-match-heights');
         }
 
-		this.addControls();
-		this.createHandlers();
-	}
+        this.addControls();
+        this.createHandlers();
+    }
 
     addControls () {
         this.$viewport.append('<button type="button" data-role="none" class="crt-panel-prev crt-panel-arrow" aria-label="Previous" role="button" aria-disabled="false">Previous</button>');
@@ -77,31 +81,31 @@ class LayoutCarousel extends EventBus {
         // z(document).off('ready.'+id);
     }
 
-	addPosts (posts) {
+    addPosts (posts) {
         Logger.log('LayoutCarousel->addPosts '+posts.length);
         let firstLoad = this.posts.length === 0;
-		this.posts = this.posts.concat(posts);
+        this.posts = this.posts.concat(posts);
 
-		if (firstLoad) {
+        if (firstLoad) {
             this.calcSizes();
 
             this.currentPost = 0;
 
             this.updatePanes();
 
-			let x = 0-(this.PANES_VISIBLE * this.PANE_WIDTH);
+            let x = 0-(this.PANES_VISIBLE * this.PANE_WIDTH);
             this.$paneSlider.width (this.PANE_WIDTH * (this.PANES_VISIBLE * 3));
-            this.$paneSlider.css({'transform': 'translate3d('+x+'px, 0px, 0px)'});
+            this.setSliderX (x);
 
-			this.updateHeight();
+            this.updateHeight();
 
             if (this.options.autoPlay) {
                 this.tick();
             }
-		}
-	}
+        }
+    }
 
-	calcSizes () {
+    calcSizes () {
 
         this.VIEWPORT_WIDTH = this.$viewport.width();
         Logger.log('VIEWPORT_WIDTH = '+this.VIEWPORT_WIDTH);
@@ -114,9 +118,9 @@ class LayoutCarousel extends EventBus {
             this.PANES_VISIBLE = this.VIEWPORT_WIDTH < this.options.minWidth ? 1 : Math.floor(this.VIEWPORT_WIDTH / this.options.minWidth);
             this.PANE_WIDTH = (this.VIEWPORT_WIDTH / this.PANES_VISIBLE);
         }
-	}
+    }
 
-	updatePanes () {
+    updatePanes () {
 
         let panes = this.createPanes();
 
@@ -151,9 +155,9 @@ class LayoutCarousel extends EventBus {
         //         console.log('keeping '+key);
         //     }
         // }
-	}
+    }
 
-	createPanes () {
+    createPanes () {
 
         let panes = [];
         let start  = this.currentPost - this.PANES_VISIBLE;
@@ -166,7 +170,7 @@ class LayoutCarousel extends EventBus {
         }
 
         return panes;
-	}
+    }
 
     getPane (paneIndex) {
 
@@ -196,9 +200,9 @@ class LayoutCarousel extends EventBus {
     }
 
     resize () {
-	    let oldPanesVisible = this.PANES_VISIBLE;
+        let oldPanesVisible = this.PANES_VISIBLE;
 
-		this.calcSizes();
+        this.calcSizes();
 
         this.$paneSlider.width (this.PANE_WIDTH * (this.PANES_VISIBLE * 3));
 
@@ -215,10 +219,10 @@ class LayoutCarousel extends EventBus {
 
         let x = 0-(this.PANES_VISIBLE * this.PANE_WIDTH);
         this.$paneSlider.width (this.PANE_WIDTH * (this.PANES_VISIBLE * 3));
-        this.$paneSlider.css({'transform': 'translate3d('+x+'px, 0px, 0px)'});
-	}
+        this.setSliderX (x);
+    }
 
-	updateLayout () {
+    updateLayout () {
         this.resize();
         this.move (0, true);
 
@@ -226,32 +230,32 @@ class LayoutCarousel extends EventBus {
         if (this.options.autoPlay) {
             this.tick();
         }
-	}
+    }
 
-	tick () {
-		window.clearTimeout(this.timeout);
-		this.timeout = window.setTimeout(() => {
-			this.next();
-		}, this.options.speed);
-	}
+    tick () {
+        window.clearTimeout(this.timeout);
+        this.timeout = window.setTimeout(() => {
+            this.next();
+        }, this.options.speed);
+    }
 
-	next () {
-		let move = this.options.moveAmount ? this.options.moveAmount : this.PANES_VISIBLE ;
-		this.move(move, false);
-	}
+    next () {
+        let move = this.options.moveAmount ? this.options.moveAmount : this.PANES_VISIBLE ;
+        this.move(move, false);
+    }
 
-	prev () {
-		let move = this.options.moveAmount ? this.options.moveAmount : this.PANES_VISIBLE ;
-		this.move(0 - move, false);
-	}
+    prev () {
+        let move = this.options.moveAmount ? this.options.moveAmount : this.PANES_VISIBLE ;
+        this.move(0 - move, false);
+    }
 
-	move (moveAmt, noAnimate) {
+    move (moveAmt, noAnimate) {
         Logger.log('LayoutCarousel->move currentPost:'+this.currentPost+' moveAmt:'+moveAmt);
         let previousPost = this.currentPost;
-		let newPost = this.currentPost + moveAmt;
+        let newPost = this.currentPost + moveAmt;
         this.animating = true;
 
-		if (this.options.infinite) {
+        if (this.options.infinite) {
             if (newPost < 0) {
                 newPost = this.posts.length + newPost;
             } else if (newPost > this.posts.length) {
@@ -264,31 +268,19 @@ class LayoutCarousel extends EventBus {
                 newPost = this.posts.length - this.PANES_VISIBLE;
             }
             moveAmt = newPost - previousPost;
-		}
+        }
 
-		this.currentPost = newPost;
+        this.currentPost = newPost;
 
-		if (moveAmt) {
+        if (moveAmt) {
 
             let x = (0 - (this.PANES_VISIBLE * this.PANE_WIDTH)) - (moveAmt * this.PANE_WIDTH);
 
             if (noAnimate) {
                 this.$paneSlider.removeClass('crt-animate-transform');
-                this.$paneSlider.css({'transform': 'translate3d(' + x + 'px, 0px, 0px)'});
+                this.setSliderX (x);
                 this.moveComplete();
             } else {
-                // let options = {
-                // 	duration: this.options.duration,
-                // 	complete: this.moveComplete.bind(this),
-                // 	// easing:'asd'
-                // };
-                // if (this.options.easing) {
-                // 	options.easing = this.options.easing;
-                // }
-                // this.$paneSlider.addClass('crt-animate-transform');
-                // this.$paneSlider.animate({'transform': 'translate3d('+x+'px, 0px, 0px)'},
-                // 	options
-                // );
                 let options = {
                     duration: this.options.duration,
                     complete: this.moveComplete.bind(this),
@@ -306,43 +298,47 @@ class LayoutCarousel extends EventBus {
                 } else {
                     // Jquery doesn't animate transform
                     options.step = function(now, fx) {
-                        z(this).css('-webkit-transform','translate3d('+now+'px, 0px, 0px)');
-                        z(this).css('-moz-transform','translate3d('+now+'px, 0px, 0px)');
-                        z(this).css('transform','translate3d('+now+'px, 0px, 0px)');
+                        // console.log(fx);
+                        if (fx.prop === 'crtTransformX' ) {
+                            // console.log('step:'+now);
+                            z(this).css('-webkit-transform','translate3d('+now+'px, 0px, 0px)');
+                            z(this).css('-moz-transform','translate3d('+now+'px, 0px, 0px)');
+                            z(this).css('transform','translate3d('+now+'px, 0px, 0px)');
+                        }
                     };
 
                     this.$paneSlider.addClass('crt-animate-transform');
-                    this.$paneSlider.animate({'transformX': x},
+                    this.$paneSlider.animate({'crtTransformX': x},
                         options
                     );
                 }
             }
         }
-	}
+    }
 
-	moveComplete () {
+    moveComplete () {
         Logger.log('LayoutCarousel->moveComplete');
 
         window.setTimeout(() => {
-			this.updateHeight();
-		}, 50);
+            this.updateHeight();
+        }, 50);
 
-		this.updatePanes();
+        this.updatePanes();
 
-		// reset x position
+        // reset x position
         let x = 0-(this.PANES_VISIBLE * this.PANE_WIDTH);
-        this.$paneSlider.css({'transform': 'translate3d('+x+'px, 0px, 0px)'});
+        this.setSliderX (x);
 
         // trigger change event
-		this.trigger(Events.CAROUSEL_CHANGED, this, this.currentPost);
+        this.trigger(Events.CAROUSEL_CHANGED, this, this.currentPost);
 
-		if (this.options.autoPlay) {
-			this.tick();
-		}
-	}
+        if (this.options.autoPlay) {
+            this.tick();
+        }
+    }
 
-	updateHeight () {
-        Logger.log('LayoutCarousel->updateHeight');
+    updateHeight () {
+        // Logger.log('LayoutCarousel->updateHeight');
 
         let paneMaxHeight = this.getMaxHeight();
 
@@ -351,11 +347,11 @@ class LayoutCarousel extends EventBus {
         }
 
         if (this.options.matchHeights) {
-        	this.setPaneHeights ();
+            this.setPaneHeights ();
         }
-	}
+    }
 
-	setPaneHeights () {
+    setPaneHeights () {
         Logger.log('LayoutCarousel->setPaneHeights ');
 
         if (this.options.matchHeights) {
@@ -369,17 +365,17 @@ class LayoutCarousel extends EventBus {
                 $pane.find('.crt-post-c').animate({height: h}, 300);
             }
         }
-	}
+    }
 
-	getMaxHeight () {
-        Logger.log('LayoutCarousel->getMaxHeight ');
+    getMaxHeight () {
+        // Logger.log('LayoutCarousel->getMaxHeight ');
 
         let paneMaxHeight = 0;
         let min = this.PANES_VISIBLE;
         let max = min + this.PANES_VISIBLE;
         for (let i = min; i < max; i++)
         {
-        	if (this.currentPanes[i]) {
+            if (this.currentPanes[i]) {
                 // let $pane = this.currentPanes[i].$el;
                 let h = this.currentPanes[i].getHeight();
 
@@ -390,30 +386,41 @@ class LayoutCarousel extends EventBus {
             }
         }
 
-        Logger.log(paneMaxHeight);
-
         return paneMaxHeight;
-	}
+    }
+
+    setSliderX(x) {
+        this.$paneSlider.css({'transform': 'translate3d('+x+'px, 0px, 0px)'});
+        if (!z.zepto) {
+            this.$paneSlider[0]['crtTransformX'] = x;
+        }
+    }
 
     onPostLayoutChanged (post) {
-	    window.clearTimeout(this.postLayoutChangedTO);
-	    this.postLayoutChangedTO = window.setTimeout(()=>{
-	        this.updateHeight ();
+        window.clearTimeout(this.postLayoutChangedTO);
+        this.postLayoutChangedTO = window.setTimeout(()=>{
+            this.updateHeight ();
         },100);
     }
 
-	reset () {
+    reset () {
         window.clearTimeout(this.timeout);
         this.$paneSlider.empty();
-        this.$paneSlider.css({'transform': 'translate3d(0px, 0px, 0px)'});
+        this.setSliderX (0);
         this.posts = [];
         this.currentPost = 0;
         this.paneCache = [];
     }
 
     destroy () {
+        Logger.log('LayoutCarousel->destroy ');
         this.destroyHandlers ();
+        this.$paneSlider.finish();
         window.clearTimeout(this.timeout);
+
+        delete this.$viewport;
+        delete this.$stage;
+        delete this.$paneSlider;
     }
 }
 

@@ -159,14 +159,23 @@ class Popup {
         Logger.log('Popup->onPlay');
         e.preventDefault();
 
-        this.videoPlaying = !this.videoPlaying;
-
-        if (this.videoPlaying) {
-            this.$popup.find('video')[0].play();
+        if (!this.videoPlaying) {
             this.widget.track('video:play');
+            let playPromise = this.$popup.find('video')[0].play();
+            if (playPromise !== undefined) {
+                playPromise.then(_ => {
+                    this.videoPlaying = true;
+                })
+                .catch(error => {
+                    console.error('Video failed to play', error);
+                });
+            } else {
+                this.videoPlaying = true;
+            }
         } else {
             this.$popup.find('video')[0].pause();
             this.widget.track('video:pause');
+            this.videoPlaying = false;
         }
 
         Logger.log(this.videoPlaying);

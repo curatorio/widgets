@@ -5,7 +5,7 @@
     "homepage": "https://github.com/curatorio/widgets",
     "repository": "https://github.com/curatorio/widgets",
     "main": "dist/js/curator.umd.js",
-    "license": "MIT",
+    "license": "",
     "author": {
         "name": "Thomas Garrood",
         "email": "thomas@curator.io",
