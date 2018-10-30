@@ -376,10 +376,8 @@ class LayoutCarousel extends EventBus {
         for (let i = min; i < max; i++)
         {
             if (this.currentPanes[i]) {
-                // let $pane = this.currentPanes[i].$el;
                 let h = this.currentPanes[i].getHeight();
 
-                // Logger.log('LayoutCarousel->updateHeight i: '+i+' = '+h);
                 if (h > paneMaxHeight) {
                     paneMaxHeight = h;
                 }
@@ -415,7 +413,7 @@ class LayoutCarousel extends EventBus {
     destroy () {
         Logger.log('LayoutCarousel->destroy ');
         this.destroyHandlers ();
-        this.$paneSlider.finish();
+        this.$paneSlider.stop(true, false);
         window.clearTimeout(this.timeout);
 
         delete this.$viewport;

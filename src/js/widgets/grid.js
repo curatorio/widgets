@@ -112,7 +112,7 @@ class Grid extends Widget {
     }
 
     updateLayout ( ) {
-        // Logger.log("Grid->updateLayout ");
+        Logger.log("Grid->updateLayout ");
         let cols = Math.floor(this.$container.width()/this.responsiveOptions.grid.minWidth);
         cols = cols < 1 ? 1 : cols;
 
@@ -229,7 +229,7 @@ class Grid extends Widget {
 
             this.popupManager.setPosts(posts);
 
-            window.setTimeout(() => {
+            this.updateHeightTimeout = window.setTimeout(() => {
                 this.updateHeight(true);
             },10);
         }
@@ -255,6 +255,8 @@ class Grid extends Widget {
             .removeClass('crt-grid')
             .removeClass('crt-grid-col'+this.columnCount)
             .css({'height':'','overflow':''});
+
+        window.clearTimeout(this.updateHeightTimeout);
 
         delete this.$feed;
         delete this.$container;
