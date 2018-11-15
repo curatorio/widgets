@@ -163,24 +163,25 @@ class Popup {
             this.widget.track('video:play');
             let playPromise = this.$popup.find('video')[0].play();
             if (playPromise !== undefined) {
-                playPromise.then(_ => {
+                playPromise.then(() => {
                     this.videoPlaying = true;
+                    this.$popup.toggleClass('video-playing', true );
                 })
                 .catch(error => {
-                    console.error('Video failed to play', error);
+                    // console.error('Video failed to play', error);
                 });
             } else {
                 this.videoPlaying = true;
+                this.$popup.toggleClass('video-playing', true );
             }
         } else {
             this.$popup.find('video')[0].pause();
             this.widget.track('video:pause');
             this.videoPlaying = false;
+            this.$popup.toggleClass('video-playing', false );
         }
 
         Logger.log(this.videoPlaying);
-
-        this.$popup.toggleClass('video-playing',this.videoPlaying );
     }
 
     show () {

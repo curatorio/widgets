@@ -87,7 +87,6 @@ class LayoutWaterfall {
             this.ro = new ResizeObserver((entries, observer) => {
                 if (entries.length > 0) {
                     // let entry = entries[0];
-
                     this.redraw();
                 }
             });
