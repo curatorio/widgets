@@ -50,6 +50,12 @@ let findContainer = function (config) {
 };
 
 let loadWidget = function (config) {
+    if (typeof window.onCuratorBeforeBootstrap === 'function') {
+        window.onCuratorBeforeBootstrap();
+    }
+    if (window.jQuery) {
+        window.jQuery(window).trigger('curatorCssLoaded');
+    }
     let container = findContainer (config);
 
     if (!container) {

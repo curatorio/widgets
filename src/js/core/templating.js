@@ -69,7 +69,7 @@ let Templating = {
             helpers.data = data;
             return func.call(helpers, data);
         } catch (e) {
-            Logger.log ('Template parse error: ' +e.message);
+            Logger.error ('Template parse error: ' +e.message);
             err = e.message;
         }
         return " # ERROR: " + err + " # ";

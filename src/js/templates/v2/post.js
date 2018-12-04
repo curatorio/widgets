@@ -25,7 +25,7 @@ const template = `
             <% } %>
             <div class="crt-post-footer"> 
                 <img class="crt-post-userimage" src="<%=user_image%>" alt="Profile image for <%=user_screen_name%>" /> 
-                <span class="crt-post-username"><a href="<%=this.userUrl()%>" target="_blank">@<%=user_screen_name%></a></span>
+                <span class="crt-post-username"><a href="<%=this.userUrl()%>" target="_blank"><%=this.userScreenName()%></a></span>
                 <span class="crt-date"><%=this.prettyDate(source_created_at)%></span> 
                 <div class="crt-post-share"><span class="crt-share-hint"></span><a href="#" class="crt-share-facebook"><i class="crt-icon-facebook"></i></a>  <a href="#" class="crt-share-twitter"><i class="crt-icon-twitter"></i></a></div>
             </div> 

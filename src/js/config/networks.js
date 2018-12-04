@@ -65,6 +65,36 @@ let networks = {
         slug:'linkedin',
         icon:'crt-icon-linkedin'
     },
+    12 : {
+        id: 12,
+        name:'Vimeo',
+        slug:'vimeo',
+        icon:'crt-icon-vimeo'
+    },
+    13 : {
+        id: 13,
+        name:'Diffbot',
+        slug:'difbot',
+        icon:'crt-icon-unknown'
+    },
+    14 : {
+        id: 14,
+        name:'Webo',
+        slug:'webo',
+        icon:'crt-icon-weibo'
+    },
+    15 : {
+        id: 15,
+        name:'Glassdoor',
+        slug:'glassdoor',
+        icon:'crt-icon-unknown'
+    },
+    16 : {
+        id: 16,
+        name:'Instagram',
+        slug:'instagram',
+        icon:'crt-icon-instagram'
+    },
 };
 
 export default networks;

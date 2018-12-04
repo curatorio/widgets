@@ -37,6 +37,14 @@ let helpers = {
         return '#';
     },
 
+    userScreenName () {
+        if (this.data.user_screen_name) {
+            return '@' + this.data.user_screen_name;
+        } else {
+            return '';
+        }
+    },
+
     parseText (s) {
         if (this.data.is_html) {
             return s;
