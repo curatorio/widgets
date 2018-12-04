@@ -280,6 +280,24 @@ body {
 
         .crt-popup-read-more {
             display: none;
+            @include crt-clearfix;
+            //border-top: 1px solid $color-popup-borders;
+            padding: 10px 15px 10px;
+            background-color: #ffffff;
+            //margin-top: 4px;
+            line-height: 1em;
+            text-align: center;
+            //box-shadow: 0 10px 10px #ffffff;
+            z-index: 1;
+
+
+            a.crt-button {
+                border-radius: 6px;
+                background-color: #efefef;
+                display: inline-block;
+                padding: 10px 15px;
+                color: #2e2e2e;
+            }
         }
 
         .crt-popup-footer {
@@ -289,6 +307,7 @@ body {
             background-color: #ffffff;
             margin-top: 4px;
             line-height: 1em;
+            z-index: 2;
 
             .crt-popup-stats {
                 float: left;
@@ -445,6 +464,33 @@ body {
             a.crt-play {
                 .crt-play-icon {
                     display: block;
+                }
+            }
+        }
+
+        &.crt-has-read-more {
+            .crt-popup-read-more {
+                display: block;
+                //position: absolute;
+                //left: 0px;
+                //right: 0px;
+                //bottom: 39px;
+            }
+
+            &.has-image {
+                .crt-popup-right {
+                    padding-bottom: 100px;
+
+                    .crt-popup-read-more {
+                        position: absolute;
+                        left: 0px;
+                        right: 0px;
+                        bottom: 39px;
+                    }
+
+                    .crt-popup-text {
+                        bottom :100px;
+                    }
                 }
             }
         }

@@ -36,6 +36,10 @@ class Popup {
             this.$popup.addClass('has-video');
         }
 
+        if (this.json.url) {
+            this.$popup.addClass('crt-has-read-more');
+        }
+
         if (this.json.video && this.json.video.indexOf('youtu') >= 0 )
         {
             // youtube
@@ -114,7 +118,7 @@ class Popup {
 
         let image = this.json.images[page];
 
-        this.$popup.find('.crt-image img').attr('src',image.url);
+        this.$popup.find('.crt-image img').attr('src', image.url);
         this.currentImage = page;
 
         this.$page.find('li').removeClass('selected');

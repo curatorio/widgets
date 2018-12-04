@@ -3,6 +3,19 @@
 .crt-widget-waterfall {
     min-height: 400px;
     position: relative;
+    display: block;
+    clear: both;
+    max-width: 100%;
+
+    .crt-feed-spacer {
+        height: 1px;
+        opacity: 0;
+        //img {
+        //    height: 1px;
+        //    width: 100%;
+        //
+        //}
+    }
 
     .crt-logo {
         display: none;
