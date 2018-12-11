@@ -21,10 +21,10 @@ class Post extends EventBus {
         this.options = options;
         this.widget = widget;
 
-        let templateId = this.widget.options.templatePost;
 
         this.json = postJson;
-        this.$el = Templating.renderTemplate(templateId, postJson, this.widget.options);
+
+        this.render ();
 
         this.$postC = this.$el.find('.crt-post-c');
         this.$image = this.$el.find('.crt-post-image');
@@ -68,6 +68,18 @@ class Post extends EventBus {
 
         if (this.json.images && this.json.images.length > 0) {
             this.$el.addClass('crt-has-image-carousel');
+        }
+    }
+
+    render () {
+        let templateId = this.widget.options.templatePost;
+        let $el = Templating.renderTemplate(templateId, this.json, this.widget.options);
+
+        if (this.$el) {
+            // TODO - If we're re-rendering we really need to reattach the event listeners ...  
+            this.$el.replaceWith($el);
+        } else {
+            this.$el = $el;
         }
     }
 

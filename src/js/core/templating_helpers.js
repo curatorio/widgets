@@ -6,6 +6,18 @@ import translate from './translate';
 let options = {};
 
 let helpers = {
+    get (id, defaultValue = '') {
+        let r = defaultValue;
+        if (this.data.data.length > 0) {
+            for (let d of this.data.data) {
+                if (d.name === id) {
+                    return d.value;
+                }
+            }
+        }
+        return r;
+    },
+
     networkIcon () {
         return this.data.network_name.toLowerCase();
     },

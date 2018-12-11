@@ -73,6 +73,17 @@
         height: 100%;
     }
 
+    .crt-post-title {
+        padding-left: 17px;
+        padding-right: 17px;
+        padding-top: 17px;
+        padding-bottom: 17px;
+        color: $color-post-title;
+        font-size: $font-size-post-text;
+        line-height: $line-height-post-text;
+        text-align: center;
+    }
+
     .crt-post-content-text {
         padding-left: 17px;
         padding-right: 17px;
