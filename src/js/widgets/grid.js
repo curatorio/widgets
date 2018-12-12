@@ -6,6 +6,7 @@ import ConfigWidgetGrid from '../config/widget_grid';
 import TemplatingUtils from '../core/templating';
 import z from '../core/lib';
 import Events from "../core/events";
+import ResizeObserver from 'resize-observer-polyfill/dist/ResizeObserver.es';
 
 class Grid extends Widget {
 
@@ -71,18 +72,24 @@ class Grid extends Widget {
 
     createHandlers () {
         let id = this.id;
-        let updateLayoutDebounced = CommonUtils.debounce( () => {
+
+        this._resize = CommonUtils.debounce(() => {
+            this.updateResponsiveOptions ();
             this.updateLayout ();
         }, 100);
 
-        z(window).on('resize.'+id, CommonUtils.debounce(() => {
-            this.updateResponsiveOptions ();
-            this.updateLayout ();
-        }, 100));
+        this.ro = new ResizeObserver((entries, observer) => {
+            if (entries.length > 0) {
+                // let entry = entries[0];
+                this._resize();
+            }
+        });
 
-        z(window).on('curatorCssLoaded.'+id, updateLayoutDebounced);
+        this.ro.observe(this.$container[0]);
 
-        z(document).on('ready.'+id, updateLayoutDebounced);
+        z(window).on('curatorCssLoaded.'+id, this._resize.bind(this));
+
+        z(document).on('ready.'+id, this._resize.bind(this));
 
         if (this.responsiveOptions.grid.continuousScroll) {
             z(window).on('scroll.'+id, CommonUtils.debounce(() => {
@@ -98,13 +105,15 @@ class Grid extends Widget {
     destroyHandlers () {
         let id = this.id;
 
-        z(window).off('resize.'+id);
-
         z(window).off('curatorCssLoaded.'+id);
 
         z(document).off('ready.'+id);
 
         z(window).off('scroll.'+id);
+
+        if (this.ro) {
+            this.ro.disconnect();
+        }
     }
 
     loadPosts () {
