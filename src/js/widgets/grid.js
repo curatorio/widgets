@@ -105,6 +105,9 @@ class Grid extends Widget {
     destroyHandlers () {
         let id = this.id;
 
+        this._resize.cancel();
+        this._resize = null;
+
         z(window).off('curatorCssLoaded.'+id);
 
         z(document).off('ready.'+id);
