@@ -19,6 +19,12 @@
         -webkit-font-smoothing:antialiased;
     }
 
+    .crt-carousel-hide-controls {
+        .crt-panel-next,
+        .crt-panel-prev {
+            display: none;
+        }
+    }
 
     .crt-post {
         width: 100%;
