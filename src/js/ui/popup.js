@@ -1,4 +1,3 @@
-
 import Logger from '../core/logger';
 import SocialFacebook from '../social/facebook';
 import SocialTwitter from '../social/twitter';
@@ -6,24 +5,18 @@ import StringUtils from '../utils/string';
 import TemplatingUtils from '../core/templating';
 import z from '../core/lib';
 import CommonUtils from "../utils/common";
-
-/**
- * ==================================================================
- * Popup
- * ==================================================================
- */
+import VideoPlayer from "./controls/video-player";
 
 class Popup {
     
     constructor (popupManager, post, widget) {
         Logger.log("Popup->init ");
- 
+
         this.popupManager = popupManager;
         this.json = post;
         this.widget = widget;
 
         let templateId = this.widget.options.templatePopup;
-        this.videoPlaying=false;
 
         this.$popup = TemplatingUtils.renderTemplate(templateId, this.json);
         this.$left = this.$popup.find('.crt-popup-left');
@@ -32,40 +25,46 @@ class Popup {
             this.$popup.addClass('has-image');
         }
 
-        if (this.json.video) {
-            this.$popup.addClass('has-video');
-        }
-
         if (this.json.url) {
             this.$popup.addClass('crt-has-read-more');
         }
 
-        if (this.json.video && this.json.video.indexOf('youtu') >= 0 )
-        {
-            // youtube
-            this.$popup.find('video').remove();
-            // this.$popup.removeClass('has-image');
+        if (this.json.video) {
+            this.$popup.addClass('has-video');
+            if (this.json.video && this.json.video.indexOf('youtu') >= 0) {
+                // youtube
+                this.$popup.find('video').remove();
+                // this.$popup.removeClass('has-image');
 
-            let youTubeId = StringUtils.youtubeVideoId(this.json.video);
+                let youTubeId = StringUtils.youtubeVideoId(this.json.video);
 
-            let src = `<div class="crt-responsive-video"><iframe id="ytplayer" src="https://www.youtube.com/embed/${youTubeId}?autoplay=0&rel=0&showinfo" frameborder="0" allowfullscreen></iframe></div>`;
+                let src = `<div class="crt-responsive-video"><iframe id="ytplayer" src="https://www.youtube.com/embed/${youTubeId}?autoplay=0&rel=0&showinfo" frameborder="0" allowfullscreen></iframe></div>`;
 
-            this.$popup.find('.crt-video-container img').remove();
-            this.$popup.find('.crt-video-container a').remove();
-            this.$popup.find('.crt-video-container').append(src);
-        } else if (this.json.video && this.json.video.indexOf('vimeo') >= 0 )
-        {
-            // youtube
-            this.$popup.find('video').remove();
-            // this.$popup.removeClass('has-image');
-
-            let vimeoId = StringUtils.vimeoVideoId(this.json.video);
-
-            if (vimeoId) {
-                let src = `<div class="crt-responsive-video"><iframe src="https://player.vimeo.com/video/${vimeoId}?color=ffffff&title=0&byline=0&portrait=0" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>`;
                 this.$popup.find('.crt-video-container img').remove();
                 this.$popup.find('.crt-video-container a').remove();
                 this.$popup.find('.crt-video-container').append(src);
+            } else if (this.json.video && this.json.video.indexOf('vimeo') >= 0) {
+                // youtube
+                this.$popup.find('video').remove();
+                // this.$popup.removeClass('has-image');
+
+                let vimeoId = StringUtils.vimeoVideoId(this.json.video);
+
+                if (vimeoId) {
+                    let src = `<div class="crt-responsive-video"><iframe src="https://player.vimeo.com/video/${vimeoId}?color=ffffff&title=0&byline=0&portrait=0" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>`;
+                    this.$popup.find('.crt-video-container img').remove();
+                    this.$popup.find('.crt-video-container a').remove();
+                    this.$popup.find('.crt-video-container').append(src);
+                }
+            } else {
+                // Normal video
+                this.videoPlayer = new VideoPlayer(this.$popup.find('video')[0]);
+                this.videoPlayer.on('state:changed', (event, playing) => {
+                    Logger.log('state:changed '+playing);
+                    Logger.log(event);
+
+                    this.$popup.toggleClass('video-playing', playing );
+                });
             }
         }
 
@@ -87,7 +86,7 @@ class Popup {
         this.$popup.on('click','.crt-share-facebook',this.onShareFacebookClick.bind(this));
         this.$popup.on('click','.crt-share-twitter',this.onShareTwitterClick.bind(this));
 
-        z(window).on('resize.crt-popup',CommonUtils.debounce(this.onResize.bind(this),50));
+        z(window).on('resize.crt-popup', CommonUtils.debounce(this.onResize.bind(this),50));
 
         this.onResize ();
     }
@@ -163,80 +162,36 @@ class Popup {
         Logger.log('Popup->onPlay');
         e.preventDefault();
 
-        if (!this.videoPlaying) {
-            this.widget.track('video:play');
-            let playPromise = this.$popup.find('video')[0].play();
-            if (playPromise !== undefined) {
-                playPromise.then(() => {
-                    this.videoPlaying = true;
-                    this.$popup.toggleClass('video-playing', true );
-                })
-                .catch(error => {
-                    // console.error('Video failed to play', error);
-                });
-            } else {
-                this.videoPlaying = true;
-                this.$popup.toggleClass('video-playing', true );
-            }
-        } else {
-            this.$popup.find('video')[0].pause();
-            this.widget.track('video:pause');
-            this.videoPlaying = false;
-            this.$popup.toggleClass('video-playing', false );
-        }
-
-        Logger.log(this.videoPlaying);
+        this.videoPlayer.playPause();
     }
 
     show () {
-        //
-        // let post = this.json;
-        // let mediaUrl = post.image,
-        //     text = post.text;
-        //
-        // if (mediaUrl) {
-        //     let $imageWrapper = that.$el.find('div.main-image-wrapper');
-        //     this.loadMainImage(mediaUrl, $imageWrapper, ['main-image']);
-        // }
-        //
-        // let $socialIcon = this.$el.find('.social-icon');
-        // $socialIcon.attr('class', 'social-icon');
-        //
-        // //format the date
-        // let date = Curator.Utils.dateAsDayMonthYear(post.sourceCreateAt);
-        //
-        // this.$el.find('input.discovery-id').val(post.id);
-        // this.$el.find('div.full-name span').html(post.user_full_name);
-        // this.$el.find('div.username span').html('@' + post.user_screen_name);
-        // this.$el.find('div.date span').html(date);
-        // this.$el.find('div.love-indicator span').html(post.loves);
-        // this.$el.find('div.side-text span').html(text);
-        //
-        // this.wrapper.show();
-        this.$popup.fadeIn(function () {
-            // that.$popup.find('.crt-popup').animate({width:950}, function () {
-            //     z('.popup .content').fadeIn('slow');
-            // });
+        this.$popup.fadeIn( () => {
+
         });
     }
     
     hide (callback) {
         Logger.log('Popup->hide');
-        let that = this;
-        this.$popup.fadeOut(function(){
-            that.destroy();
+
+        if (this.videoPlayer) {
+            this.videoPlayer.pause();
+        }
+
+        this.$popup.fadeOut(() => {
+            this.destroy();
             callback ();
         });
     }
     
     destroy () {
+
+        if (this.videoPlayer) {
+            this.videoPlayer.destroy();
+        }
+
         if (this.$popup && this.$popup.length) {
             this.$popup.remove();
-
-            if (this.$popup.find('video').length) {
-                this.$popup.find('video')[0].pause();
-
-            }
         }
 
         z(window).off('resize.crt-popup');
