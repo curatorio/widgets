@@ -105,6 +105,8 @@ class LayoutCarousel extends EventBus {
             if (this.options.autoPlay) {
                 this.autoPlayStart();
             }
+
+            this.controlsHideShow();
         }
     }
 
@@ -206,7 +208,7 @@ class LayoutCarousel extends EventBus {
             let post = this.posts[postToLoad];
             // console.log(post);
             pane = this.widget.createPostElement(post);
-            pane.on(Events.POST_LAYOUT_CHANGED,this.onPostLayoutChanged.bind(this));
+            pane.on(Events.POST_LAYOUT_CHANGED, this.onPostLayoutChanged.bind(this));
             this.paneCache['idx'+paneIndex] = pane;
         }
 
@@ -396,13 +398,12 @@ class LayoutCarousel extends EventBus {
 
         if (this.options.matchHeights) {
             let paneMaxHeight = this.getMaxHeight();
-            let h = paneMaxHeight - 2;
 
             for (let pane of this.currentPanes)
             {
                 let $pane = pane.$el;
                 // TODO - could move this to ui.post
-                $pane.find('.crt-post-c').animate({height: h}, 300);
+                $pane.find('.crt-post-c').animate({height: paneMaxHeight}, 300);
             }
         }
     }
@@ -450,6 +451,7 @@ class LayoutCarousel extends EventBus {
         this.posts = [];
         this.currentPost = 0;
         this.paneCache = [];
+        this.currentPanes = [];
     }
 
     destroy () {
@@ -459,6 +461,15 @@ class LayoutCarousel extends EventBus {
         window.clearTimeout(this.autoPlayTimeout);
         window.clearTimeout(this.postLayoutChangedTO);
         window.clearTimeout(this.moveCompleteTO);
+
+        console.log(this.paneCache);
+
+        for(let paneId in this.paneCache) {
+            this.paneCache[paneId].destroy();
+        }
+
+        this.paneCache = null;
+        this.currentPanes = null;
 
         delete this.$viewport;
         delete this.$stage;
