@@ -491,7 +491,7 @@ body {
                     }
 
                     .crt-popup-text {
-                        bottom :100px;
+                        bottom: 100px;
                     }
                 }
             }
@@ -574,6 +574,16 @@ body {
                         right: auto;
                         bottom: auto;
                         max-height: 300px;
+                    }
+                }
+            }
+
+            &.crt-has-read-more {
+                &.has-image {
+                    .crt-popup-right {
+                        .crt-popup-text {
+                            bottom: auto;
+                        }
                     }
                 }
             }
