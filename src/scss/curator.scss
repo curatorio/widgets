@@ -1,6 +1,35 @@
 
 
-@import "curator.core";
+@import "variables";
+
+@import "_common/transitions";
+@import "_common/mixins";
+@import "_vendor/fontello/css/crt-icon";
+
+@import "_common/icons";
+@import "_common/general";
+
+@import "_ui/feed";
+
+@import "_ui/general/popup";
+@import "_ui/general/load-more";
+
+@import "_ui/play";
+@import "_ui/filter";
+@import "_ui/responsive-image";
+
+// Themes - v1
+@import "_ui/post_v1";
+@import "_ui/grid_post_v1";
+
+// Themes - v2
+@import "_ui/post_v2";
+@import "_ui/post_malibu";
+@import "_ui/post_v2_header";
+@import "_ui/post_v2_footer";
+@import "_ui/grid_post_v2";
+
+
 
 @import "widgets/waterfall";
 @import "widgets/carousel";
@@ -8,5 +37,6 @@
 @import "widgets/grid";
 @import "widgets/custom";
 @import "widgets/list";
+
 
 

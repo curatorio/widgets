@@ -40,7 +40,7 @@ class PopupManager {
 
     showPopup2 (post) {
         this.popup = new Popup(this, post, this.widget);
-        this.$popupContainer.append(this.popup.$popup);
+        this.$popupContainer.append(this.popup.$el);
 
         this.$wrapper.show();
 

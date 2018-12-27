@@ -296,7 +296,8 @@ body.crt-popup-visible {
     .crt-popup-wrapper .crt-popup a {
       text-overflow: ellipsis;
       text-decoration: none;
-      color: #2B2B2B; }
+      color: #2B2B2B;
+      cursor: pointer; }
       .crt-popup-wrapper .crt-popup a:hover {
         color: black; }
     .crt-popup-wrapper .crt-popup .crt-popup-left {
@@ -645,7 +646,9 @@ body.crt-popup-visible {
       left: auto;
       right: auto;
       bottom: auto;
-      max-height: 300px; } }
+      max-height: 300px; }
+  .crt-popup-wrapper .crt-popup.crt-has-read-more.has-image .crt-popup-right .crt-popup-text {
+    bottom: auto; } }
 
 .crt-load-more {
   padding: 4px;
@@ -1041,6 +1044,8 @@ body.crt-popup-visible {
  */
 .crt-post-v2 {
   z-index: 1; }
+  .crt-post-v2 a {
+    cursor: pointer; }
   .crt-post-v2 .crt-post-border {
     box-shadow: 0px 2px 30px transparent;
     border-radius: 0px;
@@ -1237,11 +1242,14 @@ body.crt-popup-visible {
   margin-bottom: 6px;
   font-weight: bold; }
 
-.crt-date {
+.crt-post-date {
   margin-top: 0;
   opacity: 0.5;
   font-size: .8em;
   text-transform: uppercase; }
+  .crt-post-date a {
+    color: #999;
+    text-decoration: none; }
 
 .crt-post-username {
   overflow: hidden;

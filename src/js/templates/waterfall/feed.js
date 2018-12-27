@@ -7,7 +7,7 @@ const template = `
 <div class="crt-feed-spacer"> -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- </div>
 </div>
 </div>
-<div class="crt-load-more"><a href="#"><span><%=this._t("load-more")%></span></a></div>
+<div class="crt-load-more"><a href="#" crt-click="loadMorePosts"><span><%=this._t("load-more")%></span></a></div>
 `;
 
 export default template;

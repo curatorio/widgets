@@ -5,31 +5,19 @@
 * ==================================================================
  */
 
-.crt-post-v2 {
+.crt-post-malibu {
+    z-index: 1;
 
     //@import "post_v2_footer";
     //@import "post_v2_footer";
 
     a {
         cursor: pointer;
-    }
-
-    z-index: 1;
-
-    .crt-post-border {
-        box-shadow: 0px 2px 30px $color-v2-post-shadow;
-        border-radius: $post-border-radius;
-        border: 1px solid $color-v2-post-border;
-    }
-
-    .crt-post-c {
-        position: relative;
-        overflow: hidden;
-        background-color: $color-v2-post-background;
-    }
-
-    a {
         transition: color 0.2s linear;
+    }
+
+    .crt-post-hover {
+        display: none;
     }
 
     .crt-image {

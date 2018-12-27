@@ -3,7 +3,6 @@ import Widget from './base';
 import ConfigWidgetWaterfall from '../config/widget_waterfall';
 import Logger from '../core/logger';
 import LayoutWaterfall from '../ui/layout/waterfall';
-import TemplatingUtils from '../core/templating';
 import Events from '../core/events';
 import z from '../core/lib';
 
@@ -14,10 +13,10 @@ class Waterfall extends Widget {
 
         if (this.init (options,  ConfigWidgetWaterfall)) {
             Logger.log("Waterfall->init with options:");
-            Logger.log(this.options);
-            // console.log('TEST');
-            let tmpl = TemplatingUtils.renderTemplate(this.options.waterfall.templateFeed, {});
-            this.$container.append(tmpl);
+            this.templateId = this.options.templateFeed;
+            this.json = {};
+            this.render();
+            this.$container.append(this.$el);
 
             this.$scroll = this.$container.find('.crt-feed-scroll');
             this.$feed = this.$container.find('.crt-feed');
@@ -35,28 +34,11 @@ class Waterfall extends Widget {
                 });
             }
 
-            if (this.options.waterfall.showLoadMore) {
-                // default to more
-                let $aLoadMore = this.$loadMore.find('a');
-                $aLoadMore.on('click', (ev) => {
-                    ev.preventDefault();
-                    this.loadMorePosts();
-                });
-            } else {
+            if (!this.options.showLoadMore) {
                 this.$loadMore.remove();
             }
 
-            this.ui = new LayoutWaterfall({
-                selector:'.crt-post-c',
-                gutter:0,
-                width:this.options.waterfall.gridWidth,
-                animate:this.options.waterfall.animate,
-                handleResize:this.options.waterfall.handleResize,
-                animationOptions: {
-                    speed: (this.options.waterfall.animateSpeed/2),
-                    duration: this.options.waterfall.animateSpeed
-                }
-            }, this.$feed);
+            this.ui = new LayoutWaterfall(this.options, this.$feed);
 
             this.on(Events.FILTER_CHANGED, () => {
                 this.$feed.find('.crt-post').remove();
@@ -77,7 +59,8 @@ class Waterfall extends Widget {
 
     }
 
-    loadMorePosts  () {
+    loadMorePosts  (ev) {
+        ev.preventDefault();
         Logger.log('Waterfall->loadMorePosts');
 
         this.feed.loadAfter();
@@ -103,13 +86,13 @@ class Waterfall extends Widget {
         let that = this;
         z.each(postElements,function () {
             let post = this;
-            if (that.options.waterfall.showReadMore) {
+            if (that.options.showReadMore) {
                 post.find('.crt-post')
                     .addClass('crt-post-show-read-more');
             }
         });
 
-        if (this.options.waterfall.showLoadMore) {
+        if (this.options.showLoadMore) {
             if (this.feed.allPostsLoaded) {
                 this.$loadMore.hide();
             } else {

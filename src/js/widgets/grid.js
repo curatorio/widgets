@@ -3,7 +3,6 @@ import Widget from './base';
 import Logger from '../core/logger';
 import CommonUtils from '../utils/common';
 import ConfigWidgetGrid from '../config/widget_grid';
-import TemplatingUtils from '../core/templating';
 import z from '../core/lib';
 import Events from "../core/events";
 import ResizeObserver from 'resize-observer-polyfill/dist/ResizeObserver.es';
@@ -31,8 +30,10 @@ class Grid extends Widget {
             Logger.log("Grid->init with options:");
             Logger.log(this.options);
 
-            let tmpl = TemplatingUtils.renderTemplate(this.responsiveOptions.templateFeed, {});
-            this.$container.append(tmpl);
+            this.templateId = this.responsiveOptions.templateFeed;
+            this.json = {};
+            this.render ();
+            this.$container.append(this.$el);
             this.$feed = this.$container.find('.crt-feed');
             this.$feedWindow = this.$container.find('.crt-feed-window');
             this.$loadMore = this.$container.find('.crt-load-more a');

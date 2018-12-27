@@ -87,6 +87,7 @@ body {
             text-overflow: ellipsis;
             text-decoration: none;
             color: $color-post-header-text;
+            cursor: pointer;
 
             &:hover {
                 color:darken($color-post-header-text,25);

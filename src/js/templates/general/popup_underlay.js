@@ -1,4 +1,4 @@
 
-let v1PopupUnderlayTemplate = '';
+let template = '';
 
-export default v1PopupUnderlayTemplate;
+export default template;

@@ -16,21 +16,6 @@ import makeArray from '../../libraries/make-array';
 import z from '../../core/lib';
 import ResizeObserver from 'resize-observer-polyfill/dist/ResizeObserver.es';
 
-let LayoutWaterfallSettings = {
-    selector: '.item',
-    width: 225,
-    gutter: 20,
-    animate: false,
-    animationOptions: {
-        speed: 200,
-        duration: 300,
-        effect: 'fadeInOnAppear',
-        queue: true,
-        complete: function () {
-        }
-    }
-};
-
 class LayoutWaterfall {
     constructor(options, element) {
         Logger.log("WaterfallLayout->constructor");
@@ -52,22 +37,16 @@ class LayoutWaterfall {
         this.ifCallback = true;
         this.box = this.element;
         this.boxWidth = this.box.width();
-        this.options = z.extend(true, {}, LayoutWaterfallSettings, options);
+        this.options = options;
         this.gridArr = makeArray(this.box.find(this.options.selector));
         this.isResizing = false;
         this.w = 0;
         this.boxArr = [];
         this.visible = false;
 
-        // this.element.is(':visible')
-
         // build columns
-        // this._setCols(1);
         this.resize();
         // build grid
-        // this._renderGrid('append');
-        // add class 'gridalicious' to container
-        // z(this.box).addClass('gridalicious');
 
         this.createHandlers ();
 
@@ -83,16 +62,14 @@ class LayoutWaterfall {
             this.resize();
         }, 100);
 
-        if (this.options.handleResize) {
-            this.ro = new ResizeObserver((entries, observer) => {
-                if (entries.length > 0) {
-                    // let entry = entries[0];
-                    this.redraw();
-                }
-            });
+        this.ro = new ResizeObserver((entries, observer) => {
+            if (entries.length > 0) {
+                // let entry = entries[0];
+                this.redraw();
+            }
+        });
 
-            this.ro.observe(this.element[0]);
-        }
+        this.ro.observe(this.element[0]);
         this.redraw();
     }
 
@@ -124,8 +101,8 @@ class LayoutWaterfall {
         if (this.cols < 1) {
             this.cols = 1;
         }
-        let diff = (boxWidth - (this.cols * this.options.width) - this.options.gutter) / this.cols;
-        let colWidth = (this.options.width + diff) / boxWidth * 100;
+        let diff = (boxWidth - (this.cols * this.options.colWidth) - this.options.colGutter) / this.cols;
+        let colWidth = (this.options.colWidth + diff) / boxWidth * 100;
 
         Logger.log('colWidth: '+colWidth);
 
@@ -146,8 +123,8 @@ class LayoutWaterfall {
         for (let i = 0; i < this.cols; i++) {
             let div = z('<div></div>').addClass('galcolumn').attr('id', 'item' + i + this.name).css({
                 'width': colWidth + '%',
-                'paddingLeft': this.options.gutter,
-                'paddingBottom': this.options.gutter,
+                // 'paddingLeft': this.options.colGutter,
+                // 'paddingBottom': this.options.colGutter,
                 'float': 'left',
                 '-webkit-box-sizing': 'border-box',
                 '-moz-box-sizing': 'border-box',
@@ -164,7 +141,7 @@ class LayoutWaterfall {
         // let prependArray = prepArray || [];
         let itemCount = 0;
         let appendCount = this.appendCount;
-        // let gutter = this.options.gutter;
+        // let colGutter = this.options.colGutter;
         let cols = this.cols;
         let name = this.name;
         // let i = 0;
@@ -265,12 +242,12 @@ class LayoutWaterfall {
 
     _renderItem(items) {
 
-        let speed = this.options.animationOptions.speed;
-        let effect = this.options.animationOptions.effect;
-        let duration = this.options.animationOptions.duration;
-        let queue = this.options.animationOptions.queue;
+        let speed = this.options.animationSpeed;
+        let effect = this.options.animationEffect;
+        let duration = this.options.animationDuration;
+        let queue = this.options.animationQueue;
         let animate = this.options.animate;
-        let complete = this.options.animationOptions.complete;
+        let complete = this.options.animationComplete;
 
         let i = 0;
         let t = 0;
@@ -350,7 +327,7 @@ class LayoutWaterfall {
     resize() {
         Logger.log("WaterfallLayout->resize");
 
-        let newCols = Math.floor(this.box.width() / this.options.width);
+        let newCols = Math.floor(this.box.width() / this.options.colWidth);
 
         if (newCols < 1) {
             newCols = 1;

@@ -1,5 +1,5 @@
 
-const filterTemplate = `<div class="crt-filter"> 
+const template = `<div class="crt-filter"> 
 <div class="crt-filter-networks">
 <ul class="crt-networks"> 
     <li class="crt-filter-label"><label><%=this._t('filter')%>:</label></li>
@@ -14,4 +14,4 @@ const filterTemplate = `<div class="crt-filter">
 </div> 
 </div>`;
 
-export default  filterTemplate;
+export default  template;

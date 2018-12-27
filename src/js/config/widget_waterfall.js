@@ -1,18 +1,22 @@
 
 
-import ConfigWidgetBase from './widget_base';
+import base from './widget_base';
 import z from '../core/lib';
 
-let ConfigWidgetWaterfall = z.extend({}, ConfigWidgetBase, {
-    waterfall: {
-        showLoadMore:true,
-        continuousScroll:false,
-        gridWidth:300,
-        animate:true,
-        animateSpeed:400,
-        handleResize:true,
-        templateFeed:'waterfall-feed'
-    }
+let config = z.extend({}, base, {
+    templatePost:'waterfall-post',
+    templateFeed:'waterfall-feed',
+    colGutter: 0,
+    colWidth: 300,
+    showLoadMore:true,
+    continuousScroll:false,
+    animate:true,
+    selector: '.crt-post-c',
+    animationSpeed: 200,
+    animationDuration: 300,
+    animationEffect: 'fadeInOnAppear',
+    animationQueue: true,
+    animationComplete: function () {}
 });
 
-export default ConfigWidgetWaterfall;
+export default config;

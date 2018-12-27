@@ -9,14 +9,18 @@ import v1gridPostTemplate from "./v1/grid_post";
 import postTemplateV1 from "./v1/post";
 
 import postTemplateV2 from "./v2/post";
-import gridPostTemplateV2 from "./v2/grid_post";
-import gridFeedTempleV2 from "./v2/grid_feed";
-import gridPostMinimal from "./v2/grid_post_minimal";
+
+
+import gridPost from "./grid/post";
+import gridFeed from "./grid/feed";
+import gridPostMinimal from "./grid/post-minimal";
 
 import listFeed from "./v2/list_feed";
 import listPost from "./v2/list_post";
 
-import waterfallFeed from "./v2/waterfall_feed";
+import waterfallFeed from "./waterfall/feed";
+import waterfallPost from "./waterfall/post";
+import waterfallPostMalibu from "./waterfall/post-malibu";
 
 let Templates = {
     'filter'                : filterTemplate,
@@ -30,14 +34,20 @@ let Templates = {
 
     // V2
     'post-v2'               : postTemplateV2,
-    'grid-post-v2'          : gridPostTemplateV2,
-    'grid-post-minimal'     : gridPostMinimal,
-    'grid-feed-v2'          : gridFeedTempleV2,
 
+    // Gid
+    'grid-feed'             : gridFeed,
+    'grid-post'             : gridPost,
+    'grid-post-minimal'     : gridPostMinimal,
+
+    // List
     'list-feed'             : listFeed,
     'list-post'             : listPost,
 
+    // Waterfall
     'waterfall-feed'        : waterfallFeed,
+    'waterfall-post'        : waterfallPost,
+    'waterfall-post-malibu' : waterfallPostMalibu,
 };
 
 export default Templates;

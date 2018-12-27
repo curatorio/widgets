@@ -655,60 +655,64 @@ var Events = {
     GRID_HEIGHT_CHANGED     :'grid:heightChanged',
 };
 
-var v1PopupUnderlayTemplate = '';
+var template = '';
 
-var v1PopupWrapperTemplate = ' \
-<div class="crt-popup-wrapper"> \
-    <div class="crt-popup-wrapper-c"> \
-        <div class="crt-popup-underlay"></div> \
-        <div class="crt-popup-container"></div> \
-    </div> \
-</div>';
+var template$1 = "\n<div class=\"crt-popup-wrapper\"> \n    <div class=\"crt-popup-wrapper-c\"> \n        <div class=\"crt-popup-underlay\"></div> \n        <div class=\"crt-popup-container\"></div> \n    </div> \n</div>";
 
-var v1PopupTemplate = " \n<div class=\"crt-popup\"> \n    <a href=\"#\" class=\"crt-close crt-icon-cancel\"></a> \n    <a href=\"#\" class=\"crt-next crt-icon-right-open\"></a> \n    <a href=\"#\" class=\"crt-previous crt-icon-left-open\"></a> \n    <div class=\"crt-popup-left\">  \n        <div class=\"crt-video\"> \n            <div class=\"crt-video-container\">\n                <video preload=\"none\">\n                <source src=\"<%=video%>\" type=\"video/mp4\">\n                </video>\n                <img src=\"<%=image%>\" alt=\"Image posted by <%=this.userScreenName()%> to <%=this.networkName()%>\" />\n                <a href=\"javascript:;\" class=\"crt-play\"><i class=\"crt-play-icon\"></i></a> \n            </div> \n        </div> \n        <div class=\"crt-image\"> \n            <img src=\"<%=image%>\" alt=\"Image posted by <%=this.userScreenName()%> to <%=this.networkName()%>\" /> \n        </div> \n        <div class=\"crt-pagination\"><ul></ul></div>\n    </div> \n    <div class=\"crt-popup-right\"> \n        <div class=\"crt-popup-header\"> \n            <span class=\"crt-social-icon\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n            <img src=\"<%=user_image%>\" alt=\"Profile image for <%=user_full_name%>\"  /> \n            <div class=\"crt-post-name\"><span><%=user_full_name%></span><br/><a href=\"<%=this.userUrl()%>\" target=\"_blank\"><%=this.userScreenName()%></a></div> \n        </div> \n        <div class=\"crt-popup-text <%=this.contentTextClasses()%>\"> \n            <div class=\"crt-popup-text-container\"> \n                <p class=\"crt-date\"><%=this.prettyDate(source_created_at)%></p> \n                <div class=\"crt-popup-text-body\"><%=this.parseText(text)%></div> \n            </div> \n        </div> \n        <div class=\"crt-popup-read-more\">\n            <a href=\"<%=url%>\" target=\"_blank\" class=\"crt-button\">Goto original post</a> \n        </div>\n        <div class=\"crt-popup-footer\">\n            <div class=\"crt-popup-stats\"><span><%=likes%></span> <%=this._t(\"likes\", likes)%> <i class=\"sep\"></i> <span><%=comments%></span> <%=this._t(\"comments\", comments)%></div> \n            <div class=\"crt-post-share\"><span class=\"ctr-share-hint\"></span><a href=\"#\" class=\"crt-share-facebook\"><i class=\"crt-icon-facebook\"></i></a>  <a href=\"#\" class=\"crt-share-twitter\"><i class=\"crt-icon-twitter\"></i></a></div>\n        </div> \n    </div> \n</div>";
+var template$2 = " \n<div class=\"crt-popup\"> \n    <a crt-click=\"onClose\" class=\"crt-close crt-icon-cancel\"></a> \n    <a crt-click=\"onPrevious\" class=\"crt-next crt-icon-right-open\"></a> \n    <a crt-click=\"onNext\" class=\"crt-previous crt-icon-left-open\"></a> \n    <div class=\"crt-popup-left\">  \n        <div class=\"crt-video\"> \n            <div class=\"crt-video-container\">\n                <video preload=\"none\">\n                <source src=\"<%=video%>\" type=\"video/mp4\">\n                </video>\n                <img src=\"<%=image%>\" alt=\"Image posted by <%=this.userScreenName()%> to <%=this.networkName()%>\" />\n                <ac rt-click=\"onPlay\" class=\"crt-play\"><i class=\"crt-play-icon\"></i></a> \n            </div> \n        </div> \n        <div class=\"crt-image\"> \n            <img src=\"<%=image%>\" alt=\"Image posted by <%=this.userScreenName()%> to <%=this.networkName()%>\" /> \n        </div> \n        <div class=\"crt-pagination\"><ul></ul></div>\n    </div> \n    <div class=\"crt-popup-right\"> \n        <div class=\"crt-popup-header\"> \n            <span class=\"crt-social-icon\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n            <img src=\"<%=user_image%>\" alt=\"Profile image for <%=user_full_name%>\"  /> \n            <div class=\"crt-post-name\"><span><%=user_full_name%></span><br/><a href=\"<%=this.userUrl()%>\" target=\"_blank\"><%=this.userScreenName()%></a></div> \n        </div> \n        <div class=\"crt-popup-text <%=this.contentTextClasses()%>\"> \n            <div class=\"crt-popup-text-container\"> \n                <p class=\"crt-date\"><%=this.dateUrl()%></a></p> \n                <div class=\"crt-popup-text-body\"><%=this.parseText(text)%></div> \n            </div> \n        </div> \n        <div class=\"crt-popup-read-more\">\n            <a href=\"<%=url%>\" target=\"_blank\" class=\"crt-button\">Goto original post</a> \n        </div>\n        <div class=\"crt-popup-footer\">\n            <div class=\"crt-popup-stats\"><span><%=likes%></span> <%=this._t(\"likes\", likes)%> <i class=\"sep\"></i> <span><%=comments%></span> <%=this._t(\"comments\", comments)%></div> \n            <div class=\"crt-post-share\"><span class=\"ctr-share-hint\"></span>\n            <a crt-click=\"onShareFacebookClick\" class=\"crt-share-facebook\"><i class=\"crt-icon-facebook\"></i></a>  \n            <a crt-click=\"onShareTwitterClick\" class=\"crt-share-twitter\"><i class=\"crt-icon-twitter\"></i></a><\n            /div>\n        </div> \n    </div> \n</div>";
 
-var filterTemplate = "<div class=\"crt-filter\"> \n<div class=\"crt-filter-networks\">\n<ul class=\"crt-networks\"> \n    <li class=\"crt-filter-label\"><label><%=this._t('filter')%>:</label></li>\n    <li class=\"active\"><a href=\"#\" data-network=\"0\"> <%=this._t('all')%></a></li>\n</ul>\n</div> \n<div class=\"crt-filter-sources\">\n<ul class=\"crt-sources\"> \n    <li class=\"crt-filter-label\"><label><%=this._t('filter')%>:</label></li>\n    <li class=\"active\"><a href=\"#\" data-source=\"0\"> <%=this._t('all')%></a></li>\n</ul>\n</div> \n</div>";
+var template$3 = "<div class=\"crt-filter\"> \n<div class=\"crt-filter-networks\">\n<ul class=\"crt-networks\"> \n    <li class=\"crt-filter-label\"><label><%=this._t('filter')%>:</label></li>\n    <li class=\"active\"><a href=\"#\" data-network=\"0\"> <%=this._t('all')%></a></li>\n</ul>\n</div> \n<div class=\"crt-filter-sources\">\n<ul class=\"crt-sources\"> \n    <li class=\"crt-filter-label\"><label><%=this._t('filter')%>:</label></li>\n    <li class=\"active\"><a href=\"#\" data-source=\"0\"> <%=this._t('all')%></a></li>\n</ul>\n</div> \n</div>";
 
 var gridPostTemplate = " \n<div class=\"crt-post-c\">\n    <div class=\"crt-post post<%=id%> <%=this.contentImageClasses()%> <%=this.contentTextClasses()%>\"> \n        <div class=\"crt-post-content\"> \n            <div class=\"crt-hitarea\" > \n                <img src=\"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7\" class=\"spacer\" alt=\"Image posted by <%=user_screen_name%> to <%=this.networkName()%>\" /> \n                <div class=\"crt-post-content-image\" style=\"background-image:url('<%=image%>');\"></div> \n                <div class=\"crt-post-content-text-c\"> \n                    <div class=\"crt-post-content-text\"> \n                        <%=this.parseText(text)%> \n                    </div> \n                </div> \n                <a href=\"javascript:;\" class=\"crt-play\"><i class=\"crt-play-icon\"></i></a> \n                <span class=\"crt-social-icon crt-social-icon-normal\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                <div class=\"crt-post-hover\">\n                    <div class=\"crt-post-header\"> \n                        <img src=\"<%=user_image%>\" alt=\"Profile image for <%=user_full_name%>\"  /> \n                        <div class=\"crt-post-name\"><span><%=user_full_name%></span><br/><a href=\"<%=this.userUrl()%>\" target=\"_blank\">@<%=user_screen_name%></a></div> \n                    </div> \n                    <div class=\"crt-post-hover-text\"> \n                        <%=this.parseText(text)%> \n                    </div> \n                    <span class=\"crt-social-icon crt-social-icon-hover\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                </div> \n            </div> \n        </div> \n    </div>\n</div>";
 
-var template = " \n<div class=\"crt-post-v1 crt-post-c\">\n    <div class=\"crt-post-bg\"></div> \n    <div class=\"crt-post post<%=id%> crt-post-<%=this.networkIcon()%>\"> \n        <div class=\"crt-post-header\"> \n            <span class=\"crt-social-icon\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n            <img src=\"<%=user_image%>\" alt=\"Profile image for <%=user_full_name%>\"  /> \n            <div class=\"crt-post-name\">\n            <div class=\"crt-post-fullname\"><%=user_full_name%></div>\n            <div class=\"crt-post-username\"><a href=\"<%=this.userUrl()%>\" target=\"_blank\">@<%=user_screen_name%></a></div>\n            </div> \n        </div> \n        <div class=\"crt-post-content\"> \n            <div class=\"crt-image crt-hitarea crt-post-content-image <%=this.contentImageClasses()%>\" > \n                <div class=\"crt-image-c\"><img src=\"<%=image%>\" class=\"crt-post-image\" alt=\"Image posted by <%=user_screen_name%> to <%=this.networkName()%>\" /></div> \n                <span class=\"crt-play\"><i class=\"crt-play-icon\"></i></span> \n            </div> \n            <div class=\"text crt-post-content-text <%=this.contentTextClasses()%>\"> \n                <div class=\"crt-post-text-body\"><%=this.parseText(text)%></div> \n            </div> \n        </div> \n        <div class=\"crt-post-footer\">\n            <div class=\"crt-date\"><%=this.prettyDate(source_created_at)%></div> \n            <div class=\"crt-post-share\"><span class=\"crt-share-hint\"></span><a href=\"#\" class=\"crt-share-facebook\"><i class=\"crt-icon-facebook\"></i></a>  <a href=\"#\" class=\"crt-share-twitter\"><i class=\"crt-icon-twitter\"></i></a></div>\n        </div> \n        <div class=\"crt-post-read-more\"><a href=\"#\" class=\"crt-post-read-more-button\">Read more</a> </div> \n    </div>\n</div>";
+var template$4 = " \n<div class=\"crt-post-v1 crt-post-c\">\n    <div class=\"crt-post-bg\"></div> \n    <div class=\"crt-post post<%=id%> crt-post-<%=this.networkIcon()%>\"> \n        <div class=\"crt-post-header\"> \n            <span class=\"crt-social-icon\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n            <img src=\"<%=user_image%>\" alt=\"Profile image for <%=user_full_name%>\"  /> \n            <div class=\"crt-post-name\">\n            <div class=\"crt-post-fullname\"><%=user_full_name%></div>\n            <div class=\"crt-post-username\"><a href=\"<%=this.userUrl()%>\" target=\"_blank\">@<%=user_screen_name%></a></div>\n            </div> \n        </div> \n        <div class=\"crt-post-content\"> \n            <div class=\"crt-image crt-hitarea crt-post-content-image <%=this.contentImageClasses()%>\" > \n                <div class=\"crt-image-c\"><img src=\"<%=image%>\" class=\"crt-post-image\" alt=\"Image posted by <%=user_screen_name%> to <%=this.networkName()%>\" /></div> \n                <span class=\"crt-play\"><i class=\"crt-play-icon\"></i></span> \n            </div> \n            <div class=\"text crt-post-content-text <%=this.contentTextClasses()%>\"> \n                <div class=\"crt-post-text-body\"><%=this.parseText(text)%></div> \n            </div> \n        </div> \n        <div class=\"crt-post-footer\">\n            <div class=\"crt-date\"><%=this.prettyDate(source_created_at)%></div> \n            <div class=\"crt-post-share\"><span class=\"crt-share-hint\"></span><a href=\"#\" class=\"crt-share-facebook\"><i class=\"crt-icon-facebook\"></i></a>  <a href=\"#\" class=\"crt-share-twitter\"><i class=\"crt-icon-twitter\"></i></a></div>\n        </div> \n        <div class=\"crt-post-read-more\"><a href=\"#\" class=\"crt-post-read-more-button\">Read more</a> </div> \n    </div>\n</div>";
 
-var template$1 = " \n<div class=\"crt-post-v2 crt-post crt-post-<%=this.networkIcon()%> <%=this.contentTextClasses()%>  <%=this.contentImageClasses()%>\" data-post=\"<%=id%>\"> \n    <div class=\"crt-post-border\">\n        <div class=\"crt-post-c\">\n            <div class=\"crt-post-content\">\n                <div class=\"crt-image crt-hitarea crt-post-content-image\" > \n                    <div class=\"crt-image-c\"><img src=\"<%=image%>\" class=\"crt-post-image\" alt=\"Image posted by <%=user_screen_name%> to <%=this.networkName()%>\" /></div>   \n                    <span class=\"crt-play\"><i class=\"crt-play-icon\"></i></span> \n                    <div class=\"crt-image-carousel\"><i class=\"crt-icon-image-carousel\"></i></div> \n                </div> \n                <div class=\"crt-post-header\"> \n                    <span class=\"crt-social-icon\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                    <div class=\"crt-post-fullname\"><a href=\"<%=this.userUrl()%>\" target=\"_blank\"><%=user_full_name%></a></div>\n                </div> \n                <div class=\"text crt-post-content-text\"> \n                    <%=this.parseText(text)%> \n                </div> \n            </div> \n            <% if (options.showComments || options.showLikes) { %>\n                <div class=\"crt-comments-likes\">\n                    <% if (options.showLikes) { %><span><%=likes%></span> <%=this._t(\"likes\", likes)%><% } %><% if (options.showComments && options.showLikes) { %> <span class=\"crt-sep\"></span> <% } %><% if (options.showComments) { %><span><%=comments%></span> <%=this._t(\"comments\", comments)%><% } %>\n                </div>\n            <% } %>\n            <div class=\"crt-post-footer\"> \n                <img class=\"crt-post-userimage\" src=\"<%=user_image%>\" alt=\"Profile image for <%=user_screen_name%>\" /> \n                <span class=\"crt-post-username\"><a href=\"<%=this.userUrl()%>\" target=\"_blank\"><%=this.userScreenName()%></a></span>\n                <span class=\"crt-date\"><%=this.prettyDate(source_created_at)%></span> \n                <div class=\"crt-post-share\"><span class=\"crt-share-hint\"></span><a href=\"#\" class=\"crt-share-facebook\"><i class=\"crt-icon-facebook\"></i></a>  <a href=\"#\" class=\"crt-share-twitter\"><i class=\"crt-icon-twitter\"></i></a></div>\n            </div> \n            <div class=\"crt-post-max-height-read-more\"><a href=\"#\" class=\"crt-post-read-more-button\"><%=this._t(\"read-more\")%></a></div> \n        </div> \n    </div> \n</div>";
+var template$5 = " \n<div class=\"crt-post-v2 crt-post crt-post-<%=this.networkIcon()%> <%=this.contentTextClasses()%>  <%=this.contentImageClasses()%>\" data-post=\"<%=id%>\"> \n    <div class=\"crt-post-border\">\n        <div class=\"crt-post-c\">\n            <div class=\"crt-post-content\">\n                <div class=\"crt-image crt-hitarea crt-post-content-image\" > \n                    <div class=\"crt-image-c\"><img src=\"<%=image%>\" class=\"crt-post-image\" alt=\"Image posted by <%=user_screen_name%> to <%=this.networkName()%>\" /></div>   \n                    <span class=\"crt-play\"><i class=\"crt-play-icon\"></i></span> \n                    <div class=\"crt-image-carousel\"><i class=\"crt-icon-image-carousel\"></i></div> \n                </div> \n                <div class=\"crt-post-header\"> \n                    <span class=\"crt-social-icon\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                    <div class=\"crt-post-fullname\"><a href=\"<%=this.userUrl()%>\" target=\"_blank\"><%=user_full_name%></a></div>\n                </div> \n                <div class=\"text crt-post-content-text\"> \n                    <%=this.parseText(text)%> \n                </div> \n            </div> \n            <% if (options.showComments || options.showLikes) { %>\n                <div class=\"crt-comments-likes\">\n                    <% if (options.showLikes) { %><span><%=likes%></span> <%=this._t(\"likes\", likes)%><% } %><% if (options.showComments && options.showLikes) { %> <span class=\"crt-sep\"></span> <% } %><% if (options.showComments) { %><span><%=comments%></span> <%=this._t(\"comments\", comments)%><% } %>\n                </div>\n            <% } %>\n            <div class=\"crt-post-footer\"> \n                <img class=\"crt-post-userimage\" src=\"<%=user_image%>\" alt=\"Profile image for <%=user_screen_name%>\" /> \n                <span class=\"crt-post-username\"><a href=\"<%=this.userUrl()%>\" target=\"_blank\"><%=this.userScreenName()%></a></span>\n                <span class=\"crt-date\"><%=this.prettyDate(source_created_at)%></span> \n                <div class=\"crt-post-share\"><span class=\"crt-share-hint\"></span><a href=\"#\" class=\"crt-share-facebook\"><i class=\"crt-icon-facebook\"></i></a>  <a href=\"#\" class=\"crt-share-twitter\"><i class=\"crt-icon-twitter\"></i></a></div>\n            </div> \n            <div class=\"crt-post-max-height-read-more\"><a href=\"#\" class=\"crt-post-read-more-button\"><%=this._t(\"read-more\")%></a></div> \n        </div> \n    </div> \n</div>";
 
-var template$2 = "\n<div class=\"crt-grid-post crt-grid-post-v2 crt-post-<%=id%> <%=this.contentImageClasses()%> <%=this.contentTextClasses()%>\" data-post=\"<%=id%>\">     <div class=\"crt-post-c\"> \n        <div class=\"crt-post-content\"> \n            <div class=\"crt-hitarea\" > \n                <img src=\"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7\" class=\"crt-spacer\" alt=\"Image posted by <%=user_screen_name%> to <%=this.networkName()%>\" /> \n                <div class=\"crt-grid-post-image\">\n                    <div class=\"crt-post-content-image\" style=\"background-image:url('<%=image%>');\"></div> \n                    <span class=\"crt-play\"><i class=\"crt-play-icon\"></i></span> \n                    <span class=\"crt-social-icon crt-social-icon-normal\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                    <div class=\"crt-image-carousel\"><i class=\"crt-icon-image-carousel\"></i></div> \n                </div>\n                <div class=\"crt-grid-post-text\">\n                    <div class=\"crt-grid-post-text-wrap\"> \n                        <div><%=this.parseText(text)%></div> \n                    </div> \n                    <span class=\"crt-social-icon crt-social-icon-normal\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                </div>\n                <div class=\"crt-post-hover\">\n                    <div>\n                        <div class=\"crt-post-header\"> \n                            <span class=\"crt-social-icon\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                            <div class=\"crt-post-fullname\"><a href=\"<%=this.userUrl()%>\" target=\"_blank\"><%=user_full_name%></a></div>\n                        </div> \n                        <div class=\"crt-post-content-text\"> \n                            <%=this.parseText(text)%> \n                        </div> \n                        <div class=\"crt-post-read-more\"><a href=\"#\" class=\"crt-post-read-more-button\"><%=this._t(\"read-more\")%></a></div> \n                        <div class=\"crt-post-footer\">\n                            <img class=\"crt-post-userimage\" src=\"<%=user_image%>\" alt=\"Profile image for <%=user_full_name%>\" /> \n                            <span class=\"crt-post-username\"><a href=\"<%=this.userUrl()%>\" target=\"_blank\"><%=this.userScreenName()%></a></span>\n                            <span class=\"crt-date\"><%=this.prettyDate(source_created_at)%></span> \n                            <div class=\"crt-post-share\"><span class=\"crt-share-hint\"></span><a href=\"#\" class=\"crt-share-facebook\"><i class=\"crt-icon-facebook\"></i></a>  <a href=\"#\" class=\"crt-share-twitter\"><i class=\"crt-icon-twitter\"></i></a></div>\n                        </div> \n                    </div>\n                </div> \n            </div> \n        </div> \n    </div>\n</div>";
+var template$6 = "\n<div class=\"crt-grid-post crt-grid-post-v2 crt-post-<%=id%> <%=this.contentImageClasses()%> <%=this.contentTextClasses()%>\" data-post=\"<%=id%>\">     <div class=\"crt-post-c\"> \n        <div class=\"crt-post-content\"> \n            <div class=\"crt-hitarea\" > \n                <img src=\"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7\" class=\"crt-spacer\" alt=\"Image posted by <%=user_screen_name%> to <%=this.networkName()%>\" /> \n                <div class=\"crt-grid-post-image\">\n                    <div class=\"crt-post-content-image\" style=\"background-image:url('<%=image%>');\"></div> \n                    <span class=\"crt-play\"><i class=\"crt-play-icon\"></i></span> \n                    <span class=\"crt-social-icon crt-social-icon-normal\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                    <div class=\"crt-image-carousel\"><i class=\"crt-icon-image-carousel\"></i></div> \n                </div>\n                <div class=\"crt-grid-post-text\">\n                    <div class=\"crt-grid-post-text-wrap\"> \n                        <div><%=this.parseText(text)%></div> \n                    </div> \n                    <span class=\"crt-social-icon crt-social-icon-normal\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                </div>\n                <div class=\"crt-post-hover\">\n                    <div>\n                        <div class=\"crt-post-header\"> \n                            <span class=\"crt-social-icon\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                            <div class=\"crt-post-fullname\"><a href=\"<%=this.userUrl()%>\" target=\"_blank\"><%=user_full_name%></a></div>\n                        </div> \n                        <div class=\"crt-post-content-text\"> \n                            <%=this.parseText(text)%> \n                        </div> \n                        <div class=\"crt-post-read-more\"><a href=\"#\" class=\"crt-post-read-more-button\"><%=this._t(\"read-more\")%></a></div> \n                        <div class=\"crt-post-footer\">\n                            <img class=\"crt-post-userimage\" src=\"<%=user_image%>\" alt=\"Profile image for <%=user_full_name%>\" /> \n                            <span class=\"crt-post-username\"><a href=\"<%=this.userUrl()%>\" target=\"_blank\"><%=this.userScreenName()%></a></span>\n                            <span class=\"crt-date\"><%=this.prettyDate(source_created_at)%></span> \n                            <div class=\"crt-post-share\"><span class=\"crt-share-hint\"></span><a href=\"#\" class=\"crt-share-facebook\"><i class=\"crt-icon-facebook\"></i></a>  <a href=\"#\" class=\"crt-share-twitter\"><i class=\"crt-icon-twitter\"></i></a></div>\n                        </div> \n                    </div>\n                </div> \n            </div> \n        </div> \n    </div>\n</div>";
 
 var v2GridFeedTemple = "\n<div class=\"crt-feed-window\">\n    <div class=\"crt-feed\"></div>\n</div>\n<div class=\"crt-load-more\"><a href=\"#\"><%=this._t(\"load-more\")%></a></div>";
 
-var template$3 = "\n<div class=\"crt-grid-post crt-grid-post-minimal crt-grid-post-v2 crt-post-<%=id%> <%=this.contentImageClasses()%> <%=this.contentTextClasses()%>\" data-post=\"<%=id%>\">     <div class=\"crt-post-c\"> \n        <div class=\"crt-post-content\"> \n            <div class=\"crt-hitarea\" > \n                <img src=\"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7\" class=\"crt-spacer\" alt=\"Image posted by <%=user_screen_name%> to <%=this.networkName()%>\" /> \n                <div class=\"crt-grid-post-image\">\n                    <div class=\"crt-post-content-image\" style=\"background-image:url('<%=image%>');\"></div> \n                    <a href=\"javascript:;\" class=\"crt-play\"><i class=\"crt-play-icon\"></i></a> \n                    <span class=\"crt-social-icon crt-social-icon-normal\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                    <div class=\"crt-image-carousel\"><i class=\"crt-icon-image-carousel\"></i></div> \n                </div>\n                <div class=\"crt-grid-post-text\">\n                    <div class=\"crt-grid-post-text-wrap\"> \n                        <div><%=this.parseText(text)%></div> \n                    </div> \n                    <span class=\"crt-social-icon crt-social-icon-normal\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                </div>\n                <div class=\"crt-post-hover\">\n                    <div>\n                        <div class=\"crt-post-header\">\n                            <span class=\"crt-social-icon\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span>  \n                        </div> \n                        <div class=\"crt-post-minimal-stats\"> \n                            <span class=\"crt-likes\"><i class=\"crt-icon-heart\"></i>&nbsp;<%=likes%></span>\n                            <span class=\"crt-comments\"><i class=\"crt-icon-comment\"></i>&nbsp;<%=comments%></span>\n                        </div> \n                    </div> \n                </div> \n            </div> \n        </div> \n    </div>\n</div>";
+var template$7 = "\n<div class=\"crt-grid-post crt-grid-post-minimal crt-grid-post-v2 crt-post-<%=id%> <%=this.contentImageClasses()%> <%=this.contentTextClasses()%>\" data-post=\"<%=id%>\">     <div class=\"crt-post-c\"> \n        <div class=\"crt-post-content\"> \n            <div class=\"crt-hitarea\" > \n                <img src=\"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7\" class=\"crt-spacer\" alt=\"Image posted by <%=user_screen_name%> to <%=this.networkName()%>\" /> \n                <div class=\"crt-grid-post-image\">\n                    <div class=\"crt-post-content-image\" style=\"background-image:url('<%=image%>');\"></div> \n                    <a href=\"javascript:;\" class=\"crt-play\"><i class=\"crt-play-icon\"></i></a> \n                    <span class=\"crt-social-icon crt-social-icon-normal\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                    <div class=\"crt-image-carousel\"><i class=\"crt-icon-image-carousel\"></i></div> \n                </div>\n                <div class=\"crt-grid-post-text\">\n                    <div class=\"crt-grid-post-text-wrap\"> \n                        <div><%=this.parseText(text)%></div> \n                    </div> \n                    <span class=\"crt-social-icon crt-social-icon-normal\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                </div>\n                <div class=\"crt-post-hover\">\n                    <div>\n                        <div class=\"crt-post-header\">\n                            <span class=\"crt-social-icon\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span>  \n                        </div> \n                        <div class=\"crt-post-minimal-stats\"> \n                            <span class=\"crt-likes\"><i class=\"crt-icon-heart\"></i>&nbsp;<%=likes%></span>\n                            <span class=\"crt-comments\"><i class=\"crt-icon-comment\"></i>&nbsp;<%=comments%></span>\n                        </div> \n                    </div> \n                </div> \n            </div> \n        </div> \n    </div>\n</div>";
 
-var template$4 = "\n<div class=\"crt-feed-window\">\n    <div class=\"crt-feed\"></div>\n</div>\n<div class=\"crt-load-more\"><a href=\"#\"><%=this._t(\"load-more\")%></a></div>";
+var template$8 = "\n<div class=\"crt-feed-window\">\n    <div class=\"crt-feed\"></div>\n</div>\n<div class=\"crt-load-more\"><a href=\"#\"><%=this._t(\"load-more\")%></a></div>";
 
-var template$5 = "\n<div class=\"crt-list-post crt-post-<%=id%> <%=this.contentImageClasses()%> <%=this.contentTextClasses()%>\" data-post=\"<%=id%>\">     <div class=\"crt-post-c\"> \n        <div class=\"crt-post-content\"> \n            <div class=\"crt-list-post-image\">\n                <div>\n                <img class=\"crt-post-content-image\" src=\"<%=image%>\" alt=\"Image posted by <%=user_screen_name%> to <%=this.networkName()%>\" /> \n                <a href=\"javascript:;\" class=\"crt-play\"><i class=\"crt-play-icon\"></i></a> \n                <span class=\"crt-social-icon crt-social-icon-normal\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                <span class=\"crt-image-carousel\"><i class=\"crt-icon-image-carousel\"></i></span>\n                </div> \n            </div>\n            <div class=\"crt-list-post-text\">\n                <div class=\"crt-post-header\"> \n                    <div class=\"crt-post-fullname\"><%=id%> - <a href=\"<%=this.userUrl()%>\" target=\"_blank\"><%=user_full_name%></a></div>\n                </div> \n                <div class=\"crt-list-post-text-wrap\"> \n                    <div><%=this.parseText(text)%></div> \n                </div> \n                <span class=\"crt-social-icon crt-social-icon-normal\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span>\n                 <div class=\"crt-post-footer\">\n                    <img class=\"crt-post-userimage\" src=\"<%=user_image%>\" alt=\"Profile image for <%=user_full_name%>\"/> \n                    <span class=\"crt-post-username\"><a href=\"<%=this.userUrl()%>\" target=\"_blank\">@<%=user_screen_name%></a></span>\n                    <span class=\"crt-date\"><%=this.prettyDate(source_created_at)%></span> \n                    <div class=\"crt-post-share\"><span class=\"crt-share-hint\"></span><a href=\"#\" class=\"crt-share-facebook\"><i class=\"crt-icon-facebook\"></i></a>  <a href=\"#\" class=\"crt-share-twitter\"><i class=\"crt-icon-twitter\"></i></a></div>\n                </div>  \n            </div>\n        </div> \n    </div>\n</div>";
+var template$9 = "\n<div class=\"crt-list-post crt-post-<%=id%> <%=this.contentImageClasses()%> <%=this.contentTextClasses()%>\" data-post=\"<%=id%>\">     <div class=\"crt-post-c\"> \n        <div class=\"crt-post-content\"> \n            <div class=\"crt-list-post-image\">\n                <div>\n                <img class=\"crt-post-content-image\" src=\"<%=image%>\" alt=\"Image posted by <%=user_screen_name%> to <%=this.networkName()%>\" /> \n                <a href=\"javascript:;\" class=\"crt-play\"><i class=\"crt-play-icon\"></i></a> \n                <span class=\"crt-social-icon crt-social-icon-normal\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                <span class=\"crt-image-carousel\"><i class=\"crt-icon-image-carousel\"></i></span>\n                </div> \n            </div>\n            <div class=\"crt-list-post-text\">\n                <div class=\"crt-post-header\"> \n                    <div class=\"crt-post-fullname\"><%=id%> - <a href=\"<%=this.userUrl()%>\" target=\"_blank\"><%=user_full_name%></a></div>\n                </div> \n                <div class=\"crt-list-post-text-wrap\"> \n                    <div><%=this.parseText(text)%></div> \n                </div> \n                <span class=\"crt-social-icon crt-social-icon-normal\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span>\n                 <div class=\"crt-post-footer\">\n                    <img class=\"crt-post-userimage\" src=\"<%=user_image%>\" alt=\"Profile image for <%=user_full_name%>\"/> \n                    <span class=\"crt-post-username\"><a href=\"<%=this.userUrl()%>\" target=\"_blank\">@<%=user_screen_name%></a></span>\n                    <span class=\"crt-date\"><%=this.prettyDate(source_created_at)%></span> \n                    <div class=\"crt-post-share\"><span class=\"crt-share-hint\"></span><a href=\"#\" class=\"crt-share-facebook\"><i class=\"crt-icon-facebook\"></i></a>  <a href=\"#\" class=\"crt-share-twitter\"><i class=\"crt-icon-twitter\"></i></a></div>\n                </div>  \n            </div>\n        </div> \n    </div>\n</div>";
 
 // Note the .crt-feed-spacer below was added to fix issues where the feed didn't fill the full width of a browser when it (the feed
 // is a child of a flex-box that doesn't grow correctly ... pretty hacky but it works :|
-var template$6 = "\n<div class=\"crt-feed-scroll\">\n<div class=\"crt-feed\">\n<div class=\"crt-feed-spacer\"> -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- </div>\n</div>\n</div>\n<div class=\"crt-load-more\"><a href=\"#\"><span><%=this._t(\"load-more\")%></span></a></div>\n";
+var template$10 = "\n<div class=\"crt-feed-scroll\">\n<div class=\"crt-feed\">\n<div class=\"crt-feed-spacer\"> -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- </div>\n</div>\n</div>\n<div class=\"crt-load-more\"><a href=\"#\" crt-click=\"loadMorePosts\"><span><%=this._t(\"load-more\")%></span></a></div>\n";
+
+var template$11 = " \n<div class=\"crt-post-v2 crt-post crt-post-<%=this.networkIcon()%> <%=this.contentTextClasses()%>  <%=this.contentImageClasses()%>\" data-post=\"<%=id%>\"> \n    <div class=\"crt-post-border\">\n        <div class=\"crt-post-c\">\n            <div class=\"crt-post-content\">\n                <div class=\"crt-image crt-hitarea crt-post-content-image\" > \n                    <div class=\"crt-image-c\"><img src=\"<%=image%>\" class=\"crt-post-image\" alt=\"Image posted by <%=user_screen_name%> to <%=this.networkName()%>\" /></div>   \n                    <span class=\"crt-play\"><i class=\"crt-play-icon\"></i></span> \n                    <div class=\"crt-image-carousel\"><i class=\"crt-icon-image-carousel\"></i></div> \n                </div> \n                <div class=\"crt-post-header\"> \n                    <span class=\"crt-social-icon\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                    <div class=\"crt-post-fullname\"><a href=\"<%=this.userUrl()%>\" target=\"_blank\"><%=user_full_name%></a></div>\n                </div> \n                <div class=\"text crt-post-content-text\"> \n                    <%=this.parseText(text)%> \n                </div> \n            </div> \n            <% if (options.showComments || options.showLikes) { %>\n                <div class=\"crt-comments-likes\">\n                    <% if (options.showLikes) { %><span><%=likes%></span> <%=this._t(\"likes\", likes)%><% } %><% if (options.showComments && options.showLikes) { %> <span class=\"crt-sep\"></span> <% } %><% if (options.showComments) { %><span><%=comments%></span> <%=this._t(\"comments\", comments)%><% } %>\n                </div>\n            <% } %>\n            <div class=\"crt-post-footer\"> \n                <img class=\"crt-post-userimage\" src=\"<%=user_image%>\" alt=\"Profile image for <%=user_screen_name%>\" /> \n                <span class=\"crt-post-username\"><a href=\"<%=this.userUrl()%>\" target=\"_blank\"><%=this.userScreenName()%></a></span>\n                <span class=\"crt-post-date\"><%=this.dateUrl()%></span> \n                <div class=\"crt-post-share\"><span class=\"crt-share-hint\"></span>\n                <a class=\"crt-share-facebook\" crt-click=\"onShareFacebookClick()\"><i class=\"crt-icon-facebook\"></i></a>  \n                <a class=\"crt-share-twitter\" crt-click=\"onShareTwitterClick()\"><i class=\"crt-icon-twitter\"></i></a></div>\n            </div> \n            <div class=\"crt-post-max-height-read-more\"><a class=\"crt-post-read-more-button\" crt-click=\"onReadMoreClick\"><%=this._t(\"read-more\")%></a></div> \n        </div> \n    </div> \n</div>";
+
+var template$12 = " \n<div class=\"crt-post-malibu crt-post-<%=this.networkIcon()%> <%=this.contentTextClasses()%>  <%=this.contentImageClasses()%>\" data-post=\"<%=id%>\"> \n    <div class=\"crt-post-border\">\n        <div class=\"crt-post-c\">\n            <div class=\"crt-post-content\">\n                <div class=\"crt-image crt-hitarea crt-post-content-image\" > \n                    <div class=\"crt-image-c\"><img src=\"<%=image%>\" class=\"crt-post-image\" alt=\"Image posted by <%=user_screen_name%> to <%=this.networkName()%>\" /></div>   \n                    <span class=\"crt-play\"><i class=\"crt-play-icon\"></i></span> \n                    <div class=\"crt-image-carousel\"><i class=\"crt-icon-image-carousel\"></i></div> \n                </div> \n            </div> \n            <% if (options.showComments || options.showLikes) { %>\n                <div class=\"crt-comments-likes\">\n                    <% if (options.showLikes) { %><span><%=likes%></span> <%=this._t(\"likes\", likes)%><% } %><% if (options.showComments && options.showLikes) { %> <span class=\"crt-sep\"></span> <% } %><% if (options.showComments) { %><span><%=comments%></span> <%=this._t(\"comments\", comments)%><% } %>\n                </div>\n            <% } %>\n            <div class=\"crt-post-hover\"> \n                <div class=\"crt-post-header\"> \n                    <span class=\"crt-social-icon\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                    <div class=\"crt-post-fullname\"><a href=\"<%=this.userUrl()%>\" target=\"_blank\"><%=user_full_name%></a></div>\n                </div> \n                <div class=\"text crt-post-content-text\"> \n                    <%=this.parseText(text)%> \n                </div> \n                <img class=\"crt-post-userimage\" src=\"<%=user_image%>\" alt=\"Profile image for <%=user_screen_name%>\" /> \n                <span class=\"crt-post-username\"><a href=\"<%=this.userUrl()%>\" target=\"_blank\"><%=this.userScreenName()%></a></span>\n                <span class=\"crt-post-date\"><%=this.dateUrl()%></span> \n                <div class=\"crt-post-share\"><span class=\"crt-share-hint\"></span>\n                <a class=\"crt-share-facebook\" crt-click=\"onShareFacebookClick()\"><i class=\"crt-icon-facebook\"></i></a>  \n                <a class=\"crt-share-twitter\" crt-click=\"onShareTwitterClick()\"><i class=\"crt-icon-twitter\"></i></a></div>\n            </div> \n            <div class=\"crt-post-max-height-read-more\"><a class=\"crt-post-read-more-button\" crt-click=\"onReadMoreClick\"><%=this._t(\"read-more\")%></a></div> \n        </div> \n    </div> \n</div>";
 
 var Templates = {
-    'filter'                : filterTemplate,
-    'popup'                 : v1PopupTemplate,
-    'popup-underlay'        : v1PopupUnderlayTemplate,
-    'popup-wrapper'         : v1PopupWrapperTemplate,
+    'filter'                : template$3,
+    'popup'                 : template$2,
+    'popup-underlay'        : template,
+    'popup-wrapper'         : template$1,
 
     // V1
-    'post-v1'               : template,
+    'post-v1'               : template$4,
     'grid-post-v1'          : gridPostTemplate,
 
     // V2
-    'post-v2'               : template$1,
-    'grid-post-v2'          : template$2,
-    'grid-post-minimal'     : template$3,
-    'grid-feed-v2'          : v2GridFeedTemple,
+    'post-v2'               : template$5,
 
-    'list-feed'             : template$4,
-    'list-post'             : template$5,
+    // Gid
+    'grid-feed'             : v2GridFeedTemple,
+    'grid-post'             : template$6,
+    'grid-post-minimal'     : template$7,
 
-    'waterfall-feed'        : template$6,
+    // List
+    'list-feed'             : template$8,
+    'list-post'             : template$9,
+
+    // Waterfall
+    'waterfall-feed'        : template$10,
+    'waterfall-post'        : template$11,
+    'waterfall-post-malibu' : template$12,
 };
 
 /**
@@ -862,6 +866,8 @@ for (var i$1=1;i$1<langDataLines.length;i$1++) {
         _k (langs, keys[j]+'.'+langDataCols[0], langDataCols[j]);
     }
 }
+
+// console.log(langs.sl);
 
 var _cache = {};
 var currentLang = 'en';
@@ -1135,6 +1141,16 @@ var helpers = {
 
     _t: function _t (s, n) {
         return mod.t (s, n);
+    },
+
+    dateUrl: function dateUrl () {
+        var url = this.data.url;
+        var created_at = this.data.source_created_at;
+        if (url) {
+            return '<a href="'+url+'" target="_blank">'+helpers.prettyDate(created_at)+'</a>';
+        } else {
+            return helpers.prettyDate(created_at);
+        }
     }
 };
 
@@ -1231,24 +1247,56 @@ var Templating = {
     }
 };
 
-/**
-* ==================================================================
-* Post
-* ==================================================================
-*/
+var Control = (function (EventBus$$1) {
+    function Control () {
+        EventBus$$1.call(this);
+    }
 
+    if ( EventBus$$1 ) Control.__proto__ = EventBus$$1;
+    Control.prototype = Object.create( EventBus$$1 && EventBus$$1.prototype );
+    Control.prototype.constructor = Control;
 
-var Post = (function (EventBus$$1) {
+    Control.prototype.render = function render () {
+        var this$1 = this;
+
+        var options = this.widget ? this.widget.options : {};
+        var $el = Templating.renderTemplate(this.templateId, this.json, options);
+
+        var clicks = $el.find('[crt-click]');
+        for (var i = 0, list = clicks; i < list.length; i += 1) {
+            var el = list[i];
+
+            var fnSig = z$1(el).attr('crt-click');
+            fnSig = fnSig.replace('(','');
+            fnSig = fnSig.replace(')','');
+            var fn = this$1[fnSig];
+            if (fn) {
+                z$1(el).on('click', fn.bind(this$1));
+            }
+        }
+
+        if (this.$el) {
+            // TODO - If we're re-rendering we really need to reattach the event listeners ...  
+            this.$el.replaceWith($el);
+        } else {
+            this.$el = $el;
+        }
+    };
+
+    return Control;
+}(EventBus));
+
+var Post = (function (Control$$1) {
     function Post (postJson, options, widget) {
         var this$1 = this;
 
-        EventBus$$1.call(this);
+        Control$$1.call(this);
 
         this.options = options;
         this.widget = widget;
 
-
         this.json = postJson;
+        this.templateId = this.widget.options.templatePost;
 
         this.render ();
 
@@ -1256,10 +1304,10 @@ var Post = (function (EventBus$$1) {
         this.$image = this.$el.find('.crt-post-image');
         this.$imageContainer = this.$el.find('.crt-image-c');
 
-        this.$el.find('.crt-share-facebook').click(this.onShareFacebookClick.bind(this));
-        this.$el.find('.crt-share-twitter').click(this.onShareTwitterClick.bind(this));
+        // this.$el.find('.crt-share-facebook').click(this.onShareFacebookClick.bind(this));
+        // this.$el.find('.crt-share-twitter').click(this.onShareTwitterClick.bind(this));
         // this.$el.find('.crt-hitarea').click(this.onPostClick.bind(this));
-        this.$el.find('.crt-post-read-more-button').click(this.onReadMoreClick.bind(this));
+        // this.$el.find('.crt-post-read-more-button').click(this.onReadMoreClick.bind(this));
         // this.$el.on('click','.crt-post-text-body a',this.onLinkClick.bind(this));
 
         this.$postC.click(this.onPostClick.bind(this));
@@ -1297,21 +1345,9 @@ var Post = (function (EventBus$$1) {
         }
     }
 
-    if ( EventBus$$1 ) Post.__proto__ = EventBus$$1;
-    Post.prototype = Object.create( EventBus$$1 && EventBus$$1.prototype );
+    if ( Control$$1 ) Post.__proto__ = Control$$1;
+    Post.prototype = Object.create( Control$$1 && Control$$1.prototype );
     Post.prototype.constructor = Post;
-
-    Post.prototype.render = function render () {
-        var templateId = this.widget.options.templatePost;
-        var $el = Templating.renderTemplate(templateId, this.json, this.widget.options);
-
-        if (this.$el) {
-            // TODO - If we're re-rendering we really need to reattach the event listeners ...  
-            this.$el.replaceWith($el);
-        } else {
-            this.$el = $el;
-        }
-    };
 
     Post.prototype.onShareFacebookClick = function onShareFacebookClick (ev) {
         ev.preventDefault();
@@ -1421,7 +1457,7 @@ var Post = (function (EventBus$$1) {
     };
 
     return Post;
-}(EventBus));
+}(Control));
 
 var HtmlUtils = {
     checkContainer: function checkContainer (container) {
@@ -1962,12 +1998,6 @@ var networks = {
     },
 };
 
-/**
-* ==================================================================
-* Filter
-* ==================================================================
-*/
-
 var Filter = (function (EventBus$$1) {
     function Filter (widget) {
         var this$1 = this;
@@ -2141,199 +2171,198 @@ var VideoPlayer = (function (EventBus$$1) {
     return VideoPlayer;
 }(EventBus));
 
-var Popup = function Popup (popupManager, post, widget) {
-    var this$1 = this;
-
-    Logger.log("Popup->init ");
-
-    this.popupManager = popupManager;
-    this.json = post;
-    this.widget = widget;
-
-    var templateId = this.widget.options.templatePopup;
-
-    this.$popup = Templating.renderTemplate(templateId, this.json);
-    this.$left = this.$popup.find('.crt-popup-left');
-
-    if (this.json.image) {
-        this.$popup.addClass('has-image');
-    }
-
-    if (this.json.url) {
-        this.$popup.addClass('crt-has-read-more');
-    }
-
-    if (this.json.video) {
-        this.$popup.addClass('has-video');
-        if (this.json.video && this.json.video.indexOf('youtu') >= 0) {
-            // youtube
-            this.$popup.find('video').remove();
-            // this.$popup.removeClass('has-image');
-
-            var youTubeId = StringUtils.youtubeVideoId(this.json.video);
-
-            var src = "<div class=\"crt-responsive-video\"><iframe id=\"ytplayer\" src=\"https://www.youtube.com/embed/" + youTubeId + "?autoplay=0&rel=0&showinfo\" frameborder=\"0\" allowfullscreen></iframe></div>";
-
-            this.$popup.find('.crt-video-container img').remove();
-            this.$popup.find('.crt-video-container a').remove();
-            this.$popup.find('.crt-video-container').append(src);
-        } else if (this.json.video && this.json.video.indexOf('vimeo') >= 0) {
-            // youtube
-            this.$popup.find('video').remove();
-            // this.$popup.removeClass('has-image');
-
-            var vimeoId = StringUtils.vimeoVideoId(this.json.video);
-
-            if (vimeoId) {
-                var src$1 = "<div class=\"crt-responsive-video\"><iframe src=\"https://player.vimeo.com/video/" + vimeoId + "?color=ffffff&title=0&byline=0&portrait=0\" frameborder=\"0\" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>";
-                this.$popup.find('.crt-video-container img').remove();
-                this.$popup.find('.crt-video-container a').remove();
-                this.$popup.find('.crt-video-container').append(src$1);
-            }
-        } else {
-            // Normal video
-            this.videoPlayer = new VideoPlayer(this.$popup.find('video')[0]);
-            this.videoPlayer.on('state:changed', function (event, playing) {
-                Logger.log('state:changed '+playing);
-                Logger.log(event);
-
-                this$1.$popup.toggleClass('video-playing', playing );
-            });
-        }
-    }
-
-    if (this.json.images)
-    {
-        this.$page = this.$popup.find('.crt-pagination ul');
-        for (var i = 0;i < this.json.images.length;i++) {
-            this$1.$page.append('<li><a href="" data-page="'+i+'"></a></li>');
-        }
-        this.$page.find('a').click(this.onPageClick.bind(this));
-        this.currentImage = 0;
-        this.$page.find('li:nth-child('+(this.currentImage+1)+')').addClass('selected');
-    }
-
-    this.$popup.on('click',' .crt-close', this.onClose.bind(this));
-    this.$popup.on('click',' .crt-previous', this.onPrevious.bind(this));
-    this.$popup.on('click',' .crt-next', this.onNext.bind(this));
-    this.$popup.on('click',' .crt-play', this.onPlay.bind(this));
-    this.$popup.on('click','.crt-share-facebook',this.onShareFacebookClick.bind(this));
-    this.$popup.on('click','.crt-share-twitter',this.onShareTwitterClick.bind(this));
-
-    z$1(window).on('resize.crt-popup', CommonUtils.debounce(this.onResize.bind(this),50));
-
-    this.onResize ();
-};
-
-Popup.prototype.onResize = function onResize () {
-    Logger.log('Popup->onResize');
-    var windowWidth = z$1(window).width ();
-    var padding = 60;
-    var paddingMobile = 40;
-    var rightPanel = 335;
-    var leftPanelMax = 600;
-
-    if (windowWidth > 1055) {
-        this.$left.width(leftPanelMax+rightPanel);
-    } else if (windowWidth > 910) {
-        this.$left.width(windowWidth-(padding*2));
-    } else if (windowWidth > leftPanelMax+(paddingMobile*2)) {
-        this.$left.width(600);
-    } else {
-        this.$left.width(windowWidth-(paddingMobile*2));
-    }
-};
-
-Popup.prototype.onPageClick = function onPageClick (ev) {
-    ev.preventDefault();
-    var a = z$1(ev.target);
-    var page = a.data('page');
-
-    var image = this.json.images[page];
-
-    this.$popup.find('.crt-image img').attr('src', image.url);
-    this.currentImage = page;
-
-    this.$page.find('li').removeClass('selected');
-    this.$page.find('li:nth-child('+(this.currentImage+1)+')').addClass('selected');
-};
-
-Popup.prototype.onShareFacebookClick = function onShareFacebookClick (ev) {
-    ev.preventDefault();
-    SocialFacebook.share(this.json);
-    this.widget.track('share:facebook');
-    return false;
-};
-
-Popup.prototype.onShareTwitterClick = function onShareTwitterClick (ev) {
-    ev.preventDefault();
-    SocialTwitter.share(this.json);
-    this.widget.track('share:twitter');
-    return false;
-};
-
-Popup.prototype.onClose = function onClose (e) {
-    e.preventDefault();
-    var that = this;
-    this.hide(function(){
-        that.popupManager.onClose();
-    });
-};
-
-Popup.prototype.onPrevious = function onPrevious (e) {
-    e.preventDefault();
-
-    this.popupManager.onPrevious();
-};
-
-Popup.prototype.onNext = function onNext (e) {
-    e.preventDefault();
-
-    this.popupManager.onNext();
-};
-
-Popup.prototype.onPlay = function onPlay (e) {
-    Logger.log('Popup->onPlay');
-    e.preventDefault();
-
-    this.videoPlayer.playPause();
-};
-
-Popup.prototype.show = function show () {
-    this.$popup.fadeIn( function () {
-
-    });
-};
-    
-Popup.prototype.hide = function hide (callback) {
+var Popup = (function (Control$$1) {
+    function Popup (popupManager, post, widget) {
         var this$1 = this;
 
-    Logger.log('Popup->hide');
+        Logger.log("Popup->init ");
+        Control$$1.call(this);
 
-    if (this.videoPlayer) {
-        this.videoPlayer.pause();
+        this.popupManager = popupManager;
+        this.json = post;
+        this.widget = widget;
+
+        this.templateId = this.widget.options.templatePopup;
+
+        // this.$el = TemplatingUtils.renderTemplate(templateId, this.json);
+        this.render();
+        this.$left = this.$el.find('.crt-popup-left');
+
+        if (this.json.image) {
+            this.$el.addClass('has-image');
+        }
+
+        if (this.json.url) {
+            this.$el.addClass('crt-has-read-more');
+        }
+
+        if (this.json.video) {
+            this.$el.addClass('has-video');
+            if (this.json.video && this.json.video.indexOf('youtu') >= 0) {
+                // youtube
+                this.$el.find('video').remove();
+                // this.$el.removeClass('has-image');
+
+                var youTubeId = StringUtils.youtubeVideoId(this.json.video);
+
+                var src = "<div class=\"crt-responsive-video\"><iframe id=\"ytplayer\" src=\"https://www.youtube.com/embed/" + youTubeId + "?autoplay=0&rel=0&showinfo\" frameborder=\"0\" allowfullscreen></iframe></div>";
+
+                this.$el.find('.crt-video-container img').remove();
+                this.$el.find('.crt-video-container a').remove();
+                this.$el.find('.crt-video-container').append(src);
+            } else if (this.json.video && this.json.video.indexOf('vimeo') >= 0) {
+                // youtube
+                this.$el.find('video').remove();
+                // this.$el.removeClass('has-image');
+
+                var vimeoId = StringUtils.vimeoVideoId(this.json.video);
+
+                if (vimeoId) {
+                    var src$1 = "<div class=\"crt-responsive-video\"><iframe src=\"https://player.vimeo.com/video/" + vimeoId + "?color=ffffff&title=0&byline=0&portrait=0\" frameborder=\"0\" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>";
+                    this.$el.find('.crt-video-container img').remove();
+                    this.$el.find('.crt-video-container a').remove();
+                    this.$el.find('.crt-video-container').append(src$1);
+                }
+            } else {
+                // Normal video
+                this.videoPlayer = new VideoPlayer(this.$el.find('video')[0]);
+                this.videoPlayer.on('state:changed', function (event, playing) {
+                    this$1.$el.toggleClass('video-playing', playing );
+                });
+            }
+        }
+
+        if (this.json.images)
+        {
+            this.$page = this.$el.find('.crt-pagination ul');
+            for (var i = 0;i < this.json.images.length;i++) {
+                this$1.$page.append('<li><a href="" data-page="'+i+'"></a></li>');
+            }
+            this.$page.find('a').click(this.onPageClick.bind(this));
+            this.currentImage = 0;
+            this.$page.find('li:nth-child('+(this.currentImage+1)+')').addClass('selected');
+        }
+
+        z$1(window).on('resize.crt-popup', CommonUtils.debounce(this.onResize.bind(this),50));
+
+        this.onResize ();
     }
 
-    this.$popup.fadeOut(function () {
-        this$1.destroy();
-        callback ();
-    });
-};
+    if ( Control$$1 ) Popup.__proto__ = Control$$1;
+    Popup.prototype = Object.create( Control$$1 && Control$$1.prototype );
+    Popup.prototype.constructor = Popup;
+
+    Popup.prototype.onResize = function onResize () {
+        Logger.log('Popup->onResize');
+        var windowWidth = z$1(window).width ();
+        var padding = 60;
+        var paddingMobile = 40;
+        var rightPanel = 335;
+        var leftPanelMax = 600;
+
+        if (windowWidth > 1055) {
+            this.$left.width(leftPanelMax+rightPanel);
+        } else if (windowWidth > 910) {
+            this.$left.width(windowWidth-(padding*2));
+        } else if (windowWidth > leftPanelMax+(paddingMobile*2)) {
+            this.$left.width(600);
+        } else {
+            this.$left.width(windowWidth-(paddingMobile*2));
+        }
+    };
+
+    Popup.prototype.onPageClick = function onPageClick (ev) {
+        ev.preventDefault();
+        var a = z$1(ev.target);
+        var page = a.data('page');
+
+        var image = this.json.images[page];
+
+        this.$el.find('.crt-image img').attr('src', image.url);
+        this.currentImage = page;
+
+        this.$page.find('li').removeClass('selected');
+        this.$page.find('li:nth-child('+(this.currentImage+1)+')').addClass('selected');
+    };
+
+    Popup.prototype.onShareFacebookClick = function onShareFacebookClick (ev) {
+        ev.preventDefault();
+        SocialFacebook.share(this.json);
+        this.widget.track('share:facebook');
+        return false;
+    };
+
+    Popup.prototype.onShareTwitterClick = function onShareTwitterClick (ev) {
+        ev.preventDefault();
+        SocialTwitter.share(this.json);
+        this.widget.track('share:twitter');
+        return false;
+    };
+
+    Popup.prototype.onClose = function onClose (e) {
+        e.preventDefault();
+        var that = this;
+        this.hide(function(){
+            that.popupManager.onClose();
+        });
+    };
+
+    Popup.prototype.onPrevious = function onPrevious (e) {
+        e.preventDefault();
+
+        this.popupManager.onPrevious();
+    };
+
+    Popup.prototype.onNext = function onNext (e) {
+        e.preventDefault();
+
+        this.popupManager.onNext();
+    };
+
+    Popup.prototype.onPlay = function onPlay (e) {
+        Logger.log('Popup->onPlay');
+        e.preventDefault();
+
+        this.videoPlayer.playPause();
+    };
+
+    Popup.prototype.show = function show () {
+        this.$el.fadeIn( function () {
+
+        });
+    };
     
-Popup.prototype.destroy = function destroy () {
+    Popup.prototype.hide = function hide (callback) {
+        var this$1 = this;
 
-    if (this.videoPlayer) {
-        this.videoPlayer.destroy();
-    }
+        Logger.log('Popup->hide');
 
-    if (this.$popup && this.$popup.length) {
-        this.$popup.remove();
-    }
+        if (this.videoPlayer) {
+            this.videoPlayer.pause();
+        }
 
-    z$1(window).off('resize.crt-popup');
+        this.$el.fadeOut(function () {
+            this$1.destroy();
+            callback ();
+        });
+    };
+    
+    Popup.prototype.destroy = function destroy () {
+        if (this.videoPlayer) {
+            this.videoPlayer.destroy();
+        }
 
-    delete this.$popup;
-};
+        if (this.$el && this.$el.length) {
+            this.$el.remove();
+        }
+
+        z$1(window).off('resize.crt-popup');
+
+        delete this.$el;
+    };
+
+    return Popup;
+}(Control));
 
 /**
 * ==================================================================
@@ -2373,7 +2402,7 @@ PopupManager.prototype.showPopup2 = function showPopup2 (post) {
         var this$1 = this;
 
     this.popup = new Popup(this, post, this.widget);
-    this.$popupContainer.append(this.popup.$popup);
+    this.$popupContainer.append(this.popup.$el);
 
     this.$wrapper.show();
 
@@ -2453,17 +2482,17 @@ PopupManager.prototype.destroy = function destroy () {
     delete this.$underlay;
 };
 
-var Widget = (function (EventBus$$1) {
+var Widget = (function (Control$$1) {
     function Widget () {
         Logger.log('Widget->construct');
 
-        EventBus$$1.call (this);
+        Control$$1.call (this);
 
         this.id = CommonUtils.uId ();
     }
 
-    if ( EventBus$$1 ) Widget.__proto__ = EventBus$$1;
-    Widget.prototype = Object.create( EventBus$$1 && EventBus$$1.prototype );
+    if ( Control$$1 ) Widget.__proto__ = Control$$1;
+    Widget.prototype = Object.create( Control$$1 && Control$$1.prototype );
     Widget.prototype.constructor = Widget;
 
     Widget.prototype.init = function init (options, defaults) {
@@ -2711,7 +2740,7 @@ var Widget = (function (EventBus$$1) {
     Widget.prototype.destroy = function destroy () {
         Logger.log('Widget->destroy');
 
-        EventBus$$1.prototype.destroy.call(this);
+        Control$$1.prototype.destroy.call(this);
 
         if (this.feed) {
             this.feed.destroy();
@@ -2728,7 +2757,7 @@ var Widget = (function (EventBus$$1) {
     };
 
     return Widget;
-}(EventBus));
+}(Control));
 
 var ConfigWidgetBase = {
     apiEndpoint: 'https://api.curator.io/v1.2',
@@ -2749,16 +2778,20 @@ var ConfigWidgetBase = {
     }
 };
 
-var ConfigWidgetWaterfall = z$1.extend({}, ConfigWidgetBase, {
-    waterfall: {
-        showLoadMore:true,
-        continuousScroll:false,
-        gridWidth:300,
-        animate:true,
-        animateSpeed:400,
-        handleResize:true,
-        templateFeed:'waterfall-feed'
-    }
+var config = z$1.extend({}, ConfigWidgetBase, {
+    templatePost:'waterfall-post',
+    templateFeed:'waterfall-feed',
+    colGutter: 0,
+    colWidth: 300,
+    showLoadMore:true,
+    continuousScroll:false,
+    animate:true,
+    selector: '.crt-post-c',
+    animationSpeed: 200,
+    animationDuration: 300,
+    animationEffect: 'fadeInOnAppear',
+    animationQueue: true,
+    animationComplete: function () {}
 });
 
 var makeArray = function(array, results) {
@@ -3806,21 +3839,6 @@ var index = (function () {
  *
  */
 
-var LayoutWaterfallSettings = {
-    selector: '.item',
-    width: 225,
-    gutter: 20,
-    animate: false,
-    animationOptions: {
-        speed: 200,
-        duration: 300,
-        effect: 'fadeInOnAppear',
-        queue: true,
-        complete: function () {
-        }
-    }
-};
-
 var LayoutWaterfall = function LayoutWaterfall(options, element) {
     Logger.log("WaterfallLayout->constructor");
     this.element = z$1(element);
@@ -3841,22 +3859,16 @@ var LayoutWaterfall = function LayoutWaterfall(options, element) {
     this.ifCallback = true;
     this.box = this.element;
     this.boxWidth = this.box.width();
-    this.options = z$1.extend(true, {}, LayoutWaterfallSettings, options);
+    this.options = options;
     this.gridArr = makeArray(this.box.find(this.options.selector));
     this.isResizing = false;
     this.w = 0;
     this.boxArr = [];
     this.visible = false;
 
-    // this.element.is(':visible')
-
     // build columns
-    // this._setCols(1);
     this.resize();
     // build grid
-    // this._renderGrid('append');
-    // add class 'gridalicious' to container
-    // z(this.box).addClass('gridalicious');
 
     this.createHandlers ();
 
@@ -3874,16 +3886,14 @@ LayoutWaterfall.prototype.createHandlers = function createHandlers () {
         this$1.resize();
     }, 100);
 
-    if (this.options.handleResize) {
-        this.ro = new index(function (entries, observer) {
-            if (entries.length > 0) {
-                // let entry = entries[0];
-                this$1.redraw();
-            }
-        });
+    this.ro = new index(function (entries, observer) {
+        if (entries.length > 0) {
+            // let entry = entries[0];
+            this$1.redraw();
+        }
+    });
 
-        this.ro.observe(this.element[0]);
-    }
+    this.ro.observe(this.element[0]);
     this.redraw();
 };
 
@@ -3917,8 +3927,8 @@ LayoutWaterfall.prototype._setCols = function _setCols (newCols) {
     if (this.cols < 1) {
         this.cols = 1;
     }
-    var diff = (boxWidth - (this.cols * this.options.width) - this.options.gutter) / this.cols;
-    var colWidth = (this.options.width + diff) / boxWidth * 100;
+    var diff = (boxWidth - (this.cols * this.options.colWidth) - this.options.colGutter) / this.cols;
+    var colWidth = (this.options.colWidth + diff) / boxWidth * 100;
 
     Logger.log('colWidth: '+colWidth);
 
@@ -3939,8 +3949,8 @@ LayoutWaterfall.prototype._setCols = function _setCols (newCols) {
     for (var i = 0; i < this.cols; i++) {
         var div = z$1('<div></div>').addClass('galcolumn').attr('id', 'item' + i + this$1.name).css({
             'width': colWidth + '%',
-            'paddingLeft': this$1.options.gutter,
-            'paddingBottom': this$1.options.gutter,
+            // 'paddingLeft': this.options.colGutter,
+            // 'paddingBottom': this.options.colGutter,
             'float': 'left',
             '-webkit-box-sizing': 'border-box',
             '-moz-box-sizing': 'border-box',
@@ -3958,7 +3968,7 @@ LayoutWaterfall.prototype._renderGrid = function _renderGrid (method, arr, count
     var boxes = [];
     // let prependArray = prepArray || [];
     var appendCount = this.appendCount;
-    // let gutter = this.options.gutter;
+    // let colGutter = this.options.colGutter;
     var cols = this.cols;
     var name = this.name;
     // let i = 0;
@@ -4057,12 +4067,12 @@ LayoutWaterfall.prototype._collectItems = function _collectItems () {
 
 LayoutWaterfall.prototype._renderItem = function _renderItem (items) {
 
-    var speed = this.options.animationOptions.speed;
-    var effect = this.options.animationOptions.effect;
-    var duration = this.options.animationOptions.duration;
-    var queue = this.options.animationOptions.queue;
+    var speed = this.options.animationSpeed;
+    var effect = this.options.animationEffect;
+    var duration = this.options.animationDuration;
+    var queue = this.options.animationQueue;
     var animate = this.options.animate;
-    var complete = this.options.animationOptions.complete;
+    var complete = this.options.animationComplete;
 
     var i = 0;
     var t = 0;
@@ -4142,7 +4152,7 @@ LayoutWaterfall.prototype._updateAfterPrepend = function _updateAfterPrepend (pr
 LayoutWaterfall.prototype.resize = function resize () {
     Logger.log("WaterfallLayout->resize");
 
-    var newCols = Math.floor(this.box.width() / this.options.width);
+    var newCols = Math.floor(this.box.width() / this.options.colWidth);
 
     if (newCols < 1) {
         newCols = 1;
@@ -4205,12 +4215,12 @@ var Waterfall = (function (Widget$$1) {
 
         Widget$$1.call (this);
 
-        if (this.init (options,  ConfigWidgetWaterfall)) {
+        if (this.init (options,  config)) {
             Logger.log("Waterfall->init with options:");
-            Logger.log(this.options);
-            // console.log('TEST');
-            var tmpl = Templating.renderTemplate(this.options.waterfall.templateFeed, {});
-            this.$container.append(tmpl);
+            this.templateId = this.options.templateFeed;
+            this.json = {};
+            this.render();
+            this.$container.append(this.$el);
 
             this.$scroll = this.$container.find('.crt-feed-scroll');
             this.$feed = this.$container.find('.crt-feed');
@@ -4228,28 +4238,11 @@ var Waterfall = (function (Widget$$1) {
                 });
             }
 
-            if (this.options.waterfall.showLoadMore) {
-                // default to more
-                var $aLoadMore = this.$loadMore.find('a');
-                $aLoadMore.on('click', function (ev) {
-                    ev.preventDefault();
-                    this$1.loadMorePosts();
-                });
-            } else {
+            if (!this.options.showLoadMore) {
                 this.$loadMore.remove();
             }
 
-            this.ui = new LayoutWaterfall({
-                selector:'.crt-post-c',
-                gutter:0,
-                width:this.options.waterfall.gridWidth,
-                animate:this.options.waterfall.animate,
-                handleResize:this.options.waterfall.handleResize,
-                animationOptions: {
-                    speed: (this.options.waterfall.animateSpeed/2),
-                    duration: this.options.waterfall.animateSpeed
-                }
-            }, this.$feed);
+            this.ui = new LayoutWaterfall(this.options, this.$feed);
 
             this.on(Events.FILTER_CHANGED, function () {
                 this$1.$feed.find('.crt-post').remove();
@@ -4274,7 +4267,8 @@ var Waterfall = (function (Widget$$1) {
 
     };
 
-    Waterfall.prototype.loadMorePosts = function loadMorePosts () {
+    Waterfall.prototype.loadMorePosts = function loadMorePosts (ev) {
+        ev.preventDefault();
         Logger.log('Waterfall->loadMorePosts');
 
         this.feed.loadAfter();
@@ -4300,13 +4294,13 @@ var Waterfall = (function (Widget$$1) {
         var that = this;
         z$1.each(postElements,function () {
             var post = this;
-            if (that.options.waterfall.showReadMore) {
+            if (that.options.showReadMore) {
                 post.find('.crt-post')
                     .addClass('crt-post-show-read-more');
             }
         });
 
-        if (this.options.waterfall.showLoadMore) {
+        if (this.options.showLoadMore) {
             if (this.feed.allPostsLoaded) {
                 this.$loadMore.hide();
             } else {
@@ -4616,8 +4610,8 @@ var List = (function (Widget$$1) {
 }(Widget));
 
 var ConfigWidgetGrid$1 = z$1.extend({}, ConfigWidgetBase, {
-    templatePost:'grid-post-v2',
-    templateFeed:'grid-feed-v2',
+    templatePost:'grid-post',
+    templateFeed:'grid-feed',
     animate:false,
     grid: {
         minWidth:200,
@@ -4668,8 +4662,10 @@ var Grid = (function (Widget$$1) {
             Logger.log("Grid->init with options:");
             Logger.log(this.options);
 
-            var tmpl = Templating.renderTemplate(this.responsiveOptions.templateFeed, {});
-            this.$container.append(tmpl);
+            this.templateId = this.responsiveOptions.templateFeed;
+            this.json = {};
+            this.render ();
+            this.$container.append(this.$el);
             this.$feed = this.$container.find('.crt-feed');
             this.$feedWindow = this.$container.find('.crt-feed-window');
             this.$loadMore = this.$container.find('.crt-load-more a');

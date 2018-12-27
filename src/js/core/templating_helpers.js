@@ -101,6 +101,16 @@ let helpers = {
 
     _t (s, n) {
         return translate.t (s, n);
+    },
+
+    dateUrl () {
+        let url = this.data.url;
+        let created_at = this.data.source_created_at;
+        if (url) {
+            return '<a href="'+url+'" target="_blank">'+helpers.prettyDate(created_at)+'</a>';
+        } else {
+            return helpers.prettyDate(created_at);
+        }
     }
 };
 

@@ -1,11 +1,11 @@
 
-import EventBus from '../core/bus';
 import SocialFacebook from '../social/facebook';
 import SocialTwitter from '../social/twitter';
 import Logger from '../core/logger';
 import Events from '../core/events';
 import Templating from '../core/templating';
 import z from '../core/lib';
+import Control from './controls/control';
 
 /**
 * ==================================================================
@@ -14,15 +14,15 @@ import z from '../core/lib';
 */
 
 
-class Post extends EventBus {
+class Post extends Control {
     constructor (postJson, options, widget) {
         super();
 
         this.options = options;
         this.widget = widget;
 
-
         this.json = postJson;
+        this.templateId = this.widget.options.templatePost;
 
         this.render ();
 
@@ -30,10 +30,10 @@ class Post extends EventBus {
         this.$image = this.$el.find('.crt-post-image');
         this.$imageContainer = this.$el.find('.crt-image-c');
 
-        this.$el.find('.crt-share-facebook').click(this.onShareFacebookClick.bind(this));
-        this.$el.find('.crt-share-twitter').click(this.onShareTwitterClick.bind(this));
+        // this.$el.find('.crt-share-facebook').click(this.onShareFacebookClick.bind(this));
+        // this.$el.find('.crt-share-twitter').click(this.onShareTwitterClick.bind(this));
         // this.$el.find('.crt-hitarea').click(this.onPostClick.bind(this));
-        this.$el.find('.crt-post-read-more-button').click(this.onReadMoreClick.bind(this));
+        // this.$el.find('.crt-post-read-more-button').click(this.onReadMoreClick.bind(this));
         // this.$el.on('click','.crt-post-text-body a',this.onLinkClick.bind(this));
 
         this.$postC.click(this.onPostClick.bind(this));
@@ -68,18 +68,6 @@ class Post extends EventBus {
 
         if (this.json.images && this.json.images.length > 0) {
             this.$el.addClass('crt-has-image-carousel');
-        }
-    }
-
-    render () {
-        let templateId = this.widget.options.templatePost;
-        let $el = Templating.renderTemplate(templateId, this.json, this.widget.options);
-
-        if (this.$el) {
-            // TODO - If we're re-rendering we really need to reattach the event listeners ...  
-            this.$el.replaceWith($el);
-        } else {
-            this.$el = $el;
         }
     }
 

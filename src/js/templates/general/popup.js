@@ -1,10 +1,10 @@
 
 
-const v1PopupTemplate = ` 
+const template = ` 
 <div class="crt-popup"> 
-    <a href="#" class="crt-close crt-icon-cancel"></a> 
-    <a href="#" class="crt-next crt-icon-right-open"></a> 
-    <a href="#" class="crt-previous crt-icon-left-open"></a> 
+    <a crt-click="onClose" class="crt-close crt-icon-cancel"></a> 
+    <a crt-click="onPrevious" class="crt-next crt-icon-right-open"></a> 
+    <a crt-click="onNext" class="crt-previous crt-icon-left-open"></a> 
     <div class="crt-popup-left">  
         <div class="crt-video"> 
             <div class="crt-video-container">
@@ -12,7 +12,7 @@ const v1PopupTemplate = `
                 <source src="<%=video%>" type="video/mp4">
                 </video>
                 <img src="<%=image%>" alt="Image posted by <%=this.userScreenName()%> to <%=this.networkName()%>" />
-                <a href="javascript:;" class="crt-play"><i class="crt-play-icon"></i></a> 
+                <ac rt-click="onPlay" class="crt-play"><i class="crt-play-icon"></i></a> 
             </div> 
         </div> 
         <div class="crt-image"> 
@@ -28,7 +28,7 @@ const v1PopupTemplate = `
         </div> 
         <div class="crt-popup-text <%=this.contentTextClasses()%>"> 
             <div class="crt-popup-text-container"> 
-                <p class="crt-date"><%=this.prettyDate(source_created_at)%></p> 
+                <p class="crt-date"><%=this.dateUrl()%></a></p> 
                 <div class="crt-popup-text-body"><%=this.parseText(text)%></div> 
             </div> 
         </div> 
@@ -37,9 +37,12 @@ const v1PopupTemplate = `
         </div>
         <div class="crt-popup-footer">
             <div class="crt-popup-stats"><span><%=likes%></span> <%=this._t("likes", likes)%> <i class="sep"></i> <span><%=comments%></span> <%=this._t("comments", comments)%></div> 
-            <div class="crt-post-share"><span class="ctr-share-hint"></span><a href="#" class="crt-share-facebook"><i class="crt-icon-facebook"></i></a>  <a href="#" class="crt-share-twitter"><i class="crt-icon-twitter"></i></a></div>
+            <div class="crt-post-share"><span class="ctr-share-hint"></span>
+            <a crt-click="onShareFacebookClick" class="crt-share-facebook"><i class="crt-icon-facebook"></i></a>  
+            <a crt-click="onShareTwitterClick" class="crt-share-twitter"><i class="crt-icon-twitter"></i></a><
+            /div>
         </div> 
     </div> 
 </div>`;
 
-export default v1PopupTemplate;
+export default template;

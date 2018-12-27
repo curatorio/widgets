@@ -11,8 +11,9 @@ import PopupManager from '../ui/popup_manager';
 import z from '../core/lib';
 import translate from '../core/translate';
 import Globals from '../core/globals';
+import Control from '../ui/controls/control';
 
-class Widget extends EventBus {
+class Widget extends Control {
 
     constructor () {
         Logger.log('Widget->construct');

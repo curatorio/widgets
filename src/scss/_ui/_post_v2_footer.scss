@@ -1,10 +1,15 @@
 
 
-.crt-date {
+.crt-post-date {
 	margin-top: 0;
 	opacity: 0.5;
 	font-size: .8em;
 	text-transform: uppercase;
+
+	a {
+		color: #999;
+		text-decoration: none;
+	}
 }
 
 .crt-post-username {
