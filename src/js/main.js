@@ -20,6 +20,7 @@ import translate from './core/translate';
 import Waterfall from './widgets/waterfall';
 import List from './widgets/list';
 import Grid from './widgets/grid';
+import GridCarousel from './widgets/grid-carousel';
 import Carousel from './widgets/carousel';
 import Panel from './widgets/panel';
 
@@ -92,6 +93,7 @@ let Crt = {
         Waterfall: Waterfall,
         Grid: Grid,
         Carousel: Carousel,
+        GridCarousel: GridCarousel,
         Panel: Panel,
         List: List,
     },

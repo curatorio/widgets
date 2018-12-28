@@ -10,14 +10,14 @@ import z from '../core/lib';
 let config = z.extend({}, ConfigWidgetBase, {
     autoPlay:true,
     autoLoad:true,
-    infinite:false,
+    infinite:true,
     matchHeights:false,
-    templatePost:'carousel-post',
-    templateFeed:'carousel-feed',
+    rows:1,
+    templatePost:'grid-carousel-post',
+    templateFeed:'grid-carousel-feed',
 });
 
-
-class Carousel extends Widget {
+class GridCarousel extends Widget {
 
     constructor (options) {
         super ();
@@ -25,7 +25,7 @@ class Carousel extends Widget {
         options.postsPerPage = 100;
 
         if (this.init (options,  config)) {
-            Logger.log("Carousel->init with options:");
+            Logger.log("GridCarousel->init with options:");
 
             this.allLoaded = false;
 
@@ -33,10 +33,10 @@ class Carousel extends Widget {
             this.render();
 
             this.$el.appendTo(this.$container);
-            this.$container.addClass('crt-widget-carousel');
+            this.$container.addClass('crt-widget-grid-carousel');
 
-            let $stage = this.$el.find('.crt-carousel-stage');
-            let $paneSlider = this.$el.find('.crt-carousel-slider');
+            let $stage = this.$el.find('.crt-grid-carousel-stage');
+            let $paneSlider = this.$el.find('.crt-grid-carousel-slider');
 
             this.carousel = new LayoutCarousel(this, this.$el, $stage, $paneSlider, this.options);
             this.carousel.on(Events.CAROUSEL_CHANGED, this.onCarouselChange.bind(this));
@@ -51,47 +51,58 @@ class Carousel extends Widget {
     }
 
     loadMorePosts  () {
-        Logger.log('Carousel->loadMorePosts');
+        Logger.log('GridCarousel->loadMorePosts');
 
         if (this.feed.postCount > this.feed.postsLoaded) {
             this.feed.loadPosts(this.feed.currentPage + 1);
         }
     }
 
-    createPane (paneIndex) {
-        Logger.log('Carousel->createPane '+paneIndex);
+    createPane (paneIndex)
+    {
+        Logger.log('GridCarousel->createPane '+paneIndex);
 
-        let postToLoad = paneIndex;
-        if (paneIndex < 0) {
-            postToLoad = this.feed.posts.length + paneIndex;
-        } else if (paneIndex > this.feed.posts.length - 1) {
-            postToLoad = paneIndex % this.feed.posts.length;
-        }
+        let lastPost = Math.floor(this.feed.posts.length);
 
         let pane = new LayoutCarouselPane ();
-        let postJson = this.feed.posts[postToLoad];
-        pane.addPost(this.createPostElement(postJson));
+
+        for (let c = 0 ; c < this.options.rows ; c ++) {
+            let cX = (paneIndex * this.options.rows) + c;
+            if (cX < 0) {
+                cX = this.feed.posts.length + cX;
+            } else if (cX > lastPost - 1) {
+                cX = cX % lastPost;
+            }
+
+            let postJson = this.feed.posts[cX];
+            if (postJson) {
+                pane.addPost(this.createPostElement(postJson));
+            }
+        }
 
         return pane;
     }
 
     onPostsLoaded (event, posts) {
-        Logger.log("Carousel->onPostsLoaded");
+        Logger.log("GridCarousel->onPostsLoaded");
+
+        this.loading = false;
 
         if (posts.length === 0) {
             this.allLoaded = true;
         } else {
-            this.carousel.setPanesLength(this.feed.posts.length);
+            let paneCount = Math.floor(this.feed.posts.length / this.options.rows);
+            this.carousel.setPanesLength(paneCount);
 
             this.popupManager.setPosts(posts);
         }
     }
 
     onCarouselChange (event, carouselLayout, currentPane) {
-        Logger.log("Carousel->onCarouselChange currentPane: "+currentPane);
+        Logger.log("GridCarousel->onCarouselChange currentPane: "+currentPane);
         if (this.options && this.options.autoLoad) {
             let pos = this.feed.postsLoaded - (this.carousel.PANES_VISIBLE * 2);
-            if (currentPane >= pos) {
+            if (currentPane * this.options.rows >= pos) {
                 this.loadMorePosts();
             }
         }
@@ -115,13 +126,11 @@ class Carousel extends Widget {
 
         this.$feed.remove();
         this.$container.removeClass('crt-widget-carousel');
-        this.$container.removeClass('crt-carousel');
 
         delete this.$feed;
         delete this.$container;
         delete this.options ;
         delete this.feed.postsLoaded;
-        delete this.allLoaded;
 
         // TODO add code to cascade destroy down to Feed & Posts
         // unregistering events etc
@@ -129,4 +138,4 @@ class Carousel extends Widget {
     }
 }
 
-export default Carousel;
+export default GridCarousel;

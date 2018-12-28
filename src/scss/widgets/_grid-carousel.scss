@@ -1,15 +1,25 @@
-.crt-widget-carousel {
-    //min-width: 320px;
-    min-height: 400px;
+
+
+.crt-carousel-pane {
+    float: left;
+
+    .crt-grid-post-v2 {
+        float: none;
+    }
+}
+
+.crt-widget-grid-carousel {
     position: relative;
 
     .crt-logo {
         display: none;
     }
 
-    .crt-carousel-feed {
+    .crt-grid-carousel-feed {
         width:100%;
         position: relative;
+        //@extend .crt-clearfix;
+
         -webkit-font-smoothing:antialiased;
     }
 
@@ -29,7 +39,7 @@
         }
     }
 
-    .crt-carousel-stage {
+    .crt-grid-carousel-stage {
         width: 100%;
         overflow: hidden;
         position: relative;
@@ -47,7 +57,7 @@
         }
     }
 
-    .crt-carousel-slider {
+    .crt-grid-carousel-slider {
         width: 0%;
         list-style: none;
         position: relative;

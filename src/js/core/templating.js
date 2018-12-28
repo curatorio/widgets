@@ -11,28 +11,11 @@ let _rendererTmplCache = {};
 
 let Templating = {
     renderTemplate (templateId, data, options) {
-
         if (options) {
             data.options = options;
         }
 
-        let source = '';
-        let $t = z('#'+templateId);
-
-        if ($t.length===1)
-        {
-            source = $t.html();
-        } else if (Templates[templateId] !== undefined)
-        {
-            source = Templates[templateId];
-        }
-
-        if (source === '')
-        {
-            throw new Error ('Could not find template '+templateId);
-        }
-
-        return Templating.renderDiv(source, data);
+        return Templating.renderDiv(templateId, data);
     },
 
     renderDiv (source, data) {
@@ -44,13 +27,29 @@ let Templating = {
         return z(tmpl).filter('div');
     },
 
-    render (str, data) {
+    render (templateId, data) {
         let err = "";
-        try {
-            let func = _rendererTmplCache[str];
-            if (!func) {
-                let strComp =
-                    str.replace(/[\r\t\n]/g, " ")
+
+        let func = _rendererTmplCache[templateId];
+        if (!func) {
+            let source = '';
+            let $t = z('#'+templateId);
+
+            if ($t.length===1)
+            {
+                source = $t.html();
+            } else if (Templates[templateId] !== undefined)
+            {
+                source = Templates[templateId];
+            }
+
+            if (source === '')
+            {
+                throw new Error ('Could not find template '+templateId);
+            }
+
+            try {
+                let strComp = source.replace(/[\r\t\n]/g, " ")
                         .replace(/'(?=[^%]*%>)/g, "\t")
                         .split("'").join("\\'")
                         .split("\t").join("'")
@@ -64,15 +63,22 @@ let Templating = {
                     "with(obj){p.push('" + strComp + "');}return p.join('');";
 
                 func = new Function("obj", strFunc);  // jshint ignore:line
-                _rendererTmplCache[str] = func;
+                _rendererTmplCache[templateId] = func;
+            } catch (e) {
+                Logger.error ('Template parse error: ' +e.message);
+                throw new Error ('Template parse error: ' +e.message +' for template: '+templateId);
             }
+        }
+
+        try {
             helpers.data = data;
             return func.call(helpers, data);
         } catch (e) {
-            Logger.error ('Template parse error: ' +e.message);
-            err = e.message;
+            // console.log(e);
+            Logger.error ('Template render error: ' +e.message +' for template: '+templateId);
+            console.log(data);
+            throw new Error ('Template render error: ' +e.message +' for template: '+templateId);
         }
-        return " # ERROR: " + err + " # ";
     }
 };
 

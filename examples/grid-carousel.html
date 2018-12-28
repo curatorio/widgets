@@ -7,17 +7,17 @@
     <link href="css/example.css" rel="stylesheet" />
     <style type="text/css">
         #curator-feed {
-            padding: 0 100px;
+            padding: 20px 60px;
             width:auto;
         }
     </style>
 </head>
 <body>
 <h1>Curator.io Examples</h1>
-<h2>Carousel Widget</h2>
+<h2>Grid Carousel Widget</h2>
 <p class="center"><a href="index.html">Examples</a></p>
 <div id="curator-feed">
-    <a href="https://curator.io" target="_blank" class="crt-logo">Powered by Curator.io</a>
+    <a href="https://curator.io" target="_blank" class="crt-logo">Powered by Curatr.io</a>
 </div>
 
 <script type="text/javascript" src="../dist/js/curator.js"></script>
@@ -26,7 +26,7 @@
     Curator.Logger.debug = true;
 
     // Change FEED_ID to your unique FEED_ID
-    var widget = new Curator.Widgets.Carousel({
+    var widget = new Curator.Widgets.GridCarousel({
         container:'#curator-feed',
         feedId:'8558f0f9-043f-4bd9-bad1-037cf10a'
     });

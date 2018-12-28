@@ -10,7 +10,8 @@ class Control extends EventBus {
 
     render () {
         let options = this.widget ? this.widget.options : {};
-        let $el = Templating.renderTemplate(this.templateId, this.json, options);
+        let data = this.json ? this.json : {};
+        let $el = Templating.renderTemplate(this.templateId, data, options);
 
         let clicks = $el.find('[crt-click]');
         for (let el of clicks) {

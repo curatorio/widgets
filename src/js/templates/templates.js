@@ -22,6 +22,12 @@ import waterfallFeed from "./waterfall/feed";
 import waterfallPost from "./waterfall/post";
 import waterfallPostMalibu from "./waterfall/post-malibu";
 
+import carouselPost from "./carousel/post";
+import carouselFeed from "./carousel/feed";
+
+import gridCarouselPost from "./grid-carousel/post";
+import gridCarouselFeed from "./grid-carousel/feed";
+
 let Templates = {
     'filter'                : filterTemplate,
     'popup'                 : popupTemplate,
@@ -35,6 +41,15 @@ let Templates = {
     // V2
     'post-v2'               : postTemplateV2,
 
+    // Waterfall
+    'waterfall-feed'        : waterfallFeed,
+    'waterfall-post'        : waterfallPost,
+    'waterfall-post-malibu' : waterfallPostMalibu,
+
+    // Carousel
+    'carousel-post'         : carouselPost,
+    'carousel-feed'         : carouselFeed,
+
     // Gid
     'grid-feed'             : gridFeed,
     'grid-post'             : gridPost,
@@ -44,10 +59,9 @@ let Templates = {
     'list-feed'             : listFeed,
     'list-post'             : listPost,
 
-    // Waterfall
-    'waterfall-feed'        : waterfallFeed,
-    'waterfall-post'        : waterfallPost,
-    'waterfall-post-malibu' : waterfallPostMalibu,
+    // Grid Carousel
+    'grid-carousel-post'    : gridCarouselPost,
+    'grid-carousel-feed'    : gridCarouselFeed
 };
 
 export default Templates;

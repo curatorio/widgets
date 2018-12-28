@@ -17,6 +17,8 @@ let Events = {
 
     CAROUSEL_CHANGED        :'carousel:changed',
     GRID_HEIGHT_CHANGED     :'grid:heightChanged',
+
+    PANE_HEIGHT_CHANGED     :'pane:heightChanged',
 };
 
 export default Events;
