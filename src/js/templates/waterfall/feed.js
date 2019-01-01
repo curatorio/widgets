@@ -3,11 +3,11 @@
 // is a child of a flex-box that doesn't grow correctly ... pretty hacky but it works :|
 const template = `
 <div class="crt-feed-scroll">
-<div class="crt-feed">
-<div class="crt-feed-spacer"> -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- </div>
+    <div class="crt-feed" ref="feed">
+        <div class="crt-feed-spacer"> -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- </div>
+    </div>
+<div class="crt-load-more" ref="loadMore"><a href="#" c-on:click="loadMorePosts"><span><%=this._t("load-more")%></span></a></div>
 </div>
-</div>
-<div class="crt-load-more"><a href="#" crt-click="loadMorePosts"><span><%=this._t("load-more")%></span></a></div>
 `;
 
 export default template;

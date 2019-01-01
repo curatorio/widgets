@@ -19,9 +19,7 @@ class Popup extends Control {
 
         this.templateId = this.widget.options.templatePopup;
 
-        // this.$el = TemplatingUtils.renderTemplate(templateId, this.json);
         this.render();
-        this.$left = this.$el.find('.crt-popup-left');
 
         if (this.json.image) {
             this.$el.addClass('has-image');
@@ -35,20 +33,17 @@ class Popup extends Control {
             this.$el.addClass('has-video');
             if (this.json.video && this.json.video.indexOf('youtu') >= 0) {
                 // youtube
-                this.$el.find('video').remove();
-                // this.$el.removeClass('has-image');
+                this.$refs.video.remove();
 
                 let youTubeId = StringUtils.youtubeVideoId(this.json.video);
 
                 let src = `<div class="crt-responsive-video"><iframe id="ytplayer" src="https://www.youtube.com/embed/${youTubeId}?autoplay=0&rel=0&showinfo" frameborder="0" allowfullscreen></iframe></div>`;
-
                 this.$el.find('.crt-video-container img').remove();
                 this.$el.find('.crt-video-container a').remove();
                 this.$el.find('.crt-video-container').append(src);
             } else if (this.json.video && this.json.video.indexOf('vimeo') >= 0) {
                 // youtube
-                this.$el.find('video').remove();
-                // this.$el.removeClass('has-image');
+                this.$refs.video.remove();
 
                 let vimeoId = StringUtils.vimeoVideoId(this.json.video);
 
@@ -60,7 +55,7 @@ class Popup extends Control {
                 }
             } else {
                 // Normal video
-                this.videoPlayer = new VideoPlayer(this.$el.find('video')[0]);
+                this.videoPlayer = new VideoPlayer(this.$refs.video);
                 this.videoPlayer.on('state:changed', (event, playing) => {
                     this.$el.toggleClass('video-playing', playing );
                 });
@@ -92,13 +87,13 @@ class Popup extends Control {
         let leftPanelMax = 600;
 
         if (windowWidth > 1055) {
-            this.$left.width(leftPanelMax+rightPanel);
+            this.$refs.left.width(leftPanelMax+rightPanel);
         } else if (windowWidth > 910) {
-            this.$left.width(windowWidth-(padding*2));
+            this.$refs.left.width(windowWidth-(padding*2));
         } else if (windowWidth > leftPanelMax+(paddingMobile*2)) {
-            this.$left.width(600);
+            this.$refs.left.width(600);
         } else {
-            this.$left.width(windowWidth-(paddingMobile*2));
+            this.$refs.left.width(windowWidth-(paddingMobile*2));
         }
     }
 
@@ -116,44 +111,34 @@ class Popup extends Control {
         this.$page.find('li:nth-child('+(this.currentImage+1)+')').addClass('selected');
     }
 
-    onShareFacebookClick (ev) {
-        ev.preventDefault();
+    onShareFacebookClick () {
         SocialFacebook.share(this.json);
         this.widget.track('share:facebook');
         return false;
     }
 
-    onShareTwitterClick (ev) {
-        ev.preventDefault();
+    onShareTwitterClick () {
         SocialTwitter.share(this.json);
         this.widget.track('share:twitter');
         return false;
     }
 
-    onClose (e) {
-        e.preventDefault();
-        let that = this;
-        this.hide(function(){
-            that.popupManager.onClose();
+    onClose () {
+        this.hide(()=>{
+            this.popupManager.onClose();
         });
     }
 
-    onPrevious (e) {
-        e.preventDefault();
-
+    onPrevious () {
         this.popupManager.onPrevious();
     }
 
-    onNext (e) {
-        e.preventDefault();
-
+    onNext () {
         this.popupManager.onNext();
     }
 
-    onPlay (e) {
+    onPlay () {
         Logger.log('Popup->onPlay');
-        e.preventDefault();
-
         this.videoPlayer.playPause();
     }
 
@@ -177,6 +162,8 @@ class Popup extends Control {
     }
     
     destroy () {
+        super.destroy();
+
         if (this.videoPlayer) {
             this.videoPlayer.destroy();
         }

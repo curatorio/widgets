@@ -35,10 +35,7 @@ class Carousel extends Widget {
             this.$el.appendTo(this.$container);
             this.$container.addClass('crt-widget-carousel');
 
-            let $stage = this.$el.find('.crt-carousel-stage');
-            let $paneSlider = this.$el.find('.crt-carousel-slider');
-
-            this.carousel = new LayoutCarousel(this, this.$el, $stage, $paneSlider, this.options);
+            this.carousel = new LayoutCarousel(this, this.$el, this.$refs.stage, this.$refs.slider, this.options);
             this.carousel.on(Events.CAROUSEL_CHANGED, this.onCarouselChange.bind(this));
 
             this.on(Events.FILTER_CHANGED, () => {

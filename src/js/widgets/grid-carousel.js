@@ -6,6 +6,7 @@ import ConfigWidgetBase from '../config/widget_base';
 import LayoutCarousel from '../ui/layout/carousel';
 import LayoutCarouselPane from '../ui/layout/carousel-pane';
 import z from '../core/lib';
+import GridPost from "../ui/post/grid";
 
 let config = z.extend({}, ConfigWidgetBase, {
     autoPlay:true,
@@ -35,10 +36,7 @@ class GridCarousel extends Widget {
             this.$el.appendTo(this.$container);
             this.$container.addClass('crt-widget-grid-carousel');
 
-            let $stage = this.$el.find('.crt-grid-carousel-stage');
-            let $paneSlider = this.$el.find('.crt-grid-carousel-slider');
-
-            this.carousel = new LayoutCarousel(this, this.$el, $stage, $paneSlider, this.options);
+            this.carousel = new LayoutCarousel(this, this.$el, this.$refs.stage, this.$refs.slider, this.options);
             this.carousel.on(Events.CAROUSEL_CHANGED, this.onCarouselChange.bind(this));
 
             this.on(Events.FILTER_CHANGED, () => {
@@ -81,6 +79,17 @@ class GridCarousel extends Widget {
         }
 
         return pane;
+    }
+
+    createPostElement (postJson) {
+        let post = new GridPost(postJson, this.options, this);
+        post.on(Events.POST_CLICK,this.onPostClick.bind(this));
+        post.on(Events.POST_CLICK_READ_MORE,this.onPostClickReadMore.bind(this));
+        post.on(Events.POST_IMAGE_LOADED, this.onPostImageLoaded.bind(this));
+
+        this.trigger(Events.POST_CREATED, post);
+
+        return post;
     }
 
     onPostsLoaded (event, posts) {

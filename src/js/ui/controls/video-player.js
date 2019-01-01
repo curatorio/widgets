@@ -4,7 +4,7 @@ class VideoPlayer extends EventBus {
     constructor (videoElement) {
         super();
 
-        this.element = videoElement;
+        this.element = videoElement[0];
         this.videoPlaying = false;
     }
 

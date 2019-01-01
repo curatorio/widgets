@@ -2,13 +2,13 @@
 
 const template = ` 
 <div class="crt-popup"> 
-    <a crt-click="onClose" class="crt-close crt-icon-cancel"></a> 
-    <a crt-click="onPrevious" class="crt-next crt-icon-right-open"></a> 
-    <a crt-click="onNext" class="crt-previous crt-icon-left-open"></a> 
-    <div class="crt-popup-left">  
+    <a c-on:click="onClose" class="crt-close crt-icon-cancel"></a> 
+    <a c-on:click="onPrevious" class="crt-next crt-icon-right-open"></a> 
+    <a c-on:click="onNext" class="crt-previous crt-icon-left-open"></a> 
+    <div class="crt-popup-left" ref="left">  
         <div class="crt-video"> 
             <div class="crt-video-container">
-                <video preload="none">
+                <video preload="none" ref="video">
                 <source src="<%=video%>" type="video/mp4">
                 </video>
                 <img src="<%=image%>" alt="Image posted by <%=this.userScreenName()%> to <%=this.networkName()%>" />
@@ -38,9 +38,9 @@ const template = `
         <div class="crt-popup-footer">
             <div class="crt-popup-stats"><span><%=likes%></span> <%=this._t("likes", likes)%> <i class="sep"></i> <span><%=comments%></span> <%=this._t("comments", comments)%></div> 
             <div class="crt-post-share"><span class="ctr-share-hint"></span>
-            <a crt-click="onShareFacebookClick" class="crt-share-facebook"><i class="crt-icon-facebook"></i></a>  
-            <a crt-click="onShareTwitterClick" class="crt-share-twitter"><i class="crt-icon-twitter"></i></a><
-            /div>
+            <a c-on:click="onShareFacebookClick" class="crt-share-facebook"><i class="crt-icon-facebook"></i></a>  
+            <a c-on:click="onShareTwitterClick" class="crt-share-twitter"><i class="crt-icon-twitter"></i></a>
+            </div>
         </div> 
     </div> 
 </div>`;

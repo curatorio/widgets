@@ -9,28 +9,25 @@
 @import "_common/icons";
 @import "_common/general";
 
-@import "_ui/feed";
-
+@import "_ui/general/feed";
 @import "_ui/general/popup";
 @import "_ui/general/load-more";
+@import "_ui/general/date";
+@import "_ui/general/user-image";
+@import "_ui/general/user-name";
+@import "_ui/general/play";
+@import "_ui/general/filter";
+@import "_ui/general/responsive-image";
+@import "_ui/general/prev-next";
 
-@import "_ui/play";
-@import "_ui/filter";
-@import "_ui/responsive-image";
-@import "_ui/prev-next";
 
-// Themes - v1
-@import "_ui/post_v1";
-@import "_ui/grid_post_v1";
-
-// Themes - v2
-@import "_ui/post_v2";
-@import "_ui/post_malibu";
+@import "_ui/post";
+@import "_ui/post-malibu";
+@import "_ui/post-retro";
 @import "_ui/post_v2_header";
 @import "_ui/post_v2_footer";
-@import "_ui/grid_post_v2";
-
-
+@import "_ui/grid-post";
+@import "_ui/grid-post-retro";
 
 @import "widgets/waterfall";
 @import "widgets/carousel";

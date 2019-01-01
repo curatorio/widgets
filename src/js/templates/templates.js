@@ -1,26 +1,22 @@
 
 
-import popupUnderlayTemplate from './general/popup_underlay';
 import popupWrapperTemplate from './general/popup_wrapper';
 import popupTemplate from './general/popup';
+
 import filterTemplate from './general/filter';
-
-import v1gridPostTemplate from "./v1/grid_post";
-import postTemplateV1 from "./v1/post";
-
-import postTemplateV2 from "./v2/post";
-
 
 import gridPost from "./grid/post";
 import gridFeed from "./grid/feed";
 import gridPostMinimal from "./grid/post-minimal";
+import gridPostRetro from "./grid/post-retro";
 
-import listFeed from "./v2/list_feed";
-import listPost from "./v2/list_post";
+import listFeed from "./list/feed";
+import listPost from "./list/post";
 
 import waterfallFeed from "./waterfall/feed";
 import waterfallPost from "./waterfall/post";
 import waterfallPostMalibu from "./waterfall/post-malibu";
+import waterfallPostRetro from "./waterfall/post-retro";
 
 import carouselPost from "./carousel/post";
 import carouselFeed from "./carousel/feed";
@@ -29,22 +25,16 @@ import gridCarouselPost from "./grid-carousel/post";
 import gridCarouselFeed from "./grid-carousel/feed";
 
 let Templates = {
+    // General
     'filter'                : filterTemplate,
     'popup'                 : popupTemplate,
-    'popup-underlay'        : popupUnderlayTemplate,
     'popup-wrapper'         : popupWrapperTemplate,
-
-    // V1
-    'post-v1'               : postTemplateV1,
-    'grid-post-v1'          : v1gridPostTemplate,
-
-    // V2
-    'post-v2'               : postTemplateV2,
 
     // Waterfall
     'waterfall-feed'        : waterfallFeed,
     'waterfall-post'        : waterfallPost,
     'waterfall-post-malibu' : waterfallPostMalibu,
+    'waterfall-post-retro'       : waterfallPostRetro,
 
     // Carousel
     'carousel-post'         : carouselPost,
@@ -54,6 +44,7 @@ let Templates = {
     'grid-feed'             : gridFeed,
     'grid-post'             : gridPost,
     'grid-post-minimal'     : gridPostMinimal,
+    'grid-post-retro'       : gridPostRetro,
 
     // List
     'list-feed'             : listFeed,

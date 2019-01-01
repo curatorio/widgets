@@ -1,18 +1,11 @@
 
-import EventBus from '../core/bus';
-import Templating from '../core/templating';
+import Control from './controls/control';
 import Logger from '../core/logger';
 import Events from '../core/events';
 import Networks from '../config/networks';
 import z from '../core/lib';
 
-/**
-* ==================================================================
-* Filter
-* ==================================================================
-*/
-
-class Filter extends EventBus {
+class Filter extends Control {
 
     constructor (widget) {
         Logger.log('Filter->construct');
@@ -22,20 +15,17 @@ class Filter extends EventBus {
         this.widget = widget;
         this.options = widget.options;
 
-        this.$filter = Templating.renderTemplate(this.options.templateFilter, {});
-        this.$filterNetworks =  this.$filter.find('.crt-filter-networks');
-        this.$filterNetworksUl =  this.$filter.find('.crt-filter-networks ul');
-        this.$filterSources =  this.$filter.find('.crt-filter-sources');
-        this.$filterSourcesUl =  this.$filter.find('.crt-filter-sources ul');
+        this.templateId = this.options.templateFilter;
+        this.render ();
 
-        this.widget.$container.append(this.$filter);
+        this.widget.$container.append(this.$el);
 
-        this.$filter.on('click','.crt-filter-networks a', (ev) => {
+        this.$el.on('click','.crt-filter-networks a', (ev) => {
             ev.preventDefault();
             let t = z(ev.target);
             let networkId = t.data('network');
 
-            this.$filter.find('.crt-filter-networks li').removeClass('active');
+            this.$el.find('.crt-filter-networks li').removeClass('active');
             t.parent().addClass('active');
 
             this.widget.trigger(Events.FILTER_CHANGED, this);
@@ -49,12 +39,12 @@ class Filter extends EventBus {
             this.widget.feed.loadPosts(0);
         });
 
-        this.$filter.on('click','.crt-filter-sources a', (ev) => {
+        this.$el.on('click', '.crt-filter-sources a', (ev) => {
             ev.preventDefault();
             let t = z(ev.target);
             let sourceId = t.data('source');
 
-            this.$filter.find('.crt-filter-sources li').removeClass('active');
+            this.$el.find('.crt-filter-sources li').removeClass('active');
             t.parent().addClass('active');
 
             this.widget.trigger(Events.FILTER_CHANGED, this);
@@ -81,26 +71,26 @@ class Filter extends EventBus {
                 for (let id of networks) {
                     let network = Networks[id];
                     if (network) {
-                        this.$filterNetworksUl.append('<li><a href="#" data-network="' + id + '"><i class="' + network.icon + '"></i> ' + network.name + '</a></li>');
+                        this.$refs.networksUl.append('<li><a href="#" data-network="' + id + '"><i class="' + network.icon + '"></i> ' + network.name + '</a></li>');
                     } else {
                         //console.log(id);
                     }
                 }
             } else {
-                this.$filterNetworks.hide();
+                this.$refs.networks.hide();
             }
 
             if (this.options.filter.showSources) {
                 for (let source of sources) {
                     let network = Networks[source.network_id];
                     if (network) {
-                        this.$filterSourcesUl.append('<li><a href="#" data-source="' + source.id + '"><i class="' + network.icon + '"></i> ' + source.name + '</a></li>');
+                        this.$refs.sourcesUl.append('<li><a href="#" data-source="' + source.id + '"><i class="' + network.icon + '"></i> ' + source.name + '</a></li>');
                     } else {
                         // console.log(source.network_id);
                     }
                 }
             } else {
-                this.$filterSources.hide();
+                this.$refs.sources.hide();
             }
 
             this.filtersLoaded = true;
@@ -108,7 +98,7 @@ class Filter extends EventBus {
     }
 
     destroy () {
-        this.$filter.remove();
+        this.$el.remove();
     }
 }
 

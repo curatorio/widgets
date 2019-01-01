@@ -21,7 +21,7 @@ if (z.zepto) {
 }
 
 class LayoutCarousel extends EventBus {
-    constructor (widget, $viewport, $stage, $paneSlider, options) {
+    constructor (widget, $viewport, $stage, $slider, options) {
         Logger.log('LayoutCarousel->construct');
 
         super ();
@@ -46,10 +46,10 @@ class LayoutCarousel extends EventBus {
 
         this.$viewport = $viewport; // <div> slider, known as $viewport
         this.$stage = $stage;
-        this.$paneSlider = $paneSlider;
+        this.$slider = $slider;
 
         if (!z.zepto) {
-            this.$paneSlider[0].crtTransformX = 0;
+            this.$slider[0].crtTransformX = 0;
         }
 
         if (this.options.matchHeights) {
@@ -84,7 +84,7 @@ class LayoutCarousel extends EventBus {
             this.updatePanes();
 
             let x = this.getX();
-            this.$paneSlider.width (this.PANE_WIDTH * (this.PANES_VISIBLE * 3));
+            this.$slider.width (this.PANE_WIDTH * (this.PANES_VISIBLE * 3));
             this.setSliderX (x);
 
             this.updateHeight();
@@ -116,12 +116,12 @@ class LayoutCarousel extends EventBus {
 
         let panes = this.createPanes();
 
-        this.$paneSlider.empty();
+        this.$slider.empty();
 
         let currentIds = [];
 
         for(let pane of panes) {
-            this.$paneSlider.append(pane.$el);
+            this.$slider.append(pane.$el);
             currentIds.push(pane.paneIndex);
         }
 
@@ -197,7 +197,7 @@ class LayoutCarousel extends EventBus {
 
         this.calcSizes();
 
-        this.$paneSlider.width (this.PANE_WIDTH * (this.PANES_VISIBLE * 3));
+        this.$slider.width (this.PANE_WIDTH * (this.PANES_VISIBLE * 3));
 
         if (oldPanesVisible !== this.PANES_VISIBLE)
         {
@@ -211,7 +211,7 @@ class LayoutCarousel extends EventBus {
         }
 
         let x = this.getX();
-        this.$paneSlider.width (this.PANE_WIDTH * (this.PANES_VISIBLE * 3));
+        this.$slider.width (this.PANE_WIDTH * (this.PANES_VISIBLE * 3));
         this.setSliderX (x);
     }
 
@@ -295,7 +295,7 @@ class LayoutCarousel extends EventBus {
             let x = (0 - (this.PANES_VISIBLE * this.PANE_WIDTH)) - (moveAmt * this.PANE_WIDTH);
 
             if (noAnimate) {
-                this.$paneSlider.removeClass('crt-animate-transform');
+                this.$slider.removeClass('crt-animate-transform');
                 this.setSliderX (x);
                 this.moveComplete();
             } else {
@@ -309,8 +309,8 @@ class LayoutCarousel extends EventBus {
                 }
 
                 if (z.zepto) {
-                    this.$paneSlider.addClass('crt-animate-transform');
-                    this.$paneSlider.animate({'transform': 'translate3d('+x+'px, 0px, 0px)'},
+                    this.$slider.addClass('crt-animate-transform');
+                    this.$slider.animate({'transform': 'translate3d('+x+'px, 0px, 0px)'},
                         options
                     );
                 } else {
@@ -325,8 +325,8 @@ class LayoutCarousel extends EventBus {
                         }
                     };
 
-                    this.$paneSlider.addClass('crt-animate-transform');
-                    this.$paneSlider.animate({'crtTransformX': x},
+                    this.$slider.addClass('crt-animate-transform');
+                    this.$slider.animate({'crtTransformX': x},
                         options
                     );
                 }
@@ -406,9 +406,9 @@ class LayoutCarousel extends EventBus {
     }
 
     setSliderX(x) {
-        this.$paneSlider.css({'transform': 'translate3d('+x+'px, 0px, 0px)'});
+        this.$slider.css({'transform': 'translate3d('+x+'px, 0px, 0px)'});
         if (!z.zepto) {
-            this.$paneSlider[0].crtTransformX = x;
+            this.$slider[0].crtTransformX = x;
         }
     }
 
@@ -423,7 +423,7 @@ class LayoutCarousel extends EventBus {
         window.clearTimeout(this.autoPlayTimeout);
         window.clearTimeout(this.postLayoutChangedTO);
         window.clearTimeout(this.moveCompleteTO);
-        this.$paneSlider.empty();
+        this.$slider.empty();
         this.setSliderX (0);
         this.currentPane = 0;
         this.paneCache = [];
@@ -433,7 +433,7 @@ class LayoutCarousel extends EventBus {
     destroy () {
         Logger.log('LayoutCarousel->destroy ');
         this.destroyHandlers ();
-        this.$paneSlider.stop(true, false);
+        this.$slider.stop(true, false);
         window.clearTimeout(this.autoPlayTimeout);
         window.clearTimeout(this.postLayoutChangedTO);
         window.clearTimeout(this.moveCompleteTO);
@@ -447,7 +447,7 @@ class LayoutCarousel extends EventBus {
 
         delete this.$viewport;
         delete this.$stage;
-        delete this.$paneSlider;
+        delete this.$slider;
     }
 }
 

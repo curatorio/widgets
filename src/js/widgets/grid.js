@@ -2,6 +2,7 @@
 import Widget from './base';
 import Logger from '../core/logger';
 import CommonUtils from '../utils/common';
+import GridPost from '../ui/post/grid';
 import ConfigWidgetGrid from '../config/widget_grid';
 import z from '../core/lib';
 import Events from "../core/events";
@@ -13,9 +14,6 @@ class Grid extends Widget {
         super ();
 
         this.loading=false;
-        this.feed=null;
-        this.$container=null;
-        this.$feed=null;
         this.posts=[];
         this.columnCount=0;
         this.rowsMax = 0;
@@ -31,42 +29,38 @@ class Grid extends Widget {
             Logger.log(this.options);
 
             this.templateId = this.responsiveOptions.templateFeed;
-            this.json = {};
             this.render ();
+
             this.$container.append(this.$el);
-            this.$feed = this.$container.find('.crt-feed');
-            this.$feedWindow = this.$container.find('.crt-feed-window');
-            this.$loadMore = this.$container.find('.crt-load-more a');
             this.$scroller = z(window);
 
             this.$container.addClass('crt-grid');
             this.$container.addClass('crt-widget-grid');
 
-            if (this.responsiveOptions.grid.showLoadMore) {
-                this.$feedWindow.css({
+            if (this.responsiveOptions.showLoadMore) {
+                this.$refs.feedWindow.css({
                     'position':'relative'
                 });
-                this.$loadMore.click(this.onMoreClicked.bind(this));
             } else {
-                this.$loadMore.hide();
+                this.$refs.loadMore.hide();
             }
 
-            if (!this.responsiveOptions.grid.hover.showName) {
+            if (!this.responsiveOptions.hover.showName) {
                 this.$container.addClass('crt-grid-hide-name');
             }
 
-            if (!this.responsiveOptions.grid.hover.showFooter) {
+            if (!this.responsiveOptions.hover.showFooter) {
                 this.$container.addClass('crt-grid-hide-footer');
             }
 
-            if (!this.responsiveOptions.grid.hover.showText) {
+            if (!this.responsiveOptions.hover.showText) {
                 this.$container.addClass('crt-grid-hide-text');
             }
 
             this.createHandlers();
 
             // This triggers post loading
-            this.rowsMax = this.responsiveOptions.grid.rows;
+            this.rowsMax = this.responsiveOptions.rows;
             this.updateLayout ();
         }
     }
@@ -92,14 +86,14 @@ class Grid extends Widget {
 
         z(document).on('ready.'+id, this._resize.bind(this));
 
-        if (this.responsiveOptions.grid.continuousScroll) {
+        if (this.responsiveOptions.continuousScroll) {
             z(window).on('scroll.'+id, CommonUtils.debounce(() => {
                 this.checkScroll();
             }, 100));
         }
 
         this.on(Events.FILTER_CHANGED, () => {
-            this.$feed.find('.crt-grid-post').remove();
+            this.$refs.feed.find('.crt-grid-post').remove();
         });
     }
 
@@ -126,7 +120,7 @@ class Grid extends Widget {
 
     updateLayout ( ) {
         Logger.log("Grid->updateLayout ");
-        let cols = Math.floor(this.$container.width()/this.responsiveOptions.grid.minWidth);
+        let cols = Math.floor(this.$container.width()/this.responsiveOptions.minWidth);
         cols = cols < 1 ? 1 : cols;
 
         // set col layout
@@ -151,6 +145,17 @@ class Grid extends Widget {
         }
     }
 
+    createPostElement (postJson) {
+        let post = new GridPost(postJson, this.options, this);
+        post.on(Events.POST_CLICK,this.onPostClick.bind(this));
+        post.on(Events.POST_CLICK_READ_MORE,this.onPostClickReadMore.bind(this));
+        post.on(Events.POST_IMAGE_LOADED, this.onPostImageLoaded.bind(this));
+
+        this.trigger(Events.POST_CREATED, post);
+
+        return post;
+    }
+
     updateHeight (animate) {
         let $post = this.$container.find('.crt-grid-post').first();
         let postHeight = $post.height();
@@ -161,18 +166,18 @@ class Grid extends Widget {
 
         postHeight += postMarginBottom;
 
-        this.$feedWindow.css({'overflow':'hidden'});
+        this.$refs.feedWindow.css({'overflow':'hidden'});
 
         let maxRows = Math.ceil(this.feed.postCount / this.columnCount);
         let rows = this.rowsMax < maxRows ? this.rowsMax : maxRows;
 
         // if (animate) {
-        //     this.$feedWindow.animate({height:rows * postHeight});
+        //     this.$refs.feedWindow.animate({height:rows * postHeight});
         // } else {
         let scrollTopOrig = this.$scroller.scrollTop();
         // }
 
-        this.$feedWindow.height(rows * postHeight);
+        this.$refs.feedWindow.height(rows * postHeight);
         let scrollTopNew = this.$scroller.scrollTop();
         // console.log(scrollTopOrig+":"+scrollTopNew);
 
@@ -181,12 +186,12 @@ class Grid extends Widget {
             // - let's reset
             this.$scroller.scrollTop(scrollTopOrig);
         }
-        if (this.responsiveOptions.grid.showLoadMore) {
+        if (this.responsiveOptions.showLoadMore) {
             let postsVisible = this.columnCount * rows;
             if (this.feed.allPostsLoaded && postsVisible >= this.feed.posts.length) {
-                this.$loadMore.hide();
+                this.$refs.loadMore.hide();
             } else {
-                this.$loadMore.show();
+                this.$refs.loadMore.show();
             }
         }
 
@@ -197,14 +202,14 @@ class Grid extends Widget {
         Logger.log("Grid->checkScroll");
         // console.log('scroll');
         let top = this.$container.offset().top;
-        let feedBottom = top+this.$feedWindow.height();
+        let feedBottom = top+this.$refs.feedWindow.height();
         let scrollTop = this.$scroller.scrollTop();
         let windowBottom = scrollTop+z(window).height();
         let diff = windowBottom - feedBottom;
 
-        if (diff > this.responsiveOptions.grid.continuousScrollOffset) {
+        if (diff > this.responsiveOptions.continuousScrollOffset) {
             if (!this.feed.loading && !this.feed.allPostsLoaded) {
-                this.rowsMax += this.responsiveOptions.grid.loadMoreRows;
+                this.rowsMax += this.responsiveOptions.loadMoreRows;
                 this.updateLayout();
             }
         }
@@ -230,7 +235,7 @@ class Grid extends Widget {
             for (let postJson of posts) {
                 let post = this.createPostElement(postJson);
                 this.postElements.push(post);
-                this.$feed.append(post.$el);
+                this.$refs.feed.append(post.$el);
                 post.layout();
 
                 if (this.responsiveOptions.animate) {
@@ -251,7 +256,7 @@ class Grid extends Widget {
     onMoreClicked (ev) {
         ev.preventDefault();
 
-        this.rowsMax += this.responsiveOptions.grid.loadMoreRows;
+        this.rowsMax += this.responsiveOptions.loadMoreRows;
 
         this.updateLayout();
     }
@@ -271,7 +276,6 @@ class Grid extends Widget {
 
         window.clearTimeout(this.updateHeightTimeout);
 
-        delete this.$feed;
         delete this.$container;
         delete this.options ;
         delete this.totalPostsLoaded;

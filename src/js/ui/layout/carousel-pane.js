@@ -28,7 +28,7 @@ class LayoutCarouselPane extends Control {
     }
 
     destroy () {
-
+        super.destroy();
     }
 }
 

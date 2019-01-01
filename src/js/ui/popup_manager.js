@@ -1,29 +1,21 @@
-/**
-* ==================================================================
-* Popup Manager
-* ==================================================================
-*/
 
 import Logger from '../core/logger';
+import Control from './controls/control';
 import Popup from './popup';
-import TemplatingUtils from '../core/templating';
 import z from '../core/lib';
 
 
-class PopupManager {
-    
+class PopupManager extends Control {
     constructor (widget) {
         Logger.log("PopupManager->init ");
+        super();
 
         this.widget = widget;
-        let templateId = this.widget.options.templatePopupWrapper;
 
-        this.$wrapper = TemplatingUtils.renderTemplate(templateId, {});
-        this.$popupContainer = this.$wrapper.find('.crt-popup-container');
-        this.$underlay = this.$wrapper.find('.crt-popup-underlay');
+        this.templateId = this.widget.options.templatePopupWrapper;
+        this.render();
 
-        z('body').append(this.$wrapper);
-        this.$underlay.click(this.onUnderlayClick.bind(this));
+        z('body').append(this.$el);
     }
 
     showPopup (post) {
@@ -35,17 +27,16 @@ class PopupManager {
         } else {
             this.showPopup2(post);
         }
-
     }
 
     showPopup2 (post) {
         this.popup = new Popup(this, post, this.widget);
-        this.$popupContainer.append(this.popup.$el);
+        this.$refs.container.append(this.popup.$el);
 
-        this.$wrapper.show();
+        this.$el.show();
 
-        if (this.$underlay.css('display') !== 'block') {
-            this.$underlay.fadeIn();
+        if (this.$refs.underlay.css('display') !== 'block') {
+            this.$refs.underlay.fadeIn();
         }
         this.popup.show();
 
@@ -54,7 +45,6 @@ class PopupManager {
         this.currentPostNum = 0;
         for(let i=0;i < this.posts.length;i++)
         {
-            // console.log (post.json.id +":"+this.posts[i].id);
             if (post.id === this.posts[i].id) {
                 this.currentPostNum = i;
                 Logger.log('Found post '+i);
@@ -87,14 +77,13 @@ class PopupManager {
         this.showPopup(this.posts[this.currentPostNum]);
     }
 
-    onUnderlayClick (e) {
+    onUnderlayClick () {
         Logger.log('PopupManager->onUnderlayClick');
-        e.preventDefault();
 
         if (this.popup) {
-            this.popup.hide(function () {
+            this.popup.hide(() => {
                 this.hide();
-            }.bind(this));
+            });
         }
     }
 
@@ -104,18 +93,17 @@ class PopupManager {
         z('body').removeClass('crt-popup-visible');
         this.currentPostNum = 0;
         this.popup = null;
-        this.$underlay.fadeOut(() => {
-            this.$underlay.css({'display':'','opacity':''});
-            this.$wrapper.hide();
+        this.$refs.underlay.fadeOut(() => {
+            this.$refs.underlay.css({'display':'','opacity':''});
+            this.$el.hide();
         });
     }
     
     destroy () {
 
-        this.$underlay.remove();
+        this.$refs.underlay.remove();
 
-        delete this.$popup;
-        delete this.$underlay;
+        super.destroy();
     }
 }
 

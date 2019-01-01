@@ -1,11 +1,10 @@
-import EventBus from '../core/bus';
 import CommonUtils from '../utils/common';
 import Logger from '../core/logger';
 import HtmlUtils from '../utils/html';
 import Feed from '../core/feed';
 import ajax from '../core/ajax';
 import Events from '../core/events';
-import Post from '../ui/post';
+import Post from '../ui/post/base';
 import Filter from '../ui/filter';
 import PopupManager from '../ui/popup_manager';
 import z from '../core/lib';
@@ -20,19 +19,21 @@ class Widget extends Control {
 
         super ();
 
-        this.id = CommonUtils.uId ();
+        this.id = CommonUtils.uId();
+        this.feed = null;
+        this.$container = null;
     }
 
     init (options, defaults) {
         if (!options) {
-            console.error('options missing');
+            Logger.error('options missing');
             return false;
         }
 
         this.options = z.extend(true,{}, defaults, options);
 
         if(!options.container) {
-            console.error('options.container missing');
+            Logger.error('options.container missing');
             return false;
         }
 
@@ -42,7 +43,7 @@ class Widget extends Control {
         this.$container = z(this.options.container);
 
         if (!this.options.feedId) {
-            console.error('options.feedId missing');
+            Logger.error('options.feedId missing');
         }
 
         this.$container.addClass('crt-feed');
@@ -141,7 +142,6 @@ class Widget extends Control {
         Logger.log(this.options.filter);
 
         if (this.options.filter && (this.options.filter.showNetworks || this.options.filter.showSources)) {
-
             this.filter = new Filter(this);
         }
     }

@@ -1,20 +1,13 @@
 
-import SocialFacebook from '../social/facebook';
-import SocialTwitter from '../social/twitter';
-import Logger from '../core/logger';
-import Events from '../core/events';
-import Templating from '../core/templating';
-import z from '../core/lib';
-import Control from './controls/control';
-
-/**
-* ==================================================================
-* Post
-* ==================================================================
-*/
+import SocialFacebook from '../../social/facebook';
+import SocialTwitter from '../../social/twitter';
+import Logger from '../../core/logger';
+import Events from '../../core/events';
+import z from '../../core/lib';
+import Control from '../controls/control';
 
 
-class Post extends Control {
+class Base extends Control {
     constructor (postJson, options, widget) {
         super();
 
@@ -29,12 +22,6 @@ class Post extends Control {
         this.$postC = this.$el.find('.crt-post-c');
         this.$image = this.$el.find('.crt-post-image');
         this.$imageContainer = this.$el.find('.crt-image-c');
-
-        // this.$el.find('.crt-share-facebook').click(this.onShareFacebookClick.bind(this));
-        // this.$el.find('.crt-share-twitter').click(this.onShareTwitterClick.bind(this));
-        // this.$el.find('.crt-hitarea').click(this.onPostClick.bind(this));
-        // this.$el.find('.crt-post-read-more-button').click(this.onReadMoreClick.bind(this));
-        // this.$el.on('click','.crt-post-text-body a',this.onLinkClick.bind(this));
 
         this.$postC.click(this.onPostClick.bind(this));
 
@@ -71,15 +58,13 @@ class Post extends Control {
         }
     }
 
-    onShareFacebookClick (ev) {
-        ev.preventDefault();
+    onShareFacebookClick () {
         SocialFacebook.share(this.json);
         this.widget.track('share:facebook');
         return false;
     }
 
-    onShareTwitterClick (ev) {
-        ev.preventDefault();
+    onShareTwitterClick () {
         SocialTwitter.share(this.json);
         this.widget.track('share:twitter');
         return false;
@@ -107,9 +92,7 @@ class Post extends Control {
 
     }
 
-    onReadMoreClick (ev) {
-        ev.preventDefault();
-
+    onReadMoreClick () {
         this.widget.track('click:read-more');
         this.trigger(Events.POST_CLICK_READ_MORE, this, this.json, ev);
     }
@@ -179,4 +162,4 @@ class Post extends Control {
     }
 }
 
-export default Post;
+export default Base;

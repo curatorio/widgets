@@ -13,21 +13,18 @@ class Waterfall extends Widget {
 
         if (this.init (options,  ConfigWidgetWaterfall)) {
             Logger.log("Waterfall->init with options:");
-            this.templateId = this.options.templateFeed;
-            this.json = {};
-            this.render();
-            this.$container.append(this.$el);
 
-            this.$scroll = this.$container.find('.crt-feed-scroll');
-            this.$feed = this.$container.find('.crt-feed');
+            this.templateId = this.options.templateFeed;
+            this.render();
+
+            this.$container.append(this.$el);
             this.$container.addClass('crt-widget-waterfall');
-            this.$loadMore = this.$container.find('.crt-load-more');
 
             if (this.options.continuousScroll) {
-                z(this.$scroll).scroll(() => {
-                    let height = this.$scroll.height();
-                    let cHeight = this.$feed.height();
-                    let scrollTop = this.$scroll.scrollTop();
+                z(this.$el).scroll(() => {
+                    let height = this.$el.height();
+                    let cHeight = this.$refs.feed.height();
+                    let scrollTop = this.$el.scrollTop();
                     if (scrollTop >= cHeight - height) {
                         this.loadMorePosts();
                     }
@@ -35,13 +32,13 @@ class Waterfall extends Widget {
             }
 
             if (!this.options.showLoadMore) {
-                this.$loadMore.remove();
+                this.$refs.loadMore.remove();
             }
 
-            this.ui = new LayoutWaterfall(this.options, this.$feed);
+            this.ui = new LayoutWaterfall(this.options, this.$refs.feed);
 
             this.on(Events.FILTER_CHANGED, () => {
-                this.$feed.find('.crt-post').remove();
+                this.$refs.feed.find('.crt-post').remove();
             });
 
             // Load first set of posts
@@ -70,7 +67,7 @@ class Waterfall extends Widget {
     loadPage  (page) {
         Logger.log('Waterfall->loadPage');
 
-        this.$feed.find('.crt-post').remove();
+        this.$refs.feed.find('.crt-post').remove();
 
         this.feed.loadPosts(page);
     }
@@ -80,23 +77,21 @@ class Waterfall extends Widget {
 
         let postElements = this.createPostElements (posts);
 
-        //this.$feed.append(postElements);
         this.ui.append(postElements);
 
         let that = this;
         z.each(postElements,function () {
             let post = this;
             if (that.options.showReadMore) {
-                post.find('.crt-post')
-                    .addClass('crt-post-show-read-more');
+                post.find('.crt-post').addClass('crt-post-show-read-more');
             }
         });
 
         if (this.options.showLoadMore) {
             if (this.feed.allPostsLoaded) {
-                this.$loadMore.hide();
+                this.$refs.loadMore.hide();
             } else {
-                this.$loadMore.show();
+                this.$refs.loadMore.show();
             }
         }
 
@@ -116,18 +111,13 @@ class Waterfall extends Widget {
 
         this.ui.destroy ();
 
-        this.$feed.remove();
-        this.$scroll.remove();
-        if (this.$loadMore) {
-            this.$loadMore.remove();
-        }
+        this.$el.remove();
+
         this.$container.removeClass('crt-feed-container')
             .removeClass('crt-widget-waterfall');
 
         this.destroyListeners();
 
-        delete this.$feed;
-        delete this.$scroll;
         delete this.$container;
         delete this.options ;
         delete this.totalPostsLoaded;

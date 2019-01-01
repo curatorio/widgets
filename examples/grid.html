@@ -25,17 +25,21 @@
 <script type="text/javascript" src="js/vendor/jquery-1.7.2.min.js"></script>
 <script type="text/javascript" src="../dist/js/curator.js"></script>
 <script type="text/javascript">
-    // While you're testing
-    Curator.Logger.debug = true;
-
     $(document).ready(function(){
         // Change FEED_ID to your unique FEED_ID
         var widget = new Curator.Widgets.Grid({
-            container:'#curator-feed',
-            feedId:"c70e66e4-6932-487d-8174-00fae1fc",
-            grid: {
-                minWidth:300,
-                rows:2
+            debug:true,
+            container: '#curator-feed',
+            // feedId: 'c70e66e4-6932-487d-8174-00fae1fc',
+            feedId:'8558f0f9-043f-4bd9-bad1-037cf10a',
+            minWidth: 250,
+            rows: 2,
+            templatePost:'grid-post-minimal',
+
+            showLoadMore:true,
+
+            post : {
+                imageHeight:'100%'
             }
         });
     })
