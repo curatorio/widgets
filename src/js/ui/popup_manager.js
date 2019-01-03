@@ -12,7 +12,7 @@ class PopupManager extends Control {
 
         this.widget = widget;
 
-        this.templateId = this.widget.options.templatePopupWrapper;
+        this.templateId = this.widget.config('popup.templateWrapper');
         this.render();
 
         z('body').append(this.$el);

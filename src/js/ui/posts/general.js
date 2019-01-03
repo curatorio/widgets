@@ -31,6 +31,7 @@ class General extends Base {
 
         this.setupVideo ();
         this.setupCarousel ();
+        this.setupShare ();
     }
 
     onImageLoaded () {

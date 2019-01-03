@@ -11,6 +11,7 @@ import z from '../../core/lib';
 import translate from '../../core/translate';
 import Globals from '../../core/globals';
 import Control from '../controls/control';
+// import objectAssign from 'object-assign-deep';
 
 class Widget extends Control {
 
@@ -202,10 +203,11 @@ class Widget extends Control {
 
     createFilter () {
         Logger.log('Widget->createFilter');
-        Logger.log(this.options.filter);
 
         if (this.options.filter && (this.options.filter.showNetworks || this.options.filter.showSources)) {
             this.filter = new Filter(this);
+
+            this.$container.append(this.filter.$el);
         }
     }
 

@@ -4,12 +4,15 @@
     margin: 0;
     float: left;
     clear:none;
+    overflow: hidden;
+    position: relative;
+    padding-left: 1px;
+    padding-bottom: 1px;
+    padding: 0;
 
     .crt-post-c {
-        overflow: hidden;
         position: relative;
-        margin-left: 1px;
-        margin-bottom: 1px;
+        cursor: pointer;
     }
 
     .crt-grid-post-spacer {
@@ -349,17 +352,30 @@
     }
 
     .crt-no-touch & {
-        .crt-hitarea:hover {
-            .crt-social-icon-normal {
-                opacity: 0;
+        .crt-post-c {
+            cursor: pointer;
+            &:hover {
+                .crt-social-icon-normal {
+                    opacity: 0;
 
+                }
+
+                .crt-image-carousel {
+                    opacity: 0;
+                }
+
+                .crt-post-hover {
+                    visibility: visible;
+                    opacity: 1;
+                }
             }
-            .crt-image-carousel {
-                opacity: 0;
-            }
-            .crt-post-hover {
-                visibility: visible;
-                opacity: 1;
+        }
+    }
+
+    &.crt-post-hide-share {
+        .crt-post-footer {
+            .crt-post-share {
+                display: none;
             }
         }
     }

@@ -20,12 +20,8 @@ class Post extends Base {
         }
 
         this.setupVideo();
-
         this.setupCarousel ();
-
-        if (this.json.url.indexOf('http') !== 0) {
-            this.$el.find('.crt-post-share').hide ();
-        }
+        this.setupShare ();
     }
 
     setHeight () {

@@ -1,8 +1,7 @@
 import base from './widget-base';
 import z from '../core/lib';
 
-let config = z.extend({}, base, {
-    templatePost:'post-grid',
+let config = z.extend(true, {}, base, {
     templateWidget:'widget-grid',
     animate:false,
     minWidth:200,
@@ -11,10 +10,9 @@ let config = z.extend({}, base, {
     loadMoreRows:1,
     continuousScroll:false,
     continuousScrollOffset:50,
-    hover:{
-        showName:true,
-        showFooter:true,
-        showText:true,
+    post: {
+        template: 'post-grid',
+        imageHeight:'100%'
     },
     responsive:{
         480:{
@@ -24,9 +22,6 @@ let config = z.extend({}, base, {
             loadMoreRows:2
         }
     },
-    post : {
-        imageHeight:'100%'
-    }
 });
 
 export default config;

@@ -26,7 +26,7 @@ class Waterfall extends Widget {
                     let cHeight = this.$refs.feed.height();
                     let scrollTop = this.$el.scrollTop();
                     if (scrollTop >= cHeight - height) {
-                        this.loadMorePosts();
+                        this.onMoreClick();
                     }
                 });
             }
@@ -57,17 +57,9 @@ class Waterfall extends Widget {
     }
 
     onMoreClick  () {
-        Logger.log('Waterfall->loadMorePosts');
+        Logger.log('Waterfall->onMoreClick');
 
         this.feed.loadAfter();
-    }
-
-    loadPage  (page) {
-        Logger.log('Waterfall->loadPage');
-
-        this.$refs.feed.find('.crt-post').remove();
-
-        this.feed.loadPosts(page);
     }
 
     onPostsLoaded (event, posts) {

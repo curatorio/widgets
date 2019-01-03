@@ -17,7 +17,7 @@ class Popup extends Control {
         this.json = post;
         this.widget = widget;
 
-        this.templateId = this.widget.options.templatePopup;
+        this.templateId = this.widget.config('popup.template');
 
         this.render();
 

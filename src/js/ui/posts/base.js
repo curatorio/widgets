@@ -15,7 +15,7 @@ class Base extends Control {
         this.options = options;
         this.widget = widget;
         this.json = postJson;
-        this.templateId = this.widget.config('templatePost');
+        this.templateId = this.widget.config('post.template');
     }
 
     onShareFacebookClick () {
@@ -57,7 +57,7 @@ class Base extends Control {
 
             if (this.json.video.indexOf('youtu') === -1 && this.json.video.indexOf('vimeo') === -1 ) {
                 // Normal video - not YouTube or Vimeo
-                if (this.widget.config('autoPlayVideos')) {
+                if (this.widget.config('post.autoPlayVideos')) {
                     this.videoPlayer = new VideoPlayer(this.$refs.video);
                     this.videoPlayer.on('state:changed', (event, playing) => {
                         this.$el.toggleClass('crt-post-video-playing', playing);
@@ -71,6 +71,16 @@ class Base extends Control {
     setupCarousel () {
         if (this.json.images && this.json.images.length > 0) {
             this.$el.addClass('crt-has-image-carousel');
+        }
+    }
+
+    setupShare () {
+
+
+        if (this.json.url.indexOf('http') !== 0) {
+            this.$el.addClass('crt-post-hide-share');
+        } else if (!this.widget.config('post.showShare')) {
+            this.$el.addClass('crt-post-hide-share');
         }
     }
 }

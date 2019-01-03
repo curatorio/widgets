@@ -188,9 +188,6 @@
 [class^="crt-icon-"]:before, [class*=" crt-icon-"]:before {
   margin: 0; }
 
-.crt-hitarea {
-  cursor: pointer; }
-
 .crt-responsive-video {
   padding-bottom: 100%; }
   .crt-responsive-video iframe {
@@ -720,7 +717,8 @@ body.crt-popup-visible {
           transition: background-color 0.3s linear; }
           .crt-filter .crt-filter-networks ul li a i,
           .crt-filter .crt-filter-sources ul li a i {
-            margin-left: -5px; }
+            margin-left: -5px;
+            pointer-events: none; }
           .crt-filter .crt-filter-networks ul li a:hover,
           .crt-filter .crt-filter-sources ul li a:hover {
             text-decoration: none;
@@ -817,7 +815,6 @@ body.crt-popup-visible {
   background-color: #ffffff;
   z-index: 1; }
   .crt-post a {
-    cursor: pointer;
     transition: color 0.2s linear; }
   .crt-post .crt-post-header {
     padding-top: 28px;
@@ -889,8 +886,6 @@ body.crt-popup-visible {
     color: #fff;
     font-size: 1.2em;
     display: none; }
-  .crt-post.crt-has-image-carousel .crt-image .crt-image-carousel {
-    display: block; }
   .crt-post .crt-post-content-image {
     max-height: 400px;
     overflow: hidden;
@@ -946,8 +941,6 @@ body.crt-popup-visible {
     padding: 0 1em;
     border-radius: 00.1em;
     color: #666; }
-  .crt-post.crt-post-show-read-more .crt-post-read-more {
-    display: block; }
   .crt-post .crt-play {
     position: absolute;
     left: 0;
@@ -1004,6 +997,12 @@ body.crt-popup-visible {
           top: -16px;
           border-left: 8px solid #efefef;
           box-shadow: inset 12px 0 0 0 #f9f9f9; }
+  .crt-post.crt-has-image-carousel .crt-image .crt-image-carousel {
+    display: block; }
+  .crt-post.crt-post-show-read-more .crt-post-read-more {
+    display: block; }
+  .crt-post.crt-post-hide-share .crt-post-footer .crt-post-share {
+    display: none; }
   .crt-post.crt-post-has-video .crt-play-icon {
     display: block; }
   .crt-post.crt-post-has-video .crt-hitarea:hover i:before, .crt-post.crt-post-has-video .crt-hitarea:focus i:before {
@@ -1447,12 +1446,15 @@ body.crt-popup-visible {
   border: 0;
   margin: 0;
   float: left;
-  clear: none; }
+  clear: none;
+  overflow: hidden;
+  position: relative;
+  padding-left: 1px;
+  padding-bottom: 1px;
+  padding: 0; }
   .crt-grid-post .crt-post-c {
-    overflow: hidden;
     position: relative;
-    margin-left: 1px;
-    margin-bottom: 1px; }
+    cursor: pointer; }
   .crt-grid-post .crt-grid-post-spacer {
     width: 100% !important;
     display: block;
@@ -1697,13 +1699,17 @@ body.crt-popup-visible {
       bottom: 0;
       left: 0;
       right: 0; }
-  .crt-no-touch .crt-grid-post .crt-hitarea:hover .crt-social-icon-normal {
-    opacity: 0; }
-  .crt-no-touch .crt-grid-post .crt-hitarea:hover .crt-image-carousel {
-    opacity: 0; }
-  .crt-no-touch .crt-grid-post .crt-hitarea:hover .crt-post-hover {
-    visibility: visible;
-    opacity: 1; }
+  .crt-no-touch .crt-grid-post .crt-post-c {
+    cursor: pointer; }
+    .crt-no-touch .crt-grid-post .crt-post-c:hover .crt-social-icon-normal {
+      opacity: 0; }
+    .crt-no-touch .crt-grid-post .crt-post-c:hover .crt-image-carousel {
+      opacity: 0; }
+    .crt-no-touch .crt-grid-post .crt-post-c:hover .crt-post-hover {
+      visibility: visible;
+      opacity: 1; }
+  .crt-grid-post.crt-post-hide-share .crt-post-footer .crt-post-share {
+    display: none; }
   .crt-grid-post.crt-post-has-image .crt-post-content-text-c {
     display: none; }
   .crt-grid-post.crt-grid-post-minimal .crt-post-hover {

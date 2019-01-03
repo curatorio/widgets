@@ -25,12 +25,11 @@ class Grid extends Widget {
         // }
 
         this.$refs = {
-            'feedWindow':null
+            feedWindow:null
         };
 
         if (this.init (options,  config)) {
-            Logger.log("Grid->init with options:");
-            Logger.log(this.options);
+            Logger.log("Grid->init");
 
             this.templateId = this.config('templateWidget');
             this.render ();
@@ -245,9 +244,7 @@ class Grid extends Widget {
         }
     }
 
-    onMoreClicked (ev) {
-        ev.preventDefault();
-
+    onMoreClick () {
         this.rowsMax += this.config('loadMoreRows');
 
         this.updateLayout();
@@ -269,7 +266,6 @@ class Grid extends Widget {
         window.clearTimeout(this.updateHeightTimeout);
 
         delete this.$container;
-        delete this.options ;
         delete this.totalPostsLoaded;
         delete this.loading;
         delete this.allLoaded;

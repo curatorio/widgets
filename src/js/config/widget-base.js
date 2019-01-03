@@ -4,18 +4,23 @@ let base = {
     feedId:'',
     postsPerPage:12,
     maxPosts:0,
-    templatePost:'post-general',
-    templatePopup:'popup',
-    templatePopupWrapper:'popup-wrapper',
-    templateFilter:'filter',
     lang:'en',
     debug:false,
-    autoPlayVideos:false,
     postClickAction:'open-popup',             // open-popup | goto-source | nothing
     postClickReadMoreAction:'open-popup',     // open-popup | goto-source | nothing
     filter: {
+        template:'filter',
         showNetworks: false,
         showSources: false,
+    },
+    post: {
+        template: 'post-general',
+        showShare: true,
+        autoPlayVideos: true,
+    },
+    popup : {
+        template: 'popup',
+        templateWrapper: 'popup-wrapper',
     }
 };
 

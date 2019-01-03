@@ -13,61 +13,22 @@ class Filter extends Control {
         super();
 
         this.widget = widget;
-        this.options = widget.options;
 
-        this.templateId = this.options.templateFilter;
+        this.templateId = this.widget.config('filter.template');
         this.render ();
 
-        this.widget.$container.append(this.$el);
-
-        this.$el.on('click','.crt-filter-networks a', (ev) => {
-            ev.preventDefault();
-            let t = z(ev.target);
-            let networkId = t.data('network');
-
-            this.$el.find('.crt-filter-networks li').removeClass('active');
-            t.parent().addClass('active');
-
-            this.widget.trigger(Events.FILTER_CHANGED, this);
-
-            if (networkId) {
-                this.widget.feed.params.network_id = networkId;
-            } else {
-                this.widget.feed.params.network_id = 0;
-            }
-
-            this.widget.feed.loadPosts(0);
-        });
-
-        this.$el.on('click', '.crt-filter-sources a', (ev) => {
-            ev.preventDefault();
-            let t = z(ev.target);
-            let sourceId = t.data('source');
-
-            this.$el.find('.crt-filter-sources li').removeClass('active');
-            t.parent().addClass('active');
-
-            this.widget.trigger(Events.FILTER_CHANGED, this);
-
-            if (sourceId) {
-                this.widget.feed.params.source_id = sourceId;
-            } else {
-                this.widget.feed.params.source_id = 0;
-            }
-
-            this.widget.feed.loadPosts(0);
-        });
+        this.$el.on('click','.crt-filter-networks a', this.onNetworkClick.bind(this));
+        this.$el.on('click', '.crt-filter-sources a', this.onSourceClick.bind(this));
 
         this.widget.on(Events.FEED_LOADED, this.onPostsLoaded.bind(this));
     }
 
     onPostsLoaded (event, data) {
-
         let networks = data.networks;
         let sources = data.sources;
 
         if (!this.filtersLoaded) {
-            if (this.options.filter.showNetworks) {
+            if (this.widget.config('filter.showNetworks')) {
                 for (let id of networks) {
                     let network = Networks[id];
                     if (network) {
@@ -80,7 +41,7 @@ class Filter extends Control {
                 this.$refs.networks.hide();
             }
 
-            if (this.options.filter.showSources) {
+            if (this.widget.config('filter.showSources')) {
                 for (let source of sources) {
                     let network = Networks[source.network_id];
                     if (network) {
@@ -95,6 +56,44 @@ class Filter extends Control {
 
             this.filtersLoaded = true;
         }
+    }
+
+    onSourceClick (ev) {
+        ev.preventDefault();
+        let t = z(ev.target);
+        let sourceId = t.data('source');
+
+        this.$el.find('.crt-filter-sources li').removeClass('active');
+        t.parent().addClass('active');
+
+        this.widget.trigger(Events.FILTER_CHANGED, this);
+
+        if (sourceId) {
+            this.widget.feed.params.source_id = sourceId;
+        } else {
+            this.widget.feed.params.source_id = 0;
+        }
+
+        this.widget.feed.loadPosts(0);
+    }
+
+    onNetworkClick (ev) {
+        ev.preventDefault();
+        let t = z(ev.target);
+        let networkId = t.data('network');
+
+        this.$el.find('.crt-filter-networks li').removeClass('active');
+        t.parent().addClass('active');
+
+        this.widget.trigger(Events.FILTER_CHANGED, this);
+
+        if (networkId) {
+            this.widget.feed.params.network_id = networkId;
+        } else {
+            this.widget.feed.params.network_id = 0;
+        }
+
+        this.widget.feed.loadPosts(0);
     }
 
     destroy () {

@@ -14,7 +14,6 @@
     z-index: 1;
 
     a {
-        cursor: pointer;
         transition: color 0.2s linear;
     }
 
@@ -125,14 +124,6 @@
         }
     }
 
-    &.crt-has-image-carousel {
-        .crt-image {
-            .crt-image-carousel {
-                display: block;
-            }
-        }
-    }
-
     .crt-post-content-image {
         max-height: 400px;
         overflow: hidden;
@@ -214,12 +205,6 @@
         color: #666;
     }
 
-    &.crt-post-show-read-more {
-        .crt-post-read-more {
-            display: block;
-        }
-    }
-
     .crt-play {
         position: absolute;
         left: 0;
@@ -234,6 +219,28 @@
             margin-left: -10px;
 
             @include play(20px, 2px);
+        }
+    }
+
+    &.crt-has-image-carousel {
+        .crt-image {
+            .crt-image-carousel {
+                display: block;
+            }
+        }
+    }
+
+    &.crt-post-show-read-more {
+        .crt-post-read-more {
+            display: block;
+        }
+    }
+
+    &.crt-post-hide-share {
+        .crt-post-footer {
+            .crt-post-share {
+                display: none;
+            }
         }
     }
 

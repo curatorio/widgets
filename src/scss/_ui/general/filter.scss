@@ -30,6 +30,7 @@
 
 					i {
 						margin-left: -5px;
+						pointer-events: none
 					}
 
 					&:hover {
@@ -39,7 +40,6 @@
 				}
 
 				&.active {
-
 					a {
 						background-color: #cccccc;
 					}

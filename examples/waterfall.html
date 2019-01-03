@@ -29,17 +29,20 @@
         window.widget = new Curator.Widgets.Waterfall({
             container: '#curator-feed',
             feedId:'8558f0f9-043f-4bd9-bad1-037cf10a',
-            autoPlayVideos:true,
+            post : {
+                showShare: false,
+                autoPlayVideos: true,
+            }
         });
 
         widget.setStyles({
             widget : {
-                padding: '0 100px',
+                padding: '0 10px',
                 backgroundColor:'#ff00ff'
             },
             post: {
-                margin: '0',
-                border: '0px solid red',
+                margin: '0 10px 20px',
+                border: '0px solid black',
                 borderRadius : '0',
                 overflow : 'hidden',
                 backgroundColor:'#ffffff'
