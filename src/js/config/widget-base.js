@@ -10,6 +10,7 @@ let base = {
     templateFilter:'filter',
     lang:'en',
     debug:false,
+    autoPlayVideos:false,
     postClickAction:'open-popup',             // open-popup | goto-source | nothing
     postClickReadMoreAction:'open-popup',     // open-popup | goto-source | nothing
     filter: {

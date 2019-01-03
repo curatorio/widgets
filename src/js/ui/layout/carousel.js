@@ -14,6 +14,8 @@ const LayoutCarouselSettings = {
     autoPlay: false,
     useCss : true,
     matchHeights : false,
+    controlsOver: true,
+    controlsShowOnHover: true,
 };
 
 if (z.zepto) {
@@ -44,9 +46,9 @@ class LayoutCarousel extends EventBus {
             this.options.minWidth = LayoutCarouselSettings.minWidth;
         }
 
-        this.$viewport = $viewport; // <div> slider, known as $viewport
+        this.$viewport = $viewport;
         this.$stage = $stage;
-        this.$slider = $slider;
+        this.$slider = $slider; // <div> slider
 
         if (!z.zepto) {
             this.$slider[0].crtTransformX = 0;
@@ -54,6 +56,12 @@ class LayoutCarousel extends EventBus {
 
         if (this.options.matchHeights) {
             this.$stage.addClass('crt-match-heights');
+        }
+
+
+        console.log(this.widget.config('controlsOver');
+        if (this.widget.config('controlsOver')) {
+            this.$viewport.addClass('crt-controls-over');
         }
 
         this.controlsHideShow();

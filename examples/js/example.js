@@ -25,7 +25,7 @@ var panel = '<div class="example-panel">\
             widget.destroy();
         });
     });
-})(window.Zepto || window.jQuery);
+})(window.$crtZepto);
 
 
 

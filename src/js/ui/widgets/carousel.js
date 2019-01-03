@@ -14,7 +14,7 @@ class Carousel extends Widget {
         options.postsPerPage = 100;
 
         if (this.init (options,  config)) {
-            Logger.log("Carousel->init with options:");
+            Logger.log("Carousel->init");
 
             this.allLoaded = false;
 
@@ -45,7 +45,7 @@ class Carousel extends Widget {
     }
 
     createPane (paneIndex) {
-        Logger.log('Carousel->createPane '+paneIndex);
+        // Logger.log('Carousel->createPane '+paneIndex);
 
         let postToLoad = paneIndex;
         if (paneIndex < 0) {

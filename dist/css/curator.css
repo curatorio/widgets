@@ -1811,12 +1811,8 @@ body.crt-popup-visible {
   .crt-widget-carousel .crt-hide-controls .crt-panel-next,
   .crt-widget-carousel .crt-hide-controls .crt-panel-prev {
     display: none; }
-  .crt-widget-carousel .crt-post {
-    width: 100%;
-    padding: 0 10px;
-    float: left; }
-    .crt-widget-carousel .crt-post .crt-post-c {
-      width: 100%; }
+  .crt-widget-carousel .crt-post .crt-post-c {
+    width: 100%; }
   .crt-widget-carousel .crt-carousel-stage {
     width: 100%;
     overflow: hidden;

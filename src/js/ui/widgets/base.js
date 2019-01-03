@@ -4,7 +4,7 @@ import HtmlUtils from '../../utils/html';
 import Feed from '../../core/feed';
 import ajax from '../../core/ajax';
 import Events from '../../core/events';
-import Post from '../post/base';
+import Post from '../post/general';
 import Filter from '../filter';
 import PopupManager from '../popup_manager';
 import z from '../../core/lib';

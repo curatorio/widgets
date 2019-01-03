@@ -3,12 +3,15 @@
 const template = ` 
 <div class="crt-post-v2 crt-post crt-post-<%=this.networkIcon()%> <%=this.contentTextClasses()%>  <%=this.contentImageClasses()%>" data-post="<%=id%>"> 
     <div class="crt-post-border">
-        <div class="crt-post-c">
+        <div class="crt-post-c" ref="postC" c-on:click="onPostClick">
             <div class="crt-post-content">
                 <div class="crt-image crt-hitarea crt-post-content-image" > 
-                    <div class="crt-image-c"><img src="<%=image%>" class="crt-post-image" alt="Image posted by <%=user_screen_name%> to <%=this.networkName()%>" /></div>   
+                    <div class="crt-image-c" ref="imageContainer"><img src="<%=image%>" ref="image" class="crt-post-image" alt="Image posted by <%=user_screen_name%> to <%=this.networkName()%>" /></div>   
                     <span class="crt-play"><i class="crt-play-icon"></i></span> 
                     <div class="crt-image-carousel"><i class="crt-icon-image-carousel"></i></div> 
+                    <video preload="none" loop muted ref="video">
+                        <source src="<%=video%>" type="video/mp4">
+                    </video>
                 </div> 
                 <div class="crt-post-header"> 
                     <span class="crt-social-icon"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> 

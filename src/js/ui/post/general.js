@@ -2,30 +2,59 @@
 import Base from './base';
 import Events from '../../core/events';
 
-class Post extends Base {
-
+class General extends Base {
     constructor (widget, postJson, options) {
         super(widget, postJson, options);
 
-        this.$refs = {
-            spacer:null,
-            postC:null,
-        };
-
         this.render ();
 
-        if (this.widget.config('post.imageHeight', '100%')) {
-            let imageHeight = this.widget.config('post.imageHeight', '100%');
-            this.$refs.spacer.css('padding-bottom', imageHeight);
+        this.$refs.image.css({opacity:0});
+
+        if (this.json.image) {
+            this.$refs.image.on('load', this.onImageLoaded.bind(this));
+            this.$refs.image.on('error', this.onImageError.bind(this));
+        } else {
+            // no image ... call this.onImageLoaded
+            window.setTimeout(() => {
+                this.setHeight();
+            },100);
         }
 
-        this.setupVideo();
-
-        this.setupCarousel ();
+        if (this.json.image_width > 0) {
+            let p = (this.json.image_height/this.json.image_width)*100;
+            this.$refs.imageContainer.addClass('crt-image-responsive').css('padding-bottom',p+'%');
+        }
 
         if (this.json.url.indexOf('http') !== 0) {
             this.$el.find('.crt-post-share').hide ();
         }
+
+        this.setupVideo ();
+
+        this.setupCarousel ();
+
+        let margin = this.widget.config('post.margin', '10px');
+        this.$el.css('margin-left', margin);
+        this.$el.css('margin-right', margin);
+    }
+
+    onImageLoaded () {
+        this.$refs.image.animate({opacity:1});
+
+        this.setHeight();
+
+        this.trigger(Events.POST_IMAGE_LOADED, this);
+        this.widget.trigger(Events.POST_IMAGE_LOADED, this);
+    }
+
+    onImageError () {
+        // Unable to load image!!!
+        this.$refs.image.hide();
+
+        this.setHeight();
+
+        this.trigger(Events.POST_IMAGE_FAILED, this);
+        this.widget.trigger(Events.POST_IMAGE_FAILED, this);
     }
 
     setHeight () {
@@ -47,22 +76,6 @@ class Post extends Base {
             let footerHeight = this.$el.find('.crt-post-footer').height();
             return contentHeight + footerHeight + 2;
         }
-    }
-
-    rafTick () {
-        if (this.reqCount % 50 === 0) {
-            // Only trigger every 50 frames ...
-            let h = this.rafContainer.offsetHeight;
-            let visible = this.testInFrame(h);
-
-            if (visible && !this.videoPlayer.isPlaying()) {
-                this.videoPlayer.play();
-            } else if (!visible && this.videoPlayer.isPlaying()) {
-                this.videoPlayer.pause();
-            }
-        }
-        this.reqCount ++;
-        this.raf = window.requestAnimationFrame(this.rafTick.bind(this));
     }
 
     layout () {
@@ -89,4 +102,4 @@ class Post extends Base {
     }
 }
 
-export default Post;
+export default General;

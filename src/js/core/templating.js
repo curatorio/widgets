@@ -28,12 +28,12 @@ let Templating = {
     },
 
     render (templateId, data) {
-        let err = "";
-
         let func = _rendererTmplCache[templateId];
         if (!func) {
-            let source = '';
-            let $t = z('#'+templateId);
+            let source = '', $t = '';
+            try {
+                $t = z('#' + templateId);
+            } catch (e) {}
 
             if ($t.length===1)
             {
@@ -41,6 +41,8 @@ let Templating = {
             } else if (Templates[templateId] !== undefined)
             {
                 source = Templates[templateId];
+            } else {
+                source = templateId; 
             }
 
             if (source === '')
@@ -76,7 +78,7 @@ let Templating = {
         } catch (e) {
             // console.log(e);
             Logger.error ('Template render error: ' +e.message +' for template: '+templateId);
-            console.log(data);
+            window.console.log (data);
             throw new Error ('Template render error: ' +e.message +' for template: '+templateId);
         }
     }
