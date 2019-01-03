@@ -2,7 +2,7 @@
 import Widget from './base';
 import Logger from '../../core/logger';
 import CommonUtils from '../../utils/common';
-import GridPost from '../post/grid';
+import GridPost from '../posts/grid';
 import config from '../../config/widget-grid';
 import z from '../../core/lib';
 import Events from "../../core/events";
@@ -65,7 +65,7 @@ class Grid extends Widget {
             this.updateLayout ();
         }, 100);
 
-        this.ro = new ResizeObserver((entries, observer) => {
+        this.ro = new ResizeObserver((entries) => {
             if (entries.length > 0) {
                 // let entry = entries[0];
                 this._resize();

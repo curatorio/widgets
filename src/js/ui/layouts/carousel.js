@@ -1,3 +1,5 @@
+/*jshint unused:false*/
+
 import CommonUtils from '../../utils/common';
 import EventBus from '../../core/bus';
 import Logger from '../../core/logger';
@@ -58,10 +60,12 @@ class LayoutCarousel extends EventBus {
             this.$stage.addClass('crt-match-heights');
         }
 
-
-        console.log(this.widget.config('controlsOver');
         if (this.widget.config('controlsOver')) {
-            this.$viewport.addClass('crt-controls-over');
+            this.widget.$container.addClass('crt-controls-over');
+        }
+
+        if (this.widget.config('controlsShowOnHover')) {
+            this.widget.$container.addClass('crt-controls-show-on-hover');
         }
 
         this.controlsHideShow();
@@ -191,7 +195,7 @@ class LayoutCarousel extends EventBus {
         } else {
 
             pane = this.widget.createPane(paneIndex);
-            pane.on(Events.PANE_HEIGHT_CHANGED, this.onPostLayoutChanged.bind(this));
+            pane.on(Events.PANE_HEIGHT_CHANGED, this.onPaneHeightChanged.bind(this));
 
             this.paneCache['idx'+paneIndex] = pane;
         }
@@ -420,9 +424,9 @@ class LayoutCarousel extends EventBus {
         }
     }
 
-    onPostLayoutChanged (post) {
+    onPaneHeightChanged () {
         window.clearTimeout(this.postLayoutChangedTO);
-        this.postLayoutChangedTO = window.setTimeout(()=>{
+        this.postLayoutChangedTO = window.setTimeout(() => {
             this.updateHeight ();
         },100);
     }
@@ -447,7 +451,9 @@ class LayoutCarousel extends EventBus {
         window.clearTimeout(this.moveCompleteTO);
 
         for(let paneId in this.paneCache) {
-            this.paneCache[paneId].destroy();
+            if (this.paneCache.hasOwnProperty(paneId)) {
+                this.paneCache[paneId].destroy();
+            }
         }
 
         this.paneCache = null;

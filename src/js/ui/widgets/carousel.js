@@ -3,8 +3,8 @@ import Widget from './base';
 import Logger from '../../core/logger';
 import Events from '../../core/events';
 import config from '../../config/widget-carousel';
-import LayoutCarousel from '../layout/carousel';
-import LayoutCarouselPane from '../layout/carousel-pane';
+import LayoutCarousel from '../layouts/carousel';
+import LayoutCarouselPane from '../layouts/carousel-pane';
 
 class Carousel extends Widget {
 
@@ -17,8 +17,11 @@ class Carousel extends Widget {
             Logger.log("Carousel->init");
 
             this.allLoaded = false;
-
-            this.templateId = this.options.templateWidget;
+            this.templateId = this.config('templateWidget');
+            this.$refs = {
+                stage:null,
+                slider:null,
+            };
             this.render();
 
             this.$el.appendTo(this.$container);
@@ -75,7 +78,7 @@ class Carousel extends Widget {
 
     onCarouselChange (event, carouselLayout, currentPane) {
         Logger.log("Carousel->onCarouselChange currentPane: "+currentPane);
-        if (this.options && this.options.autoLoad) {
+        if (this.config('autoLoad')) {
             let pos = this.feed.postsLoaded - (this.carousel.PANES_VISIBLE * 2);
             if (currentPane >= pos) {
                 this.loadMorePosts();
@@ -105,12 +108,8 @@ class Carousel extends Widget {
 
         delete this.$feed;
         delete this.$container;
-        delete this.options ;
-        delete this.feed.postsLoaded;
         delete this.allLoaded;
 
-        // TODO add code to cascade destroy down to Feed & Posts
-        // unregistering events etc
         delete this.feed;
     }
 }

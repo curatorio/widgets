@@ -152,10 +152,18 @@ gulp.task('scripts:umd', ['scripts:core'], () =>  {
 // Scripts - lint core scripts
 
 gulp.task('scripts:lint', () =>  {
-
-    return gulp.src(srcJs+'core/**/*.js')
+    return gulp.src([
+            srcJs+'config/**/*.js',
+            srcJs+'core/**/*.js',
+            srcJs+'libraries/**/*.js',
+            srcJs+'social/**/*.js',
+            srcJs+'templates/**/*.js',
+            srcJs+'ui/**/*.js',
+            srcJs+'utils/**/*.js',
+            srcJs+'main.js',
+        ])
         .pipe(jshint())
-        .pipe(jshint.reporter('default'))
+        .pipe(jshint.reporter('default'));
         // .pipe(notify({ message: 'scripts:lint task complete' }));
 });
 
@@ -174,7 +182,7 @@ gulp.task('scripts:prod', ['scripts'], () =>  {
         .pipe(uglify({
             mangle:false
         }))
-        .pipe(gulp.dest(destJs))
+        .pipe(gulp.dest(destJs));
         // .pipe(notify({ message: 'Scripts & Minify task complete' }));
 });
 

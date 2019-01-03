@@ -7,7 +7,7 @@ import {} from './libraries/twitter-text-regex';
 import EventBus from './core/bus';
 import Globals from './core/globals';
 
-import Post from './ui/post/base';
+import Post from './ui/posts/base';
 import StringUtils from './utils/string';
 import HtmlUtils from './utils/html';
 import Templating from './core/templating';

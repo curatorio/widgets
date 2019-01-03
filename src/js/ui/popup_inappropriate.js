@@ -1,10 +1,4 @@
-/**
-* ==================================================================
-* Popup
-* ==================================================================
-*/
 import z from '../core/lib';
-
 
 class PopupInappropriate {
     constructor (post,feed) {
@@ -13,7 +7,7 @@ class PopupInappropriate {
         this.feed = feed;
         this.post = post;
         
-        this.jQueryel = z('.mark-bubble');
+        this.$el = z('.mark-bubble');
 
         z('.mark-close').click(function (e) {
             e.preventDefault();

@@ -6,7 +6,7 @@ const template = `
     <div class="crt-feed" ref="feed">
         <div class="crt-feed-spacer"> -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- </div>
     </div>
-<div class="crt-load-more" ref="loadMore"><a href="#" c-on:click="loadMorePosts"><span><%=this._t("load-more")%></span></a></div>
+    <div class="crt-load-more-container" ref="loadMore"><a c-on:click="onMoreClick" class="crt-load-more"><span><%=this._t("load-more")%></span></a></div>
 </div>
 `;
 

@@ -17,19 +17,46 @@
 
 <script type="text/javascript" src="../dist/js/curator.js"></script>
 <script type="text/javascript">
-    // While you're testing
-    Curator.Logger.debug = false;
 
-    // Change FEED_ID to your unique FEED_ID
     var widget = new Curator.Widgets.Waterfall({
         container:'#curator-feed',
-        feedId:"6dab8d1e-abe9-4fb7-8475-99ab8d5e",
-        waterfall: {
-//            showReadMore: true,
-            maxHeight: 500
-        }
+        feedId: '8558f0f9-043f-4bd9-bad1-037cf10a',  // Change FEED_ID to your unique FEED_ID
+        debug:true,                                  // While you are testing
+        // maxHeight: 500,
+        postsPerPage:2
     });
+
+    widget.setStyles({
+        widget : {
+            backgroundColor: '#ffffff',
+        },
+
+        post : {
+            backgroundColor:'#000000',
+            borderRadius:'10px',
+            border:'0'
+        },
+
+        postText : {
+            display:'none'
+        },
+
+        popup : {
+            borderRadius:'10px',
+            backgroundColor:'#ff0000',
+            overflow:'hidden'
+        },
+
+        loadMore : {
+            backgroundColor:'#000000',
+            color:'#ffffff',
+            borderRadius:'10px',
+            border:'0',
+            textTransform:'uppercase'
+        }
+    })
 </script>
+<script type="text/javascript" src="js/example.js"></script>
 </body>
 </html>
 

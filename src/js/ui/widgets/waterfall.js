@@ -2,7 +2,7 @@
 import Widget from './base';
 import config from '../../config/widget-waterfall';
 import Logger from '../../core/logger';
-import LayoutWaterfall from '../layout/waterfall';
+import LayoutWaterfall from '../layouts/waterfall';
 import Events from '../../core/events';
 import z from '../../core/lib';
 
@@ -56,13 +56,11 @@ class Waterfall extends Widget {
 
     }
 
-    loadMorePosts  (ev) {
-        ev.preventDefault();
+    onMoreClick  () {
         Logger.log('Waterfall->loadMorePosts');
 
         this.feed.loadAfter();
     }
-
 
     loadPage  (page) {
         Logger.log('Waterfall->loadPage');
@@ -113,8 +111,7 @@ class Waterfall extends Widget {
 
         this.$el.remove();
 
-        this.$container.removeClass('crt-feed-container')
-            .removeClass('crt-widget-waterfall');
+        this.$container.removeClass('crt-widget-waterfall');
 
         this.destroyListeners();
 

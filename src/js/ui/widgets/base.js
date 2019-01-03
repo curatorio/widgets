@@ -4,7 +4,7 @@ import HtmlUtils from '../../utils/html';
 import Feed from '../../core/feed';
 import ajax from '../../core/ajax';
 import Events from '../../core/events';
-import Post from '../post/general';
+import Post from '../posts/general';
 import Filter from '../filter';
 import PopupManager from '../popup_manager';
 import z from '../../core/lib';
@@ -73,8 +73,7 @@ class Widget extends Control {
 
         this.setOptions(options, defaults);
 
-        this.$container.addClass('crt-feed');
-        this.$container.addClass('crt-feed-container');
+        this.$container.addClass('crt-widget');
 
         if (HtmlUtils.isTouch()) {
             this.$container.addClass('crt-touch');
@@ -87,6 +86,8 @@ class Widget extends Control {
         this.createFilter();
         this.createPopupManager();
 
+        // this.setStyles({});
+
         let crtEvent = {
             name:'crt:widget:created',
             data:{
@@ -97,6 +98,39 @@ class Widget extends Control {
         window.postMessage(crtEvent, '*');
 
         return true;
+    }
+
+    setStyles (styles) {
+        if (!this.sheet) {
+            this.sheet = HtmlUtils.createSheet();
+        }
+
+        this.addStyle(this.sheet, styles.popup, '.crt-popup');
+        this.addStyle(this.sheet, styles.widget, '.crt-widget');
+        this.addStyle(this.sheet, styles.loadMore, '.crt-widget .crt-load-more');
+        this.addStyle(this.sheet, styles.post, '.crt-widget .crt-post');
+        this.addStyle(this.sheet, styles.postText, '.crt-widget .crt-post-content-text');
+    }
+
+    camelToDash (s){
+        return s.replace(/([A-Z])/g, function($1, p1, pos){return (pos > 0 ? "-" : "") + $1.toLowerCase();});
+    }
+
+    addStyle(sheet, stylesObj, className) {
+        if (stylesObj) {
+            console.log('Found style for '+className);
+            let rules = [];
+            for (let key in stylesObj) {
+                if (stylesObj.hasOwnProperty(key)) {
+                    let ruleName = this.camelToDash(key);
+                    let rule = ruleName + ': ' + stylesObj[key];
+                    rules.push(rule);
+                }
+            }
+            if (rules.length > 0) {
+                HtmlUtils.addCSSRule(sheet, className, rules.join(';'));
+            }
+        }
     }
 
     updateResponsiveOptions () {
@@ -137,7 +171,7 @@ class Widget extends Control {
             // window.console.log(pathParts);
             // throw new Error('NOT IMPLEMENTED');
             path = path.split('.');
-            var current = this.options;
+            let current = this.options;
             while(path.length) {
                 if(typeof current !== 'object') {
                     return defaultValue || null;
@@ -250,9 +284,9 @@ class Widget extends Control {
     onFeedLoaded (ev, response) {
         if (this.options.hidePoweredBy && response.account.plan.unbranded === 1) {
             //<a href="http://curator.io" target="_blank" class="crt-logo crt-tag">Powered by Curator.io</a>
-            this.$container.addClass('crt-feed-unbranded');
+            this.$container.addClass('crt-widget-unbranded');
         } else {
-            this.$container.addClass('crt-feed-branded');
+            this.$container.addClass('crt-widget-branded');
         }
     }
 
@@ -302,9 +336,9 @@ class Widget extends Control {
         if (this.popupManager) {
             this.popupManager.destroy();
         }
-        this.$container.removeClass('crt-feed');
-        this.$container.removeClass('crt-feed-unbranded');
-        this.$container.removeClass('crt-feed-branded');
+        this.$container.removeClass('crt-widget');
+        this.$container.removeClass('crt-widget-unbranded');
+        this.$container.removeClass('crt-widget-branded');
     }
 }
 

@@ -3,7 +3,6 @@
 .crt-widget-waterfall {
     min-height: 400px;
     position: relative;
-
     display: block;
     clear: both;
     max-width: 100%;
@@ -29,23 +28,6 @@
     .crt-feed {
         width:100%;
         @extend .crt-clearfix;
-    }
-
-    .crt-post-v1 {
-        width: 100%;
-        float: none;
-        display: block;
-        margin-bottom: 10px;
-
-        .crt-post {
-
-        }
-    }
-
-    .crt-post-v2 {
-        margin: 0 0 24px;
-        width: auto;
-        float: none;
     }
 }
 

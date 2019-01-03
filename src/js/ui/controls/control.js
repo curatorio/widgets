@@ -46,8 +46,8 @@ class Control extends EventBus {
         for (let el of $el.find('['+selector+']')) {
             let fnName = this._fnName(z(el).attr(attr));
             // console.log(fnSig);
-            let fn = this[fnName] ? this[fnName] : function () { console.error (fnName+'() does not exist ');};
-            z(el).on(action, (ev) => {
+            let fn = this[fnName] ? this[fnName] : function () { console.error (fnName+'() does not exist ');}; // jshint ignore:line
+            z(el).on(action, (ev) => { // jshint ignore:line
                 ev.preventDefault();
                 ev.stopPropagation();
                 fn.call(this, ev);
@@ -62,7 +62,6 @@ class Control extends EventBus {
         // console.log(postRect.y);
         let postTop = postRect.y;
         let postBottom = (postRect.y + postRect.height);
-        let visible = postBottom > 0 && postTop < h;
 
         // if (i === 0 && j === 2) {
         //     console.log(postRect.y+":"+postTop + ":" + postBottom + " " + visible);
@@ -77,7 +76,7 @@ class Control extends EventBus {
         //     this.$el.trigger('crt-visible');
         // }
 
-        return visible;
+        return postBottom > 0 && postTop < h;
     }
 }
 

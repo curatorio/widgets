@@ -3,9 +3,9 @@ import Widget from './base';
 import Logger from '../../core/logger';
 import Events from '../../core/events';
 import config from '../../config/widget-grid-carousel';
-import LayoutCarousel from '../layout/carousel';
-import LayoutCarouselPane from '../layout/carousel-pane';
-import GridPost from "../post/grid";
+import LayoutCarousel from '../layouts/carousel';
+import LayoutCarouselPane from '../layouts/carousel-pane';
+import GridPost from "../posts/grid";
 
 class GridCarousel extends Widget {
 

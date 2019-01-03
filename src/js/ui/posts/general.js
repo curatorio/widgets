@@ -30,12 +30,7 @@ class General extends Base {
         }
 
         this.setupVideo ();
-
         this.setupCarousel ();
-
-        let margin = this.widget.config('post.margin', '10px');
-        this.$el.css('margin-left', margin);
-        this.$el.css('margin-right', margin);
     }
 
     onImageLoaded () {

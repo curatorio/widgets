@@ -62,7 +62,7 @@ let CommonUtils = {
             if (callNow) {
                 func.apply(context, args);
             }
-        };
+        }
 
         function cancel() {
             if (timeout !== null) {

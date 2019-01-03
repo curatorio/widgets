@@ -62,7 +62,7 @@ class LayoutWaterfall {
             this.resize();
         }, 100);
 
-        this.ro = new ResizeObserver((entries, observer) => {
+        this.ro = new ResizeObserver((entries) => {
             if (entries.length > 0) {
                 // let entry = entries[0];
                 this.redraw();
@@ -162,7 +162,9 @@ class LayoutWaterfall {
                 // set itemCount
                 this.isPrepending = true;
                 itemCount = Math.round(count % cols);
-                if (itemCount <= 0) itemCount = cols;
+                if (itemCount <= 0) {
+                    itemCount = cols;
+                }
             }
             // called by _updateAfterPrepend()
             if (method === "renderAfterPrepend") {

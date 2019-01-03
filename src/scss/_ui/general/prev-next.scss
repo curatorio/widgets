@@ -48,3 +48,32 @@ $height:60px;
         margin-left: 3px;
     }
 }
+
+.crt-controls-over {
+    .crt-panel-prev {
+        left: 10px;
+    }
+
+    .crt-panel-next {
+        right: 10px;
+    }
+}
+
+.crt-controls-show-on-hover {
+    .crt-panel-prev,
+    .crt-panel-next {
+        //display: none;
+        opacity: 0;
+        visibility: hidden;
+        transition: visibility 0s, opacity 0.3s linear;
+    }
+
+    &:hover {
+        .crt-panel-prev,
+        .crt-panel-next {
+            //display: block;
+            visibility: visible;
+            opacity: 1;
+        }
+    }
+}

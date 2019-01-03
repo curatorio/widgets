@@ -7,6 +7,7 @@
 
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" />
     <link href="css/example.css" rel="stylesheet" />
+    <script type="text/javascript" src="js/example.js"></script>
 
     <link href="../dist/css/curator.css" rel="stylesheet" />
 </head>
@@ -30,8 +31,21 @@
             feedId:'8558f0f9-043f-4bd9-bad1-037cf10a',
             autoPlayVideos:true,
         });
+
+        widget.setStyles({
+            widget : {
+                padding: '0 100px',
+                backgroundColor:'#ff00ff'
+            },
+            post: {
+                margin: '0',
+                border: '0px solid red',
+                borderRadius : '0',
+                overflow : 'hidden',
+                backgroundColor:'#ffffff'
+            }
+        });
     </script>
-    <script type="text/javascript" src="js/example.js"></script>
 
 </body>
 </html>

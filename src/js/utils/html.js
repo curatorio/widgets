@@ -36,6 +36,7 @@ const HtmlUtils = {
     createSheet () {
         let style = document.createElement("style");
         // WebKit hack :(
+        style.setAttribute('type','text/css');
         style.appendChild(document.createTextNode(""));
         document.head.appendChild(style);
         return style.sheet;

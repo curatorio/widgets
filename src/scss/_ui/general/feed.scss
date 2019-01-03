@@ -1,4 +1,4 @@
-.crt-feed {
+.crt-widget {
     position: relative;
     padding-bottom: 30px;
 
@@ -6,12 +6,19 @@
         box-sizing: border-box;
     }
 
-    &.crt-feed-branded {
+    a {
+        cursor: pointer;
+        &:hover {
+            text-decoration: none;
+        }
+    }
+
+    &.crt-widget-branded {
         padding-bottom: 25px;
         .crt-logo {
             display: block;
             position: absolute;
-            bottom: 0px;
+            bottom: 5px;
             right: 10px;
             font-size: 0.9em;
 

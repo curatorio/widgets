@@ -1,25 +1,20 @@
 
-.crt-post-v2 {
+.crt-widget-waterfall {
+    .crt-post {
+        margin: 0 10px 20px;
+    }
+}
+
+.crt-post {
+    border-radius: $post-border-radius;
+    border: 1px solid $color-v2-post-border;
+    position: relative;
+    overflow: hidden;
+    background-color: $color-v2-post-background;
+    z-index: 1;
 
     a {
         cursor: pointer;
-    }
-
-    z-index: 1;
-
-    .crt-post-border {
-        box-shadow: 0px 2px 30px $color-v2-post-shadow;
-        border-radius: $post-border-radius;
-        border: 1px solid $color-v2-post-border;
-    }
-
-    .crt-post-c {
-        position: relative;
-        overflow: hidden;
-        background-color: $color-v2-post-background;
-    }
-
-    a {
         transition: color 0.2s linear;
     }
 
@@ -50,6 +45,7 @@
         margin-bottom: 6px;
         font-weight: bold;
     }
+
     .crt-comments-likes {
         position: relative;
         //height: 40px;
@@ -73,7 +69,6 @@
         line-height: 40px;
         text-align: center;
         border-top: 1px solid $color-v2-post-border;
-        background-color: $color-v2-post-background;
 
         .crt-post-userimage {
             position: absolute;
@@ -146,6 +141,7 @@
         .text {
             display: none;
         }
+
         IMG {
             width: 100%;
         }

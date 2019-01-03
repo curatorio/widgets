@@ -122,6 +122,7 @@ class List extends Widget {
     }
 
     updateHeight (animate) {
+        animate = animate !== undefined || true;
         let $post = this.$container.find('.crt-post-c').first();
         let postHeight = $post.width();
         let postMargin = parseInt($post.css("margin-left"));

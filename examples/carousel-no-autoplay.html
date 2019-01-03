@@ -8,7 +8,7 @@
     <link href="css/example.css" rel="stylesheet"/>
     <style type="text/css">
         #curator-feed {
-            padding: 0 100px;
+            /*padding: 0 100px;*/
             width:auto;
         }
     </style>
@@ -27,13 +27,26 @@
     Curator.Logger.debug = true;
 
     // Change FEED_ID to your unique FEED_ID
-    var widget = new Curator.Widgets.Carousel({
-        container:'#curator-feed',
-        feedId:'8558f0f9-043f-4bd9-bad1-037cf10a',
-        autoPlay:false,
-        minWidth:250,
-        controlsOver: true,
-        controlsShowOnHover: true,
+    var widget = new Curator.Widgets.Carousel ({
+        container: '#curator-feed',
+        feedId: '8558f0f9-043f-4bd9-bad1-037cf10a',
+        autoPlay: false,
+        minWidth: 250,
+        controlsOver: false,
+        controlsShowOnHover: true});
+
+    widget.setStyles({
+        widget : {
+            padding: '0 100px',
+            backgroundColor:'#ff00ff'
+        },
+        post: {
+            marginLeft: '-1px',
+            border: '0',
+            borderRadius : '0',
+            overflow : 'hidden',
+            backgroundColor:'#ffffff'
+        }
     });
 </script>
 

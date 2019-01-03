@@ -3,7 +3,7 @@ import Widget from './base';
 import Logger from '../../core/logger';
 import Events from '../../core/events';
 import config from '../../config/widget-panel';
-import LayoutCarousel from '../layout/carousel';
+import LayoutCarousel from '../layouts/carousel';
 import z from '../../core/lib';
 
 class Panel extends Widget {

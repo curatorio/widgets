@@ -42,7 +42,7 @@ let Templating = {
             {
                 source = Templates[templateId];
             } else {
-                source = templateId; 
+                source = templateId;
             }
 
             if (source === '')

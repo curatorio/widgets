@@ -1,0 +1,16 @@
+{
+    "esversion": 6,
+    "undef": true,
+    "unused": false,
+    "scripturl":true,
+    "multistr": true,
+    "predef": [
+        "$local",
+        "window",
+        "document",
+        "console",
+        "require",
+        "define",
+        "module"
+    ]
+}

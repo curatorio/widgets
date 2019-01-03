@@ -44,7 +44,7 @@ function nanoajax (params, callback) {
     if (body) {
         setDefault(headers, 'X-Requested-With', 'XMLHttpRequest');
 
-        if (!global.FormData || !(body instanceof global.FormData)) {
+        if (!window.FormData || !(body instanceof window.FormData)) {
             setDefault(headers, 'Content-Type', 'application/x-www-form-urlencoded');
         }
     }
