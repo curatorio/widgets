@@ -1,11 +1,9 @@
-
-
-import ConfigWidgetBase from './widget_base';
+import base from './widget-base';
 import z from '../core/lib';
 
-let ConfigWidgetGrid = z.extend({}, ConfigWidgetBase, {
-    templatePost:'grid-post',
-    templateFeed:'grid-feed',
+let config = z.extend({}, base, {
+    templatePost:'post-grid',
+    templateWidget:'widget-grid',
     animate:false,
     minWidth:200,
     rows:3,
@@ -27,8 +25,8 @@ let ConfigWidgetGrid = z.extend({}, ConfigWidgetBase, {
         }
     },
     post : {
-        imageHeight:'75%'
+        imageHeight:'100%'
     }
 });
 
-export default ConfigWidgetGrid;
+export default config;

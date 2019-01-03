@@ -1,22 +1,10 @@
 
 import Widget from './base';
-import Logger from '../core/logger';
-import Events from '../core/events';
-import ConfigWidgetBase from '../config/widget_base';
-import LayoutCarousel from '../ui/layout/carousel';
-import z from '../core/lib';
-
-let ConfigPanel = z.extend({}, ConfigWidgetBase, {
-    panel: {
-        // speed: 500,
-        autoPlay: true,
-        autoLoad: true,
-        moveAmount:1,
-        fixedHeight:false,
-        infinite:true,
-        minWidth:2000
-    }
-});
+import Logger from '../../core/logger';
+import Events from '../../core/events';
+import config from '../../config/widget-panel';
+import LayoutCarousel from '../layout/carousel';
+import z from '../../core/lib';
 
 class Panel extends Widget {
 
@@ -29,7 +17,7 @@ class Panel extends Widget {
         this.$feed=null;
         this.posts=[];
 
-        if (this.init (options,  ConfigPanel)) {
+        if (this.init (options,  config)) {
             Logger.log("Panel->init with options:");
             Logger.log(this.options);
 
@@ -65,7 +53,7 @@ class Panel extends Widget {
         if (posts.length === 0) {
             this.allLoaded = true;
         } else {
-            this.carousel.addPosts(posts);
+            this.carousel.setPanesLength(this.feed.posts.length);
 
             this.popupManager.setPosts(posts);
         }
@@ -101,7 +89,6 @@ class Panel extends Widget {
 
         delete this.$feed;
         delete this.$container;
-        delete this.options ;
         delete this.feed.postsLoaded;
         delete this.loading;
         delete this.allLoaded;

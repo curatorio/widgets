@@ -8,7 +8,7 @@ import Control from '../controls/control';
 import VideoPlayer from "../controls/video-player";
 
 class Post extends Control {
-    constructor (postJson, options, widget) {
+    constructor (widget, postJson, options) {
         super();
 
         this.options = options;
@@ -17,16 +17,19 @@ class Post extends Control {
         this.json = postJson;
         this.templateId = this.widget.options.templatePost;
 
+        this.$refs = {
+            spacer:null,
+            postC:null,
+        };
+
         this.render ();
 
-        if (this.options.post && this.options.post.imageHeight) {
-            this.$refs.spacer.css('padding-bottom',this.options.post.imageHeight);
+        if (this.widget.config('post.imageHeight', '100%')) {
+            this.$refs.spacer.css('padding-bottom', this.options.post.imageHeight);
         }
 
         if (this.json.video) {
             this.$el.addClass('crt-post-has-video');
-
-            // console.log(this.$refs);
 
             if (this.json.video.indexOf('youtu') === -1 && this.json.video.indexOf('vimeo') === -1 ) {
                 // Normal video - not YouTube or Vimeo
@@ -50,10 +53,6 @@ class Post extends Control {
 
         if (this.json.url.indexOf('http') !== 0) {
             this.$el.find('.crt-post-share').hide ();
-        }
-
-        if (this.json.video) {
-            this.$el.addClass('crt-post-has-video');
         }
 
         if (this.json.images && this.json.images.length > 0) {

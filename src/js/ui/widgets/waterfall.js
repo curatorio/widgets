@@ -1,20 +1,20 @@
 
 import Widget from './base';
-import ConfigWidgetWaterfall from '../config/widget_waterfall';
-import Logger from '../core/logger';
-import LayoutWaterfall from '../ui/layout/waterfall';
-import Events from '../core/events';
-import z from '../core/lib';
+import config from '../../config/widget-waterfall';
+import Logger from '../../core/logger';
+import LayoutWaterfall from '../layout/waterfall';
+import Events from '../../core/events';
+import z from '../../core/lib';
 
 class Waterfall extends Widget {
 
     constructor (options) {
         super ();
 
-        if (this.init (options,  ConfigWidgetWaterfall)) {
+        if (this.init (options,  config)) {
             Logger.log("Waterfall->init with options:");
 
-            this.templateId = this.options.templateFeed;
+            this.templateId = this.options.templateWidget;
             this.render();
 
             this.$container.append(this.$el);
@@ -119,7 +119,6 @@ class Waterfall extends Widget {
         this.destroyListeners();
 
         delete this.$container;
-        delete this.options ;
         delete this.totalPostsLoaded;
         delete this.loading;
         delete this.allLoaded;

@@ -1,4 +1,5 @@
 import EventBus from "../../core/bus";
+import z from "../../core/lib";
 
 class VideoPlayer extends EventBus {
     constructor (videoElement) {
@@ -6,8 +7,9 @@ class VideoPlayer extends EventBus {
 
         this.element = videoElement[0];
         this.videoPlaying = false;
-    }
 
+        this.element.addEventListener( "loadedmetadata", this.onMetaData.bind(this));
+    }
 
     play () {
         let playPromise = this.element.play();
@@ -43,8 +45,22 @@ class VideoPlayer extends EventBus {
         return this.videoPlaying;
     }
 
+    onMetaData () {
+        let width = this.element.videoWidth,
+            height = this.element.videoHeight;
+
+        if (width===height) {
+            z(this.element).addClass('aspect-square');
+        } else if (width > height) {
+            z(this.element).addClass('aspect-landscape');
+        } else {
+            z(this.element).addClass('aspect-portrait');
+        }
+    }
+
     destroy() {
         super.destroy();
+        this.element.removeEventListener("loadedmetadata", this.onMetaData.bind(this));
 
         if (this.videoPlaying) {
             this.element.pause();

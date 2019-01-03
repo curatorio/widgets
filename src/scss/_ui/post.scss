@@ -23,6 +23,101 @@
         transition: color 0.2s linear;
     }
 
+    .crt-post-header {
+        padding-top: 28px;
+        color: $color-post-header-text;
+        position: relative;
+        text-align: center;
+
+        .crt-social-icon {
+            margin-bottom: 12px;
+            i {
+                font-size: 24px;
+
+                &.crt-icon-twitter {
+                    font-size: 26px;
+                    margin-left: 6px;
+                }
+            }
+        }
+    }
+
+    .crt-post-fullname {
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        display: block;
+        margin-bottom: 6px;
+        font-weight: bold;
+    }
+    .crt-comments-likes {
+        position: relative;
+        //height: 40px;
+        //line-height: 40px;
+        //border-top: 1px solid $color-v2-post-border;
+        //background-color: transparent;
+        padding: 0 0 13px;
+        font-size: .8em;
+        text-transform: uppercase;
+        text-align: center;
+        color: #999;
+
+        span {
+            color: #000;
+        }
+    }
+
+    .crt-post-footer {
+        position: relative;
+        height: 40px;
+        line-height: 40px;
+        text-align: center;
+        border-top: 1px solid $color-v2-post-border;
+        background-color: $color-v2-post-background;
+
+        .crt-post-userimage {
+            position: absolute;
+            top: 7px;
+            left: 10px;
+            width: 24px;
+        }
+
+        .crt-post-share {
+            position: absolute;
+            top: 0px;
+            right: 10px;
+            font-size: .9em;
+            color: $color-post-share-text;
+            //background-color: $color-post-share-bg;
+            text-align: right;
+            box-shadow: none;
+
+            a {
+                display: inline-block;
+                color: $color-post-share-text;
+                opacity: 0.5;
+                transition: opacity .3s linear;
+
+                &:hover {
+                    opacity: 1;
+                }
+
+                i {
+                    font-size: 1.1em;
+                    display: inline-block;
+                    vertical-align: top;
+                    &:before {
+                        margin: 0 0 0 5px;
+                    }
+                    &.crt-icon-twitter {
+                        font-size: 1.1em;
+                        margin-top: 0em;
+                    }
+                }
+            }
+        }
+    }
+
     .crt-image {
         .crt-image-carousel {
             position: absolute;

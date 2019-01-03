@@ -1,10 +1,10 @@
 
-let ConfigWidgetBase = {
+let base = {
     apiEndpoint: 'https://api.curator.io/v1.1',
     feedId:'',
     postsPerPage:12,
     maxPosts:0,
-    templatePost:'post-v2',
+    templatePost:'post-general',
     templatePopup:'popup',
     templatePopupWrapper:'popup-wrapper',
     templateFilter:'filter',
@@ -18,4 +18,4 @@ let ConfigWidgetBase = {
     }
 };
 
-export default ConfigWidgetBase;
+export default base;

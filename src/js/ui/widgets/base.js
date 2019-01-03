@@ -1,16 +1,16 @@
-import CommonUtils from '../utils/common';
-import Logger from '../core/logger';
-import HtmlUtils from '../utils/html';
-import Feed from '../core/feed';
-import ajax from '../core/ajax';
-import Events from '../core/events';
-import Post from '../ui/post/base';
-import Filter from '../ui/filter';
-import PopupManager from '../ui/popup_manager';
-import z from '../core/lib';
-import translate from '../core/translate';
-import Globals from '../core/globals';
-import Control from '../ui/controls/control';
+import CommonUtils from '../../utils/common';
+import Logger from '../../core/logger';
+import HtmlUtils from '../../utils/html';
+import Feed from '../../core/feed';
+import ajax from '../../core/ajax';
+import Events from '../../core/events';
+import Post from '../post/base';
+import Filter from '../filter';
+import PopupManager from '../popup_manager';
+import z from '../../core/lib';
+import translate from '../../core/translate';
+import Globals from '../../core/globals';
+import Control from '../controls/control';
 
 class Widget extends Control {
 
@@ -22,17 +22,18 @@ class Widget extends Control {
         this.id = CommonUtils.uId();
         this.feed = null;
         this.$container = null;
+        this.options = {};
     }
 
-    init (options, defaults) {
+    setOptions (options, defaults) {
         if (!options) {
             Logger.error('options missing');
             return false;
         }
 
-        this.options = z.extend(true,{}, defaults, options);
+        this.options = z.extend(true, {}, defaults, options);
 
-        if(!options.container) {
+        if(!this.options.container) {
             Logger.error('options.container missing');
             return false;
         }
@@ -40,19 +41,10 @@ class Widget extends Control {
         if (!HtmlUtils.checkContainer(this.options.container)) {
             return false;
         }
-        this.$container = z(this.options.container);
+        this.$container = z(options.container);
 
         if (!this.options.feedId) {
             Logger.error('options.feedId missing');
-        }
-
-        this.$container.addClass('crt-feed');
-        this.$container.addClass('crt-feed-container');
-
-        if (HtmlUtils.isTouch()) {
-            this.$container.addClass('crt-touch');
-        } else {
-            this.$container.addClass('crt-no-touch');
         }
 
         // get inline options
@@ -75,6 +67,20 @@ class Widget extends Control {
 
         Logger.log ('Setting language to: '+this.options.lang);
         translate.setLang(this.options.lang);
+    }
+
+    init (options, defaults) {
+
+        this.setOptions(options, defaults);
+
+        this.$container.addClass('crt-feed');
+        this.$container.addClass('crt-feed-container');
+
+        if (HtmlUtils.isTouch()) {
+            this.$container.addClass('crt-touch');
+        } else {
+            this.$container.addClass('crt-no-touch');
+        }
 
         this.checkPoweredBy ();
         this.createFeed();
@@ -94,7 +100,6 @@ class Widget extends Control {
     }
 
     updateResponsiveOptions () {
-        // console.log('updateResponsiveOptions');
         if (!this.options.responsive) {
             this.responsiveOptions = z.extend(true, {}, this.options);
             return;
@@ -123,6 +128,30 @@ class Widget extends Control {
             // console.log('CHANGING RESPONSIVE SETTINGS '+foundKey);
             this.responsiveKey = foundKey;
             this.responsiveOptions = z.extend(true, {}, this.options, this.options.responsive[foundKey]);
+        }
+    }
+
+    config(path, defaultValue) {
+        if (path.indexOf('.')>0) {
+            // let pathParts = path.split('.');
+            // window.console.log(pathParts);
+            // throw new Error('NOT IMPLEMENTED');
+            path = path.split('.');
+            var current = this.options;
+            while(path.length) {
+                if(typeof current !== 'object') {
+                    return defaultValue || null;
+                }
+                current = current[path.shift()];
+            }
+            return current;
+        } else {
+            let r = this.responsiveOptions[path];
+            if (r === undefined) {
+                return defaultValue || null;
+            } else {
+                return r;
+            }
         }
     }
 
@@ -162,7 +191,7 @@ class Widget extends Control {
     }
 
     createPostElement (postJson) {
-        let post = new Post(postJson, this.options, this);
+        let post = new Post(this, postJson, this.options);
         post.on(Events.POST_CLICK,this.onPostClick.bind(this));
         post.on(Events.POST_CLICK_READ_MORE,this.onPostClickReadMore.bind(this));
         post.on(Events.POST_IMAGE_LOADED, this.onPostImageLoaded.bind(this));

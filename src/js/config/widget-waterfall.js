@@ -1,11 +1,9 @@
-
-
-import base from './widget_base';
+import base from './widget-base';
 import z from '../core/lib';
 
 let config = z.extend({}, base, {
-    templatePost:'waterfall-post',
-    templateFeed:'waterfall-feed',
+    templatePost:'post-general',
+    templateWidget:'widget-waterfall',
     colGutter: 0,
     colWidth: 300,
     showLoadMore:true,

@@ -1,58 +1,43 @@
 
 
-import popupWrapperTemplate from './general/popup_wrapper';
-import popupTemplate from './general/popup';
+import popupWrapper from './general/popup_wrapper';
+import popup from './general/popup';
 
-import filterTemplate from './general/filter';
+import filter from './general/filter';
 
-import gridPost from "./grid/post";
-import gridFeed from "./grid/feed";
-import gridPostMinimal from "./grid/post-minimal";
-import gridPostRetro from "./grid/post-retro";
+import postGrid from "./post/grid";
+import postGridMinimal from "./post/grid-minimal";
+import postGridRetro from "./post/grid-retro";
+import postGeneral from "./post/general";
+import postGeneralMalibu from "./post/general-malibu";
+import postGeneralRetro from "./post/general-retro";
 
-import listFeed from "./list/feed";
-import listPost from "./list/post";
-
-import waterfallFeed from "./waterfall/feed";
-import waterfallPost from "./waterfall/post";
-import waterfallPostMalibu from "./waterfall/post-malibu";
-import waterfallPostRetro from "./waterfall/post-retro";
-
-import carouselPost from "./carousel/post";
-import carouselFeed from "./carousel/feed";
-
-import gridCarouselPost from "./grid-carousel/post";
-import gridCarouselFeed from "./grid-carousel/feed";
+import widgetCarousel from "./widgets/carousel";
+import widgetWaterfall from "./widgets/waterfall";
+import widgetGrid from "./widgets/grid";
+import widgetGridCarousel from "./widgets/grid-carousel";
+import widgetList from "./widgets/list";
 
 let Templates = {
     // General
-    'filter'                : filterTemplate,
-    'popup'                 : popupTemplate,
-    'popup-wrapper'         : popupWrapperTemplate,
+    'filter'                : filter,
+    'popup'                 : popup,
+    'popup-wrapper'         : popupWrapper,
 
-    // Waterfall
-    'waterfall-feed'        : waterfallFeed,
-    'waterfall-post'        : waterfallPost,
-    'waterfall-post-malibu' : waterfallPostMalibu,
-    'waterfall-post-retro'       : waterfallPostRetro,
+    // Post
+    'post-general'          : postGeneral,
+    'post-general-retro'    : postGeneralRetro,
+    'post-general-malibu'   : postGeneralMalibu,
+    'post-grid'             : postGrid,
+    'post-grid-minimal'       : postGridMinimal,
+    'post-grid-retro'       : postGridRetro,
 
-    // Carousel
-    'carousel-post'         : carouselPost,
-    'carousel-feed'         : carouselFeed,
-
-    // Gid
-    'grid-feed'             : gridFeed,
-    'grid-post'             : gridPost,
-    'grid-post-minimal'     : gridPostMinimal,
-    'grid-post-retro'       : gridPostRetro,
-
-    // List
-    'list-feed'             : listFeed,
-    'list-post'             : listPost,
-
-    // Grid Carousel
-    'grid-carousel-post'    : gridCarouselPost,
-    'grid-carousel-feed'    : gridCarouselFeed
+    // Widgets
+    'widget-carousel'       : widgetCarousel,
+    'widget-waterfall'      : widgetWaterfall,
+    'widget-grid'           : widgetGrid,
+    'widget-grid-carousel'  : widgetGridCarousel,
+    'widget-list'           : widgetList,
 };
 
 export default Templates;

@@ -8,14 +8,14 @@ import Control from '../controls/control';
 
 
 class Base extends Control {
-    constructor (postJson, options, widget) {
+    constructor (widget, postJson, options) {
         super();
 
         this.options = options;
         this.widget = widget;
 
         this.json = postJson;
-        this.templateId = this.widget.options.templatePost;
+        this.templateId = this.widget.config('templatePost');
 
         this.render ();
 
@@ -56,6 +56,10 @@ class Base extends Control {
         if (this.json.images && this.json.images.length > 0) {
             this.$el.addClass('crt-has-image-carousel');
         }
+
+        let margin = this.widget.config('post.margin', '10px');
+        this.$el.css('margin-left', margin);
+        this.$el.css('margin-right', margin);
     }
 
     onShareFacebookClick () {
@@ -75,9 +79,6 @@ class Base extends Control {
 
         let target = z(ev.target);
 
-        // console.log(target[0].className.indexOf('read-more'));
-        // console.log(target.attr('href'));
-
         if (target[0] && target[0].className.indexOf('read-more') > 0) {
             // ignore read more clicks
             return;
@@ -92,7 +93,7 @@ class Base extends Control {
 
     }
 
-    onReadMoreClick () {
+    onReadMoreClick (ev) {
         this.widget.track('click:read-more');
         this.trigger(Events.POST_CLICK_READ_MORE, this, this.json, ev);
     }

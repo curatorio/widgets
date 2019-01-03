@@ -1,21 +1,10 @@
 
 import Widget from './base';
-import Logger from '../core/logger';
-import Events from '../core/events';
-import ConfigWidgetBase from '../config/widget_base';
-import LayoutCarousel from '../ui/layout/carousel';
-import LayoutCarouselPane from '../ui/layout/carousel-pane';
-import z from '../core/lib';
-
-let config = z.extend({}, ConfigWidgetBase, {
-    autoPlay:true,
-    autoLoad:true,
-    infinite:false,
-    matchHeights:false,
-    templatePost:'carousel-post',
-    templateFeed:'carousel-feed',
-});
-
+import Logger from '../../core/logger';
+import Events from '../../core/events';
+import config from '../../config/widget-carousel';
+import LayoutCarousel from '../layout/carousel';
+import LayoutCarouselPane from '../layout/carousel-pane';
 
 class Carousel extends Widget {
 
@@ -29,7 +18,7 @@ class Carousel extends Widget {
 
             this.allLoaded = false;
 
-            this.templateId = this.options.templateFeed;
+            this.templateId = this.options.templateWidget;
             this.render();
 
             this.$el.appendTo(this.$container);

@@ -49,5 +49,19 @@
     "dependencies": {
         "resize-observer-polyfill": "^1.5.0",
         "jquery": "*"
+    },
+    "jshintConfig": {
+        "esversion": 6,
+        "undef": true,
+        "unused": false,
+        "multistr": true,
+        "scripturl": false,
+        "predef": [
+            "window",
+            "document",
+            "require",
+            "define",
+            "module"
+        ]
     }
 }

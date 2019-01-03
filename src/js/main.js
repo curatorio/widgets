@@ -17,12 +17,12 @@ import Events from './core/events';
 import z from './core/lib';
 import translate from './core/translate';
 
-import Waterfall from './widgets/waterfall';
-import List from './widgets/list';
-import Grid from './widgets/grid';
-import GridCarousel from './widgets/grid-carousel';
-import Carousel from './widgets/carousel';
-import Panel from './widgets/panel';
+import Waterfall from './ui/widgets/waterfall';
+import List from './ui/widgets/list';
+import Grid from './ui/widgets/grid';
+import GridCarousel from './ui/widgets/grid-carousel';
+import Carousel from './ui/widgets/carousel';
+import Panel from './ui/widgets/panel';
 
 let findContainer = function (config) {
     // find with data-crt-feed-id
