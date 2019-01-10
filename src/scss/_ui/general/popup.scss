@@ -272,12 +272,20 @@ body {
                 position: absolute;
                 left: 105px;
                 top: 11px;
-                right: 3px;
+                right: 15px;
                 font-size:  $font-size-post-header-text;
                 line-height:  $line-height-post-header-text;
 
                 white-space: nowrap;
                 text-overflow: ellipsis;
+                overflow: hidden;
+
+                //span {
+                //    overflow: hidden;
+                //    white-space: nowrap;
+                //    text-overflow: ellipsis;
+                //    display: block;
+                //}
             }
         }
 
