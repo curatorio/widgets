@@ -55,7 +55,8 @@ let Templating = {
                         .replace(/'(?=[^%]*%>)/g, "\t")
                         .split("'").join("\\'")
                         .split("\t").join("'")
-                        .replace(/<%=(.+?)%>/g, "',$1,'")
+                        .replace(/<%=(.+?)%>/g, "',this._s($1),'")
+                        .replace(/<!=(.+?)!>/g, "',$1,'")
                         .split("<%").join("');")
                         .split("%>").join("p.push('");
 

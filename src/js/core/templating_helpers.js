@@ -3,8 +3,6 @@ import DateUtils from '../utils/date';
 import StringUtils from '../utils/string';
 import translate from './translate';
 
-let options = {};
-
 let helpers = {
     get (id, defaultValue = '') {
         let r = defaultValue;
@@ -58,6 +56,7 @@ let helpers = {
     },
 
     parseText (s) {
+        s = StringUtils.removeScripts(s);
         if (this.data.is_html) {
             return s;
         } else {
@@ -107,9 +106,17 @@ let helpers = {
         let url = this.data.url;
         let created_at = this.data.source_created_at;
         if (url) {
-            return '<a href="'+url+'" target="_blank">'+helpers.prettyDate(created_at)+'</a>';
+            return '<a href="' + url + '" target="_blank">' + helpers.prettyDate(created_at) + '</a>';
         } else {
             return helpers.prettyDate(created_at);
+        }
+    },
+
+    _s (s) {
+        if (typeof s === 'string') {
+            return StringUtils.removeScripts(s);
+        } else {
+            return s;
         }
     }
 };
