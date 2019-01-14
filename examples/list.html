@@ -8,6 +8,13 @@
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" />
     <link href="css/example.css" rel="stylesheet" />
     <link href="../dist/css/curator.css" rel="stylesheet" />
+
+    <style type="text/css">
+        #curator-feed {
+            margin: 0 50px;
+            width: auto;
+        }
+    </style>
 </head>
 <body>
 
@@ -24,38 +31,24 @@
         Curator.Logger.debug = true;
 
         // Change FEED_ID to your unique FEED_ID
-        window.widget = new Curator.Widgets.Waterfall({
+        window.widget = new Curator.Widgets.List({
             container: '#curator-feed',
             feedId:'8558f0f9-043f-4bd9-bad1-037cf10a',
-            post : {
-                showShare: false,
-                autoPlayVideos: true,
-                showComments : false,
-                showLikes : true,
-            },
-
-            filter : {
-                showNetworks: true
-            },
-
-            popup : {
-                autoPlayVideos: false
-            }
         });
 
-        widget.setStyles({
-            widget : {
-                padding: '0 10px',
-                backgroundColor:'#ff00ff'
-            },
-            post: {
-                margin: '0 10px 20px',
-                border: '0px solid black',
-                borderRadius : '0',
-                overflow : 'hidden',
-                backgroundColor:'#ffffff'
-            }
-        });
+        // widget.setStyles({
+        //     widget : {
+        //         padding: '0 10px',
+        //         backgroundColor:'#ff00ff'
+        //     },
+        //     post: {
+        //         margin: '0 10px 20px',
+        //         border: '0px solid black',
+        //         borderRadius : '0',
+        //         overflow : 'hidden',
+        //         backgroundColor:'#ffffff'
+        //     }
+        // });
     </script>
     <script type="text/javascript" src="js/example.js"></script>
 

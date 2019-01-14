@@ -2,13 +2,14 @@ import base from './widget-base';
 import z from '../core/lib';
 
 let config = z.extend(true, {}, base, {
-    templateWidget:'widget-list',
-    animate:false,
     post: {
         template: 'post-list',
     },
-    list: {
+    widget : {
+        template:'widget-list',
+        animate:false,
         showLoadMore:true,
+        continuousScroll:false,
     }
 });
 

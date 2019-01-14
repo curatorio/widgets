@@ -6,6 +6,7 @@ import z from '../core/lib';
 import CommonUtils from "../utils/common";
 import VideoPlayer from "./controls/video-player";
 import Control from './controls/control';
+import ResizeObserver from 'resize-observer-polyfill/dist/ResizeObserver.es';
 
 class Popup extends Control {
     
@@ -59,6 +60,10 @@ class Popup extends Control {
                 this.videoPlayer.on('state:changed', (event, playing) => {
                     this.$el.toggleClass('video-playing', playing );
                 });
+
+                if (this.widget.config('popup.autoPlayVideos',false)) {
+                    this.videoPlayer.play();
+                }
             }
         }
 
@@ -72,10 +77,29 @@ class Popup extends Control {
             this.currentImage = 0;
             this.$page.find('li:nth-child('+(this.currentImage+1)+')').addClass('selected');
         }
-
-        z(window).on('resize.crt-popup', CommonUtils.debounce(this.onResize.bind(this),50));
-
         this.onResize ();
+
+        this.createHandlers();
+    }
+
+    createHandlers () {
+        this._resize = CommonUtils.debounce(this.onResize.bind(this), 100);
+
+        this.ro = new ResizeObserver((entries) => {
+            if (entries.length > 0) {
+                // let entry = entries[0];
+                this._resize();
+            }
+        });
+
+        this.ro.observe(z('body')[0]);
+    }
+
+    destroyHandlers () {
+        if (this.ro) {
+            this.ro.disconnect();
+            this.ro = null;
+        }
     }
 
     onResize () {

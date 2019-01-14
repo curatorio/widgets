@@ -1,20 +1,20 @@
 
 
 const template = `
-<div class="crt-list-post crt-post-<%=id%> <%=this.contentImageClasses()%> <%=this.contentTextClasses()%>" data-post="<%=id%>"> \
-    <div class="crt-post-c"> 
+<div class="crt-list-post crt-post-<%=id%> <%=this.contentImageClasses()%> <%=this.contentTextClasses()%>" data-post="<%=id%>"> 
+    <div class="crt-post-c" ref="postC"> 
         <div class="crt-post-content"> 
             <div class="crt-list-post-image">
-                <div>
-                <img class="crt-post-content-image" src="<%=image%>" alt="Image posted by <%=user_screen_name%> to <%=this.networkName()%>" /> 
-                <a href="javascript:;" class="crt-play"><i class="crt-play-icon"></i></a> 
-                <span class="crt-social-icon crt-social-icon-normal"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> 
-                <span class="crt-image-carousel"><i class="crt-icon-image-carousel"></i></span>
+                <div ref="imageContainer">
+                    <img class="crt-post-content-image" src="<%=image%>" ref="image" alt="Image posted by <%=user_screen_name%> to <%=this.networkName()%>" /> 
+                    <a href="javascript:;" class="crt-play"><i class="crt-play-icon"></i></a> 
+                    <span class="crt-social-icon crt-social-icon-normal"><i class="crt-icon-<%=this.networkIcon()%>"></i></span> 
+                    <span class="crt-image-carousel"><i class="crt-icon-image-carousel"></i></span>
                 </div> 
             </div>
             <div class="crt-list-post-text">
                 <div class="crt-post-header"> 
-                    <div class="crt-post-fullname"><%=id%> - <a href="<%=this.userUrl()%>" target="_blank"><%=user_full_name%></a></div>
+                    <div class="crt-post-fullname"><a href="<%=this.userUrl()%>" target="_blank"><%=user_full_name%></a></div>
                 </div> 
                 <div class="crt-list-post-text-wrap"> 
                     <div><%=this.parseText(text)%></div> 

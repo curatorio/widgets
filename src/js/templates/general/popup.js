@@ -12,7 +12,7 @@ const template = `
                 <source src="<%=video%>" type="video/mp4">
                 </video>
                 <img src="<%=image%>" alt="Image posted by <%=this.userScreenName()%> to <%=this.networkName()%>" />
-                <ac rt-click="onPlay" class="crt-play"><i class="crt-play-icon"></i></a> 
+                <a c-on:click="onPlay" class="crt-play"><i class="crt-play-icon"></i></a> 
             </div> 
         </div> 
         <div class="crt-image"> 

@@ -34,6 +34,11 @@ class Grid extends Widget {
             this.templateId = this.config('templateWidget');
             this.render ();
 
+            if (this.config('minWidth') < 100) {
+                console.log(this.options.minWidth);
+                this.options.minWidth = 100;
+            }
+
             this.$container.append(this.$el);
             this.$scroller = z(window);
 
@@ -74,8 +79,6 @@ class Grid extends Widget {
         this.ro.observe(this.$container[0]);
 
         z(window).on('curatorCssLoaded.'+id, this._resize.bind(this));
-
-        z(document).on('ready.'+id, this._resize.bind(this));
 
         if (this.config('continuousScroll')) {
             z(window).on('scroll.'+id, CommonUtils.debounce(() => {

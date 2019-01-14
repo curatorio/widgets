@@ -20,11 +20,9 @@ const template = `
                 <%=this.parseText(text)%> 
             </div> 
         </div> 
-        <% if (options.showComments || options.showLikes) { %>
-            <div class="crt-comments-likes">
-                <% if (options.showLikes) { %><span><%=likes%></span> <%=this._t("likes", likes)%><% } %><% if (options.showComments && options.showLikes) { %> <span class="crt-sep"></span> <% } %><% if (options.showComments) { %><span><%=comments%></span> <%=this._t("comments", comments)%><% } %>
-            </div>
-        <% } %>
+        <div class="crt-comments-likes">
+            <span class="crt-likes"><%=likes%> <span><%=this._t("likes", likes)%></span></span>  <span class="crt-sep"></span> <span class="crt-comments"><%=comments%> <span><%=this._t("comments", comments)%></span></span> 
+        </div>
         <div class="crt-post-footer"> 
             <img class="crt-post-userimage" src="<%=user_image%>" alt="Profile image for <%=user_screen_name%>" /> 
             <span class="crt-post-username"><a href="<%=this.userUrl()%>" target="_blank"><%=this.userScreenName()%></a></span>

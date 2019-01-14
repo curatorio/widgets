@@ -5,7 +5,7 @@ const template = `
 <div class="crt-feed-window" ref="feedWindow">
     <div class="crt-feed" ref="feed"></div>
 </div>
-<div class="crt-load-more-container" ref="loadMore"><a c-on:click="onMoreClick" class="crt-load-more"><span><%=this._t("load-more")%></span></a></div>
+<div class="crt-load-more-container" ref="loadMore"><button c-on:click="onMoreClick" class="crt-load-more"><span><%=this._t("load-more")%></span></button></div>
 </div>
 `;
 

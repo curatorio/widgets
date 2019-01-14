@@ -58,11 +58,13 @@ class Base extends Control {
             if (this.json.video.indexOf('youtu') === -1 && this.json.video.indexOf('vimeo') === -1 ) {
                 // Normal video - not YouTube or Vimeo
                 if (this.widget.config('post.autoPlayVideos')) {
-                    this.videoPlayer = new VideoPlayer(this.$refs.video);
-                    this.videoPlayer.on('state:changed', (event, playing) => {
-                        this.$el.toggleClass('crt-post-video-playing', playing);
-                    });
-                    this.videoPlayer.play();
+                    if (this.$refs.video) {
+                        this.videoPlayer = new VideoPlayer(this.$refs.video);
+                        this.videoPlayer.on('state:changed', (event, playing) => {
+                            this.$el.toggleClass('crt-post-video-playing', playing);
+                        });
+                        this.videoPlayer.play();
+                    }
                 }
             }
         }
@@ -71,6 +73,15 @@ class Base extends Control {
     setupCarousel () {
         if (this.json.images && this.json.images.length > 0) {
             this.$el.addClass('crt-has-image-carousel');
+        }
+    }
+
+    setupCommentsLikes () {
+        if (this.widget.config('post.showComments')) {
+            this.$el.addClass('crt-show-comments');
+        }
+        if (this.widget.config('post.showLikes')) {
+            this.$el.addClass('crt-show-likes');
         }
     }
 

@@ -3,6 +3,14 @@
 	padding: 5px;
 	text-align: center;
 
+	label, a {
+		color: $color-post-title;
+	}
+
+	label {
+		//text-transform: uppercase;
+	}
+
 	.crt-filter-networks,
 	.crt-filter-sources {
 		position: relative;
@@ -13,7 +21,6 @@
 			display: inline-block;
 			margin: 0;
 			padding: 0;
-			background-color: #efefef;
 
 			li {
 				display: inline-block;
@@ -24,12 +31,15 @@
 					text-decoration: none;
 					font-size: 1em;
 					line-height: 1.2em;
-					color: #707070;
+					//background-color: #efefef;
+					//padding: 10px;
+					margin-right: 5px;
+					border-radius: 20px;
 
 					transition: background-color 0.3s linear;
 
 					i {
-						margin-left: -5px;
+						//margin-left: -5px;
 						pointer-events: none
 					}
 

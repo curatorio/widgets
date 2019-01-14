@@ -21,6 +21,7 @@ let base = {
     popup : {
         template: 'popup',
         templateWrapper: 'popup-wrapper',
+        autoPlayVideos: false
     }
 };
 

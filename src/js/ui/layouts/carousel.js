@@ -5,6 +5,7 @@ import EventBus from '../../core/bus';
 import Logger from '../../core/logger';
 import Events from '../../core/events';
 import z from '../../core/lib';
+import ResizeObserver from 'resize-observer-polyfill/dist/ResizeObserver.es';
 
 const LayoutCarouselSettings = {
     infinite: false,
@@ -73,13 +74,25 @@ class LayoutCarousel extends EventBus {
     }
 
     createHandlers () {
-        z(window).on('resize.'+this.id, CommonUtils.debounce( () => {
+        this._resize = CommonUtils.debounce(() => {
             this.updateLayout ();
-        }, 100));
+        }, 100);
+
+        this.ro = new ResizeObserver((entries) => {
+            if (entries.length > 0) {
+                // let entry = entries[0];
+                this._resize();
+            }
+        });
+
+        this.ro.observe(this.$viewport[0]);
     }
 
     destroyHandlers () {
-        z(window).off('resize.'+this.id);
+        if (this.ro) {
+            this.ro.disconnect();
+            this.ro = null;
+        }
     }
 
     setPanesLength (panesLength) {

@@ -1,20 +1,15 @@
 
-
 .crt-load-more-container {
     text-align: center;
+}
 
-    a {
-        //width: 150px;
-        margin: 0 auto;
-        background-color: $color-primary;
-        color: $color-secondary;
-        display: inline-block;
-        text-align: center;
-        padding: 20px;
-        border-radius: 0;
-        //text-transform: uppercase;
-        text-decoration: none;
-        border: 1px solid $color-v2-post-border;
-        box-shadow: 0px 2px 30px $color-v2-post-shadow;
-    }
+button.crt-load-more {
+    background-color: $color-primary;
+    color: $color-secondary;
+    display: inline-block;
+    text-align: center;
+    padding: 20px 30px;
+    text-decoration: none;
+    border: 1px solid $color-v2-post-border;
+    box-shadow: 0px 2px 30px $color-v2-post-shadow;
 }

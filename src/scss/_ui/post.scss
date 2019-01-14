@@ -51,14 +51,23 @@
         //line-height: 40px;
         //border-top: 1px solid $color-v2-post-border;
         //background-color: transparent;
-        padding: 0 0 13px;
         font-size: .8em;
         text-transform: uppercase;
         text-align: center;
         color: #999;
+        padding: 0 0 13px;
+        display: none;
 
         span {
-            color: #000;
+            span {
+                color: #000;
+            }
+        }
+
+        .crt-sep,
+        .crt-comments,
+        .crt-likes {
+            display: none;
         }
     }
 
@@ -219,6 +228,32 @@
             margin-left: -10px;
 
             @include play(20px, 2px);
+        }
+    }
+
+    &.crt-show-comments {
+        .crt-comments-likes {
+            display: block;
+            .crt-comments {
+                display: inline-block;
+            }
+        }
+    }
+
+    &.crt-show-likes {
+        .crt-comments-likes {
+            display: block;
+            .crt-likes {
+                display: inline-block;
+            }
+        }
+    }
+
+    &.crt-show-comments {
+        &.crt-show-likes {
+            .crt-sep {
+                display: inline-block;
+            }
         }
     }
 

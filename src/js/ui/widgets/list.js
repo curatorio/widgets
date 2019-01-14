@@ -3,9 +3,9 @@ import Widget from './base';
 import Logger from '../../core/logger';
 import CommonUtils from '../../utils/common';
 import config from '../../config/widget-list';
-import TemplatingUtils from '../../core/templating';
 import z from '../../core/lib';
 import Events from "../../core/events";
+import ResizeObserver from 'resize-observer-polyfill/dist/ResizeObserver.es';
 
 class List extends Widget {
 
@@ -14,35 +14,22 @@ class List extends Widget {
 
         this.loading=false;
         this.feed=null;
-        this.$container=null;
-        this.$feed=null;
+        this.$refs.feed=null;
         this.posts=[];
-        //
-        // if ('scrollRestoration' in window.history) {
-        //     window.history.scrollRestoration = 'manual';
-        // }
 
         if (this.init (options,  config)) {
-            Logger.log("List->init with options:");
-            Logger.log(this.options);
+            Logger.log("List->init");
 
-            let tmpl = TemplatingUtils.renderTemplate(this.responsiveOptions.templateWidget, {});
-            this.$container.append(tmpl);
-            this.$feed = this.$container.find('.crt-feed');
-            this.$feedWindow = this.$container.find('.crt-feed-window');
-            this.$loadMore = this.$container.find('.crt-load-more a');
+            this.templateId = this.config('widget.template');
+            this.render();
+            this.$container.append(this.$el);
+
             this.$scroller = z(window);
 
-            this.$container.addClass('crt-list');
-            this.$container.addClass('crt-widget-list');
+            this.$el.addClass('crt-widget-list');
 
-            if (this.responsiveOptions.list.showLoadMore) {
-                this.$feedWindow.css({
-                    'position':'relative'
-                });
-                this.$loadMore.click(this.onMoreClicked.bind(this));
-            } else {
-                this.$loadMore.hide();
+            if (!this.config('widget.showLoadMore')) {
+                this.$refs.loadMore.hide();
             }
 
             this.createHandlers();
@@ -54,40 +41,45 @@ class List extends Widget {
 
     createHandlers () {
         let id = this.id;
-        let updateLayoutDebounced = CommonUtils.debounce( () => {
-            this.updateLayout ();
-        }, 100);
 
-        z(window).on('resize.'+id, CommonUtils.debounce(() => {
-            this.updateResponsiveOptions ();
-            this.updateLayout ();
-        }, 100));
+        this._resize = CommonUtils.debounce(this.updateLayout.bind(this));
+        this._checkScroll = CommonUtils.debounce(this.checkScroll.bind(this));
 
-        z(window).on('curatorCssLoaded.'+id, updateLayoutDebounced);
+        z(window).on('curatorCssLoaded.'+id, this._resize);
 
-        z(document).on('ready.'+id, updateLayoutDebounced);
+        z(document).on('ready.'+id, this._resize);
 
-        if (this.responsiveOptions.list.continuousScroll) {
-            z(window).on('scroll.'+id, CommonUtils.debounce(() => {
-                this.checkScroll();
-            }, 100));
+        if (this.config('widget.continuousScroll')) {
+            z(window).on('scroll.'+id, this._checkScroll.bind(this));
         }
 
         this.on(Events.FILTER_CHANGED, () => {
-            this.$feed.find('.crt-list-post').remove();
+            this.$refs.feed.find('.crt-list-post').remove();
         });
+
+        this.ro = new ResizeObserver((entries) => {
+            if (entries.length > 0) {
+                // let entry = entries[0];
+                this._resize();
+            }
+        });
+
+        this.ro.observe(this.$el[0]);
     }
 
     destroyHandlers () {
         let id = this.id;
-
-        z(window).off('resize.'+id);
 
         z(window).off('curatorCssLoaded.'+id);
 
         z(document).off('ready.'+id);
 
         z(window).off('scroll.'+id);
+
+        if (this.ro) {
+            this.ro.disconnect();
+            this.ro = null;
+        }
     }
 
     loadPosts () {
@@ -95,74 +87,14 @@ class List extends Widget {
     }
 
     updateLayout ( ) {
-        // Logger.log("List->updateLayout ");
-        let cols = Math.floor(this.$container.width()/this.responsiveOptions.list.minWidth);
-        cols = cols < 1 ? 1 : cols;
 
-        // set col layout
-        this.$container.removeClass('crt-list-col'+this.columnCount);
-        this.columnCount = cols;
-        this.$container.addClass('crt-list-col'+this.columnCount);
-
-        // figure out if we need more posts
-        let postsNeeded = cols *  (this.rowsMax + 1);
-        // console.log ('postNeeded '+postsNeeded);
-        // console.log ('this.feed.postsLoaded '+this.feed.postsLoaded);
-        if (postsNeeded > this.feed.postsLoaded && !this.feed.allPostsLoaded) {
-            let limit = postsNeeded - this.feed.postsLoaded;
-
-            let params = {
-                limit : limit
-            };
-
-            this.feed.loadMorePaginated(params);
-        } else {
-            this.updateHeight(false);
-        }
-    }
-
-    updateHeight (animate) {
-        animate = animate !== undefined || true;
-        let $post = this.$container.find('.crt-post-c').first();
-        let postHeight = $post.width();
-        let postMargin = parseInt($post.css("margin-left"));
-        postHeight += postMargin;
-
-        this.$feedWindow.css({'overflow':'hidden'});
-
-        let maxRows = Math.ceil(this.feed.postCount / this.columnCount);
-        let rows = this.rowsMax < maxRows ? this.rowsMax : maxRows;
-
-        // if (animate) {
-        //     this.$feedWindow.animate({height:rows * postHeight});
-        // } else {
-        let scrollTopOrig = this.$scroller.scrollTop();
-        // }
-
-        this.$feedWindow.height(rows * postHeight);
-        let scrollTopNew = this.$scroller.scrollTop();
-        // console.log(scrollTopOrig+":"+scrollTopNew);
-
-        if (scrollTopNew > scrollTopOrig+100) {
-            // chrome seems to lock scroll position relative to bottom - so scrollTop changes when we adjust height
-            // - let's reset
-            this.$scroller.scrollTop(scrollTopOrig);
-        }
-        if (this.responsiveOptions.list.showLoadMore) {
-            let postsVisible = this.columnCount * rows;
-            if (this.feed.allPostsLoaded && postsVisible >= this.feed.posts.length) {
-                this.$loadMore.hide();
-            } else {
-                this.$loadMore.show();
-            }
-        }
     }
 
     checkScroll () {
         Logger.log("List->checkScroll");
         // console.log('scroll');
-        let top = this.$container.offset().top;
-        let feedBottom = top+this.$feedWindow.height();
+        let top = this.$el.offset().top;
+        let feedBottom = top+this.$refs.feedWindow.height();
         let scrollTop = this.$scroller.scrollTop();
         let windowBottom = scrollTop+z(window).height();
         let diff = windowBottom - feedBottom;
@@ -193,7 +125,7 @@ class List extends Widget {
             for (let postJson of posts) {
                 let post = this.createPostElement(postJson);
                 this.postElements.push(post);
-                this.$feed.append(post.$el);
+                this.$refs.feed.append(post.$el);
                 post.layout();
 
                 if (this.responsiveOptions.animate) {
@@ -205,45 +137,36 @@ class List extends Widget {
 
             this.popupManager.setPosts(posts);
 
-            if (this.responsiveOptions.list.showLoadMore) {
+            if (this.config('widget.showLoadMore')) {
                 if (this.feed.allPostsLoaded) {
-                    this.$loadMore.hide();
+                    this.$refs.loadMore.hide();
                 } else {
-                    this.$loadMore.show();
+                    this.$refs.loadMore.show();
                 }
             } else {
-                this.$loadMore.hide();
+                this.$refs.loadMore.hide();
             }
         }
     }
 
-    onMoreClicked (ev) {
-        ev.preventDefault();
-
+    onMoreClick () {
         this.feed.loadMorePaginated();
     }
 
     destroy () {
         super.destroy();
 
-        this.feed.destroy();
-
         this.destroyHandlers();
 
-        this.$container.empty()
-            .removeClass('crt-list')
+        this.$el.empty()
             .removeClass('crt-widget-list')
             .removeClass('crt-list-col'+this.columnCount)
             .css({'height':'','overflow':''});
 
-        delete this.$feed;
-        delete this.$container;
-        delete this.options ;
         delete this.loading;
 
         // TODO add code to cascade destroy down to Posts
         // unregistering events etc
-        delete this.feed;
     }
 
 }

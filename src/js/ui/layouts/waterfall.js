@@ -78,8 +78,8 @@ class LayoutWaterfall {
 
         if (this.ro) {
             this.ro.disconnect();
+            this.ro = null;
         }
-
     }
 
     redraw () {

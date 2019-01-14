@@ -11,6 +11,7 @@ import postGridRetro from "./post/grid-retro";
 import postGeneral from "./post/general";
 import postGeneralMalibu from "./post/general-malibu";
 import postGeneralRetro from "./post/general-retro";
+import postList from "./post/list";
 
 import widgetCarousel from "./widgets/carousel";
 import widgetWaterfall from "./widgets/waterfall";
@@ -29,8 +30,9 @@ let Templates = {
     'post-general-retro'    : postGeneralRetro,
     'post-general-malibu'   : postGeneralMalibu,
     'post-grid'             : postGrid,
-    'post-grid-minimal'       : postGridMinimal,
+    'post-grid-minimal'     : postGridMinimal,
     'post-grid-retro'       : postGridRetro,
+    'post-list'             : postList,
 
     // Widgets
     'widget-carousel'       : widgetCarousel,
