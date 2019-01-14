@@ -3,8 +3,6 @@ import DateUtils from '../utils/date';
 import StringUtils from '../utils/string';
 import translate from './translate';
 
-let options = {};
-
 let helpers = {
     get (id, defaultValue = '') {
         let r = defaultValue;
@@ -58,6 +56,7 @@ let helpers = {
     },
 
     parseText (s) {
+        s = StringUtils.removeScripts(s);
         if (this.data.is_html) {
             return s;
         } else {
@@ -101,6 +100,14 @@ let helpers = {
 
     _t (s, n) {
         return translate.t (s, n);
+    },
+
+    _s (s) {
+        if (typeof s === 'string') {
+            return StringUtils.removeScripts(s);
+        } else {
+            return s;
+        }
     }
 };
 

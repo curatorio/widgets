@@ -51,6 +51,16 @@ let StringUtils = {
         return s;
     },
 
+    removeScripts (s, replace)
+    {
+        replace = replace || '';
+        s = s.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, function() {
+            return replace;
+        });
+
+        return s;
+    },
+
     linksToHref (s)
     {
         s = s.replace(/[A-Za-z]+:\/\/[A-Za-z0-9-_]+\.[A-Za-z0-9-_:%&~\?\/.=]+[A-Za-z0-9-_:%&~\?\/=]+/g, function(url) {
