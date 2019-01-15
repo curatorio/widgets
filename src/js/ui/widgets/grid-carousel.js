@@ -73,9 +73,9 @@ class GridCarousel extends Widget {
     }
 
     createPostElement (postJson) {
-        let post = new GridPost(this, postJson, this.options);
-        post.on(Events.POST_CLICK,this.onPostClick.bind(this));
-        post.on(Events.POST_CLICK_READ_MORE,this.onPostClickReadMore.bind(this));
+        let post = new GridPost(this, postJson);
+        post.on(Events.POST_CLICK, this.onPostClick.bind(this));
+        post.on(Events.POST_CLICK_READ_MORE, this.onPostClickReadMore.bind(this));
         post.on(Events.POST_IMAGE_LOADED, this.onPostImageLoaded.bind(this));
 
         this.trigger(Events.POST_CREATED, post);
@@ -121,20 +121,14 @@ class GridCarousel extends Widget {
     destroy  () {
         super.destroy();
 
-        this.feed.destroy();
-
-        this.carousel.off(Events.CAROUSEL_CHANGED, this.onCarouselChange.bind(this));
         this.carousel.destroy();
+        delete this.carousel;
 
-        this.$feed.remove();
-        this.$container.removeClass('crt-widget-carousel');
+        this.$container.removeClass('crt-widget-grid-carousel');
 
-        delete this.$feed;
+        this.$el.remove();
+
         delete this.$container;
-
-        // TODO add code to cascade destroy down to Feed & Posts
-        // unregistering events etc
-        delete this.feed;
     }
 }
 

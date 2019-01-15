@@ -1,7 +1,6 @@
 import CommonUtils from '../../utils/common';
 import Logger from '../../core/logger';
 import HtmlUtils from '../../utils/html';
-import Feed from '../../core/feed';
 import ajax from '../../core/ajax';
 import Events from '../../core/events';
 import Post from '../posts/general';
@@ -11,6 +10,7 @@ import z from '../../core/lib';
 import translate from '../../core/translate';
 import Globals from '../../core/globals';
 import Control from '../controls/control';
+import FeedCursor from "../../core/feed-cursor";
 // import objectAssign from 'object-assign-deep';
 
 class Widget extends Control {
@@ -24,6 +24,8 @@ class Widget extends Control {
         this.feed = null;
         this.$container = null;
         this.options = {};
+        this.autoLoadTimeout = null;
+        this.autoLoading = false;
     }
 
     setOptions (options, defaults) {
@@ -113,13 +115,9 @@ class Widget extends Control {
         this.addStyle(this.sheet, styles.postText, '.crt-widget .crt-post-content-text');
     }
 
-    camelToDash (s){
-        return s.replace(/([A-Z])/g, function($1, p1, pos){return (pos > 0 ? "-" : "") + $1.toLowerCase();});
-    }
-
     addStyle(sheet, stylesObj, className) {
         if (stylesObj) {
-            console.log('Found style for '+className);
+            // console.log('Found style for '+className);
             let rules = [];
             for (let key in stylesObj) {
                 if (stylesObj.hasOwnProperty(key)) {
@@ -132,6 +130,10 @@ class Widget extends Control {
                 HtmlUtils.addCSSRule(sheet, className, rules.join(';'));
             }
         }
+    }
+
+    camelToDash (s){
+        return s.replace(/([A-Z])/g, function($1, p1, pos){return (pos > 0 ? "-" : "") + $1.toLowerCase();});
     }
 
     updateResponsiveOptions () {
@@ -191,7 +193,7 @@ class Widget extends Control {
     }
 
     createFeed () {
-        this.feed = new Feed (this);
+        this.feed = new FeedCursor(this);
         this.feed.on(Events.POSTS_LOADED, this.onPostsLoaded.bind(this));
         this.feed.on(Events.POSTS_FAILED, this.onPostsFail.bind(this));
         this.feed.on(Events.FEED_LOADED, this.onFeedLoaded.bind(this));
@@ -227,9 +229,9 @@ class Widget extends Control {
     }
 
     createPostElement (postJson) {
-        let post = new Post(this, postJson, this.options);
-        post.on(Events.POST_CLICK,this.onPostClick.bind(this));
-        post.on(Events.POST_CLICK_READ_MORE,this.onPostClickReadMore.bind(this));
+        let post = new Post(this, postJson);
+        post.on(Events.POST_CLICK, this.onPostClick.bind(this));
+        post.on(Events.POST_CLICK_READ_MORE, this.onPostClickReadMore.bind(this));
         post.on(Events.POST_IMAGE_LOADED, this.onPostImageLoaded.bind(this));
 
         this.trigger(Events.POST_CREATED, post);
@@ -324,6 +326,27 @@ class Widget extends Control {
         this.hasPoweredBy = html.indexOf('Powered by Curator.io') > -1;
     }
 
+    startAutoLoad () {
+        Logger.log('Widget->startAutoLoad');
+
+        this.autoLoading = true;
+        this.autoLoadTimeout = window.setTimeout(this.onAutoLoadFire.bind(this), 1000 * 30);
+    }
+
+    stopAutoLoad () {
+        Logger.log('Widget->stopAutoLoad');
+        this.autoLoading = false;
+        window.clearTimeout(this.autoLoadTimeout);
+    }
+
+    onAutoLoadFire () {
+        Logger.log('Widget->onAutoLoadFire');
+
+        this.feed.loadBefore();
+
+        this.autoLoadTimeout = window.setTimeout(this.onAutoLoadFire.bind(this), 1000 * 30);
+    }
+
     destroy () {
         Logger.log('Widget->destroy');
 
@@ -331,16 +354,21 @@ class Widget extends Control {
 
         if (this.feed) {
             this.feed.destroy();
+            delete this.feed;
         }
         if (this.filter) {
             this.filter.destroy();
+            delete this.filter;
         }
         if (this.popupManager) {
             this.popupManager.destroy();
+            delete this.popupManager;
         }
+
         this.$container.removeClass('crt-widget');
         this.$container.removeClass('crt-widget-unbranded');
         this.$container.removeClass('crt-widget-branded');
+        this.$container.removeClass('crt-no-touch');
     }
 }
 

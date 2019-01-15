@@ -2,10 +2,10 @@
 import Base from './base';
 import Events from '../../core/events';
 
-class Post extends Base {
+class GridPost extends Base {
 
-    constructor (widget, postJson, options) {
-        super(widget, postJson, options);
+    constructor (widget, postJson) {
+        super(widget, postJson);
 
         this.$refs = {
             spacer:null,
@@ -24,25 +24,19 @@ class Post extends Base {
         this.setupShare ();
     }
 
-    setHeight () {
-        let height = this.$refs.postC.height();
-        if (this.options.maxHeight && this.options.maxHeight > 0 && height > this.options.maxHeight) {
-            this.$refs.postC.css({maxHeight: this.options.maxHeight});
-            this.$el.addClass('crt-post-max-height');
-        }
-
-        this.layout();
+    getHeight () {
+        // let $pane = z(this.$panes[i]);
+        let contentHeight = this.$el.find('.crt-post-content').height();
+        let footerHeight = this.$el.find('.crt-post-footer').height();
+        return contentHeight + footerHeight + 2;
     }
 
-    getHeight () {
-        if (this.$el.hasClass('crt-post-max-height')) {
-            return this.$refs.postC.height();
-        } else {
-            // let $pane = z(this.$panes[i]);
-            let contentHeight = this.$el.find('.crt-post-content').height();
-            let footerHeight = this.$el.find('.crt-post-footer').height();
-            return contentHeight + footerHeight + 2;
-        }
+    showAnim (i) {
+        this.$el.css({opacity: 0});
+
+        window.setTimeout (() => {
+            this.$el.animate({opacity: 1});
+        }, i * 100);
     }
 
     rafTick () {
@@ -85,4 +79,4 @@ class Post extends Base {
     }
 }
 
-export default Post;
+export default GridPost;

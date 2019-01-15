@@ -8,11 +8,10 @@ import Control from '../controls/control';
 import VideoPlayer from "../controls/video-player";
 
 
-class Base extends Control {
-    constructor (widget, postJson, options) {
+class BasePost extends Control {
+    constructor (widget, postJson) {
         super();
 
-        this.options = options;
         this.widget = widget;
         this.json = postJson;
         this.templateId = this.widget.config('post.template');
@@ -96,4 +95,4 @@ class Base extends Control {
     }
 }
 
-export default Base;
+export default BasePost;

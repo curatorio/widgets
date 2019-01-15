@@ -76,26 +76,20 @@ class Panel extends Widget {
 
         super.destroy();
 
-        this.feed.destroy();
-
-        this.carousel.off(Events.CAROUSEL_CHANGED, this.onCarouselChange.bind(this));
         this.carousel.destroy();
+        delete this.carousel;
 
-        this.$feed.remove();
         this.$container.removeClass('crt-panel');
         this.$container.removeClass('crt-widget-panel');
         this.$container.removeClass('crt-carousel');
         this.$container.removeClass('crt-widget-carousel');
 
-        delete this.$feed;
+        this.$el.remove();
+
         delete this.$container;
         delete this.feed.postsLoaded;
         delete this.loading;
         delete this.allLoaded;
-
-        // TODO add code to cascade destroy down to Feed & Posts
-        // unregistering events etc
-        delete this.feed;
     }
 }
 

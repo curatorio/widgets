@@ -27,9 +27,11 @@ const template = `
             <img class="crt-post-userimage" src="<%=user_image%>" alt="Profile image for <%=user_screen_name%>" /> 
             <span class="crt-post-username"><a href="<%=this.userUrl()%>" target="_blank"><%=this.userScreenName()%></a></span>
             <span class="crt-post-date"><%=this.dateUrl()%></span> 
-            <div class="crt-post-share"><span class="crt-share-hint"></span>
-            <a class="crt-share-facebook" c-on:click="onShareFacebookClick()"><i class="crt-icon-facebook"></i></a>  
-            <a class="crt-share-twitter" c-on:click="onShareTwitterClick()"><i class="crt-icon-twitter"></i></a></div>
+            <div class="crt-post-share">
+                <span class="crt-share-hint"></span>
+                <a class="crt-share-facebook" c-on:click="onShareFacebookClick()"><i class="crt-icon-facebook"></i></a>  
+                <a class="crt-share-twitter" c-on:click="onShareTwitterClick()"><i class="crt-icon-twitter"></i></a>
+            </div>
         </div> 
         <div class="crt-post-max-height-read-more"><a class="crt-post-read-more-button" c-on:click="onReadMoreClick"><%=this._t("read-more")%></a></div> 
     </div> 

@@ -1,6 +1,7 @@
 class EventBus {
     constructor() {
         this.listeners = {};
+        this.alive = true;
     }
 
     on(type, callback, scope) {
@@ -91,6 +92,7 @@ class EventBus {
     destroy () {
         // Might be a bit simplistic!!!
         this.listeners = {};
+        this.alive = false;
     }
 }
 

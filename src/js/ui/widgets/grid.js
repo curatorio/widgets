@@ -89,6 +89,10 @@ class Grid extends Widget {
         this.on(Events.FILTER_CHANGED, () => {
             this.$refs.feed.find('.crt-grid-post').remove();
         });
+
+        if (this.options.autoLoadNew) {
+            this.startAutoLoad ();
+        }
     }
 
     destroyHandlers () {
@@ -106,10 +110,18 @@ class Grid extends Widget {
         if (this.ro) {
             this.ro.disconnect();
         }
+
+        this.stopAutoLoad() ();
     }
 
     loadPosts () {
         // console.log ('LOAD POSTS CALLED!!!?!?!!?!?!');
+    }
+
+    loadBefore () {
+        Logger.log('Grid->loadBefore');
+
+        this.feed.loadBefore();
     }
 
     updateLayout ( ) {
@@ -133,16 +145,16 @@ class Grid extends Widget {
                 limit : limit
             };
 
-            this.feed.loadMorePaginated(params);
+            this.feed.loadAfter(params);
         } else {
             this.updateHeight(false);
         }
     }
 
     createPostElement (postJson) {
-        let post = new GridPost(this, postJson, this.options);
-        post.on(Events.POST_CLICK,this.onPostClick.bind(this));
-        post.on(Events.POST_CLICK_READ_MORE,this.onPostClickReadMore.bind(this));
+        let post = new GridPost(this, postJson);
+        post.on(Events.POST_CLICK, this.onPostClick.bind(this));
+        post.on(Events.POST_CLICK_READ_MORE, this.onPostClickReadMore.bind(this));
         post.on(Events.POST_IMAGE_LOADED, this.onPostImageLoaded.bind(this));
 
         this.trigger(Events.POST_CREATED, post);
@@ -209,8 +221,9 @@ class Grid extends Widget {
         }
     }
 
-    onPostsLoaded (event, posts) {
-        Logger.log("Grid->onPostsLoaded");
+    onPostsLoaded (event, posts, position) {
+        Logger.log("Grid->onPostsLoaded position:"+position);
+        console.log(posts.length);
 
         this.loading = false;
 
@@ -220,21 +233,18 @@ class Grid extends Widget {
             this.postElements = [];
             let i = 0;
 
-            let anim = (post) => {
-                window.setTimeout (() => {
-                    post.$el.css({opacity: 0}).animate({opacity: 1});
-                }, i * 100);
-            };
-
             for (let postJson of posts) {
                 let post = this.createPostElement(postJson);
                 this.postElements.push(post);
-                this.$refs.feed.append(post.$el);
+                if (position === 'before') {
+                    this.$refs.feed.prepend(post.$el);
+                } else {
+                    this.$refs.feed.append(post.$el);
+                }
                 post.layout();
 
                 if (this.config('animate')) {
-                    post.$el.css({opacity: 0});
-                    anim (post, i);
+                    post.showAnim (i);
                     i++;
                 }
             }
@@ -256,15 +266,14 @@ class Grid extends Widget {
     destroy () {
         super.destroy();
 
-        this.feed.destroy();
-
         this.destroyHandlers();
 
-        this.$container.empty()
-            .removeClass('crt-widget-grid')
+        this.$container.removeClass('crt-widget-grid')
             .removeClass('crt-grid')
             .removeClass('crt-grid-col'+this.columnCount)
             .css({'height':'','overflow':''});
+
+        this.$el.remove();
 
         window.clearTimeout(this.updateHeightTimeout);
 
@@ -272,10 +281,6 @@ class Grid extends Widget {
         delete this.totalPostsLoaded;
         delete this.loading;
         delete this.allLoaded;
-
-        // TODO add code to cascade destroy down to Posts
-        // unregistering events etc
-        delete this.feed;
     }
 
 }

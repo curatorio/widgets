@@ -6,6 +6,7 @@ import config from '../../config/widget-list';
 import z from '../../core/lib';
 import Events from "../../core/events";
 import ResizeObserver from 'resize-observer-polyfill/dist/ResizeObserver.es';
+import ListPost from "../posts/list";
 
 class List extends Widget {
 
@@ -153,6 +154,17 @@ class List extends Widget {
         this.feed.loadMorePaginated();
     }
 
+    createPostElement (postJson) {
+        let post = new ListPost(this, postJson);
+        post.on(Events.POST_CLICK, this.onPostClick.bind(this));
+        post.on(Events.POST_CLICK_READ_MORE, this.onPostClickReadMore.bind(this));
+        post.on(Events.POST_IMAGE_LOADED, this.onPostImageLoaded.bind(this));
+
+        this.trigger(Events.POST_CREATED, post);
+
+        return post;
+    }
+
     destroy () {
         super.destroy();
 
@@ -164,9 +176,6 @@ class List extends Widget {
             .css({'height':'','overflow':''});
 
         delete this.loading;
-
-        // TODO add code to cascade destroy down to Posts
-        // unregistering events etc
     }
 
 }

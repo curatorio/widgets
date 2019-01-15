@@ -2,9 +2,9 @@
 import Base from './base';
 import Events from '../../core/events';
 
-class GeneralPost extends Base {
-    constructor (widget, postJson, options) {
-        super(widget, postJson, options);
+class ListPost extends Base {
+    constructor (widget, postJson) {
+        super(widget, postJson);
 
         this.render ();
 
@@ -20,13 +20,19 @@ class GeneralPost extends Base {
             },100);
         }
 
-        if (this.json.image_width > 0) {
-            let p = (this.json.image_height/this.json.image_width)*100;
-            this.$refs.imageContainer.addClass('crt-image-responsive').css('padding-bottom',p+'%');
-        }
+        // if (this.json.image_width > 0) {
+        //     let p = (this.json.image_height/this.json.image_width)*100;
+        //     this.$refs.imageContainer.addClass('crt-image-responsive').css('padding-bottom',p+'%');
+        // }
 
         if (this.json.url.indexOf('http') !== 0) {
             this.$el.find('.crt-post-share').hide ();
+        }
+
+        let imageWidth = this.widget.config('post.imageWidth');
+
+        if (imageWidth) {
+            this.$refs.imageCol.css('width',imageWidth);
         }
 
         this.setupVideo ();
@@ -55,12 +61,11 @@ class GeneralPost extends Base {
     }
 
     setHeight () {
-        let height = this.$refs.postC.height();
-        let maxHeight = this.widget.config('maxHeight',0);
-        if (maxHeight > 0 && height > maxHeight) {
-            this.$refs.postC.css({maxHeight: maxHeight});
-            this.$el.addClass('crt-post-max-height');
-        }
+        // let height = this.$refs.postC.height();
+        // if (this.options.maxHeight && this.options.maxHeight > 0 && height > this.options.maxHeight) {
+        //     this.$refs.postC.css({maxHeight: this.options.maxHeight});
+        //     this.$el.addClass('crt-post-max-height');
+        // }
 
         this.layout();
     }
@@ -100,4 +105,4 @@ class GeneralPost extends Base {
     }
 }
 
-export default GeneralPost;
+export default ListPost;

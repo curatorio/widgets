@@ -97,20 +97,17 @@ class Carousel extends Widget {
     destroy  () {
         super.destroy();
 
-        this.feed.destroy();
-
-        this.carousel.off(Events.CAROUSEL_CHANGED, this.onCarouselChange.bind(this));
         this.carousel.destroy();
+        delete this.carousel;
 
-        this.$feed.remove();
         this.$container.removeClass('crt-widget-carousel');
         this.$container.removeClass('crt-carousel');
-
-        delete this.$feed;
         delete this.$container;
+
+        this.$el.remove();
+
         delete this.allLoaded;
 
-        delete this.feed;
     }
 }
 

@@ -362,6 +362,8 @@ class LayoutCarousel extends EventBus {
     moveComplete () {
         Logger.log('LayoutCarousel->moveComplete');
 
+        if (!this.alive) { return; }
+
         this.updatePanes();
 
         // reset x position
@@ -457,8 +459,11 @@ class LayoutCarousel extends EventBus {
 
     destroy () {
         Logger.log('LayoutCarousel->destroy ');
+
+        super.destroy();
+
         this.destroyHandlers ();
-        this.$slider.stop(true, false);
+
         window.clearTimeout(this.autoPlayTimeout);
         window.clearTimeout(this.postLayoutChangedTO);
         window.clearTimeout(this.moveCompleteTO);

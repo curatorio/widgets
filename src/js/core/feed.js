@@ -65,8 +65,6 @@ class Feed extends EventBus {
             params.after = this.pagination.after;
         }
 
-        // console.log (params);
-
         this._loadPosts (params);
     }
 
@@ -187,15 +185,13 @@ class Feed extends EventBus {
         }
         this.currentPage = 0;
 
-        let params = z.extend({},this.params);
+        let params = z.extend({}, this.params);
 
         // TODO should we check we have after?
         if (this.pagination && this.pagination.before) {
             params.before = this.pagination.before;
             delete params.after;
         }
-
-        // console.log(params.before);
 
         return new Promise ((resolve, reject) => {
             this.loading = true;
@@ -211,23 +207,9 @@ class Feed extends EventBus {
 
 
                     if (data.success) {
-                        // this.postCount = data.postCount;
-                        // this.postsLoaded += data.posts.length;
-                        //
-                        // this.allPostsLoaded = this.postsLoaded >= this.postCount;
-                        //
-                        // this.posts = this.posts.concat(data.posts);
-                        // this.networks = data.networks;
-                        //
                         if (data.pagination && data.pagination.before) {
                             this.pagination.before = data.pagination.before;
                         }
-                        //
-                        // this.widget.trigger(Events.FEED_LOADED, data);
-                        // this.trigger(Events.FEED_LOADED, data);
-                        //
-                        // this.widget.trigger(Events.POSTS_LOADED, data.posts);
-                        // this.trigger(Events.POSTS_LOADED, data.posts);
 
                         // add to the beginning
                         if (data.posts.length > 0) {
@@ -252,7 +234,6 @@ class Feed extends EventBus {
             );
         });
     }
-
 
 
     loadPost (id, successCallback, failCallback) {

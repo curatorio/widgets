@@ -20,17 +20,6 @@ class Waterfall extends Widget {
             this.$container.append(this.$el);
             this.$container.addClass('crt-widget-waterfall');
 
-            if (this.options.continuousScroll) {
-                z(this.$el).scroll(() => {
-                    let height = this.$el.height();
-                    let cHeight = this.$refs.feed.height();
-                    let scrollTop = this.$el.scrollTop();
-                    if (scrollTop >= cHeight - height) {
-                        this.onMoreClick();
-                    }
-                });
-            }
-
             if (!this.options.showLoadMore) {
                 this.$refs.loadMore.remove();
             }
@@ -41,19 +30,32 @@ class Waterfall extends Widget {
                 this.$refs.feed.find('.crt-post').remove();
             });
 
+            this.iniListeners();
+
             // Load first set of posts
             this.feed.load();
-
-            this.iniListeners();
         }
     }
 
     iniListeners () {
+        if (this.options.continuousScroll) {
+            z(this.$el).scroll(() => {
+                let height = this.$el.height();
+                let cHeight = this.$refs.feed.height();
+                let scrollTop = this.$el.scrollTop();
+                if (scrollTop >= cHeight - height) {
+                    this.onMoreClick();
+                }
+            });
+        }
 
+        if (this.options.autoLoadNew) {
+            this.startAutoLoad ();
+        }
     }
 
     destroyListeners () {
-
+        this.stopAutoLoad();
     }
 
     onMoreClick  () {
@@ -62,20 +64,27 @@ class Waterfall extends Widget {
         this.feed.loadAfter();
     }
 
-    onPostsLoaded (event, posts) {
-        Logger.log("Waterfall->onPostsLoaded");
+    loadBefore  () {
+        Logger.log('Waterfall->loadBefore');
 
-        let postElements = this.createPostElements (posts);
+        this.feed.loadBefore();
+    }
 
-        this.ui.append(postElements);
+    onPostsLoaded (event, posts, position) {
+        Logger.log("Waterfall->onPostsLoaded "+position);
 
-        let that = this;
-        z.each(postElements,function () {
-            let post = this;
-            if (that.options.showReadMore) {
-                post.find('.crt-post').addClass('crt-post-show-read-more');
+        if (posts.length > 0) {
+
+            this.popupManager.setPosts(posts);
+
+            let postElements = this.createPostElements(posts);
+
+            if (position === 'before') {
+                this.ui.prepend(postElements);
+            } else {
+                this.ui.append(postElements);
             }
-        });
+        }
 
         if (this.options.showLoadMore) {
             if (this.feed.allPostsLoaded) {
@@ -85,10 +94,6 @@ class Waterfall extends Widget {
             }
         }
 
-        this.popupManager.setPosts(posts);
-
-        this.loading = false;
-
         this.trigger(Events.POSTS_RENDERED, this);
     }
 
@@ -97,24 +102,15 @@ class Waterfall extends Widget {
 
         super.destroy();
 
-        this.feed.destroy();
+        this.destroyListeners();
 
         this.ui.destroy ();
 
-        this.$el.remove();
-
         this.$container.removeClass('crt-widget-waterfall');
 
-        this.destroyListeners();
+        this.$el.remove();
 
         delete this.$container;
-        delete this.totalPostsLoaded;
-        delete this.loading;
-        delete this.allLoaded;
-
-        // TODO add code to cascade destroy down to Feed & Posts
-        // unregistering events etc
-        delete this.feed;
     }
 }
 

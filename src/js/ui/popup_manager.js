@@ -92,6 +92,7 @@ class PopupManager extends Control {
         this.widget.track('popup:hide');
         z('body').removeClass('crt-popup-visible');
         this.currentPostNum = 0;
+        this.popup.destroy();
         this.popup = null;
         this.$refs.underlay.fadeOut(() => {
             this.$refs.underlay.css({'display':'','opacity':''});
@@ -100,10 +101,9 @@ class PopupManager extends Control {
     }
     
     destroy () {
-
-        this.$refs.underlay.remove();
-
         super.destroy();
+
+        this.$el.remove();
     }
 }
 

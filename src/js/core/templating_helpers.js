@@ -98,10 +98,6 @@ let helpers = {
         return DateUtils.prettyDate (time);
     },
 
-    _t (s, n) {
-        return translate.t (s, n);
-    },
-
     dateUrl () {
         let url = this.data.url;
         let created_at = this.data.source_created_at;
@@ -110,6 +106,10 @@ let helpers = {
         } else {
             return helpers.prettyDate(created_at);
         }
+    },
+
+    _t (s, n) {
+        return translate.t (s, n);
     },
 
     _s (s) {
