@@ -1,4 +1,15 @@
-
+// Rewrite font paths
+@font-face {
+    font-family: 'crt-icon';
+    src: url('../fonts/crt-icon.eot?98959953');
+    src: url('../fonts/crt-icon.eot?98959953#iefix') format('embedded-opentype'),
+    url('../fonts/crt-icon.woff2?98959953') format('woff2'),
+    url('../fonts/crt-icon.woff?98959953') format('woff'),
+    url('../fonts/crt-icon.ttf?98959953') format('truetype'),
+    url('../fonts/crt-icon.svg?98959953#crt-icon') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
 
 [class^="crt-icon-"]:before, [class*=" crt-icon-"]:before {
     margin: 0;
