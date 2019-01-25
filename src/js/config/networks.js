@@ -75,7 +75,7 @@ let networks = {
         id: 13,
         name:'Diffbot',
         slug:'difbot',
-        icon:'crt-icon-unknown'
+        icon:'crt-icon-cogs'
     },
     14 : {
         id: 14,
@@ -87,13 +87,19 @@ let networks = {
         id: 15,
         name:'Glassdoor',
         slug:'glassdoor',
-        icon:'crt-icon-unknown'
+        icon:'crt-icon-cogs'
     },
     16 : {
         id: 16,
         name:'Instagram',
         slug:'instagram',
         icon:'crt-icon-instagram'
+    },
+    17 : {
+        id: 17,
+        name:'Yelp',
+        slug:'yelp',
+        icon:'crt-icon-yelp'
     },
 };
 
