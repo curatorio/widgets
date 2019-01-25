@@ -573,6 +573,10 @@ cryptiles@2.x.x:
   dependencies:
     boom "2.x.x"
 
+"curator-icons@git+ssh://git@bitbucket.org:curatorio/curator-icons.git#*":
+  version "1.0.0"
+  resolved "git+ssh://git@bitbucket.org:curatorio/curator-icons.git#859b4d4a3fb54f86dc09ac7ea56f3f8f4c71ddb9"
+
 currently-unhandled@^0.4.1:
   version "0.4.1"
   resolved "https://registry.yarnpkg.com/currently-unhandled/-/currently-unhandled-0.4.1.tgz#988df33feab191ef799a61369dd76c17adf957ea"
@@ -855,6 +859,11 @@ find-index@^0.1.1:
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/find-index/-/find-index-0.1.1.tgz#675d358b2ca3892d795a1ab47232f8b6e2e0dde4"
   integrity sha1-Z101iyyjiS15Whq0cjL4tuLg3eQ=
+
+find-parent-dir@^0.3.0:
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/find-parent-dir/-/find-parent-dir-0.3.0.tgz#33c44b429ab2b2f0646299c5f9f718f376ff8d54"
+  integrity sha1-M8RLQpqysvBkYpnF+fcY83b/jVQ=
 
 find-up@^1.0.0:
   version "1.1.2"
@@ -2245,6 +2254,13 @@ node-notifier@^5.0.1:
     semver "^5.3.0"
     shellwords "^0.1.0"
     which "^1.2.12"
+
+node-sass-tilde-importer@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/node-sass-tilde-importer/-/node-sass-tilde-importer-1.0.2.tgz#1a15105c153f648323b4347693fdb0f331bad1ce"
+  integrity sha512-Swcmr38Y7uB78itQeBm3mThjxBy9/Ah/ykPIaURY/L6Nec9AyRoL/jJ7ECfMR+oZeCTVQNxVMu/aHU+TLRVbdg==
+  dependencies:
+    find-parent-dir "^0.3.0"
 
 node-sass@^4.2.0:
   version "4.5.0"
