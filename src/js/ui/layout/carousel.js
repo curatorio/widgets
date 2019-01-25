@@ -457,12 +457,10 @@ class LayoutCarousel extends EventBus {
     destroy () {
         Logger.log('LayoutCarousel->destroy ');
         this.destroyHandlers ();
-        this.$paneSlider.stop(true, false);
+        // this.$paneSlider.stop(true, false);
         window.clearTimeout(this.autoPlayTimeout);
         window.clearTimeout(this.postLayoutChangedTO);
         window.clearTimeout(this.moveCompleteTO);
-
-        console.log(this.paneCache);
 
         for(let paneId in this.paneCache) {
             this.paneCache[paneId].destroy();
