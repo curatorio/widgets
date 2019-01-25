@@ -64,6 +64,7 @@ const gulp = require('gulp'),
     sass = require('gulp-sass'),
     autoprefixer = require('gulp-autoprefixer'),
     cleanCSS = require('gulp-clean-css'),
+    tildeImporter = require('node-sass-tilde-importer'),
 
     // JS
     jshint = require('gulp-jshint'),
@@ -79,7 +80,8 @@ const gulp = require('gulp'),
 
 const sassConfig = {
     style: 'expanded',
-    includePaths: ['node_modules']
+    includePaths: ['node_modules'],
+    importer: tildeImporter
 };
 
 gulp.task('styles', () =>  {
