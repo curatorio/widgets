@@ -1,0 +1,62 @@
+
+.crt-grid-post-sydney {
+    margin: 0 10px;
+
+    .crt-grid-post-content {
+        padding-bottom: 125%;
+    }
+
+    .crt-social-icon {
+        bottom: auto;
+        top:6px;
+        right: auto;
+        left: 10px;
+    }
+
+    .crt-date {
+        position: absolute;
+        top:12px;
+        left: 40px;
+        z-index: 2;
+        color: #ffffff;
+    }
+
+    .crt-post-hover {
+        top: auto;
+
+        .crt-post-text {
+            text-align: left;
+            padding-top: 10px;
+        }
+    }
+
+    .crt-post-footer {
+        position: relative;
+        height: 60px;
+        line-height: 40px;
+        text-align: center;
+        border-top: 1px solid $color-v2-post-border;
+        background-color: $color-v2-post-background;
+
+        .crt-post-userimage {
+            position: absolute;
+            top: 7px;
+            left: 10px;
+            width: 40px;
+        }
+
+        .crt-post-fullname {
+            position: absolute;
+            top: 10px;
+            left: 60px;
+            line-height: 1em;
+        }
+
+        .crt-post-username {
+            position: absolute;
+            top: 30px;
+            left: 60px;
+            line-height: 1em;
+        }
+    }
+}

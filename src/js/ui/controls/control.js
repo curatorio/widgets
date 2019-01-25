@@ -17,6 +17,8 @@ class Control extends EventBus {
         let $el = Templating.renderTemplate(this.templateId, data, options);
 
         this.onHandler($el, 'c-on:click', 'click');
+        this.onHandler($el, 'c-on:blur', 'blur');
+        this.onHandler($el, 'c-on:change', 'change');
 
         // Setup refs
         let refs = $el.find('[ref]');

@@ -9,6 +9,10 @@ let StringUtils = {
         });
     },
 
+    camelToDash (s){
+        return s.replace(/([A-Z])/g, function($1, p1, pos){return (pos > 0 ? "-" : "") + $1.toLowerCase();});
+    },
+
     twitterLinks (s)
     {
         s = s.replace(/[@]+[A-Za-z0-9-_]+/g, function(u) {

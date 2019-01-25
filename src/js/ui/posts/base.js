@@ -84,6 +84,18 @@ class BasePost extends Control {
         }
     }
 
+    setupUserNameImage () {
+        if (!this.json.user_image || this.json.user_image === 'https://cdn.curator.io/0.gif') {
+            this.$el.addClass('crt-hide-user-image');
+        }
+        if (!this.json.user_full_name || this.json.user_full_name === '') {
+            this.$el.addClass('crt-hide-user-full-name');
+        }
+        if (!this.json.user_screen_name || this.json.user_screen_name === '') {
+            this.$el.addClass('crt-hide-user-screen-name');
+        }
+    }
+
     setupShare () {
 
 

@@ -1,0 +1,104 @@
+
+
+.crt-post-london {
+    .crt-social-icon {
+        position: absolute;
+        right: 15px;
+        top: 0px;
+
+        i {
+            line-height: .6em;
+            &:before {
+                font-size: .6em;
+            }
+        }
+    }
+
+    .crt-post-header {
+        margin-top: 15px;
+        padding-top: 0;
+    }
+    .crt-post-fullname {
+        text-align: left;
+        padding-left: 15px;
+        padding-right: 50px;
+    }
+    .crt-post-text {
+        margin: 15px 0;
+        text-align: left;
+        padding: 0 15px;
+    }
+
+    .crt-comments-likes {
+        text-transform: none;
+        text-align: left;
+        padding-left: 15px;
+    }
+
+    .crt-post-footer {
+        border-top:none;
+        height: 54px+6px;
+
+        .crt-post-userimage {
+            top: 0;
+            width: 54px;
+        }
+
+        .crt-post-date,
+        .crt-post-username {
+            position: absolute;
+            left: 72px;
+            top: 12px;
+            line-height: 1em;
+        }
+
+        .crt-post-date {
+            top: 30px;
+            text-transform: none;
+        }
+
+        .crt-post-share {
+            top:auto;
+            bottom:10px;
+            line-height: 1em;
+        }
+    }
+
+    &.crt-hide-user-image {
+        .crt-post-footer {
+            height: 30px;
+
+            .crt-post-userimage {
+                display: none;
+            }
+            .crt-post-date,
+            .crt-post-username {
+                position: absolute;
+                left: 15px;
+                top: 0px;
+            }
+
+            .crt-post-date {
+                top: 18px;
+            }
+        }
+    }
+
+    &.crt-hide-user-screen-name {
+        .crt-post-footer {
+            .crt-post-username {
+                display: none;
+            }
+        }
+    }
+
+    &.crt-hide-user-image.crt-hide-user-screen-name {
+        .crt-post-footer {
+            height: 30px;
+
+            .crt-post-date {
+                top: 8px;
+            }
+        }
+    }
+}

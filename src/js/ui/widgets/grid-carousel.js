@@ -33,7 +33,7 @@ class GridCarousel extends Widget {
             });
 
             // load first set of posts
-            this.loadPosts(0);
+            this.feed.load();
         }
     }
 
@@ -41,7 +41,7 @@ class GridCarousel extends Widget {
         Logger.log('GridCarousel->loadMorePosts');
 
         if (this.feed.postCount > this.feed.postsLoaded) {
-            this.feed.loadPosts(this.feed.currentPage + 1);
+            this.feed.loadMore();
         }
     }
 

@@ -1897,6 +1897,7 @@ twttr.txt.regexen.validHashtag = regexSupplant(/[#]+(#{hashtagAlphaNumeric}*)/gi
 
 var EventBus = function EventBus() {
     this.listeners = {};
+    this.alive = true;
 };
 
 EventBus.prototype.on = function on (type, callback, scope) {
@@ -1997,12 +1998,21 @@ EventBus.prototype.getEvents = function getEvents () {
 EventBus.prototype.destroy = function destroy () {
     // Might be a bit simplistic!!!
     this.listeners = {};
+    this.alive = false;
 };
 
 var Globals = {
     POST_CLICK_ACTION_OPEN_POPUP:   'open-popup',
     POST_CLICK_ACTION_GOTO_SOURCE:  'goto-source',
     POST_CLICK_ACTION_NOTHING:      'nothing',
+};
+
+var LondonTheme = {
+    config: {
+        post: {
+            template : 'post-london'
+        }
+    }
 };
 
 var CommonUtils = {
@@ -2096,6 +2106,10 @@ var StringUtils = {
         });
     },
 
+    camelToDash: function camelToDash (s){
+        return s.replace(/([A-Z])/g, function($1, p1, pos){return (pos > 0 ? "-" : "") + $1.toLowerCase();});
+    },
+
     twitterLinks: function twitterLinks (s)
     {
         s = s.replace(/[@]+[A-Za-z0-9-_]+/g, function(u) {
@@ -2133,6 +2147,16 @@ var StringUtils = {
         s = s.replace(/[#]+[A-Za-z0-9-_]+/g, function(t) {
             var tag = t.replace("#","%23");
             return StringUtils.url("https://www.facebook.com/search/top/?q="+tag,t);
+        });
+
+        return s;
+    },
+
+    removeScripts: function removeScripts (s, replace)
+    {
+        replace = replace || '';
+        s = s.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, function() {
+            return replace;
         });
 
         return s;
@@ -2316,33 +2340,37 @@ var z$1 = z;
 
 var template = "\n<div class=\"crt-popup-wrapper\"> \n    <div class=\"crt-popup-wrapper-c\"> \n        <div class=\"crt-popup-underlay\" ref=\"underlay\" c-on:click=\"onUnderlayClick\"></div> \n        <div class=\"crt-popup-container\" ref=\"container\"></div> \n    </div> \n</div>";
 
-var template$1 = " \n<div class=\"crt-popup\"> \n    <a c-on:click=\"onClose\" class=\"crt-close crt-icon-cancel\"></a> \n    <a c-on:click=\"onPrevious\" class=\"crt-next crt-icon-right-open\"></a> \n    <a c-on:click=\"onNext\" class=\"crt-previous crt-icon-left-open\"></a> \n    <div class=\"crt-popup-left\" ref=\"left\">  \n        <div class=\"crt-video\"> \n            <div class=\"crt-video-container\">\n                <video preload=\"none\" ref=\"video\">\n                <source src=\"<%=video%>\" type=\"video/mp4\">\n                </video>\n                <img src=\"<%=image%>\" alt=\"Image posted by <%=this.userScreenName()%> to <%=this.networkName()%>\" />\n                <ac rt-click=\"onPlay\" class=\"crt-play\"><i class=\"crt-play-icon\"></i></a> \n            </div> \n        </div> \n        <div class=\"crt-image\"> \n            <img src=\"<%=image%>\" alt=\"Image posted by <%=this.userScreenName()%> to <%=this.networkName()%>\" /> \n        </div> \n        <div class=\"crt-pagination\"><ul></ul></div>\n    </div> \n    <div class=\"crt-popup-right\"> \n        <div class=\"crt-popup-header\"> \n            <span class=\"crt-social-icon\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n            <img src=\"<%=user_image%>\" alt=\"Profile image for <%=user_full_name%>\"  /> \n            <div class=\"crt-post-name\"><span><%=user_full_name%></span><br/><a href=\"<%=this.userUrl()%>\" target=\"_blank\"><%=this.userScreenName()%></a></div> \n        </div> \n        <div class=\"crt-popup-text <%=this.contentTextClasses()%>\"> \n            <div class=\"crt-popup-text-container\"> \n                <p class=\"crt-date\"><%=this.dateUrl()%></a></p> \n                <div class=\"crt-popup-text-body\"><%=this.parseText(text)%></div> \n            </div> \n        </div> \n        <div class=\"crt-popup-read-more\">\n            <a href=\"<%=url%>\" target=\"_blank\" class=\"crt-button\">Goto original post</a> \n        </div>\n        <div class=\"crt-popup-footer\">\n            <div class=\"crt-popup-stats\"><span><%=likes%></span> <%=this._t(\"likes\", likes)%> <i class=\"sep\"></i> <span><%=comments%></span> <%=this._t(\"comments\", comments)%></div> \n            <div class=\"crt-post-share\"><span class=\"ctr-share-hint\"></span>\n            <a c-on:click=\"onShareFacebookClick\" class=\"crt-share-facebook\"><i class=\"crt-icon-facebook\"></i></a>  \n            <a c-on:click=\"onShareTwitterClick\" class=\"crt-share-twitter\"><i class=\"crt-icon-twitter\"></i></a>\n            </div>\n        </div> \n    </div> \n</div>";
+var template$1 = " \n<div class=\"crt-popup\"> \n    <a c-on:click=\"onClose\" class=\"crt-close crt-icon-cancel\"></a> \n    <a c-on:click=\"onPrevious\" class=\"crt-next crt-icon-right-open\"></a> \n    <a c-on:click=\"onNext\" class=\"crt-previous crt-icon-left-open\"></a> \n    <div class=\"crt-popup-left\" ref=\"left\">  \n        <div class=\"crt-video\"> \n            <div class=\"crt-video-container\">\n                <video preload=\"none\" ref=\"video\">\n                <source src=\"<%=video%>\" type=\"video/mp4\">\n                </video>\n                <img src=\"<%=image%>\" alt=\"Image posted by <%=this.userScreenName()%> to <%=this.networkName()%>\" />\n                <a c-on:click=\"onPlay\" class=\"crt-play\"><i class=\"crt-play-icon\"></i></a> \n            </div> \n        </div> \n        <div class=\"crt-image\"> \n            <img src=\"<%=image%>\" alt=\"Image posted by <%=this.userScreenName()%> to <%=this.networkName()%>\" /> \n        </div> \n        <div class=\"crt-pagination\"><ul></ul></div>\n    </div> \n    <div class=\"crt-popup-right\"> \n        <div class=\"crt-popup-header\"> \n            <span class=\"crt-social-icon\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n            <img src=\"<%=user_image%>\" alt=\"Profile image for <%=user_full_name%>\"  /> \n            <div class=\"crt-post-name\"><span><%=user_full_name%></span><br/><a href=\"<%=this.userUrl()%>\" target=\"_blank\"><%=this.userScreenName()%></a></div> \n        </div> \n        <div class=\"crt-popup-text <%=this.contentTextClasses()%>\"> \n            <div class=\"crt-popup-text-container\"> \n                <p class=\"crt-date\"><%=this.dateUrl()%></a></p> \n                <div class=\"crt-popup-text-body\"><%=this.parseText(text)%></div> \n            </div> \n        </div> \n        <div class=\"crt-popup-read-more\">\n            <a href=\"<%=url%>\" target=\"_blank\" class=\"crt-button\">Goto original post</a> \n        </div>\n        <div class=\"crt-popup-footer\">\n            <div class=\"crt-popup-stats\"><span><%=likes%></span> <%=this._t(\"likes\", likes)%> <i class=\"sep\"></i> <span><%=comments%></span> <%=this._t(\"comments\", comments)%></div> \n            <div class=\"crt-post-share\"><span class=\"ctr-share-hint\"></span>\n            <a c-on:click=\"onShareFacebookClick\" class=\"crt-share-facebook\"><i class=\"crt-icon-facebook\"></i></a>  \n            <a c-on:click=\"onShareTwitterClick\" class=\"crt-share-twitter\"><i class=\"crt-icon-twitter\"></i></a>\n            </div>\n        </div> \n    </div> \n</div>";
 
-var template$2 = "<div class=\"crt-filter\"> \n<div class=\"crt-filter-networks\" ref=\"networks\">\n<ul class=\"crt-networks\" ref=\"networksUl\"> \n    <li class=\"crt-filter-label\"><label><%=this._t('filter')%>:</label></li>\n    <li class=\"active\"><a href=\"#\" data-network=\"0\"> <%=this._t('all')%></a></li>\n</ul>\n</div> \n<div class=\"crt-filter-sources\" ref=\"sources\">\n<ul class=\"crt-sources\" ref=\"sourcesUl\"> \n    <li class=\"crt-filter-label\"><label><%=this._t('filter')%>:</label></li>\n    <li class=\"active\"><a href=\"#\" data-source=\"0\"> <%=this._t('all')%></a></li>\n</ul>\n</div> \n</div>";
+var template$2 = "<div class=\"crt-filter\"> \n<div class=\"crt-filter-networks\" ref=\"networks\">\n<ul class=\"crt-networks\" ref=\"networksUl\"> \n    <li class=\"crt-filter-label\"><label><%=this._t('filter')%>:</label></li>\n</ul>\n</div> \n<div class=\"crt-filter-sources\" ref=\"sources\">\n<ul class=\"crt-sources\" ref=\"sourcesUl\"> \n    <li class=\"crt-filter-label\"><label><%=this._t('filter')%>:</label></li>\n</ul>\n</div> \n</div>";
 
-var template$3 = "\n<div class=\"crt-grid-post crt-post-<%=id%> <%=this.contentImageClasses()%> <%=this.contentTextClasses()%>\" data-post=\"<%=id%>\">     <div class=\"crt-post-c\" ref=\"postC\" c-on:click=\"onPostClick\"> \n        <div class=\"crt-grid-post-spacer\" ref=\"spacer\"></div> \n        <div class=\"crt-grid-post-image\">\n            <div class=\"crt-post-content-image\" style=\"background-image:url('<%=image%>');\"></div> \n            <span class=\"crt-play\"><i class=\"crt-play-icon\"></i></span> \n            <span class=\"crt-social-icon crt-social-icon-normal\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n            <div class=\"crt-image-carousel\"><i class=\"crt-icon-image-carousel\"></i></div> \n        </div>\n        <video preload=\"none\" loop muted ref=\"video\">\n            <source src=\"<%=video%>\" type=\"video/mp4\">\n        </video>\n        <div class=\"crt-grid-post-text\">\n            <div class=\"crt-grid-post-text-wrap\"> \n                <div><%=this.parseText(text)%></div> \n            </div> \n            <span class=\"crt-social-icon crt-social-icon-normal\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n        </div>\n        <div class=\"crt-post-hover\">\n            <div>\n                <div class=\"crt-post-header\"> \n                    <span class=\"crt-social-icon\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                    <div class=\"crt-post-fullname\"><a href=\"<%=this.userUrl()%>\" target=\"_blank\"><%=user_full_name%></a></div>\n                </div> \n                <div class=\"crt-post-content-text\"> \n                    <%=this.parseText(text)%> \n                </div> \n                <div class=\"crt-post-read-more\"><a href=\"#\" class=\"crt-post-read-more-button\"><%=this._t(\"read-more\")%></a></div> \n                <div class=\"crt-post-footer\">\n                    <img class=\"crt-post-userimage\" src=\"<%=user_image%>\" alt=\"Profile image for <%=user_full_name%>\" /> \n                    <span class=\"crt-post-username\"><a href=\"<%=this.userUrl()%>\" target=\"_blank\"><%=this.userScreenName()%></a></span>\n                    <span class=\"crt-date\"><%=this.prettyDate(source_created_at)%></span> \n                    <div class=\"crt-post-share\">\n                        <span class=\"crt-share-hint\"></span>\n                        <a class=\"crt-share-facebook\" c-on:click=\"onShareFacebookClick\"><i class=\"crt-icon-facebook\"></i></a>  \n                        <a class=\"crt-share-twitter\" c-on:click=\"onShareTwitterClick\"><i class=\"crt-icon-twitter\"></i></a>\n                    </div>\n                </div> \n            </div>\n        </div> \n    </div>\n</div>";
+var template$3 = "\n<div class=\"crt-grid-post crt-post-<%=id%> <%=this.contentImageClasses()%> <%=this.contentTextClasses()%>\" data-post=\"<%=id%>\">     <div class=\"crt-post-c\" ref=\"postC\" c-on:click=\"onPostClick\"> \n        <div class=\"crt-grid-post-content\" ref=\"spacer\">\n            <span class=\"crt-play\"><i class=\"crt-play-icon\"></i></span> \n            <span class=\"crt-social-icon crt-social-icon-normal\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n            <div class=\"crt-image-carousel\"><i class=\"crt-icon-image-carousel\"></i></div> \n            <div class=\"crt-grid-post-image\" style=\"background-image:url('<%=image%>');\"></div> \n            <video preload=\"none\" loop muted ref=\"video\">\n                <source src=\"<%=video%>\" type=\"video/mp4\">\n            </video>\n            <div class=\"crt-grid-post-text\">\n                <div class=\"crt-grid-post-text-wrap\"> \n                    <div><%=this.parseText(text)%></div> \n                </div>  \n            </div>\n        </div>\n        <div class=\"crt-post-hover\">\n            <div>\n                <div class=\"crt-post-header\"> \n                    <span class=\"crt-social-icon\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                    <div class=\"crt-post-fullname\"><a href=\"<%=this.userUrl()%>\" target=\"_blank\"><%=user_full_name%></a></div>\n                </div> \n                <div class=\"crt-post-text\"> \n                    <%=this.parseText(text)%> \n                </div> \n                <div class=\"crt-post-read-more\"><a href=\"#\" class=\"crt-post-read-more-button\"><%=this._t(\"read-more\")%></a></div> \n                <div class=\"crt-post-footer\">\n                    <img class=\"crt-post-userimage\" src=\"<%=user_image%>\" alt=\"Profile image for <%=user_full_name%>\" /> \n                    <span class=\"crt-post-username\"><a href=\"<%=this.userUrl()%>\" target=\"_blank\"><%=this.userScreenName()%></a></span>\n                    <span class=\"crt-date\"><%=this.prettyDate(source_created_at)%></span> \n                    <div class=\"crt-post-share\">\n                        <span class=\"crt-share-hint\"></span>\n                        <a class=\"crt-share-facebook\" c-on:click=\"onShareFacebookClick\"><i class=\"crt-icon-facebook\"></i></a>  \n                        <a class=\"crt-share-twitter\" c-on:click=\"onShareTwitterClick\"><i class=\"crt-icon-twitter\"></i></a>\n                    </div>\n                </div> \n            </div>\n        </div> \n    </div>\n</div>";
 
 var template$4 = "\n<div class=\"crt-grid-post crt-grid-post-v2 crt-post-<%=id%> <%=this.contentImageClasses()%> <%=this.contentTextClasses()%>\" data-post=\"<%=id%>\">     <div class=\"crt-post-c\" ref=\"postC\" c-on:click=\"onPostClick\"> \n        <div class=\"crt-post-content\"> \n            <div class=\"crt-hitarea\" > \n                <div class=\"crt-grid-post-spacer\" ref=\"spacer\"></div> \n                <div class=\"crt-grid-post-image\">\n                    <div class=\"crt-post-content-image\" style=\"background-image:url('<%=image%>');\"></div> \n                    <span class=\"crt-play\"><i class=\"crt-play-icon\"></i></span> \n                    <span class=\"crt-social-icon crt-social-icon-normal\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                    <div class=\"crt-image-carousel\"><i class=\"crt-icon-image-carousel\"></i></div> \n                </div>\n                <video preload=\"none\" loop muted ref=\"video\">\n                    <source src=\"<%=video%>\" type=\"video/mp4\">\n                </video>\n                <div class=\"crt-grid-post-text\">\n                    <div class=\"crt-grid-post-text-wrap\"> \n                        <div><%=this.parseText(text)%></div> \n                    </div> \n                    <span class=\"crt-social-icon crt-social-icon-normal\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                </div>\n                <div class=\"crt-post-hover\">\n                    <div>\n                        <div class=\"crt-post-header\"> \n                            <span class=\"crt-social-icon\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                            <div class=\"crt-post-fullname\"><a href=\"<%=this.userUrl()%>\" target=\"_blank\"><%=user_full_name%></a></div>\n                        </div> \n                    </div>\n                </div> \n            </div> \n        </div> \n    </div>\n</div>";
 
-var gridPostTemplate = " \n<div class=\"crt-post-c\">\n    <div class=\"crt-post post<%=id%> <%=this.contentImageClasses()%> <%=this.contentTextClasses()%>\"> \n        <div class=\"crt-post-content\"> \n            <div class=\"crt-hitarea\" > \n                <img src=\"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7\" class=\"spacer\" alt=\"Image posted by <%=user_screen_name%> to <%=this.networkName()%>\" /> \n                <div class=\"crt-post-content-image\" style=\"background-image:url('<%=image%>');\"></div> \n                <div class=\"crt-post-content-text-c\"> \n                    <div class=\"crt-post-content-text\"> \n                        <%=this.parseText(text)%> \n                    </div> \n                </div> \n                <a href=\"javascript:;\" class=\"crt-play\"><i class=\"crt-play-icon\"></i></a> \n                <span class=\"crt-social-icon crt-social-icon-normal\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                <div class=\"crt-post-hover\">\n                    <div class=\"crt-post-header\"> \n                        <img src=\"<%=user_image%>\" alt=\"Profile image for <%=user_full_name%>\"  /> \n                        <div class=\"crt-post-name\"><span><%=user_full_name%></span><br/><a href=\"<%=this.userUrl()%>\" target=\"_blank\">@<%=user_screen_name%></a></div> \n                    </div> \n                    <div class=\"crt-post-hover-text\"> \n                        <%=this.parseText(text)%> \n                    </div> \n                    <span class=\"crt-social-icon crt-social-icon-hover\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                </div> \n            </div> \n        </div> \n    </div>\n</div>";
+var gridPostTemplate = " \n<div class=\"crt-post-c\">\n    <div class=\"crt-post post<%=id%> <%=this.contentImageClasses()%> <%=this.contentTextClasses()%>\"> \n        <div class=\"crt-post-content\"> \n            <div class=\"crt-hitarea\" > \n                <img src=\"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7\" class=\"spacer\" alt=\"Image posted by <%=user_screen_name%> to <%=this.networkName()%>\" /> \n                <div class=\"crt-post-content-image\" style=\"background-image:url('<%=image%>');\"></div> \n                <div class=\"crt-post-text-c\"> \n                    <div class=\"crt-post-text\"> \n                        <%=this.parseText(text)%> \n                    </div> \n                </div> \n                <a href=\"javascript:;\" class=\"crt-play\"><i class=\"crt-play-icon\"></i></a> \n                <span class=\"crt-social-icon crt-social-icon-normal\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                <div class=\"crt-post-hover\">\n                    <div class=\"crt-post-header\"> \n                        <img src=\"<%=user_image%>\" alt=\"Profile image for <%=user_full_name%>\"  /> \n                        <div class=\"crt-post-name\"><span><%=user_full_name%></span><br/><a href=\"<%=this.userUrl()%>\" target=\"_blank\">@<%=user_screen_name%></a></div> \n                    </div> \n                    <div class=\"crt-post-hover-text\"> \n                        <%=this.parseText(text)%> \n                    </div> \n                    <span class=\"crt-social-icon crt-social-icon-hover\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                </div> \n            </div> \n        </div> \n    </div>\n</div>";
 
-var template$5 = " \n<div class=\"crt-post crt-post-<%=this.networkIcon()%> <%=this.contentTextClasses()%>  <%=this.contentImageClasses()%>\" data-post=\"<%=id%>\"> \n    <div class=\"crt-post-c\" ref=\"postC\" c-on:click=\"onPostClick\">\n        <div class=\"crt-post-content\">\n            <div class=\"crt-image crt-hitarea crt-post-content-image\" > \n                <div class=\"crt-image-c\" ref=\"imageContainer\"><img src=\"<%=image%>\" ref=\"image\" class=\"crt-post-image\" alt=\"Image posted by <%=user_screen_name%> to <%=this.networkName()%>\" /></div>   \n                <span class=\"crt-play\"><i class=\"crt-play-icon\"></i></span> \n                <div class=\"crt-image-carousel\"><i class=\"crt-icon-image-carousel\"></i></div> \n                <video preload=\"none\" loop muted ref=\"video\">\n                    <source src=\"<%=video%>\" type=\"video/mp4\">\n                </video>\n            </div> \n            <div class=\"crt-post-header\"> \n                <span class=\"crt-social-icon\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                <div class=\"crt-post-fullname\"><a href=\"<%=this.userUrl()%>\" target=\"_blank\"><%=user_full_name%></a></div>\n            </div> \n            <div class=\"text crt-post-content-text\"> \n                <%=this.parseText(text)%> \n            </div> \n        </div> \n        <% if (options.showComments || options.showLikes) { %>\n            <div class=\"crt-comments-likes\">\n                <% if (options.showLikes) { %><span><%=likes%></span> <%=this._t(\"likes\", likes)%><% } %><% if (options.showComments && options.showLikes) { %> <span class=\"crt-sep\"></span> <% } %><% if (options.showComments) { %><span><%=comments%></span> <%=this._t(\"comments\", comments)%><% } %>\n            </div>\n        <% } %>\n        <div class=\"crt-post-footer\"> \n            <img class=\"crt-post-userimage\" src=\"<%=user_image%>\" alt=\"Profile image for <%=user_screen_name%>\" /> \n            <span class=\"crt-post-username\"><a href=\"<%=this.userUrl()%>\" target=\"_blank\"><%=this.userScreenName()%></a></span>\n            <span class=\"crt-post-date\"><%=this.dateUrl()%></span> \n            <div class=\"crt-post-share\"><span class=\"crt-share-hint\"></span>\n            <a class=\"crt-share-facebook\" c-on:click=\"onShareFacebookClick()\"><i class=\"crt-icon-facebook\"></i></a>  \n            <a class=\"crt-share-twitter\" c-on:click=\"onShareTwitterClick()\"><i class=\"crt-icon-twitter\"></i></a></div>\n        </div> \n        <div class=\"crt-post-max-height-read-more\"><a class=\"crt-post-read-more-button\" c-on:click=\"onReadMoreClick\"><%=this._t(\"read-more\")%></a></div> \n    </div> \n</div>";
+var template$5 = " \n<div class=\"crt-post crt-post-<%=this.networkIcon()%> <%=this.contentTextClasses()%>  <%=this.contentImageClasses()%>\" data-post=\"<%=id%>\"> \n    <div class=\"crt-post-c\" ref=\"postC\" c-on:click=\"onPostClick\">\n        <div class=\"crt-post-content\">\n            <div class=\"crt-image crt-hitarea crt-post-content-image\" > \n                <div class=\"crt-image-c\" ref=\"imageContainer\"><img src=\"<%=image%>\" ref=\"image\" class=\"crt-post-image\" alt=\"Image posted by <%=user_screen_name%> to <%=this.networkName()%>\" /></div>   \n                <span class=\"crt-play\"><i class=\"crt-play-icon\"></i></span> \n                <div class=\"crt-image-carousel\"><i class=\"crt-icon-image-carousel\"></i></div> \n                <video preload=\"none\" loop muted ref=\"video\">\n                    <source src=\"<%=video%>\" type=\"video/mp4\">\n                </video>\n            </div> \n            <div class=\"crt-post-header\"> \n                <span class=\"crt-social-icon\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                <div class=\"crt-post-fullname\"><a href=\"<%=this.userUrl()%>\" target=\"_blank\"><%=user_full_name%></a></div>\n            </div> \n            <div class=\"crt-post-text\"> \n                <%=this.parseText(text)%> \n            </div> \n        </div> \n        <div class=\"crt-comments-likes\">\n            <span class=\"crt-likes\"><%=likes%> <span><%=this._t(\"likes\", likes)%></span></span>  <span class=\"crt-sep\"></span> <span class=\"crt-comments\"><%=comments%> <span><%=this._t(\"comments\", comments)%></span></span> \n        </div>\n        <div class=\"crt-post-footer\"> \n            <img class=\"crt-post-userimage\" src=\"<%=user_image%>\" alt=\"Profile image for <%=user_screen_name%>\" /> \n            <span class=\"crt-post-username\"><a href=\"<%=this.userUrl()%>\" target=\"_blank\"><%=this.userScreenName()%></a></span>\n            <span class=\"crt-post-date\"><%=this.dateUrl()%></span> \n            <div class=\"crt-post-share\">\n                <span class=\"crt-share-hint\"></span>\n                <a class=\"crt-share-facebook\" c-on:click=\"onShareFacebookClick()\"><i class=\"crt-icon-facebook\"></i></a>  \n                <a class=\"crt-share-twitter\" c-on:click=\"onShareTwitterClick()\"><i class=\"crt-icon-twitter\"></i></a>\n            </div>\n        </div> \n        <div class=\"crt-post-max-height-read-more\"><a class=\"crt-post-read-more-button\" c-on:click=\"onReadMoreClick\"><%=this._t(\"read-more\")%></a></div> \n    </div> \n</div>";
 
-var template$6 = " \n<div class=\"crt-post-malibu crt-post-<%=this.networkIcon()%> <%=this.contentTextClasses()%>  <%=this.contentImageClasses()%>\" data-post=\"<%=id%>\"> \n    <div class=\"crt-post-border\">\n        <div class=\"crt-post-c\">\n            <div class=\"crt-post-content\">\n                <div class=\"crt-image crt-hitarea crt-post-content-image\" > \n                    <div class=\"crt-image-c\"><img src=\"<%=image%>\" class=\"crt-post-image\" alt=\"Image posted by <%=user_screen_name%> to <%=this.networkName()%>\" /></div>   \n                    <span class=\"crt-play\"><i class=\"crt-play-icon\"></i></span> \n                    <div class=\"crt-image-carousel\"><i class=\"crt-icon-image-carousel\"></i></div> \n                </div> \n            </div> \n            <% if (options.showComments || options.showLikes) { %>\n                <div class=\"crt-comments-likes\">\n                    <% if (options.showLikes) { %><span><%=likes%></span> <%=this._t(\"likes\", likes)%><% } %><% if (options.showComments && options.showLikes) { %> <span class=\"crt-sep\"></span> <% } %><% if (options.showComments) { %><span><%=comments%></span> <%=this._t(\"comments\", comments)%><% } %>\n                </div>\n            <% } %>\n            <div class=\"crt-post-hover\"> \n                <div class=\"crt-post-header\"> \n                    <span class=\"crt-social-icon\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                    <div class=\"crt-post-fullname\"><a href=\"<%=this.userUrl()%>\" target=\"_blank\"><%=user_full_name%></a></div>\n                </div> \n                <div class=\"text crt-post-content-text\"> \n                    <%=this.parseText(text)%> \n                </div> \n                <img class=\"crt-post-userimage\" src=\"<%=user_image%>\" alt=\"Profile image for <%=user_screen_name%>\" /> \n                <span class=\"crt-post-username\"><a href=\"<%=this.userUrl()%>\" target=\"_blank\"><%=this.userScreenName()%></a></span>\n                <span class=\"crt-post-date\"><%=this.dateUrl()%></span> \n                <div class=\"crt-post-share\"><span class=\"crt-share-hint\"></span>\n                <a class=\"crt-share-facebook\" c-on:click=\"onShareFacebookClick()\"><i class=\"crt-icon-facebook\"></i></a>  \n                <a class=\"crt-share-twitter\" c-on:click=\"onShareTwitterClick()\"><i class=\"crt-icon-twitter\"></i></a></div>\n            </div> \n            <div class=\"crt-post-max-height-read-more\"><a class=\"crt-post-read-more-button\" c-on:click=\"onReadMoreClick\"><%=this._t(\"read-more\")%></a></div> \n        </div> \n    </div> \n</div>";
+var template$6 = " \n<div class=\"crt-post crt-post-london crt-post-<%=this.networkIcon()%> <%=this.contentTextClasses()%>  <%=this.contentImageClasses()%>\" data-post=\"<%=id%>\"> \n    <div class=\"crt-post-c\" ref=\"postC\" c-on:click=\"onPostClick\">\n        <div class=\"crt-image crt-hitarea crt-post-content-image\" > \n            <div class=\"crt-image-c\" ref=\"imageContainer\"><img src=\"<%=image%>\" ref=\"image\" class=\"crt-post-image\" alt=\"Image posted by <%=user_screen_name%> to <%=this.networkName()%>\" /></div>   \n            <span class=\"crt-play\"><i class=\"crt-play-icon\"></i></span> \n            <div class=\"crt-image-carousel\"><i class=\"crt-icon-image-carousel\"></i></div> \n            <video preload=\"none\" loop muted ref=\"video\">\n                <source src=\"<%=video%>\" type=\"video/mp4\">\n            </video>\n        </div> \n        <div class=\"crt-post-header\"> \n            <span class=\"crt-social-icon\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n            <div class=\"crt-post-fullname\"><a href=\"<%=this.userUrl()%>\" target=\"_blank\"><%=user_full_name%></a></div>\n        </div> \n        <div class=\"crt-post-text\"> \n            <%=this.parseText(text)%> \n        </div> \n        <div class=\"crt-comments-likes\">\n            <span class=\"crt-likes\"><%=likes%> <span><%=this._t(\"likes\", likes)%></span></span>  <span class=\"crt-sep\"></span> <span class=\"crt-comments\"><%=comments%> <span><%=this._t(\"comments\", comments)%></span></span> \n        </div>\n        <div class=\"crt-post-footer\"> \n            <img class=\"crt-post-userimage\" src=\"<%=user_image%>\" alt=\"Profile image for <%=user_screen_name%>\" /> \n            <span class=\"crt-post-username\"><a href=\"<%=this.userUrl()%>\" target=\"_blank\"><%=this.userScreenName()%></a></span>\n            <span class=\"crt-post-date\"><%=this.dateUrl()%></span> \n            <div class=\"crt-post-share\">\n                <span class=\"crt-share-hint\"></span>\n                <a class=\"crt-share-facebook\" c-on:click=\"onShareFacebookClick()\"><i class=\"crt-icon-facebook\"></i></a>  \n                <a class=\"crt-share-twitter\" c-on:click=\"onShareTwitterClick()\"><i class=\"crt-icon-twitter\"></i></a>\n            </div>\n        </div> \n        <div class=\"crt-post-max-height-read-more\"><a class=\"crt-post-read-more-button\" c-on:click=\"onReadMoreClick\"><%=this._t(\"read-more\")%></a></div> \n    </div> \n</div>";
 
-var template$7 = " \n<div class=\"crt-post-v1 crt-post-c\">\n    <div class=\"crt-post-bg\"></div> \n    <div class=\"crt-post post<%=id%> crt-post-<%=this.networkIcon()%>\"> \n        <div class=\"crt-post-header\"> \n            <span class=\"crt-social-icon\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n            <img src=\"<%=user_image%>\" alt=\"Profile image for <%=user_full_name%>\"  /> \n            <div class=\"crt-post-name\">\n            <div class=\"crt-post-fullname\"><%=user_full_name%></div>\n            <div class=\"crt-post-username\"><a href=\"<%=this.userUrl()%>\" target=\"_blank\">@<%=user_screen_name%></a></div>\n            </div> \n        </div> \n        <div class=\"crt-post-content\"> \n            <div class=\"crt-image crt-hitarea crt-post-content-image <%=this.contentImageClasses()%>\" > \n                <div class=\"crt-image-c\"><img src=\"<%=image%>\" class=\"crt-post-image\" alt=\"Image posted by <%=user_screen_name%> to <%=this.networkName()%>\" /></div> \n                <span class=\"crt-play\"><i class=\"crt-play-icon\"></i></span> \n            </div> \n            <div class=\"text crt-post-content-text <%=this.contentTextClasses()%>\"> \n                <div class=\"crt-post-text-body\"><%=this.parseText(text)%></div> \n            </div> \n        </div> \n        <div class=\"crt-post-footer\">\n            <div class=\"crt-date\"><%=this.prettyDate(source_created_at)%></div> \n            <div class=\"crt-post-share\"><span class=\"crt-share-hint\"></span><a href=\"#\" class=\"crt-share-facebook\"><i class=\"crt-icon-facebook\"></i></a>  <a href=\"#\" class=\"crt-share-twitter\"><i class=\"crt-icon-twitter\"></i></a></div>\n        </div> \n        <div class=\"crt-post-read-more\"><a href=\"#\" class=\"crt-post-read-more-button\">Read more</a> </div> \n    </div>\n</div>";
+var template$7 = " \n<div class=\"crt-post crt-post-berlin crt-post-<%=this.networkIcon()%> <%=this.contentTextClasses()%>  <%=this.contentImageClasses()%>\" data-post=\"<%=id%>\"> \n    <div class=\"crt-post-c\" ref=\"postC\" c-on:click=\"onPostClick\">\n        <div class=\"crt-image crt-hitarea crt-post-content-image\" > \n            <div class=\"crt-image-c\" ref=\"imageContainer\"><img src=\"<%=image%>\" ref=\"image\" class=\"crt-post-image\" alt=\"Image posted by <%=user_screen_name%> to <%=this.networkName()%>\" /></div>   \n            <span class=\"crt-play\"><i class=\"crt-play-icon\"></i></span> \n            <div class=\"crt-image-carousel\"><i class=\"crt-icon-image-carousel\"></i></div> \n            <video preload=\"none\" loop muted ref=\"video\">\n                <source src=\"<%=video%>\" type=\"video/mp4\">\n            </video>\n        </div> \n        <div class=\"crt-post-header\"> \n            <span class=\"crt-social-icon\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n            <div class=\"crt-post-fullname\"><a href=\"<%=this.userUrl()%>\" target=\"_blank\"><%=user_full_name%></a></div>\n        </div> \n        <div class=\"crt-post-text\"> \n            <%=this.parseText(text)%> \n        </div> \n        <div class=\"crt-comments-likes\">\n            <span class=\"crt-likes\"><%=likes%> <span><%=this._t(\"likes\", likes)%></span></span>  <span class=\"crt-sep\"></span> <span class=\"crt-comments\"><%=comments%> <span><%=this._t(\"comments\", comments)%></span></span> \n        </div>\n        <div class=\"crt-post-footer\"> \n            <img class=\"crt-post-userimage\" src=\"<%=user_image%>\" alt=\"Profile image for <%=user_screen_name%>\" /> \n            <span class=\"crt-post-username\"><a href=\"<%=this.userUrl()%>\" target=\"_blank\"><%=this.userScreenName()%></a></span>\n            <span class=\"crt-post-date\"><%=this.dateUrl()%></span> \n            <div class=\"crt-post-share\">\n                <span class=\"crt-share-hint\"></span>\n                <a class=\"crt-share-facebook\" c-on:click=\"onShareFacebookClick()\"><i class=\"crt-icon-facebook\"></i></a>  \n                <a class=\"crt-share-twitter\" c-on:click=\"onShareTwitterClick()\"><i class=\"crt-icon-twitter\"></i></a>\n            </div>\n        </div> \n        <div class=\"crt-post-max-height-read-more\"><a class=\"crt-post-read-more-button\" c-on:click=\"onReadMoreClick\"><%=this._t(\"read-more\")%></a></div> \n    </div> \n</div>";
 
-var template$8 = "\n<div class=\"crt-carousel-feed\">\n<div class=\"crt-carousel-stage\" ref=\"stage\">\n<div class=\"crt-carousel-slider\" ref=\"slider\">\n\n</div>\n</div>\n\n<button c-on:click=\"onPrevClick\" type=\"button\" data-role=\"none\" class=\"crt-panel-prev crt-panel-arrow\" aria-label=\"Previous\" role=\"button\" aria-disabled=\"false\">Previous</button>\n<button c-on:click=\"onNextClick\" type=\"button\" data-role=\"none\" class=\"crt-panel-next crt-panel-arrow\" aria-label=\"Next\" role=\"button\" aria-disabled=\"false\">Next</button>\n\n</div>\n";
+var template$8 = "\n<div class=\"crt-grid-post crt-grid-post-sydney crt-post-<%=id%> <%=this.contentImageClasses()%> <%=this.contentTextClasses()%>\" data-post=\"<%=id%>\">     <div class=\"crt-post-c\" ref=\"postC\" c-on:click=\"onPostClick\"> \n        <div class=\"crt-grid-post-content\" ref=\"spacer\">\n            <div class=\"crt-grid-post-image\" style=\"background-image:url('<%=image%>');\"></div> \n            <video preload=\"none\" loop muted ref=\"video\">\n                <source src=\"<%=video%>\" type=\"video/mp4\">\n            </video>\n            <div class=\"crt-grid-post-text\">\n                <div class=\"crt-grid-post-text-wrap\"> \n                    <div><%=this.parseText(text)%></div> \n                </div> \n            </div>\n            <span class=\"crt-play\"><i class=\"crt-play-icon\"></i></span> \n            <span class=\"crt-social-icon crt-social-icon-normal\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n            <div class=\"crt-image-carousel\"><i class=\"crt-icon-image-carousel\"></i></div> \n            <span class=\"crt-date\"><%=this.prettyDate(source_created_at)%></span> \n            <div class=\"crt-post-hover\">\n                <div class=\"crt-post-text\"> \n                    <%=this.parseText(text)%> \n                </div> \n                <div class=\"crt-post-read-more\"><button class=\"crt-post-read-more-button\"><%=this._t(\"read-more\")%></button></div> \n            </div> \n        </div>\n        <div class=\"crt-post-footer\">\n            <img class=\"crt-post-userimage\" src=\"<%=user_image%>\" alt=\"Profile image for <%=user_full_name%>\" /> \n            <span class=\"crt-post-username\"><a href=\"<%=this.userUrl()%>\" target=\"_blank\"><%=this.userScreenName()%></a></span>\n            <div class=\"crt-post-fullname\"><a href=\"<%=this.userUrl()%>\" target=\"_blank\"><%=user_full_name%></a></div>\n             \n            <div class=\"crt-post-share\">\n                <span class=\"crt-share-hint\"></span>\n                <a class=\"crt-share-facebook\" c-on:click=\"onShareFacebookClick\"><i class=\"crt-icon-facebook\"></i></a>  \n                <a class=\"crt-share-twitter\" c-on:click=\"onShareTwitterClick\"><i class=\"crt-icon-twitter\"></i></a>\n            </div>\n        </div>\n    </div>\n</div>";
+
+var template$9 = "\n<div class=\"crt-list-post crt-post-<%=id%> <%=this.contentImageClasses()%> <%=this.contentTextClasses()%>\" data-post=\"<%=id%>\"> \n    <div class=\"crt-post-c\" ref=\"postC\" c-on:click=\"onPostClick\"> \n        <div class=\"crt-post-content\"> \n            <div class=\"crt-list-post-image\" ref=\"imageCol\">\n                <div ref=\"imageContainer\">\n                    <img class=\"crt-post-content-image\" src=\"<%=image%>\" ref=\"image\" alt=\"Image posted by <%=user_screen_name%> to <%=this.networkName()%>\" /> \n                    <a href=\"javascript:;\" class=\"crt-play\"><i class=\"crt-play-icon\"></i></a> \n                    <span class=\"crt-social-icon crt-social-icon-normal\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n                    <span class=\"crt-image-carousel\"><i class=\"crt-icon-image-carousel\"></i></span>\n                </div> \n            </div>\n            <div class=\"crt-list-post-text\">\n                <div class=\"crt-post-header\"> \n                    <div class=\"crt-post-fullname\"><a href=\"<%=this.userUrl()%>\" target=\"_blank\"><%=user_full_name%></a></div>\n                </div> \n                <div class=\"crt-list-post-text-wrap\"> \n                    <div><%=this.parseText(text)%></div> \n                    <div class=\"crt-comments-likes\">\n                        <span class=\"crt-likes\"><%=likes%> <span><%=this._t(\"likes\", likes)%></span></span> <span class=\"crt-sep\"></span> <span class=\"crt-comments\"><%=comments%> <span><%=this._t(\"comments\", comments)%></span></span> \n                    </div>\n                </div> \n                 <div class=\"crt-post-footer\">\n                    <img class=\"crt-post-userimage\" src=\"<%=user_image%>\" alt=\"Profile image for <%=user_full_name%>\" /> \n                    <span class=\"crt-post-username\"><a href=\"<%=this.userUrl()%>\" target=\"_blank\">@<%=user_screen_name%></a></span>\n                    <span class=\"crt-post-date\"><%=this.dateUrl()%></span> \n                    <div class=\"crt-post-share\">\n                        <span class=\"crt-share-hint\"></span>\n                        <a class=\"crt-share-facebook\" c-on:click=\"onShareFacebookClick()\"><i class=\"crt-icon-facebook\"></i></a>  \n                        <a class=\"crt-share-twitter\" c-on:click=\"onShareTwitterClick()\"><i class=\"crt-icon-twitter\"></i></a>\n                    </div>\n                </div>  \n            </div>\n        </div> \n    </div>\n</div>";
+
+var template$10 = "\n<div class=\"crt-carousel-feed\">\n<div class=\"crt-carousel-stage\" ref=\"stage\">\n<div class=\"crt-carousel-slider\" ref=\"slider\">\n\n</div>\n</div>\n\n<button c-on:click=\"onPrevClick\" type=\"button\" data-role=\"none\" class=\"crt-panel-prev crt-panel-arrow\" aria-label=\"Previous\" role=\"button\" aria-disabled=\"false\">Previous</button>\n<button c-on:click=\"onNextClick\" type=\"button\" data-role=\"none\" class=\"crt-panel-next crt-panel-arrow\" aria-label=\"Next\" role=\"button\" aria-disabled=\"false\">Next</button>\n\n</div>\n";
 
 // Note the .crt-feed-spacer below was added to fix issues where the feed didn't fill the full width of a browser when it (the feed
 // is a child of a flex-box that doesn't grow correctly ... pretty hacky but it works :|
-var template$9 = "\n<div class=\"crt-feed-scroll\">\n    <div class=\"crt-feed\" ref=\"feed\">\n        <div class=\"crt-feed-spacer\"> -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- </div>\n    </div>\n    <div class=\"crt-load-more-container\" ref=\"loadMore\"><a c-on:click=\"onMoreClick\" class=\"crt-load-more\"><span><%=this._t(\"load-more\")%></span></a></div>\n</div>\n";
+var template$11 = "\n<div class=\"crt-feed-scroll\">\n    <div class=\"crt-feed\" ref=\"feed\">\n        <div class=\"crt-feed-spacer\"> -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- </div>\n    </div>\n    <div class=\"crt-load-more-container\" ref=\"loadMore\"><button c-on:click=\"onMoreClick\" class=\"crt-load-more\"><span><%=this._t(\"load-more\")%></span></button></div>\n</div>\n";
 
-var template$10 = "\n<div>\n<div class=\"crt-feed-window\" ref=\"feedWindow\">\n    <div class=\"crt-feed\" ref=\"feed\"></div>\n</div>\n<div class=\"crt-load-more-container\" ref=\"loadMore\"><a c-on:click=\"onMoreClick\" class=\"crt-load-more\"><span><%=this._t(\"load-more\")%></span></a></div>\n</div>\n";
+var template$12 = "\n<div>\n    <button c-on:click=\"loadBefore\">Load Newer</button>\n<div class=\"crt-feed-window\" ref=\"feedWindow\">\n    <div class=\"crt-feed\" ref=\"feed\"></div>\n</div>\n<div class=\"crt-load-more-container\" ref=\"loadMore\"><button c-on:click=\"onMoreClick\" class=\"crt-load-more\"><span><%=this._t(\"load-more\")%></span></button></div>\n</div>\n";
 
-var template$11 = "\n<div class=\"crt-grid-carousel-feed\">\n<div class=\"crt-grid-carousel-stage\" ref=\"stage\">\n<div class=\"crt-grid-carousel-slider\" ref=\"slider\">\n\n</div>\n</div>\n\n<button c-on:click=\"onPrevClick\" type=\"button\" data-role=\"none\" class=\"crt-panel-prev crt-panel-arrow\" aria-label=\"Previous\" role=\"button\" aria-disabled=\"false\">Previous</button>\n<button c-on:click=\"onNextClick\" type=\"button\" data-role=\"none\" class=\"crt-panel-next crt-panel-arrow\" aria-label=\"Next\" role=\"button\" aria-disabled=\"false\">Next</button>\n\n</div>\n";
+var template$13 = "\n<div class=\"crt-grid-carousel-feed\">\n<div class=\"crt-grid-carousel-stage\" ref=\"stage\">\n<div class=\"crt-grid-carousel-slider\" ref=\"slider\">\n\n</div>\n</div>\n\n<button c-on:click=\"onPrevClick\" type=\"button\" data-role=\"none\" class=\"crt-panel-prev crt-panel-arrow\" aria-label=\"Previous\" role=\"button\" aria-disabled=\"false\">Previous</button>\n<button c-on:click=\"onNextClick\" type=\"button\" data-role=\"none\" class=\"crt-panel-next crt-panel-arrow\" aria-label=\"Next\" role=\"button\" aria-disabled=\"false\">Next</button>\n\n</div>\n";
 
-var template$12 = "\n<div class=\"crt-feed-window\">\n    <div class=\"crt-feed\"></div>\n    <div class=\"crt-load-more-container\" ref=\"loadMore\"><a c-on:click=\"onMoreClick\" class=\"crt-load-more\"><span><%=this._t(\"load-more\")%></span></a></div>\n</div>";
+var template$14 = "\n<div class=\"crt-feed-window\">\n    <div class=\"crt-feed\" ref=\"feed\"></div>\n    <div class=\"crt-load-more-container\" ref=\"loadMore\"><button c-on:click=\"onMoreClick\" class=\"crt-load-more\"><span><%=this._t(\"load-more\")%></span></button></div>\n</div>";
 
 var Templates = {
     // General
@@ -2352,18 +2380,20 @@ var Templates = {
 
     // Post
     'post-general'          : template$5,
-    'post-general-retro'    : template$7,
-    'post-general-malibu'   : template$6,
+    'post-general-london'   : template$6,
+    'post-general-berlin'   : template$7,
     'post-grid'             : template$3,
-    'post-grid-minimal'       : template$4,
+    'post-grid-sydney'      : template$8,
+    'post-grid-minimal'     : template$4,
     'post-grid-retro'       : gridPostTemplate,
+    'post-list'             : template$9,
 
     // Widgets
-    'widget-carousel'       : template$8,
-    'widget-waterfall'      : template$9,
-    'widget-grid'           : template$10,
-    'widget-grid-carousel'  : template$11,
-    'widget-list'           : template$12,
+    'widget-carousel'       : template$10,
+    'widget-waterfall'      : template$11,
+    'widget-grid'           : template$12,
+    'widget-grid-carousel'  : template$13,
+    'widget-list'           : template$14,
 };
 
 /**
@@ -2749,6 +2779,7 @@ var helpers = {
     },
 
     parseText: function parseText (s) {
+        s = StringUtils.removeScripts(s);
         if (this.data.is_html) {
             return s;
         } else {
@@ -2790,17 +2821,25 @@ var helpers = {
         return DateUtils.prettyDate (time);
     },
 
-    _t: function _t (s, n) {
-        return mod.t (s, n);
-    },
-
     dateUrl: function dateUrl () {
         var url = this.data.url;
         var created_at = this.data.source_created_at;
         if (url) {
-            return '<a href="'+url+'" target="_blank">'+helpers.prettyDate(created_at)+'</a>';
+            return '<a href="' + url + '" target="_blank">' + helpers.prettyDate(created_at) + '</a>';
         } else {
             return helpers.prettyDate(created_at);
+        }
+    },
+
+    _t: function _t (s, n) {
+        return mod.t (s, n);
+    },
+
+    _s: function _s (s) {
+        if (typeof s === 'string') {
+            return StringUtils.removeScripts(s);
+        } else {
+            return s;
         }
     }
 };
@@ -2856,7 +2895,8 @@ var Templating = {
                         .replace(/'(?=[^%]*%>)/g, "\t")
                         .split("'").join("\\'")
                         .split("\t").join("'")
-                        .replace(/<%=(.+?)%>/g, "',$1,'")
+                        .replace(/<%=(.+?)%>/g, "',this._s($1),'")
+                        .replace(/<!=(.+?)!>/g, "',$1,'")
                         .split("<%").join("');")
                         .split("%>").join("p.push('");
 
@@ -2904,6 +2944,8 @@ var Control = (function (EventBus$$1) {
         var $el = Templating.renderTemplate(this.templateId, data, options);
 
         this.onHandler($el, 'c-on:click', 'click');
+        this.onHandler($el, 'c-on:blur', 'blur');
+        this.onHandler($el, 'c-on:change', 'change');
 
         // Setup refs
         var refs = $el.find('[ref]');
@@ -3052,31 +3094,30 @@ var VideoPlayer = (function (EventBus$$1) {
     return VideoPlayer;
 }(EventBus));
 
-var Base = (function (Control$$1) {
-    function Base (widget, postJson, options) {
+var BasePost = (function (Control$$1) {
+    function BasePost (widget, postJson) {
         Control$$1.call(this);
 
-        this.options = options;
         this.widget = widget;
         this.json = postJson;
         this.templateId = this.widget.config('post.template');
     }
 
-    if ( Control$$1 ) Base.__proto__ = Control$$1;
-    Base.prototype = Object.create( Control$$1 && Control$$1.prototype );
-    Base.prototype.constructor = Base;
+    if ( Control$$1 ) BasePost.__proto__ = Control$$1;
+    BasePost.prototype = Object.create( Control$$1 && Control$$1.prototype );
+    BasePost.prototype.constructor = BasePost;
 
-    Base.prototype.onShareFacebookClick = function onShareFacebookClick () {
+    BasePost.prototype.onShareFacebookClick = function onShareFacebookClick () {
         SocialFacebook.share(this.json);
         this.widget.track('share:facebook');
     };
 
-    Base.prototype.onShareTwitterClick = function onShareTwitterClick () {
+    BasePost.prototype.onShareTwitterClick = function onShareTwitterClick () {
         SocialTwitter.share(this.json);
         this.widget.track('share:twitter');
     };
 
-    Base.prototype.onPostClick = function onPostClick (ev) {
+    BasePost.prototype.onPostClick = function onPostClick (ev) {
         Logger.log('Post->click');
 
         var target = z$1(ev.target);
@@ -3094,12 +3135,12 @@ var Base = (function (Control$$1) {
         }
     };
 
-    Base.prototype.onReadMoreClick = function onReadMoreClick (ev) {
+    BasePost.prototype.onReadMoreClick = function onReadMoreClick (ev) {
         this.widget.track('click:read-more');
         this.trigger(Events.POST_CLICK_READ_MORE, this, this.json, ev);
     };
 
-    Base.prototype.setupVideo = function setupVideo () {
+    BasePost.prototype.setupVideo = function setupVideo () {
         var this$1 = this;
 
         if (this.json.video) {
@@ -3108,23 +3149,46 @@ var Base = (function (Control$$1) {
             if (this.json.video.indexOf('youtu') === -1 && this.json.video.indexOf('vimeo') === -1 ) {
                 // Normal video - not YouTube or Vimeo
                 if (this.widget.config('post.autoPlayVideos')) {
-                    this.videoPlayer = new VideoPlayer(this.$refs.video);
-                    this.videoPlayer.on('state:changed', function (event, playing) {
-                        this$1.$el.toggleClass('crt-post-video-playing', playing);
-                    });
-                    this.videoPlayer.play();
+                    if (this.$refs.video) {
+                        this.videoPlayer = new VideoPlayer(this.$refs.video);
+                        this.videoPlayer.on('state:changed', function (event, playing) {
+                            this$1.$el.toggleClass('crt-post-video-playing', playing);
+                        });
+                        this.videoPlayer.play();
+                    }
                 }
             }
         }
     };
 
-    Base.prototype.setupCarousel = function setupCarousel () {
+    BasePost.prototype.setupCarousel = function setupCarousel () {
         if (this.json.images && this.json.images.length > 0) {
             this.$el.addClass('crt-has-image-carousel');
         }
     };
 
-    Base.prototype.setupShare = function setupShare () {
+    BasePost.prototype.setupCommentsLikes = function setupCommentsLikes () {
+        if (this.widget.config('post.showComments')) {
+            this.$el.addClass('crt-show-comments');
+        }
+        if (this.widget.config('post.showLikes')) {
+            this.$el.addClass('crt-show-likes');
+        }
+    };
+
+    BasePost.prototype.setupUserNameImage = function setupUserNameImage () {
+        if (!this.json.user_image || this.json.user_image === 'https://cdn.curator.io/0.gif') {
+            this.$el.addClass('crt-hide-user-image');
+        }
+        if (!this.json.user_full_name || this.json.user_full_name === '') {
+            this.$el.addClass('crt-hide-user-full-name');
+        }
+        if (!this.json.user_screen_name || this.json.user_screen_name === '') {
+            this.$el.addClass('crt-hide-user-screen-name');
+        }
+    };
+
+    BasePost.prototype.setupShare = function setupShare () {
 
 
         if (this.json.url.indexOf('http') !== 0) {
@@ -3134,7 +3198,7 @@ var Base = (function (Control$$1) {
         }
     };
 
-    return Base;
+    return BasePost;
 }(Control));
 
 var HtmlUtils = {
@@ -3259,330 +3323,11 @@ var ajax = {
     }
 };
 
-var Feed = (function (EventBus$$1) {
-    function Feed(widget) {
-        EventBus$$1.call (this);
-
-        Logger.log ('Feed->init with options');
-
-        this.widget = widget;
-
-        this.posts = [];
-        this.currentPage = 0;
-        this.postsLoaded = 0;
-        this.postCount = 0;
-        this.loading = false;
-        this.allPostsLoaded = false;
-        this.pagination = {
-            after:null,
-            before:null
-        };
-
-        this.options = this.widget.options;
-
-        this.params = this.options.feedParams || {};
-        this.params.limit = this.options.postsPerPage;
-        this.params.hasPoweredBy = this.widget.hasPoweredBy;
-        this.params.version = '1.2';
-
-        this.feedBase = this.options.apiEndpoint+'/feeds';
-    }
-
-    if ( EventBus$$1 ) Feed.__proto__ = EventBus$$1;
-    Feed.prototype = Object.create( EventBus$$1 && EventBus$$1.prototype );
-    Feed.prototype.constructor = Feed;
-
-    Feed.prototype.loadPosts = function loadPosts (page, paramsIn) {
-        page = page || 0;
-        Logger.log ('Feed->loadPosts '+this.loading);
-        if (this.loading) {
-            return false;
-        }
-        this.currentPage = page;
-
-        if (+this.currentPage === 0) {
-            this.posts = [];
-            this.postsLoaded = 0;
-        }
-
-        var params = z$1.extend({},this.params,paramsIn);
-
-        params.limit = this.options.postsPerPage;
-        params.offset = page * this.options.postsPerPage;
-
-        this._loadPosts (params);
-    };
-
-    Feed.prototype.loadMorePaginated = function loadMorePaginated (paramsIn) {
-
-        var params = z$1.extend({},this.params,paramsIn);
-
-        if (this.pagination && this.pagination.after) {
-            params.after = this.pagination.after;
-        }
-
-        // console.log (params);
-
-        this._loadPosts (params);
-    };
-
-    Feed.prototype.loadMore = function loadMore (paramsIn) {
-        Logger.log ('Feed->loadMore '+this.loading);
-        if (this.loading) {
-            return false;
-        }
-
-        var params = {
-            limit:this.options.postsPerPage
-        };
-        z$1.extend(params,this.options.feedParams, paramsIn);
-
-        params.offset = this.posts.length;
-
-        this._loadPosts (params);
-    };
-
-    /**
-     * First load - get's the most recent posts.
-     * @param params - set parameters to send to API
-     * @returns {boolean}
-     */
-    Feed.prototype.load = function load (params) {
-        Logger.log ('Feed->load '+this.loading);
-
-        if (this.loading) {
-            return false;
-        }
-        this.currentPage = 0;
-
-        var loadPostParams = z$1.extend(this.params, params);
-
-        this._loadPosts (loadPostParams);
-    };
-
-    /**
-     * Loads posts after the current set
-     * @returns {boolean}
-     */
-    Feed.prototype.loadAfter = function loadAfter () {
-        Logger.log ('Feed->loadAfter '+this.loading);
-
-        if (this.loading) {
-            return false;
-        }
-        this.currentPage = 0;
-
-        var params = z$1.extend({},this.params);
-
-        // TODO should we check we have after?
-        if (this.pagination && this.pagination.after) {
-            params.after = this.pagination.after;
-            delete params.before;
-        }
-
-        this._loadPosts (params);
-    };
-
-    Feed.prototype._loadPosts = function _loadPosts (params) {
+var GeneralPost = (function (Base) {
+    function GeneralPost (widget, postJson, options) {
         var this$1 = this;
 
-        Logger.log ('Feed->_loadPosts');
-
-        this.loading = true;
-
-        params.rnd = (new Date ()).getTime();
-
-        ajax.get(
-            this.getUrl('/posts'),
-            params,
-            function (data) {
-                Logger.log('Feed->_loadPosts success');
-
-                if (data.success) {
-                    this$1.postCount = data.postCount;
-                    this$1.postsLoaded += data.posts.length;
-
-                    this$1.allPostsLoaded = this$1.postsLoaded >= this$1.postCount;
-
-                    this$1.posts = this$1.posts.concat(data.posts);
-                    this$1.networks = data.networks;
-
-                    if (data.pagination) {
-                        this$1.pagination = data.pagination;
-                    }
-
-                    this$1.widget.trigger(Events.FEED_LOADED, data);
-                    this$1.trigger(Events.FEED_LOADED, data);
-
-                    this$1.widget.trigger(Events.POSTS_LOADED, data.posts);
-                    this$1.trigger(Events.POSTS_LOADED, data.posts);
-                } else {
-                    this$1.trigger(Events.POSTS_FAILED, data);
-                    this$1.widget.trigger(Events.POSTS_FAILED, data);
-                }
-                this$1.loading = false;
-            },
-            function (jqXHR, textStatus, errorThrown) {
-                Logger.log('Feed->_loadPosts fail');
-                Logger.log(textStatus);
-                Logger.log(errorThrown);
-
-                this$1.trigger(Events.POSTS_FAILED, []);
-                this$1.loading = false;
-            }
-        );
-    };
-
-    /**
-     * Loads new posts
-     * @returns {boolean}
-     */
-    Feed.prototype.loadNewPosts = function loadNewPosts () {
-        var this$1 = this;
-
-        Logger.log ('Feed->loadNewPosts '+this.loading);
-
-        if (this.loading) {
-            return false;
-        }
-        this.currentPage = 0;
-
-        var params = z$1.extend({},this.params);
-
-        // TODO should we check we have after?
-        if (this.pagination && this.pagination.before) {
-            params.before = this.pagination.before;
-            delete params.after;
-        }
-
-        // console.log(params.before);
-
-        return new Promise (function (resolve, reject) {
-            this$1.loading = true;
-
-            params.rnd = (new Date ()).getTime();
-
-            ajax.get(
-                this$1.getUrl('/posts'),
-                params,
-                function (data) {
-                    Logger.log('Feed->_loadPosts success');
-                    this$1.loading = false;
-
-
-                    if (data.success) {
-                        // this.postCount = data.postCount;
-                        // this.postsLoaded += data.posts.length;
-                        //
-                        // this.allPostsLoaded = this.postsLoaded >= this.postCount;
-                        //
-                        // this.posts = this.posts.concat(data.posts);
-                        // this.networks = data.networks;
-                        //
-                        if (data.pagination && data.pagination.before) {
-                            this$1.pagination.before = data.pagination.before;
-                        }
-                        //
-                        // this.widget.trigger(Events.FEED_LOADED, data);
-                        // this.trigger(Events.FEED_LOADED, data);
-                        //
-                        // this.widget.trigger(Events.POSTS_LOADED, data.posts);
-                        // this.trigger(Events.POSTS_LOADED, data.posts);
-
-                        // add to the beginning
-                        if (data.posts.length > 0) {
-                            this$1.posts = data.posts.concat(this$1.posts);
-                        }
-
-                        resolve (data.posts);
-                    } else {
-                        // this.trigger(Events.POSTS_FAILED, data);
-                        // this.widget.trigger(Events.POSTS_FAILED, data);
-                        reject();
-                    }
-                },
-                function (jqXHR, textStatus, errorThrown) {
-                    Logger.log('Feed->_loadNewPosts fail');
-                    Logger.log(textStatus);
-                    Logger.log(errorThrown);
-
-                    this$1.trigger(Events.POSTS_FAILED, []);
-                    this$1.loading = false;
-                }
-            );
-        });
-    };
-
-
-
-    Feed.prototype.loadPost = function loadPost (id, successCallback, failCallback) {
-        failCallback = failCallback || function(){};
-        ajax.get(
-            this.getUrl('/post/' + id),
-            {},
-            function (data) {
-                if (data.success) {
-                    successCallback (data.post);
-                } else {
-                    failCallback ();
-                }
-            },
-            function (jqXHR, textStatus, errorThrown) { /* jshint ignore:line */
-                // FAIL
-            });
-    };
-
-    Feed.prototype.inappropriatePost = function inappropriatePost (id, reason, success, failure) {
-        var params = {
-            reason: reason
-        };
-
-        ajax.post(
-            this.getUrl('/post/' + id + '/inappropriate'),
-            params,
-            function (data, textStatus, jqXHR) {
-                data = z$1.parseJSON(data);
-
-                if (data.success === true) {
-                    success();
-                }
-                else {
-                    failure(jqXHR);
-                }
-        }   );
-    };
-
-    Feed.prototype.lovePost = function lovePost (id, success, failure) {
-        var params = {};
-
-        z$1.post(this.getUrl('/post/' + id + '/love'), params, function (data, textStatus, jqXHR) {
-            data = z$1.parseJSON(data);
-
-            if (data.success === true) {
-                success(data.loves);
-            }
-            else {
-                failure(jqXHR);
-            }
-        });
-    };
-
-    Feed.prototype.getUrl = function getUrl (trail) {
-        return this.feedBase+'/'+this.options.feedId+trail;
-    };
-
-    Feed.prototype.destroy = function destroy () {
-        EventBus$$1.prototype.destroy.call(this);
-    };
-
-    return Feed;
-}(EventBus));
-
-var General = (function (Base$$1) {
-    function General (widget, postJson, options) {
-        var this$1 = this;
-
-        Base$$1.call(this, widget, postJson, options);
+        Base.call(this, widget, postJson, options);
 
         this.render ();
 
@@ -3607,16 +3352,18 @@ var General = (function (Base$$1) {
             this.$el.find('.crt-post-share').hide ();
         }
 
+        this.setupUserNameImage ();
         this.setupVideo ();
         this.setupCarousel ();
         this.setupShare ();
+        this.setupCommentsLikes ();
     }
 
-    if ( Base$$1 ) General.__proto__ = Base$$1;
-    General.prototype = Object.create( Base$$1 && Base$$1.prototype );
-    General.prototype.constructor = General;
+    if ( Base ) GeneralPost.__proto__ = Base;
+    GeneralPost.prototype = Object.create( Base && Base.prototype );
+    GeneralPost.prototype.constructor = GeneralPost;
 
-    General.prototype.onImageLoaded = function onImageLoaded () {
+    GeneralPost.prototype.onImageLoaded = function onImageLoaded () {
         this.$refs.image.animate({opacity:1});
 
         this.setHeight();
@@ -3625,7 +3372,7 @@ var General = (function (Base$$1) {
         this.widget.trigger(Events.POST_IMAGE_LOADED, this);
     };
 
-    General.prototype.onImageError = function onImageError () {
+    GeneralPost.prototype.onImageError = function onImageError () {
         // Unable to load image!!!
         this.$refs.image.hide();
 
@@ -3635,17 +3382,18 @@ var General = (function (Base$$1) {
         this.widget.trigger(Events.POST_IMAGE_FAILED, this);
     };
 
-    General.prototype.setHeight = function setHeight () {
+    GeneralPost.prototype.setHeight = function setHeight () {
         var height = this.$refs.postC.height();
-        if (this.options.maxHeight && this.options.maxHeight > 0 && height > this.options.maxHeight) {
-            this.$refs.postC.css({maxHeight: this.options.maxHeight});
+        var maxHeight = this.widget.config('maxHeight',0);
+        if (maxHeight > 0 && height > maxHeight) {
+            this.$refs.postC.css({maxHeight: maxHeight});
             this.$el.addClass('crt-post-max-height');
         }
 
         this.layout();
     };
 
-    General.prototype.getHeight = function getHeight () {
+    GeneralPost.prototype.getHeight = function getHeight () {
         if (this.$el.hasClass('crt-post-max-height')) {
             return this.$refs.postC.height();
         } else {
@@ -3656,13 +3404,13 @@ var General = (function (Base$$1) {
         }
     };
 
-    General.prototype.layout = function layout () {
+    GeneralPost.prototype.layout = function layout () {
         // Logger.log("Post->layout");
         this.layoutFooter();
         this.trigger(Events.POST_LAYOUT_CHANGED, this);
     };
 
-    General.prototype.layoutFooter = function layoutFooter () {
+    GeneralPost.prototype.layoutFooter = function layoutFooter () {
         // Logger.log("Post->layoutFooter");
         var $userName = this.$el.find('.crt-post-username');
         var $date = this.$el.find('.crt-date');
@@ -3679,8 +3427,8 @@ var General = (function (Base$$1) {
         }
     };
 
-    return General;
-}(Base));
+    return GeneralPost;
+}(BasePost));
 
 var networks = {
     1 : {
@@ -3887,700 +3635,6 @@ var Filter = (function (Control$$1) {
 
     return Filter;
 }(Control));
-
-var Popup = (function (Control$$1) {
-    function Popup (popupManager, post, widget) {
-        var this$1 = this;
-
-        Logger.log("Popup->init ");
-        Control$$1.call(this);
-
-        this.popupManager = popupManager;
-        this.json = post;
-        this.widget = widget;
-
-        this.templateId = this.widget.config('popup.template');
-
-        this.render();
-
-        if (this.json.image) {
-            this.$el.addClass('has-image');
-        }
-
-        if (this.json.url) {
-            this.$el.addClass('crt-has-read-more');
-        }
-
-        if (this.json.video) {
-            this.$el.addClass('has-video');
-            if (this.json.video && this.json.video.indexOf('youtu') >= 0) {
-                // youtube
-                this.$refs.video.remove();
-
-                var youTubeId = StringUtils.youtubeVideoId(this.json.video);
-
-                var src = "<div class=\"crt-responsive-video\"><iframe id=\"ytplayer\" src=\"https://www.youtube.com/embed/" + youTubeId + "?autoplay=0&rel=0&showinfo\" frameborder=\"0\" allowfullscreen></iframe></div>";
-                this.$el.find('.crt-video-container img').remove();
-                this.$el.find('.crt-video-container a').remove();
-                this.$el.find('.crt-video-container').append(src);
-            } else if (this.json.video && this.json.video.indexOf('vimeo') >= 0) {
-                // youtube
-                this.$refs.video.remove();
-
-                var vimeoId = StringUtils.vimeoVideoId(this.json.video);
-
-                if (vimeoId) {
-                    var src$1 = "<div class=\"crt-responsive-video\"><iframe src=\"https://player.vimeo.com/video/" + vimeoId + "?color=ffffff&title=0&byline=0&portrait=0\" frameborder=\"0\" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>";
-                    this.$el.find('.crt-video-container img').remove();
-                    this.$el.find('.crt-video-container a').remove();
-                    this.$el.find('.crt-video-container').append(src$1);
-                }
-            } else {
-                // Normal video
-                this.videoPlayer = new VideoPlayer(this.$refs.video);
-                this.videoPlayer.on('state:changed', function (event, playing) {
-                    this$1.$el.toggleClass('video-playing', playing );
-                });
-            }
-        }
-
-        if (this.json.images)
-        {
-            this.$page = this.$el.find('.crt-pagination ul');
-            for (var i = 0;i < this.json.images.length;i++) {
-                this$1.$page.append('<li><a href="" data-page="'+i+'"></a></li>');
-            }
-            this.$page.find('a').click(this.onPageClick.bind(this));
-            this.currentImage = 0;
-            this.$page.find('li:nth-child('+(this.currentImage+1)+')').addClass('selected');
-        }
-
-        z$1(window).on('resize.crt-popup', CommonUtils.debounce(this.onResize.bind(this),50));
-
-        this.onResize ();
-    }
-
-    if ( Control$$1 ) Popup.__proto__ = Control$$1;
-    Popup.prototype = Object.create( Control$$1 && Control$$1.prototype );
-    Popup.prototype.constructor = Popup;
-
-    Popup.prototype.onResize = function onResize () {
-        Logger.log('Popup->onResize');
-        var windowWidth = z$1(window).width ();
-        var padding = 60;
-        var paddingMobile = 40;
-        var rightPanel = 335;
-        var leftPanelMax = 600;
-
-        if (windowWidth > 1055) {
-            this.$refs.left.width(leftPanelMax+rightPanel);
-        } else if (windowWidth > 910) {
-            this.$refs.left.width(windowWidth-(padding*2));
-        } else if (windowWidth > leftPanelMax+(paddingMobile*2)) {
-            this.$refs.left.width(600);
-        } else {
-            this.$refs.left.width(windowWidth-(paddingMobile*2));
-        }
-    };
-
-    Popup.prototype.onPageClick = function onPageClick (ev) {
-        ev.preventDefault();
-        var a = z$1(ev.target);
-        var page = a.data('page');
-
-        var image = this.json.images[page];
-
-        this.$el.find('.crt-image img').attr('src', image.url);
-        this.currentImage = page;
-
-        this.$page.find('li').removeClass('selected');
-        this.$page.find('li:nth-child('+(this.currentImage+1)+')').addClass('selected');
-    };
-
-    Popup.prototype.onShareFacebookClick = function onShareFacebookClick () {
-        SocialFacebook.share(this.json);
-        this.widget.track('share:facebook');
-        return false;
-    };
-
-    Popup.prototype.onShareTwitterClick = function onShareTwitterClick () {
-        SocialTwitter.share(this.json);
-        this.widget.track('share:twitter');
-        return false;
-    };
-
-    Popup.prototype.onClose = function onClose () {
-        var this$1 = this;
-
-        this.hide(function (){
-            this$1.popupManager.onClose();
-        });
-    };
-
-    Popup.prototype.onPrevious = function onPrevious () {
-        this.popupManager.onPrevious();
-    };
-
-    Popup.prototype.onNext = function onNext () {
-        this.popupManager.onNext();
-    };
-
-    Popup.prototype.onPlay = function onPlay () {
-        Logger.log('Popup->onPlay');
-        this.videoPlayer.playPause();
-    };
-
-    Popup.prototype.show = function show () {
-        this.$el.fadeIn( function () {
-
-        });
-    };
-    
-    Popup.prototype.hide = function hide (callback) {
-        var this$1 = this;
-
-        Logger.log('Popup->hide');
-
-        if (this.videoPlayer) {
-            this.videoPlayer.pause();
-        }
-
-        this.$el.fadeOut(function () {
-            this$1.destroy();
-            callback ();
-        });
-    };
-    
-    Popup.prototype.destroy = function destroy () {
-        Control$$1.prototype.destroy.call(this);
-
-        if (this.videoPlayer) {
-            this.videoPlayer.destroy();
-        }
-
-        if (this.$el && this.$el.length) {
-            this.$el.remove();
-        }
-
-        z$1(window).off('resize.crt-popup');
-
-        delete this.$el;
-    };
-
-    return Popup;
-}(Control));
-
-var PopupManager = (function (Control$$1) {
-    function PopupManager (widget) {
-        Logger.log("PopupManager->init ");
-        Control$$1.call(this);
-
-        this.widget = widget;
-
-        this.templateId = this.widget.config('popup.templateWrapper');
-        this.render();
-
-        z$1('body').append(this.$el);
-    }
-
-    if ( Control$$1 ) PopupManager.__proto__ = Control$$1;
-    PopupManager.prototype = Object.create( Control$$1 && Control$$1.prototype );
-    PopupManager.prototype.constructor = PopupManager;
-
-    PopupManager.prototype.showPopup = function showPopup (post) {
-        var this$1 = this;
-
-        if (this.popup) {
-            this.popup.hide(function () {
-                this$1.popup.destroy();
-                this$1.showPopup2(post);
-            });
-        } else {
-            this.showPopup2(post);
-        }
-    };
-
-    PopupManager.prototype.showPopup2 = function showPopup2 (post) {
-        var this$1 = this;
-
-        this.popup = new Popup(this, post, this.widget);
-        this.$refs.container.append(this.popup.$el);
-
-        this.$el.show();
-
-        if (this.$refs.underlay.css('display') !== 'block') {
-            this.$refs.underlay.fadeIn();
-        }
-        this.popup.show();
-
-        z$1('body').addClass('crt-popup-visible');
-
-        this.currentPostNum = 0;
-        for(var i=0;i < this.posts.length;i++)
-        {
-            if (post.id === this$1.posts[i].id) {
-                this$1.currentPostNum = i;
-                Logger.log('Found post '+i);
-                break;
-            }
-        }
-
-        this.widget.track('popup:show');
-    };
-
-    PopupManager.prototype.setPosts = function setPosts (posts) {
-        this.posts = posts;
-    };
-
-    PopupManager.prototype.onClose = function onClose () {
-        this.hide();
-    };
-
-    PopupManager.prototype.onPrevious = function onPrevious () {
-        this.currentPostNum-=1;
-        this.currentPostNum = this.currentPostNum>=0?this.currentPostNum:this.posts.length-1; // loop back to start
-
-        this.showPopup(this.posts[this.currentPostNum]);
-    };
-
-    PopupManager.prototype.onNext = function onNext () {
-        this.currentPostNum+=1;
-        this.currentPostNum = this.currentPostNum<this.posts.length?this.currentPostNum:0; // loop back to start
-
-        this.showPopup(this.posts[this.currentPostNum]);
-    };
-
-    PopupManager.prototype.onUnderlayClick = function onUnderlayClick () {
-        var this$1 = this;
-
-        Logger.log('PopupManager->onUnderlayClick');
-
-        if (this.popup) {
-            this.popup.hide(function () {
-                this$1.hide();
-            });
-        }
-    };
-
-    PopupManager.prototype.hide = function hide () {
-        var this$1 = this;
-
-        Logger.log('PopupManager->hide');
-        this.widget.track('popup:hide');
-        z$1('body').removeClass('crt-popup-visible');
-        this.currentPostNum = 0;
-        this.popup = null;
-        this.$refs.underlay.fadeOut(function () {
-            this$1.$refs.underlay.css({'display':'','opacity':''});
-            this$1.$el.hide();
-        });
-    };
-    
-    PopupManager.prototype.destroy = function destroy () {
-
-        this.$refs.underlay.remove();
-
-        Control$$1.prototype.destroy.call(this);
-    };
-
-    return PopupManager;
-}(Control));
-
-var Widget = (function (Control$$1) {
-    function Widget () {
-        Logger.log('Widget->construct');
-
-        Control$$1.call (this);
-
-        this.id = CommonUtils.uId();
-        this.feed = null;
-        this.$container = null;
-        this.options = {};
-    }
-
-    if ( Control$$1 ) Widget.__proto__ = Control$$1;
-    Widget.prototype = Object.create( Control$$1 && Control$$1.prototype );
-    Widget.prototype.constructor = Widget;
-
-    Widget.prototype.setOptions = function setOptions (options, defaults) {
-        var this$1 = this;
-
-        if (!options) {
-            Logger.error('options missing');
-            return false;
-        }
-
-        this.options = z$1.extend(true, {}, defaults, options);
-
-        if(!this.options.container) {
-            Logger.error('options.container missing');
-            return false;
-        }
-
-        if (!HtmlUtils.checkContainer(this.options.container)) {
-            return false;
-        }
-        this.$container = z$1(options.container);
-
-        if (!this.options.feedId) {
-            Logger.error('options.feedId missing');
-        }
-
-        // get inline options
-        var inlineOptions = [
-            'lang',
-            'debug'
-        ];
-        for (var i = 0, list = inlineOptions; i < list.length; i += 1) {
-            var option = list[i];
-
-            var val = this$1.$container.data('crt-'+option);
-            if (val) {
-                this$1.options[option] = val;
-            }
-        }
-
-        if (this.options.debug) {
-            Logger.debug = true;
-        }
-
-        this.updateResponsiveOptions ();
-
-        Logger.log ('Setting language to: '+this.options.lang);
-        mod.setLang(this.options.lang);
-    };
-
-    Widget.prototype.init = function init (options, defaults) {
-
-        this.setOptions(options, defaults);
-
-        this.$container.addClass('crt-widget');
-
-        if (HtmlUtils.isTouch()) {
-            this.$container.addClass('crt-touch');
-        } else {
-            this.$container.addClass('crt-no-touch');
-        }
-
-        this.checkPoweredBy ();
-        this.createFeed();
-        this.createFilter();
-        this.createPopupManager();
-
-        // this.setStyles({});
-
-        var crtEvent = {
-            name:'crt:widget:created',
-            data:{
-                feedId:options.feedId
-            }
-        };
-
-        window.postMessage(crtEvent, '*');
-
-        return true;
-    };
-
-    Widget.prototype.setStyles = function setStyles (styles) {
-        if (!this.sheet) {
-            this.sheet = HtmlUtils.createSheet();
-        }
-
-        this.addStyle(this.sheet, styles.popup, '.crt-popup');
-        this.addStyle(this.sheet, styles.widget, '.crt-widget');
-        this.addStyle(this.sheet, styles.loadMore, '.crt-widget .crt-load-more');
-        this.addStyle(this.sheet, styles.post, '.crt-widget .crt-post');
-        this.addStyle(this.sheet, styles.postText, '.crt-widget .crt-post-content-text');
-    };
-
-    Widget.prototype.camelToDash = function camelToDash (s){
-        return s.replace(/([A-Z])/g, function($1, p1, pos){return (pos > 0 ? "-" : "") + $1.toLowerCase();});
-    };
-
-    Widget.prototype.addStyle = function addStyle (sheet, stylesObj, className) {
-        var this$1 = this;
-
-        if (stylesObj) {
-            console.log('Found style for '+className);
-            var rules = [];
-            for (var key in stylesObj) {
-                if (stylesObj.hasOwnProperty(key)) {
-                    var ruleName = this$1.camelToDash(key);
-                    var rule = ruleName + ': ' + stylesObj[key];
-                    rules.push(rule);
-                }
-            }
-            if (rules.length > 0) {
-                HtmlUtils.addCSSRule(sheet, className, rules.join(';'));
-            }
-        }
-    };
-
-    Widget.prototype.updateResponsiveOptions = function updateResponsiveOptions () {
-        if (!this.options.responsive) {
-            this.responsiveOptions = z$1.extend(true, {}, this.options);
-            return;
-        }
-
-        var width = z$1(window).width();
-        var keys = Object.keys(this.options.responsive);
-        keys = keys.map(function (x) { return parseInt(x); });
-        keys = keys.sort(function (a, b) {
-            return a - b;
-        });
-        keys = keys.reverse();
-
-        var foundKey = null;
-        for (var i = 0, list = keys; i < list.length; i += 1) {
-            var key = list[i];
-
-            if (width <= key) {
-                foundKey = key;
-            }
-        }
-        if (!foundKey) {
-            this.responsiveKey = null;
-            this.responsiveOptions = z$1.extend(true, {}, this.options);
-        }
-
-        if (this.responsiveKey !== foundKey) {
-            // console.log('CHANGING RESPONSIVE SETTINGS '+foundKey);
-            this.responsiveKey = foundKey;
-            this.responsiveOptions = z$1.extend(true, {}, this.options, this.options.responsive[foundKey]);
-        }
-    };
-
-    Widget.prototype.config = function config (path, defaultValue) {
-        if (path.indexOf('.')>0) {
-            // let pathParts = path.split('.');
-            // window.console.log(pathParts);
-            // throw new Error('NOT IMPLEMENTED');
-            path = path.split('.');
-            var current = this.options;
-            while(path.length) {
-                if(typeof current !== 'object') {
-                    return defaultValue || null;
-                }
-                current = current[path.shift()];
-            }
-            return current;
-        } else {
-            var r = this.responsiveOptions[path];
-            if (r === undefined) {
-                return defaultValue || null;
-            } else {
-                return r;
-            }
-        }
-    };
-
-    Widget.prototype.createFeed = function createFeed () {
-        this.feed = new Feed (this);
-        this.feed.on(Events.POSTS_LOADED, this.onPostsLoaded.bind(this));
-        this.feed.on(Events.POSTS_FAILED, this.onPostsFail.bind(this));
-        this.feed.on(Events.FEED_LOADED, this.onFeedLoaded.bind(this));
-    };
-
-    Widget.prototype.createPopupManager = function createPopupManager () {
-        this.popupManager = new PopupManager(this);
-    };
-
-    Widget.prototype.createFilter = function createFilter () {
-        Logger.log('Widget->createFilter');
-
-        if (this.options.filter && (this.options.filter.showNetworks || this.options.filter.showSources)) {
-            this.filter = new Filter(this);
-
-            this.$container.append(this.filter.$el);
-        }
-    };
-
-    Widget.prototype.loadPosts = function loadPosts (page) {
-        this.feed.loadPosts(page);
-    };
-
-    Widget.prototype.createPostElements = function createPostElements (posts)
-    {
-        var that = this;
-        var postElements = [];
-        z$1(posts).each(function(){
-            var p = that.createPostElement(this);
-            postElements.push(p.$el);
-        });
-        return postElements;
-    };
-
-    Widget.prototype.createPostElement = function createPostElement (postJson) {
-        var post = new General(this, postJson, this.options);
-        post.on(Events.POST_CLICK,this.onPostClick.bind(this));
-        post.on(Events.POST_CLICK_READ_MORE,this.onPostClickReadMore.bind(this));
-        post.on(Events.POST_IMAGE_LOADED, this.onPostImageLoaded.bind(this));
-
-        this.trigger(Events.POST_CREATED, post);
-
-        return post;
-    };
-
-    Widget.prototype.onPostsLoaded = function onPostsLoaded (event, posts) {
-        Logger.log('Widget->onPostsLoaded');
-        Logger.log(event);
-        Logger.log(posts);
-    };
-
-    Widget.prototype.onPostsFail = function onPostsFail (event, data) {
-        Logger.log('Widget->onPostsLoadedFail');
-        Logger.log(event);
-        Logger.log(data);
-    };
-
-    Widget.prototype.onPostClick = function onPostClick (ev, post) {
-        Logger.log('Widget->onPostClick');
-        Logger.log(ev);
-        Logger.log(post);
-
-        this.trigger(Events.POST_CLICK, post);
-
-        if (this.options.postClickAction === Globals.POST_CLICK_ACTION_OPEN_POPUP) {
-            this.popupManager.showPopup(post.json);
-        } else if (this.options.postClickAction === Globals.POST_CLICK_ACTION_GOTO_SOURCE) {
-            window.open(post.json.url);
-        }
-    };
-
-    Widget.prototype.onPostClickReadMore = function onPostClickReadMore (ev, post) {
-        Logger.log('Widget->onPostClickReadMore');
-        Logger.log(ev);
-        Logger.log(post);
-
-        this.trigger(Events.POST_CLICK_READ_MORE, post);
-
-        if (this.options.postClickReadMoreAction === Globals.POST_CLICK_ACTION_OPEN_POPUP) {
-            this.popupManager.showPopup(post.json);
-        } else if (this.options.postClickAction === Globals.POST_CLICK_ACTION_GOTO_SOURCE) {
-            window.open(post.json.url);
-        }
-    };
-
-    Widget.prototype.onPostImageLoaded = function onPostImageLoaded (ev, post) {
-        // Logger.log('Widget->onPostImageLoaded');
-        // Logger.log(event);
-        // Logger.log(post);
-    };
-
-    Widget.prototype.onFeedLoaded = function onFeedLoaded (ev, response) {
-        if (this.options.hidePoweredBy && response.account.plan.unbranded === 1) {
-            //<a href="http://curator.io" target="_blank" class="crt-logo crt-tag">Powered by Curator.io</a>
-            this.$container.addClass('crt-widget-unbranded');
-        } else {
-            this.$container.addClass('crt-widget-branded');
-        }
-    };
-
-    Widget.prototype.track = function track (a) {
-        Logger.log('Feed->track '+a);
-
-        ajax.get (
-            this.getUrl('/track/'+this.options.feedId),
-            {a:a},
-            function (data) {
-                Logger.log('Feed->track success');
-                Logger.log(data);
-            },
-            function (jqXHR, textStatus, errorThrown) {
-                Logger.log('Feed->_loadPosts fail');
-                Logger.log(textStatus);
-                Logger.log(errorThrown);
-            }
-        );
-    };
-
-    Widget.prototype.getUrl = function getUrl (trail) {
-        return this.options.apiEndpoint+trail;
-    };
-
-    Widget.prototype._t = function _t (s) {
-        return mod.t (s);
-    };
-
-    Widget.prototype.checkPoweredBy = function checkPoweredBy () {
-        var html = this.$container.text().trim();
-
-        this.hasPoweredBy = html.indexOf('Powered by Curator.io') > -1;
-    };
-
-    Widget.prototype.destroy = function destroy () {
-        Logger.log('Widget->destroy');
-
-        Control$$1.prototype.destroy.call(this);
-
-        if (this.feed) {
-            this.feed.destroy();
-        }
-        if (this.filter) {
-            this.filter.destroy();
-        }
-        if (this.popupManager) {
-            this.popupManager.destroy();
-        }
-        this.$container.removeClass('crt-widget');
-        this.$container.removeClass('crt-widget-unbranded');
-        this.$container.removeClass('crt-widget-branded');
-    };
-
-    return Widget;
-}(Control));
-
-var base = {
-    apiEndpoint: 'https://api.curator.io/v1.1',
-    feedId:'',
-    postsPerPage:12,
-    maxPosts:0,
-    lang:'en',
-    debug:false,
-    postClickAction:'open-popup',             // open-popup | goto-source | nothing
-    postClickReadMoreAction:'open-popup',     // open-popup | goto-source | nothing
-    filter: {
-        template:'filter',
-        showNetworks: false,
-        showSources: false,
-    },
-    post: {
-        template: 'post-general',
-        showShare: true,
-        autoPlayVideos: true,
-    },
-    popup : {
-        template: 'popup',
-        templateWrapper: 'popup-wrapper',
-    }
-};
-
-var config = z$1.extend(true, {}, base, {
-    templateWidget:'widget-waterfall',
-    colGutter: 0,
-    colWidth: 300,
-    showLoadMore:true,
-    continuousScroll:false,
-    animate:true,
-    post: {
-        template: 'post-general'
-    },
-    selector: '.crt-post-c',
-    animationSpeed: 200,
-    animationDuration: 300,
-    animationEffect: 'fadeInOnAppear',
-    animationQueue: true,
-    animationComplete: function () {}
-});
-
-var makeArray = function(array, results) {
-    array = Array.prototype.slice.call( array );
-    if ( results ) {
-        results.push.apply( results, array );
-        return results;
-    }
-    return array;
-};
 
 /**
  * A collection of shims that provide minimal functionality of the ES6 collections.
@@ -5607,6 +4661,995 @@ var index = (function () {
     return ResizeObserver;
 })();
 
+var Popup = (function (Control$$1) {
+    function Popup (popupManager, post, widget) {
+        var this$1 = this;
+
+        Logger.log("Popup->init ");
+        Control$$1.call(this);
+
+        this.popupManager = popupManager;
+        this.json = post;
+        this.widget = widget;
+
+        this.templateId = this.widget.config('popup.template');
+
+        this.render();
+
+        if (this.json.image) {
+            this.$el.addClass('has-image');
+        }
+
+        if (this.json.url) {
+            this.$el.addClass('crt-has-read-more');
+        }
+
+        if (this.json.video) {
+            this.$el.addClass('has-video');
+            if (this.json.video && this.json.video.indexOf('youtu') >= 0) {
+                // youtube
+                this.$refs.video.remove();
+
+                var youTubeId = StringUtils.youtubeVideoId(this.json.video);
+
+                var src = "<div class=\"crt-responsive-video\"><iframe id=\"ytplayer\" src=\"https://www.youtube.com/embed/" + youTubeId + "?autoplay=0&rel=0&showinfo\" frameborder=\"0\" allowfullscreen></iframe></div>";
+                this.$el.find('.crt-video-container img').remove();
+                this.$el.find('.crt-video-container a').remove();
+                this.$el.find('.crt-video-container').append(src);
+            } else if (this.json.video && this.json.video.indexOf('vimeo') >= 0) {
+                // youtube
+                this.$refs.video.remove();
+
+                var vimeoId = StringUtils.vimeoVideoId(this.json.video);
+
+                if (vimeoId) {
+                    var src$1 = "<div class=\"crt-responsive-video\"><iframe src=\"https://player.vimeo.com/video/" + vimeoId + "?color=ffffff&title=0&byline=0&portrait=0\" frameborder=\"0\" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>";
+                    this.$el.find('.crt-video-container img').remove();
+                    this.$el.find('.crt-video-container a').remove();
+                    this.$el.find('.crt-video-container').append(src$1);
+                }
+            } else {
+                // Normal video
+                this.videoPlayer = new VideoPlayer(this.$refs.video);
+                this.videoPlayer.on('state:changed', function (event, playing) {
+                    this$1.$el.toggleClass('video-playing', playing );
+                });
+
+                if (this.widget.config('popup.autoPlayVideos',false)) {
+                    this.videoPlayer.play();
+                }
+            }
+        }
+
+        if (this.json.images)
+        {
+            this.$page = this.$el.find('.crt-pagination ul');
+            for (var i = 0;i < this.json.images.length;i++) {
+                this$1.$page.append('<li><a href="" data-page="'+i+'"></a></li>');
+            }
+            this.$page.find('a').click(this.onPageClick.bind(this));
+            this.currentImage = 0;
+            this.$page.find('li:nth-child('+(this.currentImage+1)+')').addClass('selected');
+        }
+        this.onResize ();
+
+        this.createHandlers();
+    }
+
+    if ( Control$$1 ) Popup.__proto__ = Control$$1;
+    Popup.prototype = Object.create( Control$$1 && Control$$1.prototype );
+    Popup.prototype.constructor = Popup;
+
+    Popup.prototype.createHandlers = function createHandlers () {
+        var this$1 = this;
+
+        this._resize = CommonUtils.debounce(this.onResize.bind(this), 100);
+
+        this.ro = new index(function (entries) {
+            if (entries.length > 0) {
+                // let entry = entries[0];
+                this$1._resize();
+            }
+        });
+
+        this.ro.observe(z$1('body')[0]);
+    };
+
+    Popup.prototype.destroyHandlers = function destroyHandlers () {
+        if (this.ro) {
+            this.ro.disconnect();
+            this.ro = null;
+        }
+    };
+
+    Popup.prototype.onResize = function onResize () {
+        Logger.log('Popup->onResize');
+        var windowWidth = z$1(window).width ();
+        var padding = 60;
+        var paddingMobile = 40;
+        var rightPanel = 335;
+        var leftPanelMax = 600;
+
+        if (windowWidth > 1055) {
+            this.$refs.left.width(leftPanelMax+rightPanel);
+        } else if (windowWidth > 910) {
+            this.$refs.left.width(windowWidth-(padding*2));
+        } else if (windowWidth > leftPanelMax+(paddingMobile*2)) {
+            this.$refs.left.width(600);
+        } else {
+            this.$refs.left.width(windowWidth-(paddingMobile*2));
+        }
+    };
+
+    Popup.prototype.onPageClick = function onPageClick (ev) {
+        ev.preventDefault();
+        var a = z$1(ev.target);
+        var page = a.data('page');
+
+        var image = this.json.images[page];
+
+        this.$el.find('.crt-image img').attr('src', image.url);
+        this.currentImage = page;
+
+        this.$page.find('li').removeClass('selected');
+        this.$page.find('li:nth-child('+(this.currentImage+1)+')').addClass('selected');
+    };
+
+    Popup.prototype.onShareFacebookClick = function onShareFacebookClick () {
+        SocialFacebook.share(this.json);
+        this.widget.track('share:facebook');
+        return false;
+    };
+
+    Popup.prototype.onShareTwitterClick = function onShareTwitterClick () {
+        SocialTwitter.share(this.json);
+        this.widget.track('share:twitter');
+        return false;
+    };
+
+    Popup.prototype.onClose = function onClose () {
+        var this$1 = this;
+
+        this.hide(function (){
+            this$1.popupManager.onClose();
+        });
+    };
+
+    Popup.prototype.onPrevious = function onPrevious () {
+        this.popupManager.onPrevious();
+    };
+
+    Popup.prototype.onNext = function onNext () {
+        this.popupManager.onNext();
+    };
+
+    Popup.prototype.onPlay = function onPlay () {
+        Logger.log('Popup->onPlay');
+        this.videoPlayer.playPause();
+    };
+
+    Popup.prototype.show = function show () {
+        this.$el.fadeIn( function () {
+
+        });
+    };
+    
+    Popup.prototype.hide = function hide (callback) {
+        var this$1 = this;
+
+        Logger.log('Popup->hide');
+
+        if (this.videoPlayer) {
+            this.videoPlayer.pause();
+        }
+
+        this.$el.fadeOut(function () {
+            this$1.destroy();
+            callback ();
+        });
+    };
+    
+    Popup.prototype.destroy = function destroy () {
+        Control$$1.prototype.destroy.call(this);
+
+        if (this.videoPlayer) {
+            this.videoPlayer.destroy();
+        }
+
+        if (this.$el && this.$el.length) {
+            this.$el.remove();
+        }
+
+        z$1(window).off('resize.crt-popup');
+
+        delete this.$el;
+    };
+
+    return Popup;
+}(Control));
+
+var PopupManager = (function (Control$$1) {
+    function PopupManager (widget) {
+        Logger.log("PopupManager->init ");
+        Control$$1.call(this);
+
+        this.widget = widget;
+
+        this.templateId = this.widget.config('popup.templateWrapper');
+        this.render();
+
+        z$1('body').append(this.$el);
+    }
+
+    if ( Control$$1 ) PopupManager.__proto__ = Control$$1;
+    PopupManager.prototype = Object.create( Control$$1 && Control$$1.prototype );
+    PopupManager.prototype.constructor = PopupManager;
+
+    PopupManager.prototype.showPopup = function showPopup (post) {
+        var this$1 = this;
+
+        if (this.popup) {
+            this.popup.hide(function () {
+                this$1.popup.destroy();
+                this$1.showPopup2(post);
+            });
+        } else {
+            this.showPopup2(post);
+        }
+    };
+
+    PopupManager.prototype.showPopup2 = function showPopup2 (post) {
+        var this$1 = this;
+
+        this.popup = new Popup(this, post, this.widget);
+        this.$refs.container.append(this.popup.$el);
+
+        this.$el.show();
+
+        if (this.$refs.underlay.css('display') !== 'block') {
+            this.$refs.underlay.fadeIn();
+        }
+        this.popup.show();
+
+        z$1('body').addClass('crt-popup-visible');
+
+        this.currentPostNum = 0;
+        for(var i=0;i < this.posts.length;i++)
+        {
+            if (post.id === this$1.posts[i].id) {
+                this$1.currentPostNum = i;
+                Logger.log('Found post '+i);
+                break;
+            }
+        }
+
+        this.widget.track('popup:show');
+    };
+
+    PopupManager.prototype.setPosts = function setPosts (posts) {
+        this.posts = posts;
+    };
+
+    PopupManager.prototype.onClose = function onClose () {
+        this.hide();
+    };
+
+    PopupManager.prototype.onPrevious = function onPrevious () {
+        this.currentPostNum-=1;
+        this.currentPostNum = this.currentPostNum>=0?this.currentPostNum:this.posts.length-1; // loop back to start
+
+        this.showPopup(this.posts[this.currentPostNum]);
+    };
+
+    PopupManager.prototype.onNext = function onNext () {
+        this.currentPostNum+=1;
+        this.currentPostNum = this.currentPostNum<this.posts.length?this.currentPostNum:0; // loop back to start
+
+        this.showPopup(this.posts[this.currentPostNum]);
+    };
+
+    PopupManager.prototype.onUnderlayClick = function onUnderlayClick () {
+        var this$1 = this;
+
+        Logger.log('PopupManager->onUnderlayClick');
+
+        if (this.popup) {
+            this.popup.hide(function () {
+                this$1.hide();
+            });
+        }
+    };
+
+    PopupManager.prototype.hide = function hide () {
+        var this$1 = this;
+
+        Logger.log('PopupManager->hide');
+        this.widget.track('popup:hide');
+        z$1('body').removeClass('crt-popup-visible');
+        this.currentPostNum = 0;
+        this.popup.destroy();
+        this.popup = null;
+        this.$refs.underlay.fadeOut(function () {
+            this$1.$refs.underlay.css({'display':'','opacity':''});
+            this$1.$el.hide();
+        });
+    };
+    
+    PopupManager.prototype.destroy = function destroy () {
+        Control$$1.prototype.destroy.call(this);
+
+        this.$el.remove();
+    };
+
+    return PopupManager;
+}(Control));
+
+var FeedCursor = (function (EventBus$$1) {
+    function FeedCursor(widget) {
+        EventBus$$1.call (this);
+
+        Logger.log ('Feed->init with options');
+
+        this.widget = widget;
+
+        this.posts = [];
+        this.postsLoaded = 0;
+        this.postCount = 0;
+        this.loading = false;
+        this.allPostsLoaded = false;
+        this.pagination = {
+            after:null,
+            before:null
+        };
+
+        this.options = this.widget.options;
+
+        this.params = this.options.feedParams || {};
+        this.params.limit = this.options.postsPerPage;
+        this.params.hasPoweredBy = this.widget.hasPoweredBy;
+        this.params.version = '1.2';
+
+        this.feedBase = this.options.apiEndpoint+'/restricted/feed';
+    }
+
+    if ( EventBus$$1 ) FeedCursor.__proto__ = EventBus$$1;
+    FeedCursor.prototype = Object.create( EventBus$$1 && EventBus$$1.prototype );
+    FeedCursor.prototype.constructor = FeedCursor;
+
+    /**
+     * First load - get's the most recent posts.
+     * @param paramsIn - set parameters to send to API
+     * @returns boolean
+     */
+    FeedCursor.prototype.load = function load (paramsIn) {
+        Logger.log ('Feed->load '+this.loading);
+        if (this.loading) {
+            return false;
+        }
+
+        this.posts = [];
+        this.postsLoaded = 0;
+
+        var params = z$1.extend({}, this.params, paramsIn);
+
+        params.limit = this.options.postsPerPage;
+
+        return this._loadPosts (params, 'first-load');
+    };
+
+    /**
+     * Loads older posts - after the current set
+     * @returns {boolean}
+     */
+    FeedCursor.prototype.loadAfter = function loadAfter () {
+        Logger.log ('Feed->loadAfter '+this.loading);
+
+        if (this.loading) {
+            return false;
+        }
+
+        var params = z$1.extend({},this.params);
+
+        // TODO should we check we have after?
+        if (this.pagination && this.pagination.after) {
+            params.after = this.pagination.after;
+            delete params.before;
+        }
+
+        return this._loadPosts (params, 'after');
+    };
+    FeedCursor.prototype.loadMore = function loadMore () {
+        return this.loadAfter();
+    };
+    FeedCursor.prototype.loadOld = function loadOld () {
+        return this.loadAfter();
+    };
+
+    /**
+     * Loads new posts - before the current set
+     * @returns {boolean}
+     */
+    FeedCursor.prototype.loadBefore = function loadBefore () {
+        Logger.log ('Feed->loadBefore '+this.loading);
+
+        if (this.loading) {
+            return false;
+        }
+
+        var params = z$1.extend({}, this.params);
+
+        if (this.pagination && this.pagination.before) {
+            params.before = this.pagination.before;
+            delete params.after;
+        }
+
+        return this._loadPosts (params, 'before');
+    };
+    FeedCursor.prototype.loadNew = function loadNew () {
+        return this.loadBefore();
+    };
+
+
+    FeedCursor.prototype.loadPost = function loadPost (id, successCallback, failCallback) {
+        failCallback = failCallback || function(){};
+        ajax.get(
+            this.getUrl('/post/' + id),
+            {},
+            function (data) {
+                if (data.success) {
+                    successCallback (data.post);
+                } else {
+                    failCallback ();
+                }
+            },
+            function (jqXHR, textStatus, errorThrown) { /* jshint ignore:line */
+                // FAIL
+            });
+    };
+
+    FeedCursor.prototype._loadPosts = function _loadPosts (params, position) {
+        var this$1 = this;
+
+        Logger.log ('Feed->_loadPosts position:'+position);
+
+        this.loading = true;
+
+        params.rnd = (new Date ()).getTime();
+
+        var url =  this.getUrl('/posts');
+
+        return new Promise (function (resolve, reject) {
+            ajax.get(url, params, function (data) {
+                    Logger.log('Feed->_loadPosts success');
+                    this$1.loading = false;
+
+                    if (data.success) {
+                        this$1.postCount = data.postCount;
+                        this$1.postsLoaded += data.posts.length;
+                        this$1.allPostsLoaded = this$1.postsLoaded >= this$1.postCount;
+
+                        if (position === 'before') {
+                            this$1.posts = data.posts.concat(this$1.posts);
+
+                            if (data.pagination && data.pagination.before) {
+                                this$1.pagination.before = data.pagination.before;
+                            }
+                        } else if (position === 'after') {
+                            this$1.posts = this$1.posts.concat(data.posts);
+
+                            if (data.pagination && data.pagination.after) {
+                                this$1.pagination.after = data.pagination.after;
+                            }
+                        } else {
+                            // first load
+                            this$1.posts = this$1.posts.concat(data.posts);
+
+                            if (data.pagination) {
+                                this$1.pagination.after = data.pagination.after;
+                                this$1.pagination.before = data.pagination.before;
+                            }
+                        }
+
+                        this$1.networks = data.networks;
+
+                        this$1.widget.trigger(Events.FEED_LOADED, data, position);
+                        this$1.trigger(Events.FEED_LOADED, data, position);
+
+                        this$1.widget.trigger(Events.POSTS_LOADED, data.posts, position);
+                        this$1.trigger(Events.POSTS_LOADED, data.posts, position);
+
+                        resolve (data, position);
+                    } else {
+                        this$1.trigger(Events.POSTS_FAILED, data, position);
+                        this$1.widget.trigger(Events.POSTS_FAILED, data, position);
+
+                        reject ();
+                    }
+                },
+                function (jqXHR, textStatus, errorThrown) {
+                    Logger.log('Feed->_loadPosts fail');
+                    Logger.log(textStatus);
+                    Logger.log(errorThrown);
+
+                    this$1.loading = false;
+
+                    this$1.trigger(Events.POSTS_FAILED, []);
+
+                    reject ();
+                }
+            );
+        });
+    };
+
+    FeedCursor.prototype.inappropriatePost = function inappropriatePost (id, reason, success, failure) {
+        var params = {
+            reason: reason
+        };
+
+        ajax.post(
+            this.getUrl('/post/' + id + '/inappropriate'),
+            params,
+            function (data, textStatus, jqXHR) {
+                data = z$1.parseJSON(data);
+
+                if (data.success === true) {
+                    success();
+                }
+                else {
+                    failure(jqXHR);
+                }
+        }   );
+    };
+
+    FeedCursor.prototype.lovePost = function lovePost (id, success, failure) {
+        var params = {};
+
+        z$1.post(this.getUrl('/post/' + id + '/love'), params, function (data, textStatus, jqXHR) {
+            data = z$1.parseJSON(data);
+
+            if (data.success === true) {
+                success(data.loves);
+            }
+            else {
+                failure(jqXHR);
+            }
+        });
+    };
+
+    FeedCursor.prototype.getUrl = function getUrl (trail) {
+        return this.feedBase+'/'+this.options.feedId+trail;
+    };
+
+    FeedCursor.prototype.destroy = function destroy () {
+        EventBus$$1.prototype.destroy.call(this);
+    };
+
+    return FeedCursor;
+}(EventBus));
+
+var Widget = (function (Control$$1) {
+    function Widget () {
+        Logger.log('Widget->construct');
+
+        Control$$1.call (this);
+
+        this.id = CommonUtils.uId();
+        this.feed = null;
+        this.$container = null;
+        this.options = {};
+        this.autoLoadTimeout = null;
+        this.autoLoading = false;
+    }
+
+    if ( Control$$1 ) Widget.__proto__ = Control$$1;
+    Widget.prototype = Object.create( Control$$1 && Control$$1.prototype );
+    Widget.prototype.constructor = Widget;
+
+    Widget.prototype.setOptions = function setOptions (options, defaults) {
+        var this$1 = this;
+
+        if (!options) {
+            Logger.error('options missing');
+            return false;
+        }
+
+        this.options = z$1.extend(true, {}, defaults, options);
+
+        if(!this.options.container) {
+            Logger.error('options.container missing');
+            return false;
+        }
+
+        if (!HtmlUtils.checkContainer(this.options.container)) {
+            return false;
+        }
+        this.$container = z$1(options.container);
+
+        if (!this.options.feedId) {
+            Logger.error('options.feedId missing');
+        }
+
+        // get inline options
+        var inlineOptions = [
+            'lang',
+            'debug'
+        ];
+        for (var i = 0, list = inlineOptions; i < list.length; i += 1) {
+            var option = list[i];
+
+            var val = this$1.$container.data('crt-'+option);
+            if (val) {
+                this$1.options[option] = val;
+            }
+        }
+
+        if (this.options.debug) {
+            Logger.debug = true;
+        }
+
+        this.updateResponsiveOptions ();
+
+        Logger.log ('Setting language to: '+this.options.lang);
+        mod.setLang(this.options.lang);
+    };
+
+    Widget.prototype.init = function init (options, defaults) {
+
+        this.setOptions(options, defaults);
+
+        this.$container.addClass('crt-widget');
+
+        if (HtmlUtils.isTouch()) {
+            this.$container.addClass('crt-touch');
+        } else {
+            this.$container.addClass('crt-no-touch');
+        }
+
+        this.checkPoweredBy ();
+        this.createFeed();
+        this.createFilter();
+        this.createPopupManager();
+
+        // this.setStyles({});
+
+        var crtEvent = {
+            name:'crt:widget:created',
+            data:{
+                feedId:options.feedId
+            }
+        };
+
+        window.postMessage(crtEvent, '*');
+
+        return true;
+    };
+
+    Widget.prototype.setStyles = function setStyles (styles) {
+        if (!this.sheet) {
+            this.sheet = HtmlUtils.createSheet();
+        }
+
+        this.addStyle(this.sheet, styles.popup, '.crt-popup');
+        this.addStyle(this.sheet, styles.widget, '.crt-widget');
+        this.addStyle(this.sheet, styles.loadMore, '.crt-widget .crt-load-more');
+        this.addStyle(this.sheet, styles.post, '.crt-widget .crt-post');
+        this.addStyle(this.sheet, styles.postText, '.crt-widget .crt-post-text');
+        this.addStyle(this.sheet, styles.postTextLink, '.crt-widget .crt-post-text a');
+        this.addStyle(this.sheet, styles.postName, '.crt-widget .crt-post-fullname a');
+        this.addStyle(this.sheet, styles.postUsername, '.crt-widget .crt-post-username a');
+        this.addStyle(this.sheet, styles.postIcon, '.crt-widget .crt-social-icon i');
+        this.addStyle(this.sheet, styles.postComments, '.crt-widget .crt-comments-likes');
+        this.addStyle(this.sheet, styles.postShareIcons, '.crt-widget .crt-post-footer .crt-post-share a');
+        this.addStyle(this.sheet, styles.postDate, '.crt-widget .crt-post-date a');
+    };
+
+    Widget.prototype.addStyle = function addStyle (sheet, stylesObj, className) {
+        if (stylesObj) {
+            console.log('Found style for '+className);
+            var rules = [];
+            for (var key in stylesObj) {
+                if (stylesObj.hasOwnProperty(key)) {
+                    var ruleName = StringUtils.camelToDash(key);
+                    var rule = ruleName + ': ' + stylesObj[key];
+                    rules.push(rule);
+                }
+            }
+            if (rules.length > 0) {
+                HtmlUtils.addCSSRule(sheet, className, rules.join(';'));
+            }
+        }
+    };
+
+    Widget.prototype.updateResponsiveOptions = function updateResponsiveOptions () {
+        if (!this.options.responsive) {
+            this.responsiveOptions = z$1.extend(true, {}, this.options);
+            return;
+        }
+
+        var width = z$1(window).width();
+        var keys = Object.keys(this.options.responsive);
+        keys = keys.map(function (x) { return parseInt(x); });
+        keys = keys.sort(function (a, b) {
+            return a - b;
+        });
+        keys = keys.reverse();
+
+        var foundKey = null;
+        for (var i = 0, list = keys; i < list.length; i += 1) {
+            var key = list[i];
+
+            if (width <= key) {
+                foundKey = key;
+            }
+        }
+        if (!foundKey) {
+            this.responsiveKey = null;
+            this.responsiveOptions = z$1.extend(true, {}, this.options);
+        }
+
+        if (this.responsiveKey !== foundKey) {
+            // console.log('CHANGING RESPONSIVE SETTINGS '+foundKey);
+            this.responsiveKey = foundKey;
+            this.responsiveOptions = z$1.extend(true, {}, this.options, this.options.responsive[foundKey]);
+        }
+    };
+
+    Widget.prototype.config = function config (path, defaultValue) {
+        if (path.indexOf('.')>0) {
+            // let pathParts = path.split('.');
+            // window.console.log(pathParts);
+            // throw new Error('NOT IMPLEMENTED');
+            path = path.split('.');
+            var current = this.options;
+            while(path.length) {
+                if(typeof current !== 'object') {
+                    return defaultValue || null;
+                }
+                current = current[path.shift()];
+            }
+            return current;
+        } else {
+            var r = this.responsiveOptions[path];
+            if (r === undefined) {
+                return defaultValue || null;
+            } else {
+                return r;
+            }
+        }
+    };
+
+    Widget.prototype.createFeed = function createFeed () {
+        this.feed = new FeedCursor(this);
+        this.feed.on(Events.POSTS_LOADED, this.onPostsLoaded.bind(this));
+        this.feed.on(Events.POSTS_FAILED, this.onPostsFail.bind(this));
+        this.feed.on(Events.FEED_LOADED, this.onFeedLoaded.bind(this));
+    };
+
+    Widget.prototype.createPopupManager = function createPopupManager () {
+        this.popupManager = new PopupManager(this);
+    };
+
+    Widget.prototype.createFilter = function createFilter () {
+        Logger.log('Widget->createFilter');
+
+        if (this.options.filter && (this.options.filter.showNetworks || this.options.filter.showSources)) {
+            this.filter = new Filter(this);
+
+            this.$container.append(this.filter.$el);
+        }
+    };
+
+    Widget.prototype.createPostElements = function createPostElements (posts)
+    {
+        var that = this;
+        var postElements = [];
+        z$1(posts).each(function(){
+            var p = that.createPostElement(this);
+            postElements.push(p.$el);
+        });
+        return postElements;
+    };
+
+    Widget.prototype.createPostElement = function createPostElement (postJson) {
+        var post = new GeneralPost(this, postJson);
+        post.on(Events.POST_CLICK, this.onPostClick.bind(this));
+        post.on(Events.POST_CLICK_READ_MORE, this.onPostClickReadMore.bind(this));
+        post.on(Events.POST_IMAGE_LOADED, this.onPostImageLoaded.bind(this));
+
+        this.trigger(Events.POST_CREATED, post);
+
+        return post;
+    };
+
+    Widget.prototype.onPostsLoaded = function onPostsLoaded (event, posts) {
+        Logger.log('Widget->onPostsLoaded');
+        Logger.log(event);
+        Logger.log(posts);
+    };
+
+    Widget.prototype.onPostsFail = function onPostsFail (event, data) {
+        Logger.log('Widget->onPostsLoadedFail');
+        Logger.log(event);
+        Logger.log(data);
+    };
+
+    Widget.prototype.onPostClick = function onPostClick (ev, post) {
+        Logger.log('Widget->onPostClick');
+        Logger.log(ev);
+        Logger.log(post);
+
+        this.trigger(Events.POST_CLICK, post);
+
+        if (this.options.postClickAction === Globals.POST_CLICK_ACTION_OPEN_POPUP) {
+            this.popupManager.showPopup(post.json);
+        } else if (this.options.postClickAction === Globals.POST_CLICK_ACTION_GOTO_SOURCE) {
+            window.open(post.json.url);
+        }
+    };
+
+    Widget.prototype.onPostClickReadMore = function onPostClickReadMore (ev, post) {
+        Logger.log('Widget->onPostClickReadMore');
+        Logger.log(ev);
+        Logger.log(post);
+
+        this.trigger(Events.POST_CLICK_READ_MORE, post);
+
+        if (this.options.postClickReadMoreAction === Globals.POST_CLICK_ACTION_OPEN_POPUP) {
+            this.popupManager.showPopup(post.json);
+        } else if (this.options.postClickAction === Globals.POST_CLICK_ACTION_GOTO_SOURCE) {
+            window.open(post.json.url);
+        }
+    };
+
+    Widget.prototype.onPostImageLoaded = function onPostImageLoaded (ev, post) {
+        // Logger.log('Widget->onPostImageLoaded');
+        // Logger.log(event);
+        // Logger.log(post);
+    };
+
+    Widget.prototype.onFeedLoaded = function onFeedLoaded (ev, response) {
+        if (this.options.hidePoweredBy && response.account.plan.unbranded === 1) {
+            //<a href="http://curator.io" target="_blank" class="crt-logo crt-tag">Powered by Curator.io</a>
+            this.$container.addClass('crt-widget-unbranded');
+        } else {
+            this.$container.addClass('crt-widget-branded');
+        }
+    };
+
+    Widget.prototype.track = function track (a) {
+        Logger.log('Feed->track '+a);
+
+        ajax.get (
+            this.getUrl('/track/'+this.options.feedId),
+            {a:a},
+            function (data) {
+                Logger.log('Feed->track success');
+                Logger.log(data);
+            },
+            function (jqXHR, textStatus, errorThrown) {
+                Logger.log('Feed->track fail');
+                Logger.log(textStatus);
+                Logger.log(errorThrown);
+            }
+        );
+    };
+
+    Widget.prototype.getUrl = function getUrl (trail) {
+        return this.options.apiEndpoint+trail;
+    };
+
+    Widget.prototype._t = function _t (s) {
+        return mod.t (s);
+    };
+
+    Widget.prototype.checkPoweredBy = function checkPoweredBy () {
+        var html = this.$container.text().trim();
+
+        this.hasPoweredBy = html.indexOf('Powered by Curator.io') > -1;
+    };
+
+    Widget.prototype.startAutoLoad = function startAutoLoad () {
+        Logger.log('Widget->startAutoLoad');
+
+        this.autoLoading = true;
+        this.autoLoadTimeout = window.setTimeout(this.onAutoLoadFire.bind(this), 1000 * 30);
+    };
+
+    Widget.prototype.stopAutoLoad = function stopAutoLoad () {
+        Logger.log('Widget->stopAutoLoad');
+        this.autoLoading = false;
+        window.clearTimeout(this.autoLoadTimeout);
+    };
+
+    Widget.prototype.onAutoLoadFire = function onAutoLoadFire () {
+        Logger.log('Widget->onAutoLoadFire');
+
+        this.feed.loadBefore();
+
+        this.autoLoadTimeout = window.setTimeout(this.onAutoLoadFire.bind(this), 1000 * 30);
+    };
+
+    Widget.prototype.destroy = function destroy () {
+        Logger.log('Widget->destroy');
+
+        Control$$1.prototype.destroy.call(this);
+
+        if (this.feed) {
+            this.feed.destroy();
+            delete this.feed;
+        }
+        if (this.filter) {
+            this.filter.destroy();
+            delete this.filter;
+        }
+        if (this.popupManager) {
+            this.popupManager.destroy();
+            delete this.popupManager;
+        }
+
+        this.$container.removeClass('crt-widget');
+        this.$container.removeClass('crt-widget-unbranded');
+        this.$container.removeClass('crt-widget-branded');
+        this.$container.removeClass('crt-no-touch');
+    };
+
+    return Widget;
+}(Control));
+
+var base = {
+    apiEndpoint: 'https://api.curator.io/v1.1',
+    feedId:'',
+    postsPerPage:12,
+    maxPosts:0,
+    lang:'en',
+    debug:false,
+    autoLoadNew:true,
+    postClickAction:'open-popup',             // open-popup | goto-source | nothing
+    postClickReadMoreAction:'open-popup',     // open-popup | goto-source | nothing
+    filter: {
+        template:'filter',
+        showNetworks: false,
+        showSources: false,
+    },
+    post: {
+        template: 'post-general',
+        showShare: true,
+        autoPlayVideos: true,
+    },
+    popup : {
+        template: 'popup',
+        templateWrapper: 'popup-wrapper',
+        autoPlayVideos: false
+    }
+};
+
+var config = z$1.extend(true, {}, base, {
+    templateWidget:'widget-waterfall',
+    colGutter: 0,
+    colWidth: 300,
+    showLoadMore:true,
+    continuousScroll:false,
+    animate:true,
+    post: {
+        template: 'post-general'
+    },
+    selector: '.crt-post-c',
+    animationSpeed: 200,
+    animationDuration: 300,
+    animationEffect: 'fadeInOnAppear',
+    animationQueue: true,
+    animationComplete: function () {}
+});
+
+var makeArray = function(array, results) {
+    array = Array.prototype.slice.call( array );
+    if ( results ) {
+        results.push.apply( results, array );
+        return results;
+    }
+    return array;
+};
+
 /**
  * Based on the awesome jQuery Grid-A-Licious(tm)
  *
@@ -5681,8 +5724,8 @@ LayoutWaterfall.prototype.destroyHandlers = function destroyHandlers () {
 
     if (this.ro) {
         this.ro.disconnect();
+        this.ro = null;
     }
-
 };
 
 LayoutWaterfall.prototype.redraw = function redraw () {
@@ -6003,17 +6046,6 @@ var Waterfall = (function (Widget$$1) {
             this.$container.append(this.$el);
             this.$container.addClass('crt-widget-waterfall');
 
-            if (this.options.continuousScroll) {
-                z$1(this.$el).scroll(function () {
-                    var height = this$1.$el.height();
-                    var cHeight = this$1.$refs.feed.height();
-                    var scrollTop = this$1.$el.scrollTop();
-                    if (scrollTop >= cHeight - height) {
-                        this$1.onMoreClick();
-                    }
-                });
-            }
-
             if (!this.options.showLoadMore) {
                 this.$refs.loadMore.remove();
             }
@@ -6024,10 +6056,10 @@ var Waterfall = (function (Widget$$1) {
                 this$1.$refs.feed.find('.crt-post').remove();
             });
 
+            this.iniListeners();
+
             // Load first set of posts
             this.feed.load();
-
-            this.iniListeners();
         }
     }
 
@@ -6036,11 +6068,26 @@ var Waterfall = (function (Widget$$1) {
     Waterfall.prototype.constructor = Waterfall;
 
     Waterfall.prototype.iniListeners = function iniListeners () {
+        var this$1 = this;
 
+        if (this.options.continuousScroll) {
+            z$1(this.$el).scroll(function () {
+                var height = this$1.$el.height();
+                var cHeight = this$1.$refs.feed.height();
+                var scrollTop = this$1.$el.scrollTop();
+                if (scrollTop >= cHeight - height) {
+                    this$1.onMoreClick();
+                }
+            });
+        }
+
+        if (this.options.autoLoadNew) {
+            this.startAutoLoad ();
+        }
     };
 
     Waterfall.prototype.destroyListeners = function destroyListeners () {
-
+        this.stopAutoLoad();
     };
 
     Waterfall.prototype.onMoreClick = function onMoreClick () {
@@ -6049,20 +6096,27 @@ var Waterfall = (function (Widget$$1) {
         this.feed.loadAfter();
     };
 
-    Waterfall.prototype.onPostsLoaded = function onPostsLoaded (event, posts) {
-        Logger.log("Waterfall->onPostsLoaded");
+    Waterfall.prototype.loadBefore = function loadBefore () {
+        Logger.log('Waterfall->loadBefore');
 
-        var postElements = this.createPostElements (posts);
+        this.feed.loadBefore();
+    };
 
-        this.ui.append(postElements);
+    Waterfall.prototype.onPostsLoaded = function onPostsLoaded (event, posts, position) {
+        Logger.log("Waterfall->onPostsLoaded "+position);
 
-        var that = this;
-        z$1.each(postElements,function () {
-            var post = this;
-            if (that.options.showReadMore) {
-                post.find('.crt-post').addClass('crt-post-show-read-more');
+        if (posts.length > 0) {
+
+            this.popupManager.setPosts(posts);
+
+            var postElements = this.createPostElements(posts);
+
+            if (position === 'before') {
+                this.ui.prepend(postElements);
+            } else {
+                this.ui.append(postElements);
             }
-        });
+        }
 
         if (this.options.showLoadMore) {
             if (this.feed.allPostsLoaded) {
@@ -6072,10 +6126,6 @@ var Waterfall = (function (Widget$$1) {
             }
         }
 
-        this.popupManager.setPosts(posts);
-
-        this.loading = false;
-
         this.trigger(Events.POSTS_RENDERED, this);
     };
 
@@ -6084,39 +6134,143 @@ var Waterfall = (function (Widget$$1) {
 
         Widget$$1.prototype.destroy.call(this);
 
-        this.feed.destroy();
+        this.destroyListeners();
 
         this.ui.destroy ();
 
-        this.$el.remove();
-
         this.$container.removeClass('crt-widget-waterfall');
 
-        this.destroyListeners();
+        this.$el.remove();
 
         delete this.$container;
-        delete this.totalPostsLoaded;
-        delete this.loading;
-        delete this.allLoaded;
-
-        // TODO add code to cascade destroy down to Feed & Posts
-        // unregistering events etc
-        delete this.feed;
     };
 
     return Waterfall;
 }(Widget));
 
 var config$2 = z$1.extend(true, {}, base, {
-    templateWidget:'widget-list',
-    animate:false,
     post: {
         template: 'post-list',
+        imageWidth:'25%'
     },
-    list: {
+    widget : {
+        template:'widget-list',
+        animate:false,
         showLoadMore:true,
-    }
+        continuousScroll:false,
+    },
 });
+
+var ListPost = (function (Base) {
+    function ListPost (widget, postJson) {
+        var this$1 = this;
+
+        Base.call(this, widget, postJson);
+
+        this.render ();
+
+        this.$refs.image.css({opacity:0});
+
+        if (this.json.image) {
+            this.$refs.image.on('load', this.onImageLoaded.bind(this));
+            this.$refs.image.on('error', this.onImageError.bind(this));
+        } else {
+            // no image ... call this.onImageLoaded
+            window.setTimeout(function () {
+                this$1.setHeight();
+            },100);
+        }
+
+        // if (this.json.image_width > 0) {
+        //     let p = (this.json.image_height/this.json.image_width)*100;
+        //     this.$refs.imageContainer.addClass('crt-image-responsive').css('padding-bottom',p+'%');
+        // }
+
+        if (this.json.url.indexOf('http') !== 0) {
+            this.$el.find('.crt-post-share').hide ();
+        }
+
+        var imageWidth = this.widget.config('post.imageWidth');
+
+        if (imageWidth) {
+            this.$refs.imageCol.css('width',imageWidth);
+        }
+
+        this.setupVideo ();
+        this.setupCarousel ();
+        this.setupShare ();
+        this.setupCommentsLikes ();
+    }
+
+    if ( Base ) ListPost.__proto__ = Base;
+    ListPost.prototype = Object.create( Base && Base.prototype );
+    ListPost.prototype.constructor = ListPost;
+
+    ListPost.prototype.onImageLoaded = function onImageLoaded () {
+        this.$refs.image.animate({opacity:1});
+
+        this.setHeight();
+
+        this.trigger(Events.POST_IMAGE_LOADED, this);
+        this.widget.trigger(Events.POST_IMAGE_LOADED, this);
+    };
+
+    ListPost.prototype.onImageError = function onImageError () {
+        // Unable to load image!!!
+        this.$refs.image.hide();
+
+        this.setHeight();
+
+        this.trigger(Events.POST_IMAGE_FAILED, this);
+        this.widget.trigger(Events.POST_IMAGE_FAILED, this);
+    };
+
+    ListPost.prototype.setHeight = function setHeight () {
+        // let height = this.$refs.postC.height();
+        // if (this.options.maxHeight && this.options.maxHeight > 0 && height > this.options.maxHeight) {
+        //     this.$refs.postC.css({maxHeight: this.options.maxHeight});
+        //     this.$el.addClass('crt-post-max-height');
+        // }
+
+        this.layout();
+    };
+
+    ListPost.prototype.getHeight = function getHeight () {
+        if (this.$el.hasClass('crt-post-max-height')) {
+            return this.$refs.postC.height();
+        } else {
+            // let $pane = z(this.$panes[i]);
+            var contentHeight = this.$el.find('.crt-post-content').height();
+            var footerHeight = this.$el.find('.crt-post-footer').height();
+            return contentHeight + footerHeight + 2;
+        }
+    };
+
+    ListPost.prototype.layout = function layout () {
+        // Logger.log("Post->layout");
+        this.layoutFooter();
+        this.trigger(Events.POST_LAYOUT_CHANGED, this);
+    };
+
+    ListPost.prototype.layoutFooter = function layoutFooter () {
+        // Logger.log("Post->layoutFooter");
+        var $userName = this.$el.find('.crt-post-username');
+        var $date = this.$el.find('.crt-date');
+        var $footer = this.$el.find('.crt-post-footer');
+        var $share = this.$el.find('.crt-post-share');
+        var $userImage = this.$el.find('.crt-post-userimage');
+
+        var footerWidth = $footer.width();
+        var padding = 40;
+        var elementsWidth = $userName.width() + $date.width() + $share.width() + $userImage.width() + padding;
+
+        if (elementsWidth > footerWidth) {
+            $userName.hide();
+        }
+    };
+
+    return ListPost;
+}(BasePost));
 
 var List = (function (Widget$$1) {
     function List  (options) {
@@ -6124,35 +6278,22 @@ var List = (function (Widget$$1) {
 
         this.loading=false;
         this.feed=null;
-        this.$container=null;
-        this.$feed=null;
+        this.$refs.feed=null;
         this.posts=[];
-        //
-        // if ('scrollRestoration' in window.history) {
-        //     window.history.scrollRestoration = 'manual';
-        // }
 
         if (this.init (options,  config$2)) {
-            Logger.log("List->init with options:");
-            Logger.log(this.options);
+            Logger.log("List->init");
 
-            var tmpl = Templating.renderTemplate(this.responsiveOptions.templateWidget, {});
-            this.$container.append(tmpl);
-            this.$feed = this.$container.find('.crt-feed');
-            this.$feedWindow = this.$container.find('.crt-feed-window');
-            this.$loadMore = this.$container.find('.crt-load-more a');
+            this.templateId = this.config('widget.template');
+            this.render();
+            this.$container.append(this.$el);
+
             this.$scroller = z$1(window);
 
-            this.$container.addClass('crt-list');
-            this.$container.addClass('crt-widget-list');
+            this.$el.addClass('crt-widget-list');
 
-            if (this.responsiveOptions.list.showLoadMore) {
-                this.$feedWindow.css({
-                    'position':'relative'
-                });
-                this.$loadMore.click(this.onMoreClicked.bind(this));
-            } else {
-                this.$loadMore.hide();
+            if (!this.config('widget.showLoadMore')) {
+                this.$refs.loadMore.hide();
             }
 
             this.createHandlers();
@@ -6170,115 +6311,56 @@ var List = (function (Widget$$1) {
         var this$1 = this;
 
         var id = this.id;
-        var updateLayoutDebounced = CommonUtils.debounce( function () {
-            this$1.updateLayout ();
-        }, 100);
 
-        z$1(window).on('resize.'+id, CommonUtils.debounce(function () {
-            this$1.updateResponsiveOptions ();
-            this$1.updateLayout ();
-        }, 100));
+        this._resize = CommonUtils.debounce(this.updateLayout.bind(this));
+        this._checkScroll = CommonUtils.debounce(this.checkScroll.bind(this));
 
-        z$1(window).on('curatorCssLoaded.'+id, updateLayoutDebounced);
+        z$1(window).on('curatorCssLoaded.'+id, this._resize);
 
-        z$1(document).on('ready.'+id, updateLayoutDebounced);
+        z$1(document).on('ready.'+id, this._resize);
 
-        if (this.responsiveOptions.list.continuousScroll) {
-            z$1(window).on('scroll.'+id, CommonUtils.debounce(function () {
-                this$1.checkScroll();
-            }, 100));
+        if (this.config('widget.continuousScroll')) {
+            z$1(window).on('scroll.'+id, this._checkScroll.bind(this));
         }
 
         this.on(Events.FILTER_CHANGED, function () {
-            this$1.$feed.find('.crt-list-post').remove();
+            this$1.$refs.feed.find('.crt-list-post').remove();
         });
+
+        this.ro = new index(function (entries) {
+            if (entries.length > 0) {
+                // let entry = entries[0];
+                this$1._resize();
+            }
+        });
+
+        this.ro.observe(this.$el[0]);
     };
 
     List.prototype.destroyHandlers = function destroyHandlers () {
         var id = this.id;
-
-        z$1(window).off('resize.'+id);
 
         z$1(window).off('curatorCssLoaded.'+id);
 
         z$1(document).off('ready.'+id);
 
         z$1(window).off('scroll.'+id);
-    };
 
-    List.prototype.loadPosts = function loadPosts () {
-        // console.log ('LOAD POSTS CALLED!!!?!?!!?!?!');
+        if (this.ro) {
+            this.ro.disconnect();
+            this.ro = null;
+        }
     };
 
     List.prototype.updateLayout = function updateLayout ( ) {
-        // Logger.log("List->updateLayout ");
-        var cols = Math.floor(this.$container.width()/this.responsiveOptions.list.minWidth);
-        cols = cols < 1 ? 1 : cols;
 
-        // set col layout
-        this.$container.removeClass('crt-list-col'+this.columnCount);
-        this.columnCount = cols;
-        this.$container.addClass('crt-list-col'+this.columnCount);
-
-        // figure out if we need more posts
-        var postsNeeded = cols *  (this.rowsMax + 1);
-        // console.log ('postNeeded '+postsNeeded);
-        // console.log ('this.feed.postsLoaded '+this.feed.postsLoaded);
-        if (postsNeeded > this.feed.postsLoaded && !this.feed.allPostsLoaded) {
-            var limit = postsNeeded - this.feed.postsLoaded;
-
-            var params = {
-                limit : limit
-            };
-
-            this.feed.loadMorePaginated(params);
-        } else {
-            this.updateHeight(false);
-        }
-    };
-
-    List.prototype.updateHeight = function updateHeight (animate) {
-        animate = animate !== undefined || true;
-        var $post = this.$container.find('.crt-post-c').first();
-        var postHeight = $post.width();
-        var postMargin = parseInt($post.css("margin-left"));
-        postHeight += postMargin;
-
-        this.$feedWindow.css({'overflow':'hidden'});
-
-        var maxRows = Math.ceil(this.feed.postCount / this.columnCount);
-        var rows = this.rowsMax < maxRows ? this.rowsMax : maxRows;
-
-        // if (animate) {
-        //     this.$feedWindow.animate({height:rows * postHeight});
-        // } else {
-        var scrollTopOrig = this.$scroller.scrollTop();
-        // }
-
-        this.$feedWindow.height(rows * postHeight);
-        var scrollTopNew = this.$scroller.scrollTop();
-        // console.log(scrollTopOrig+":"+scrollTopNew);
-
-        if (scrollTopNew > scrollTopOrig+100) {
-            // chrome seems to lock scroll position relative to bottom - so scrollTop changes when we adjust height
-            // - let's reset
-            this.$scroller.scrollTop(scrollTopOrig);
-        }
-        if (this.responsiveOptions.list.showLoadMore) {
-            var postsVisible = this.columnCount * rows;
-            if (this.feed.allPostsLoaded && postsVisible >= this.feed.posts.length) {
-                this.$loadMore.hide();
-            } else {
-                this.$loadMore.show();
-            }
-        }
     };
 
     List.prototype.checkScroll = function checkScroll () {
         Logger.log("List->checkScroll");
         // console.log('scroll');
-        var top = this.$container.offset().top;
-        var feedBottom = top+this.$feedWindow.height();
+        var top = this.$el.offset().top;
+        var feedBottom = top+this.$refs.feedWindow.height();
         var scrollTop = this.$scroller.scrollTop();
         var windowBottom = scrollTop+z$1(window).height();
         var diff = windowBottom - feedBottom;
@@ -6313,7 +6395,7 @@ var List = (function (Widget$$1) {
 
                 var post = this$1.createPostElement(postJson);
                 this$1.postElements.push(post);
-                this$1.$feed.append(post.$el);
+                this$1.$refs.feed.append(post.$el);
                 post.layout();
 
                 if (this$1.responsiveOptions.animate) {
@@ -6325,53 +6407,52 @@ var List = (function (Widget$$1) {
 
             this.popupManager.setPosts(posts);
 
-            if (this.responsiveOptions.list.showLoadMore) {
+            if (this.config('widget.showLoadMore')) {
                 if (this.feed.allPostsLoaded) {
-                    this.$loadMore.hide();
+                    this.$refs.loadMore.hide();
                 } else {
-                    this.$loadMore.show();
+                    this.$refs.loadMore.show();
                 }
             } else {
-                this.$loadMore.hide();
+                this.$refs.loadMore.hide();
             }
         }
     };
 
-    List.prototype.onMoreClicked = function onMoreClicked (ev) {
-        ev.preventDefault();
-
+    List.prototype.onMoreClick = function onMoreClick () {
         this.feed.loadMorePaginated();
+    };
+
+    List.prototype.createPostElement = function createPostElement (postJson) {
+        var post = new ListPost(this, postJson);
+        post.on(Events.POST_CLICK, this.onPostClick.bind(this));
+        post.on(Events.POST_CLICK_READ_MORE, this.onPostClickReadMore.bind(this));
+        post.on(Events.POST_IMAGE_LOADED, this.onPostImageLoaded.bind(this));
+
+        this.trigger(Events.POST_CREATED, post);
+
+        return post;
     };
 
     List.prototype.destroy = function destroy () {
         Widget$$1.prototype.destroy.call(this);
 
-        this.feed.destroy();
-
         this.destroyHandlers();
 
-        this.$container.empty()
-            .removeClass('crt-list')
+        this.$el.empty()
             .removeClass('crt-widget-list')
             .removeClass('crt-list-col'+this.columnCount)
             .css({'height':'','overflow':''});
 
-        delete this.$feed;
-        delete this.$container;
-        delete this.options ;
         delete this.loading;
-
-        // TODO add code to cascade destroy down to Posts
-        // unregistering events etc
-        delete this.feed;
     };
 
     return List;
 }(Widget));
 
-var Post$1 = (function (Base$$1) {
-    function Post (widget, postJson, options) {
-        Base$$1.call(this, widget, postJson, options);
+var GridPost = (function (Base) {
+    function GridPost (widget, postJson) {
+        Base.call(this, widget, postJson);
 
         this.$refs = {
             spacer:null,
@@ -6390,32 +6471,28 @@ var Post$1 = (function (Base$$1) {
         this.setupShare ();
     }
 
-    if ( Base$$1 ) Post.__proto__ = Base$$1;
-    Post.prototype = Object.create( Base$$1 && Base$$1.prototype );
-    Post.prototype.constructor = Post;
+    if ( Base ) GridPost.__proto__ = Base;
+    GridPost.prototype = Object.create( Base && Base.prototype );
+    GridPost.prototype.constructor = GridPost;
 
-    Post.prototype.setHeight = function setHeight () {
-        var height = this.$refs.postC.height();
-        if (this.options.maxHeight && this.options.maxHeight > 0 && height > this.options.maxHeight) {
-            this.$refs.postC.css({maxHeight: this.options.maxHeight});
-            this.$el.addClass('crt-post-max-height');
-        }
-
-        this.layout();
+    GridPost.prototype.getHeight = function getHeight () {
+        // let $pane = z(this.$panes[i]);
+        var contentHeight = this.$el.find('.crt-post-content').height();
+        var footerHeight = this.$el.find('.crt-post-footer').height();
+        return contentHeight + footerHeight + 2;
     };
 
-    Post.prototype.getHeight = function getHeight () {
-        if (this.$el.hasClass('crt-post-max-height')) {
-            return this.$refs.postC.height();
-        } else {
-            // let $pane = z(this.$panes[i]);
-            var contentHeight = this.$el.find('.crt-post-content').height();
-            var footerHeight = this.$el.find('.crt-post-footer').height();
-            return contentHeight + footerHeight + 2;
-        }
+    GridPost.prototype.showAnim = function showAnim (i) {
+        var this$1 = this;
+
+        this.$el.css({opacity: 0});
+
+        window.setTimeout (function () {
+            this$1.$el.animate({opacity: 1});
+        }, i * 100);
     };
 
-    Post.prototype.rafTick = function rafTick () {
+    GridPost.prototype.rafTick = function rafTick () {
         if (this.reqCount % 50 === 0) {
             // Only trigger every 50 frames ...
             var h = this.rafContainer.offsetHeight;
@@ -6431,13 +6508,13 @@ var Post$1 = (function (Base$$1) {
         this.raf = window.requestAnimationFrame(this.rafTick.bind(this));
     };
 
-    Post.prototype.layout = function layout () {
+    GridPost.prototype.layout = function layout () {
         // Logger.log("Post->layout");
         this.layoutFooter();
         this.trigger(Events.POST_LAYOUT_CHANGED, this);
     };
 
-    Post.prototype.layoutFooter = function layoutFooter () {
+    GridPost.prototype.layoutFooter = function layoutFooter () {
         // Logger.log("Post->layoutFooter");
         var $userName = this.$el.find('.crt-post-username');
         var $date = this.$el.find('.crt-date');
@@ -6454,13 +6531,13 @@ var Post$1 = (function (Base$$1) {
         }
     };
 
-    return Post;
-}(Base));
+    return GridPost;
+}(BasePost));
 
 var config$4 = z$1.extend(true, {}, base, {
     templateWidget:'widget-grid',
     animate:false,
-    minWidth:200,
+    minWidth:250,
     rows:3,
     showLoadMore:false,
     loadMoreRows:1,
@@ -6504,6 +6581,11 @@ var Grid = (function (Widget$$1) {
 
             this.templateId = this.config('templateWidget');
             this.render ();
+
+            if (this.config('minWidth') < 100) {
+                console.log(this.options.minWidth);
+                this.options.minWidth = 100;
+            }
 
             this.$container.append(this.$el);
             this.$scroller = z$1(window);
@@ -6552,8 +6634,6 @@ var Grid = (function (Widget$$1) {
 
         z$1(window).on('curatorCssLoaded.'+id, this._resize.bind(this));
 
-        z$1(document).on('ready.'+id, this._resize.bind(this));
-
         if (this.config('continuousScroll')) {
             z$1(window).on('scroll.'+id, CommonUtils.debounce(function () {
                 this$1.checkScroll();
@@ -6563,6 +6643,10 @@ var Grid = (function (Widget$$1) {
         this.on(Events.FILTER_CHANGED, function () {
             this$1.$refs.feed.find('.crt-grid-post').remove();
         });
+
+        if (this.options.autoLoadNew) {
+            this.startAutoLoad ();
+        }
     };
 
     Grid.prototype.destroyHandlers = function destroyHandlers () {
@@ -6580,10 +6664,14 @@ var Grid = (function (Widget$$1) {
         if (this.ro) {
             this.ro.disconnect();
         }
+
+        this.stopAutoLoad();
     };
 
-    Grid.prototype.loadPosts = function loadPosts () {
-        // console.log ('LOAD POSTS CALLED!!!?!?!!?!?!');
+    Grid.prototype.loadBefore = function loadBefore () {
+        Logger.log('Grid->loadBefore');
+
+        this.feed.loadBefore();
     };
 
     Grid.prototype.updateLayout = function updateLayout ( ) {
@@ -6607,16 +6695,16 @@ var Grid = (function (Widget$$1) {
                 limit : limit
             };
 
-            this.feed.loadMorePaginated(params);
+            this.feed.loadAfter(params);
         } else {
             this.updateHeight(false);
         }
     };
 
     Grid.prototype.createPostElement = function createPostElement (postJson) {
-        var post = new Post$1(this, postJson, this.options);
-        post.on(Events.POST_CLICK,this.onPostClick.bind(this));
-        post.on(Events.POST_CLICK_READ_MORE,this.onPostClickReadMore.bind(this));
+        var post = new GridPost(this, postJson);
+        post.on(Events.POST_CLICK, this.onPostClick.bind(this));
+        post.on(Events.POST_CLICK_READ_MORE, this.onPostClickReadMore.bind(this));
         post.on(Events.POST_IMAGE_LOADED, this.onPostImageLoaded.bind(this));
 
         this.trigger(Events.POST_CREATED, post);
@@ -6683,10 +6771,11 @@ var Grid = (function (Widget$$1) {
         }
     };
 
-    Grid.prototype.onPostsLoaded = function onPostsLoaded (event, posts) {
+    Grid.prototype.onPostsLoaded = function onPostsLoaded (event, posts, position) {
         var this$1 = this;
 
-        Logger.log("Grid->onPostsLoaded");
+        Logger.log("Grid->onPostsLoaded position:"+position);
+        console.log(posts.length);
 
         this.loading = false;
 
@@ -6696,23 +6785,20 @@ var Grid = (function (Widget$$1) {
             this.postElements = [];
             var i = 0;
 
-            var anim = function (post) {
-                window.setTimeout (function () {
-                    post.$el.css({opacity: 0}).animate({opacity: 1});
-                }, i * 100);
-            };
-
             for (var i$1 = 0, list = posts; i$1 < list.length; i$1 += 1) {
                 var postJson = list[i$1];
 
                 var post = this$1.createPostElement(postJson);
                 this$1.postElements.push(post);
-                this$1.$refs.feed.append(post.$el);
+                if (position === 'before') {
+                    this$1.$refs.feed.prepend(post.$el);
+                } else {
+                    this$1.$refs.feed.append(post.$el);
+                }
                 post.layout();
 
                 if (this$1.config('animate')) {
-                    post.$el.css({opacity: 0});
-                    anim (post, i);
+                    post.showAnim (i);
                     i++;
                 }
             }
@@ -6734,15 +6820,14 @@ var Grid = (function (Widget$$1) {
     Grid.prototype.destroy = function destroy () {
         Widget$$1.prototype.destroy.call(this);
 
-        this.feed.destroy();
-
         this.destroyHandlers();
 
-        this.$container.empty()
-            .removeClass('crt-widget-grid')
+        this.$container.removeClass('crt-widget-grid')
             .removeClass('crt-grid')
             .removeClass('crt-grid-col'+this.columnCount)
             .css({'height':'','overflow':''});
+
+        this.$el.remove();
 
         window.clearTimeout(this.updateHeightTimeout);
 
@@ -6750,10 +6835,6 @@ var Grid = (function (Widget$$1) {
         delete this.totalPostsLoaded;
         delete this.loading;
         delete this.allLoaded;
-
-        // TODO add code to cascade destroy down to Posts
-        // unregistering events etc
-        delete this.feed;
     };
 
     return Grid;
@@ -6765,6 +6846,8 @@ var config$6 = z$1.extend(true, {}, base, {
     infinite:true,
     matchHeights:false,
     rows:1,
+    controlsOver: true,
+    controlsShowOnHover: true,
     post: {
         template: 'post-grid',
     },
@@ -6846,13 +6929,25 @@ var LayoutCarousel = (function (EventBus$$1) {
     LayoutCarousel.prototype.createHandlers = function createHandlers () {
         var this$1 = this;
 
-        z$1(window).on('resize.'+this.id, CommonUtils.debounce( function () {
+        this._resize = CommonUtils.debounce(function () {
             this$1.updateLayout ();
-        }, 100));
+        }, 100);
+
+        this.ro = new index(function (entries) {
+            if (entries.length > 0) {
+                // let entry = entries[0];
+                this$1._resize();
+            }
+        });
+
+        this.ro.observe(this.$viewport[0]);
     };
 
     LayoutCarousel.prototype.destroyHandlers = function destroyHandlers () {
-        z$1(window).off('resize.'+this.id);
+        if (this.ro) {
+            this.ro.disconnect();
+            this.ro = null;
+        }
     };
 
     LayoutCarousel.prototype.setPanesLength = function setPanesLength (panesLength) {
@@ -7134,6 +7229,8 @@ var LayoutCarousel = (function (EventBus$$1) {
 
         Logger.log('LayoutCarousel->moveComplete');
 
+        if (!this.alive) { return; }
+
         this.updatePanes();
 
         // reset x position
@@ -7239,8 +7336,11 @@ var LayoutCarousel = (function (EventBus$$1) {
         var this$1 = this;
 
         Logger.log('LayoutCarousel->destroy ');
+
+        EventBus$$1.prototype.destroy.call(this);
+
         this.destroyHandlers ();
-        this.$slider.stop(true, false);
+
         window.clearTimeout(this.autoPlayTimeout);
         window.clearTimeout(this.postLayoutChangedTO);
         window.clearTimeout(this.moveCompleteTO);
@@ -7325,7 +7425,7 @@ var GridCarousel = (function (Widget$$1) {
             });
 
             // load first set of posts
-            this.loadPosts(0);
+            this.feed.load();
         }
     }
 
@@ -7337,7 +7437,7 @@ var GridCarousel = (function (Widget$$1) {
         Logger.log('GridCarousel->loadMorePosts');
 
         if (this.feed.postCount > this.feed.postsLoaded) {
-            this.feed.loadPosts(this.feed.currentPage + 1);
+            this.feed.loadMore();
         }
     };
 
@@ -7371,9 +7471,9 @@ var GridCarousel = (function (Widget$$1) {
     };
 
     GridCarousel.prototype.createPostElement = function createPostElement (postJson) {
-        var post = new Post$1(this, postJson, this.options);
-        post.on(Events.POST_CLICK,this.onPostClick.bind(this));
-        post.on(Events.POST_CLICK_READ_MORE,this.onPostClickReadMore.bind(this));
+        var post = new GridPost(this, postJson);
+        post.on(Events.POST_CLICK, this.onPostClick.bind(this));
+        post.on(Events.POST_CLICK_READ_MORE, this.onPostClickReadMore.bind(this));
         post.on(Events.POST_IMAGE_LOADED, this.onPostImageLoaded.bind(this));
 
         this.trigger(Events.POST_CREATED, post);
@@ -7419,20 +7519,14 @@ var GridCarousel = (function (Widget$$1) {
     GridCarousel.prototype.destroy = function destroy () {
         Widget$$1.prototype.destroy.call(this);
 
-        this.feed.destroy();
-
-        this.carousel.off(Events.CAROUSEL_CHANGED, this.onCarouselChange.bind(this));
         this.carousel.destroy();
+        delete this.carousel;
 
-        this.$feed.remove();
-        this.$container.removeClass('crt-widget-carousel');
+        this.$container.removeClass('crt-widget-grid-carousel');
 
-        delete this.$feed;
+        this.$el.remove();
+
         delete this.$container;
-
-        // TODO add code to cascade destroy down to Feed & Posts
-        // unregistering events etc
-        delete this.feed;
     };
 
     return GridCarousel;
@@ -7479,7 +7573,7 @@ var Carousel = (function (Widget$$1) {
             });
 
             // load first set of posts
-            this.loadPosts(0);
+            this.feed.load();
         }
     }
 
@@ -7491,7 +7585,7 @@ var Carousel = (function (Widget$$1) {
         Logger.log('Carousel->loadMorePosts');
 
         if (this.feed.postCount > this.feed.postsLoaded) {
-            this.feed.loadPosts(this.feed.currentPage + 1);
+            this.feed.loadMore();
         }
     };
 
@@ -7545,20 +7639,17 @@ var Carousel = (function (Widget$$1) {
     Carousel.prototype.destroy = function destroy () {
         Widget$$1.prototype.destroy.call(this);
 
-        this.feed.destroy();
-
-        this.carousel.off(Events.CAROUSEL_CHANGED, this.onCarouselChange.bind(this));
         this.carousel.destroy();
+        delete this.carousel;
 
-        this.$feed.remove();
         this.$container.removeClass('crt-widget-carousel');
         this.$container.removeClass('crt-carousel');
-
-        delete this.$feed;
         delete this.$container;
+
+        this.$el.remove();
+
         delete this.allLoaded;
 
-        delete this.feed;
     };
 
     return Carousel;
@@ -7606,7 +7697,7 @@ var Panel = (function (Widget$$1) {
             this.carousel.on(Events.CAROUSEL_CHANGED, this.onCarouselChange.bind(this));
 
             // load first set of posts
-            this.loadPosts(0);
+            this.feed.load();
         }
     }
 
@@ -7617,7 +7708,7 @@ var Panel = (function (Widget$$1) {
     Panel.prototype.loadMorePosts = function loadMorePosts () {
         Logger.log('Panel->loadMorePosts');
 
-        this.feed.loadPosts(this.feed.currentPage+1);
+        this.feed.loadMore();
     };
 
     Panel.prototype.onPostsLoaded = function onPostsLoaded (event, posts) {
@@ -7651,26 +7742,20 @@ var Panel = (function (Widget$$1) {
 
         Widget$$1.prototype.destroy.call(this);
 
-        this.feed.destroy();
-
-        this.carousel.off(Events.CAROUSEL_CHANGED, this.onCarouselChange.bind(this));
         this.carousel.destroy();
+        delete this.carousel;
 
-        this.$feed.remove();
         this.$container.removeClass('crt-panel');
         this.$container.removeClass('crt-widget-panel');
         this.$container.removeClass('crt-carousel');
         this.$container.removeClass('crt-widget-carousel');
 
-        delete this.$feed;
+        this.$el.remove();
+
         delete this.$container;
         delete this.feed.postsLoaded;
         delete this.loading;
         delete this.allLoaded;
-
-        // TODO add code to cascade destroy down to Feed & Posts
-        // unregistering events etc
-        delete this.feed;
     };
 
     return Panel;
@@ -7738,7 +7823,8 @@ var Crt = {
     Globals: Globals,
 
     Ui: {
-        Post: Base,
+        Post: BasePost,
+        Control : Control
     },
 
     Widgets: {
@@ -7748,6 +7834,10 @@ var Crt = {
         GridCarousel: GridCarousel,
         Panel: Panel,
         List: List,
+    },
+
+    Themes : {
+        London : LondonTheme
     },
 
     Utils: {

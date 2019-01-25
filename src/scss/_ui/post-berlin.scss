@@ -1,0 +1,113 @@
+
+
+.crt-post-berlin {
+    .crt-social-icon {
+        position: absolute;
+        left: 0px;
+        top: 0px;
+
+        i {
+            line-height: .6em;
+            font-size: .6em;
+        }
+    }
+
+    .crt-post-header {
+        margin-top: 15px;
+        padding-top: 0;
+        height: 20px;
+    }
+
+    .crt-post-fullname {
+        text-align: left;
+        padding-left: 50px;
+        padding-right: 15px;
+        text-transform: uppercase;
+    }
+    .crt-post-text {
+        margin: 15px 0;
+        text-align: left;
+        padding: 0 0px;
+    }
+
+    .crt-comments-likes {
+        text-transform: none;
+        text-align: left;
+        padding-left: 15px;
+    }
+
+    .crt-post-footer {
+        border-top:none;
+        height: 32px+6px;
+
+        .crt-post-userimage {
+            top: 0;
+            width: 32px;
+        }
+
+        .crt-post-date,
+        .crt-post-username {
+            position: absolute;
+            left: 50px;
+            top: 3px;
+            line-height: 1em;
+        }
+
+        .crt-post-date {
+            top: 18px;
+        }
+
+        .crt-post-share {
+            top:auto;
+            bottom:10px;
+            right: 0;
+            line-height: 1em;
+        }
+    }
+
+    .crt-post-date {
+        text-transform: uppercase;
+    }
+
+    &.crt-hide-user-image {
+        .crt-post-footer {
+            height: 30px;
+
+            .crt-post-userimage {
+                display: none;
+            }
+            .crt-post-date,
+            .crt-post-username {
+                position: absolute;
+                left: 0px;
+                top: 0px;
+            }
+
+            .crt-post-date {
+                top: 18px;
+            }
+        }
+    }
+
+    &.crt-hide-user-screen-name {
+        .crt-post-footer {
+            .crt-post-username {
+                display: none;
+            }
+        }
+    }
+
+    &.crt-hide-user-image.crt-hide-user-screen-name {
+        .crt-post-footer {
+            height: 30px;
+
+            .crt-post-date {
+                top: 8px;
+            }
+        }
+    }
+}
+
+.crt-widget-waterfall .crt-post.crt-post-berlin {
+    margin-bottom: 40px;
+}

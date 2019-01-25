@@ -111,11 +111,7 @@ class Grid extends Widget {
             this.ro.disconnect();
         }
 
-        this.stopAutoLoad() ();
-    }
-
-    loadPosts () {
-        // console.log ('LOAD POSTS CALLED!!!?!?!!?!?!');
+        this.stopAutoLoad();
     }
 
     loadBefore () {

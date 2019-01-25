@@ -54,13 +54,12 @@
         font-size: .8em;
         text-transform: uppercase;
         text-align: center;
-        color: #999;
         padding: 0 0 13px;
         display: none;
 
         span {
             span {
-                color: #000;
+                opacity: 0.5;
             }
         }
 
@@ -90,7 +89,6 @@
             top: 0px;
             right: 10px;
             font-size: .9em;
-            color: $color-post-share-text;
             //background-color: $color-post-share-bg;
             text-align: right;
             box-shadow: none;
@@ -98,7 +96,6 @@
             a {
                 display: inline-block;
                 color: $color-post-share-text;
-                opacity: 0.5;
                 transition: opacity .3s linear;
 
                 &:hover {
@@ -170,7 +167,7 @@
         text-align: center;
     }
 
-    .crt-post-content-text {
+    .crt-post-text {
         padding-left: 17px;
         padding-right: 17px;
         padding-bottom: 28px;

@@ -4,7 +4,7 @@ import z from '../core/lib';
 let config = z.extend(true, {}, base, {
     templateWidget:'widget-grid',
     animate:false,
-    minWidth:200,
+    minWidth:250,
     rows:3,
     showLoadMore:false,
     loadMoreRows:1,

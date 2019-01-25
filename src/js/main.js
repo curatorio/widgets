@@ -7,7 +7,10 @@ import {} from './libraries/twitter-text-regex';
 import EventBus from './core/bus';
 import Globals from './core/globals';
 
+import LondonTheme from './config/themes/london';
+
 import Post from './ui/posts/base';
+import Control from './ui/controls/control';
 import StringUtils from './utils/string';
 import HtmlUtils from './utils/html';
 import Templating from './core/templating';
@@ -87,6 +90,7 @@ let Crt = {
 
     Ui: {
         Post: Post,
+        Control : Control
     },
 
     Widgets: {
@@ -96,6 +100,10 @@ let Crt = {
         GridCarousel: GridCarousel,
         Panel: Panel,
         List: List,
+    },
+
+    Themes : {
+        London : LondonTheme
     },
 
     Utils: {

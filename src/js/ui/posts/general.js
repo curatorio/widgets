@@ -29,6 +29,7 @@ class GeneralPost extends Base {
             this.$el.find('.crt-post-share').hide ();
         }
 
+        this.setupUserNameImage ();
         this.setupVideo ();
         this.setupCarousel ();
         this.setupShare ();

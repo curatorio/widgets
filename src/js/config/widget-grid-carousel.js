@@ -7,6 +7,8 @@ let config = z.extend(true, {}, base, {
     infinite:true,
     matchHeights:false,
     rows:1,
+    controlsOver: true,
+    controlsShowOnHover: true,
     post: {
         template: 'post-grid',
     },

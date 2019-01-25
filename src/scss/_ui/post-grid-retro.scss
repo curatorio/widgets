@@ -13,7 +13,7 @@
         position: relative;
     }
 
-    .crt-post-content-text-c,
+    .crt-post-text-c,
     .crt-post-content-image {
         position: absolute;
         top:0;
@@ -41,9 +41,9 @@
         z-index: 1;
     }
 
-    .crt-post-content-text-c {
+    .crt-post-text-c {
 
-        .crt-post-content-text {
+        .crt-post-text {
             font-size: 20px;
         }
         z-index: 2;
@@ -94,7 +94,7 @@
     }
 
     &.crt-post-has-image {
-        .crt-post-content-text-c {
+        .crt-post-text-c {
             display: none;
         }
     }

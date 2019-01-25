@@ -83,10 +83,6 @@ class List extends Widget {
         }
     }
 
-    loadPosts () {
-        // console.log ('LOAD POSTS CALLED!!!?!?!!?!?!');
-    }
-
     updateLayout ( ) {
 
     }

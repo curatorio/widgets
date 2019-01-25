@@ -1,6 +1,7 @@
-import CommonUtils from '../../utils/common';
 import Logger from '../../core/logger';
+import CommonUtils from '../../utils/common';
 import HtmlUtils from '../../utils/html';
+import StringUtils from '../../utils/string';
 import ajax from '../../core/ajax';
 import Events from '../../core/events';
 import Post from '../posts/general';
@@ -112,16 +113,23 @@ class Widget extends Control {
         this.addStyle(this.sheet, styles.widget, '.crt-widget');
         this.addStyle(this.sheet, styles.loadMore, '.crt-widget .crt-load-more');
         this.addStyle(this.sheet, styles.post, '.crt-widget .crt-post');
-        this.addStyle(this.sheet, styles.postText, '.crt-widget .crt-post-content-text');
+        this.addStyle(this.sheet, styles.postText, '.crt-widget .crt-post-text');
+        this.addStyle(this.sheet, styles.postTextLink, '.crt-widget .crt-post-text a');
+        this.addStyle(this.sheet, styles.postName, '.crt-widget .crt-post-fullname a');
+        this.addStyle(this.sheet, styles.postUsername, '.crt-widget .crt-post-username a');
+        this.addStyle(this.sheet, styles.postIcon, '.crt-widget .crt-social-icon i');
+        this.addStyle(this.sheet, styles.postComments, '.crt-widget .crt-comments-likes');
+        this.addStyle(this.sheet, styles.postShareIcons, '.crt-widget .crt-post-footer .crt-post-share a');
+        this.addStyle(this.sheet, styles.postDate, '.crt-widget .crt-post-date a');
     }
 
     addStyle(sheet, stylesObj, className) {
         if (stylesObj) {
-            // console.log('Found style for '+className);
+            console.log('Found style for '+className);
             let rules = [];
             for (let key in stylesObj) {
                 if (stylesObj.hasOwnProperty(key)) {
-                    let ruleName = this.camelToDash(key);
+                    let ruleName = StringUtils.camelToDash(key);
                     let rule = ruleName + ': ' + stylesObj[key];
                     rules.push(rule);
                 }
@@ -130,10 +138,6 @@ class Widget extends Control {
                 HtmlUtils.addCSSRule(sheet, className, rules.join(';'));
             }
         }
-    }
-
-    camelToDash (s){
-        return s.replace(/([A-Z])/g, function($1, p1, pos){return (pos > 0 ? "-" : "") + $1.toLowerCase();});
     }
 
     updateResponsiveOptions () {
@@ -211,10 +215,6 @@ class Widget extends Control {
 
             this.$container.append(this.filter.$el);
         }
-    }
-
-    loadPosts (page) {
-        this.feed.loadPosts(page);
     }
 
     createPostElements (posts)
@@ -305,7 +305,7 @@ class Widget extends Control {
                 Logger.log(data);
             },
             (jqXHR, textStatus, errorThrown) => {
-                Logger.log('Feed->_loadPosts fail');
+                Logger.log('Feed->track fail');
                 Logger.log(textStatus);
                 Logger.log(errorThrown);
             }

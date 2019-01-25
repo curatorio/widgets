@@ -35,14 +35,14 @@ class Panel extends Widget {
             this.carousel.on(Events.CAROUSEL_CHANGED, this.onCarouselChange.bind(this));
 
             // load first set of posts
-            this.loadPosts(0);
+            this.feed.load();
         }
     }
 
     loadMorePosts   () {
         Logger.log('Panel->loadMorePosts');
 
-        this.feed.loadPosts(this.feed.currentPage+1);
+        this.feed.loadMore();
     }
 
     onPostsLoaded  (event, posts) {
