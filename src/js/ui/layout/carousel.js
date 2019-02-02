@@ -35,6 +35,7 @@ class LayoutCarousel extends EventBus {
         this.posts = [];
         this.paneCache = {};
         this.$panes = [];
+        this._alive = true;
 
         this.options = z.extend({}, LayoutCarouselSettings, options);
 
@@ -360,6 +361,10 @@ class LayoutCarousel extends EventBus {
     moveComplete () {
         Logger.log('LayoutCarousel->moveComplete');
 
+        if (!this._alive) {
+            return;
+        }
+
         this.updatePanes();
 
         // reset x position
@@ -456,8 +461,13 @@ class LayoutCarousel extends EventBus {
 
     destroy () {
         Logger.log('LayoutCarousel->destroy ');
+
+        this._alive = false;
+
         this.destroyHandlers ();
-        // this.$paneSlider.stop(true, false);
+        if (this.$paneSlider.stop) {
+            this.$paneSlider.stop(true, false);
+        }
         window.clearTimeout(this.autoPlayTimeout);
         window.clearTimeout(this.postLayoutChangedTO);
         window.clearTimeout(this.moveCompleteTO);
