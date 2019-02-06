@@ -1,30 +1,8 @@
 @charset "UTF-8";
-
-@keyframes opacityWithDisplay {
-  0% {
-    display: none;
-    opacity: 0; }
-  1% {
-    display: block;
-    opacity: 0; }
-  100% {
-    display: block;
-    opacity: 1; } }
-
-.crt-clearfix, .crt-popup-wrapper .crt-popup .crt-popup-header, .crt-post-v1 .crt-post .crt-post-header, .crt-widget-waterfall .crt-feed {
-  zoom: 1; }
-  .crt-clearfix:before, .crt-popup-wrapper .crt-popup .crt-popup-header:before, .crt-post-v1 .crt-post .crt-post-header:before, .crt-widget-waterfall .crt-feed:before, .crt-clearfix:after, .crt-popup-wrapper .crt-popup .crt-popup-header:after, .crt-post-v1 .crt-post .crt-post-header:after, .crt-widget-waterfall .crt-feed:after {
-    content: "\0020";
-    display: block;
-    height: 0;
-    overflow: hidden; }
-  .crt-clearfix:after, .crt-popup-wrapper .crt-popup .crt-popup-header:after, .crt-post-v1 .crt-post .crt-post-header:after, .crt-widget-waterfall .crt-feed:after {
-    clear: both; }
-
 @font-face {
   font-family: 'crt-icon';
-  src: url("../fonts/crt-icon.eot?79570543");
-  src: url("../fonts/crt-icon.eot?79570543#iefix") format("embedded-opentype"), url("../fonts/crt-icon.woff2?79570543") format("woff2"), url("../fonts/crt-icon.woff?79570543") format("woff"), url("../fonts/crt-icon.ttf?79570543") format("truetype"), url("../fonts/crt-icon.svg?79570543#crt-icon") format("svg");
+  src: url("../font/crt-icon.eot?32623403");
+  src: url("../font/crt-icon.eot?32623403#iefix") format("embedded-opentype"), url("../font/crt-icon.woff2?32623403") format("woff2"), url("../font/crt-icon.woff?32623403") format("woff"), url("../font/crt-icon.ttf?32623403") format("truetype"), url("../font/crt-icon.svg?32623403#crt-icon") format("svg");
   font-weight: normal;
   font-style: normal; }
 
@@ -34,7 +12,7 @@
 @media screen and (-webkit-min-device-pixel-ratio:0) {
   @font-face {
     font-family: 'crt-icon';
-    src: url('../fonts/crt-icon.svg?79570543#crt-icon') format('svg');
+    src: url('../font/crt-icon.svg?32623403#crt-icon') format('svg');
   }
 }
 */
@@ -101,10 +79,22 @@
   content: '\e808'; }
 
 /* '' */
+.crt-icon-yelp:before {
+  content: '\e809'; }
+
+/* '' */
 .crt-icon-comment-alt:before, .crt-icon-comment:before {
   content: '\e80a'; }
 
 /* '' */
+.crt-icon-soundcloud:before {
+  content: '\e80b'; }
+
+/* '' */
+.crt-icon-cogs:before {
+  content: '\e80c'; }
+
+/* '' */
 .crt-icon-spin1:before {
   content: '\e830'; }
 
@@ -161,6 +151,18 @@
   content: '\f18a'; }
 
 /* '' */
+.crt-icon-slack:before {
+  content: '\f198'; }
+
+/* '' */
+.crt-icon-behance:before {
+  content: '\f1b4'; }
+
+/* '' */
+.crt-icon-spotify:before {
+  content: '\f1bc'; }
+
+/* '' */
 .crt-icon-vine:before {
   content: '\f1ca'; }
 
@@ -169,10 +171,18 @@
   content: '\f231'; }
 
 /* '' */
+.crt-icon-medium:before {
+  content: '\f23a'; }
+
+/* '' */
 .crt-icon-clone:before, .crt-icon-image-carousel:before {
   content: '\f24d'; }
 
 /* '' */
+.crt-icon-tripadvisor:before {
+  content: '\f262'; }
+
+/* '' */
 .crt-icon-snapchat-ghost:before {
   content: '\f2ac'; }
 
@@ -185,6 +195,39 @@
   content: '\f306'; }
 
 /* '' */
+.crt-icon-deviant-art:before {
+  content: '\f307'; }
+
+/* '' */
+
+@keyframes opacityWithDisplay {
+  0% {
+    display: none;
+    opacity: 0; }
+  1% {
+    display: block;
+    opacity: 0; }
+  100% {
+    display: block;
+    opacity: 1; } }
+
+.crt-clearfix, .crt-popup-wrapper .crt-popup .crt-popup-header, .crt-post-v1 .crt-post .crt-post-header, .crt-widget-waterfall .crt-feed {
+  zoom: 1; }
+  .crt-clearfix:before, .crt-popup-wrapper .crt-popup .crt-popup-header:before, .crt-post-v1 .crt-post .crt-post-header:before, .crt-widget-waterfall .crt-feed:before, .crt-clearfix:after, .crt-popup-wrapper .crt-popup .crt-popup-header:after, .crt-post-v1 .crt-post .crt-post-header:after, .crt-widget-waterfall .crt-feed:after {
+    content: "\0020";
+    display: block;
+    height: 0;
+    overflow: hidden; }
+  .crt-clearfix:after, .crt-popup-wrapper .crt-popup .crt-popup-header:after, .crt-post-v1 .crt-post .crt-post-header:after, .crt-widget-waterfall .crt-feed:after {
+    clear: both; }
+
+@font-face {
+  font-family: 'crt-icon';
+  src: url("../fonts/crt-icon.eot?1234");
+  src: url("../fonts/crt-icon.eot?1234#iefix") format("embedded-opentype"), url("../fonts/crt-icon.woff2?1234") format("woff2"), url("../fonts/crt-icon.woff?1234") format("woff"), url("../fonts/crt-icon.ttf?1234") format("truetype"), url("../fonts/crt-icon.svg?1234#crt-icon") format("svg");
+  font-weight: normal;
+  font-style: normal; }
+
 [class^="crt-icon-"]:before, [class*=" crt-icon-"]:before {
   margin: 0; }
 
