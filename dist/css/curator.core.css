@@ -1,8 +1,13 @@
 @charset "UTF-8";
 @font-face {
   font-family: 'crt-icon';
+<<<<<<< HEAD
   src: url("../font/crt-icon.eot?98959953");
   src: url("../font/crt-icon.eot?98959953#iefix") format("embedded-opentype"), url("../font/crt-icon.woff2?98959953") format("woff2"), url("../font/crt-icon.woff?98959953") format("woff"), url("../font/crt-icon.ttf?98959953") format("truetype"), url("../font/crt-icon.svg?98959953#crt-icon") format("svg");
+=======
+  src: url("../font/crt-icon.eot?32623403");
+  src: url("../font/crt-icon.eot?32623403#iefix") format("embedded-opentype"), url("../font/crt-icon.woff2?32623403") format("woff2"), url("../font/crt-icon.woff?32623403") format("woff"), url("../font/crt-icon.ttf?32623403") format("truetype"), url("../font/crt-icon.svg?32623403#crt-icon") format("svg");
+>>>>>>> 1cd6f7a... Added Finnish Translation
   font-weight: normal;
   font-style: normal; }
 
@@ -12,7 +17,11 @@
 @media screen and (-webkit-min-device-pixel-ratio:0) {
   @font-face {
     font-family: 'crt-icon';
+<<<<<<< HEAD
     src: url('../font/crt-icon.svg?98959953#crt-icon') format('svg');
+=======
+    src: url('../font/crt-icon.svg?32623403#crt-icon') format('svg');
+>>>>>>> 1cd6f7a... Added Finnish Translation
   }
 }
 */
@@ -91,6 +100,13 @@
   content: '\e80b'; }
 
 /* '' */
+<<<<<<< HEAD
+=======
+.crt-icon-cogs:before {
+  content: '\e80c'; }
+
+/* '' */
+>>>>>>> 1cd6f7a... Added Finnish Translation
 .crt-icon-spin1:before {
   content: '\e830'; }
 
@@ -151,6 +167,13 @@
   content: '\f198'; }
 
 /* '' */
+<<<<<<< HEAD
+=======
+.crt-icon-behance:before {
+  content: '\f1b4'; }
+
+/* '' */
+>>>>>>> 1cd6f7a... Added Finnish Translation
 .crt-icon-spotify:before {
   content: '\f1bc'; }
 
@@ -187,6 +210,13 @@
   content: '\f306'; }
 
 /* '' */
+<<<<<<< HEAD
+=======
+.crt-icon-deviant-art:before {
+  content: '\f307'; }
+
+/* '' */
+>>>>>>> 1cd6f7a... Added Finnish Translation
 
 @keyframes opacityWithDisplay {
   0% {
@@ -211,8 +241,13 @@
 
 @font-face {
   font-family: 'crt-icon';
+<<<<<<< HEAD
   src: url("../fonts/crt-icon.eot?98959953");
   src: url("../fonts/crt-icon.eot?98959953#iefix") format("embedded-opentype"), url("../fonts/crt-icon.woff2?98959953") format("woff2"), url("../fonts/crt-icon.woff?98959953") format("woff"), url("../fonts/crt-icon.ttf?98959953") format("truetype"), url("../fonts/crt-icon.svg?98959953#crt-icon") format("svg");
+=======
+  src: url("../fonts/crt-icon.eot?1234");
+  src: url("../fonts/crt-icon.eot?1234#iefix") format("embedded-opentype"), url("../fonts/crt-icon.woff2?1234") format("woff2"), url("../fonts/crt-icon.woff?1234") format("woff"), url("../fonts/crt-icon.ttf?1234") format("truetype"), url("../fonts/crt-icon.svg?1234#crt-icon") format("svg");
+>>>>>>> 1cd6f7a... Added Finnish Translation
   font-weight: normal;
   font-style: normal; }
 

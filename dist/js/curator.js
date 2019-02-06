@@ -1648,9 +1648,13 @@ var Curator = (function () {
 // Best place to find information on XHR features is:
 // https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest
 
+<<<<<<< HEAD
 var reqfields = [
     'responseType', 'withCredentials', 'timeout', 'onprogress'
 ];
+=======
+var v1PopupTemplate = " \n<div class=\"crt-popup\"> \n    <a href=\"#\" class=\"crt-close crt-icon-cancel\"></a> \n    <a href=\"#\" class=\"crt-next crt-icon-right-open\"></a> \n    <a href=\"#\" class=\"crt-previous crt-icon-left-open\"></a> \n    <div class=\"crt-popup-left\">  \n        <div class=\"crt-video\"> \n            <div class=\"crt-video-container\">\n                <video preload=\"none\">\n                <source src=\"<%=video%>\" type=\"video/mp4\">\n                </video>\n                <img src=\"<%=image%>\" alt=\"Image posted by <%=this.userScreenName()%> to <%=this.networkName()%>\" />\n                <a href=\"javascript:;\" class=\"crt-play\"><i class=\"crt-play-icon\"></i></a> \n            </div> \n        </div> \n        <div class=\"crt-image\"> \n            <img src=\"<%=image%>\" alt=\"Image posted by <%=this.userScreenName()%> to <%=this.networkName()%>\" /> \n        </div> \n        <div class=\"crt-pagination\"><ul></ul></div>\n    </div> \n    <div class=\"crt-popup-right\"> \n        <div class=\"crt-popup-header\"> \n            <span class=\"crt-social-icon\"><i class=\"crt-icon-<%=this.networkIcon()%>\"></i></span> \n            <img src=\"<%=user_image%>\" alt=\"Profile image for <%=user_full_name%>\"  /> \n            <div class=\"crt-post-name\"><span><%=user_full_name%></span><br/><a href=\"<%=this.userUrl()%>\" target=\"_blank\"><%=this.userScreenName()%></a></div> \n        </div> \n        <div class=\"crt-popup-text <%=this.contentTextClasses()%>\"> \n            <div class=\"crt-popup-text-container\"> \n                <p class=\"crt-date\"><%=this.prettyDate(source_created_at)%></p> \n                <div class=\"crt-popup-text-body\"><%=this.parseText(text)%></div> \n            </div> \n        </div> \n        <div class=\"crt-popup-read-more\">\n            <a href=\"<%=url%>\" target=\"_blank\" class=\"crt-button\"><%=this._t(\"go-to-original-post\")%></a> \n        </div>\n        <div class=\"crt-popup-footer\">\n            <div class=\"crt-popup-stats\"><span><%=likes%></span> <%=this._t(\"likes\", likes)%> <i class=\"sep\"></i> <span><%=comments%></span> <%=this._t(\"comments\", comments)%></div> \n            <div class=\"crt-post-share\"><span class=\"ctr-share-hint\"></span><a href=\"#\" class=\"crt-share-facebook\"><i class=\"crt-icon-facebook\"></i></a>  <a href=\"#\" class=\"crt-share-twitter\"><i class=\"crt-icon-twitter\"></i></a></div>\n        </div> \n    </div> \n</div>";
+>>>>>>> 1cd6f7a... Added Finnish Translation
 
 function nanoajax (params, callback) {
     // Any variable used more than once is var'd here because
@@ -1846,8 +1850,12 @@ function regexSupplant(regex, flags) {
             flags += "m";
         }
 
+<<<<<<< HEAD
         regex = regex.source;
     }
+=======
+var langsData = "\nid,en,de,it,nl,es,fr,po,ru,sl,pl,ar,fi\nload-more,Load more,Mehr anzeigen,Di più,Laad meer,Cargar más,Voir plus,Carregar Mais,Загрузить больше,Prikaži več,,,Lataa lisää\nminutes-ago.1,{n} minute ago,Vor einer Minute,Un minuto fa,{n} minuut geleden,Hace un minuto,Il y a {n} minute,Tem um minuto,Одну минуту назад,pred {n} minuto,,,{n} minuutti sitten\nminutes-ago.n,{n} minutes ago,Vor {n} Minuten,{n} minuti fa,{n} minuten geleden,Hace {n} minutos,Il y a {n} minutes,Tem {n} minutos,{n} минут назад,pred {n} minutami,,,{n} minuuttia sitten\nhours-ago.1,{n} hour ago,Vor einer Stunde,Un'ora fa,{n} uur geleden,Hace una hora,Il y a {n} heure,Tem {n} hora,Один час назад,pred {n} uro,,,{n} tunti sitten\nhours-ago.n,{n} hours ago,Vor {n} Stunden,{n} ore fa,{n} uren geleden,Hace {n} horas,Il y a {n} heures,Tem {n} horas,{n} часов назад,pred {n} urami,,,{n} tuntia sitten\ndays-ago.1,{n} day ago,Vor einem Tag,Un giorno fa,{n} dag geleden,Hace un día,Il y a {n} jour,Faz um dia,Один день назад,pred {n} dnevom,,,{n} päivä sitten\ndays-ago.n,{n} days ago,Vor {n} Tagen,{n} giorni fa,{n} dagen geleden,Hace {n} días,Il y a {n} jours,Fazem {n} dias,{n} дней назад,pred {n} dnevi,,,{n} päivää sitten\nweeks-ago.1,{n} week ago,Vor einer Woche,Una settimana fa,{n} week geleden,Hace una semana,Il y a {n} semaine,Faz uma semana,Одну неделю назад,pred {n} tednom,,,{n} viikko sitten\nweeks-ago.n,{n} weeks ago,Vor {n} Wochen,{n} settimane fa,{n} weken geleden,Hace {n} semanas,Il y a {n} semaines,Fazem {n} semanas,{n} недель назад,pred {n} tedni,,,{n} viikkoa sitten\nmonths-ago.1,{n} month ago,Vor einem Monat,Un mese fa,{n} maand geleden,Hace un mes,Il y a {n} mois,Tem um mês,Один месяц назад,pred {n} mesecem,,,{n} kuukausi sitten\nmonths-ago.n,{n} months ago,Vor {n} Monaten,{n} mesi,{n} maanden geleden,Hace {n} meses,Il y a {n} mois,Tem {n} meses,{n} месяцев назад,pred {n} meseci,,,{n} kuukautta sitten\nyesterday,Yesterday,Gestern,Leri,Gisteren,Ayer,Hier,Ontem,Вчера,Včeraj,,,Eilen\njust-now,Just now,Eben,Appena,Nu,Ahora,Il y a un instant,Agora,Только что,Pravkar,,,Juuri nyt\nprevious,Previous,Zurück,Indietro,Vorige,Anterior,Précédent,Anterior,Предыдущий,Prejšnji,,,Edellinen\nnext,Next,Weiter,Più,Volgende,Siguiente,Suivant,Próximo,Следующий,Naslednji,,,Seuraava\ncomments,Comments,Kommentare,Commenti,Comments,Comentarios,Commentaires,Comentários,Комментарии,Komentarji,,,Kommentit\nlikes,Likes,Gefällt mir,Mi piace,Likes,Me gusta,J'aime,Curtir,Лайки,Všečki,,,Tykkäykset\nread-more,Read more,Weiterlesen,Di più,Lees meer,Leer más,En savoir plus,Leia mais,Подробнее,Preberi več,,,Lue lisää\nfilter,Filter,Filtern,filtrare,Filtreren,filtrar,filtrer,Filtro,фильтровать,Filter,,,Suodata\nall,All,Alle,Tutti,Alle,Todas,Tout,Todos,все,Vsi,,,Kaikki\ngo-to-original-post,Go to original post,,,,,,,,,,,Palaa alkuperäiseen postaukseen\n";
+>>>>>>> 1cd6f7a... Added Finnish Translation
 
     return new RegExp(regex.replace(/#\{(\w+)\}/g, function(match, name) {
         var newRegex = twttr.txt.regexen[name] || "";
@@ -1902,6 +1910,7 @@ var EventBus = function EventBus() {
 EventBus.prototype.on = function on (type, callback, scope) {
         var arguments$1 = arguments;
 
+<<<<<<< HEAD
     var args = [];
     var numOfArgs = arguments.length;
     for (var i = 0; i < numOfArgs; i++) {
@@ -1912,6 +1921,17 @@ EventBus.prototype.on = function on (type, callback, scope) {
         this.listeners[type].push({scope: scope, callback: callback, args: args});
     } else {
         this.listeners[type] = [{scope: scope, callback: callback, args: args}];
+=======
+        key = key.toLowerCase();
+        key = key.replace(' ','-');
+
+        var t = _cache[lang](key, n);
+        if (t === key) {
+            // if translation same as the key then no translation was found, fallback to English
+            return mod.t(key, n, 'en');
+        }
+        return t;
+>>>>>>> 1cd6f7a... Added Finnish Translation
     }
 };
 
@@ -4352,8 +4372,110 @@ var Widget = (function (EventBus$$1) {
         return mod.t (s);
     };
 
+<<<<<<< HEAD
     Widget.prototype.checkPoweredBy = function checkPoweredBy () {
         var html = this.$container.text().trim();
+=======
+    return Feed;
+}(EventBus));
+
+var networks = {
+    1 : {
+        name:'Twitter',
+        icon:'crt-icon-twitter'
+    },
+    2 : {
+        name:'Instagram',
+        icon:'crt-icon-instagram'
+    },
+    3 : {
+        name:'Facebook',
+        icon:'crt-icon-facebook'
+    },
+    4 : {
+        name:'Pinterest',
+        icon:'crt-icon-pinterest'
+    },
+    5 : {
+        name:'Google',
+        icon:'crt-icon-google'
+    },
+    6 : {
+        name:'Vine',
+        icon:'crt-icon-vine'
+    },
+    7 : {
+        name:'Flickr',
+        icon:'crt-icon-flickr'
+    },
+    8 : {
+        name:'Youtube',
+        icon:'crt-icon-youtube'
+    },
+    9 : {
+        name:'Tumblr',
+        icon:'crt-icon-tumblr'
+    },
+    10 : {
+        name:'RSS',
+        icon:'crt-icon-rss'
+    },
+    11 : {
+        name:'LinkedIn',
+        icon:'crt-icon-linkedin'
+    },
+    12 : {
+        id: 12,
+        name:'Vimeo',
+        slug:'vimeo',
+        icon:'crt-icon-vimeo'
+    },
+    13 : {
+        id: 13,
+        name:'Diffbot',
+        slug:'difbot',
+        icon:'crt-icon-cogs'
+    },
+    14 : {
+        id: 14,
+        name:'Webo',
+        slug:'webo',
+        icon:'crt-icon-weibo'
+    },
+    15 : {
+        id: 15,
+        name:'Glassdoor',
+        slug:'glassdoor',
+        icon:'crt-icon-cogs'
+    },
+    16 : {
+        id: 16,
+        name:'Instagram',
+        slug:'instagram',
+        icon:'crt-icon-instagram'
+    },
+    17 : {
+        id: 17,
+        name:'Yelp',
+        slug:'yelp',
+        icon:'crt-icon-yelp'
+    },
+};
+
+/**
+* ==================================================================
+* Filter
+* ==================================================================
+*/
+
+var Filter = (function (EventBus$$1) {
+    function Filter (widget) {
+        var this$1 = this;
+
+        Logger.log('Filter->construct');
+
+        EventBus$$1.call(this);
+>>>>>>> 1cd6f7a... Added Finnish Translation
 
         this.hasPoweredBy = html.indexOf('Powered by Curator.io') > -1;
     };
