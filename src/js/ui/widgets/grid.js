@@ -64,8 +64,7 @@ class Grid extends Widget {
         let id = this.id;
 
         this._resize = CommonUtils.debounce(() => {
-            this.updateResponsiveOptions ();
-            this.updateLayout ();
+            this.resize();
         }, 100);
 
         this.ro = new ResizeObserver((entries) => {
@@ -117,6 +116,12 @@ class Grid extends Widget {
         Logger.log('Grid->loadBefore');
 
         this.feed.loadBefore();
+    }
+
+    resize () {
+        this.updateResponsiveOptions ();
+        this.updateLayout ();
+        this.trigger(Events.WIDGET_RESIZE);
     }
 
     updateLayout ( ) {

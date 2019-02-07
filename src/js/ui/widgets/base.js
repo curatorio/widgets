@@ -329,7 +329,8 @@ class Widget extends Control {
     }
 
     getUrl (postfix) {
-        return this.config('feed.apiEndpoint')+postfix;
+        this.feedBase = this.config('feed.apiEndpoint')+'/restricted/feed';
+        return this.feedBase+postfix;
     }
 
     _t (s) {

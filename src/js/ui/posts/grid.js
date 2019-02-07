@@ -61,20 +61,25 @@ class GridPost extends Base {
         this.trigger(Events.POST_LAYOUT_CHANGED, this);
     }
 
+    onWidgetResize () {
+        this.layoutFooter();
+    }
+
     layoutFooter () {
-        // Logger.log("Post->layoutFooter");
-        let $userName = this.$el.find('.crt-post-username');
-        let $date = this.$el.find('.crt-date');
-        let $footer = this.$el.find('.crt-post-footer');
-        let $share = this.$el.find('.crt-post-share');
-        let $userImage = this.$el.find('.crt-post-userimage');
+        if (!this.$el.hasClass('crt-grid-post-new-york')) {
+            let $userName = this.$el.find('.crt-post-username');
+            let $date = this.$el.find('.crt-date');
+            let $footer = this.$el.find('.crt-post-footer');
+            let $share = this.$el.find('.crt-post-share');
+            let $userImage = this.$el.find('.crt-post-userimage');
 
-        let footerWidth = $footer.width();
-        let padding = 40;
-        let elementsWidth = $userName.width() + $date.width() + $share.width() + $userImage.width() + padding;
+            let footerWidth = $footer.width();
+            let padding = 40;
+            let elementsWidth = $userName.width() + $date.width() + $share.width() + $userImage.width() + padding;
 
-        if (elementsWidth > footerWidth) {
-            $userName.hide();
+            if (elementsWidth > footerWidth) {
+                $userName.hide();
+            }
         }
     }
 }

@@ -6,6 +6,9 @@ import config from '../../config/widget-grid-carousel';
 import LayoutCarousel from '../layouts/carousel';
 import LayoutCarouselPane from '../layouts/carousel-pane';
 import GridPost from "../posts/grid";
+import CommonUtils from "../../utils/common";
+import z from "../../core/lib";
+import ResizeObserver from 'resize-observer-polyfill/dist/ResizeObserver.es';
 
 class GridCarousel extends Widget {
 
@@ -34,7 +37,45 @@ class GridCarousel extends Widget {
 
             // load first set of posts
             this.feed.load();
+
+            this.createHandlers ();
         }
+    }
+
+    createHandlers () {
+        this._resize = CommonUtils.debounce(() => {
+            this.resize();
+        }, 100);
+
+        this.ro = new ResizeObserver((entries) => {
+            if (entries.length > 0) {
+                // let entry = entries[0];
+                this._resize();
+            }
+        });
+
+        this.ro.observe(this.$container[0]);
+    }
+
+    destroyHandlers () {
+        let id = this.id;
+
+        this._resize.cancel();
+        this._resize = null;
+
+        if (this.ro) {
+            this.ro.disconnect();
+        }
+    }
+
+    loadBefore () {
+        Logger.log('Grid->loadBefore');
+
+        this.feed.loadBefore();
+    }
+
+    resize () {
+        this.trigger(Events.WIDGET_RESIZE);
     }
 
     loadMorePosts  () {
@@ -120,6 +161,8 @@ class GridCarousel extends Widget {
 
     destroy  () {
         super.destroy();
+
+        this.destroyHandlers ();
 
         this.carousel.destroy();
         delete this.carousel;

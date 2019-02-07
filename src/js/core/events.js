@@ -19,6 +19,8 @@ let Events = {
     GRID_HEIGHT_CHANGED     :'grid:heightChanged',
 
     PANE_HEIGHT_CHANGED     :'pane:heightChanged',
+
+    WIDGET_RESIZE           : 'widget:resize'
 };
 
 export default Events;

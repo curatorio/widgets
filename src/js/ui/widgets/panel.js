@@ -108,6 +108,7 @@ class Panel extends Widget {
 
         this.$container.removeClass('crt-widget-carousel');
         this.$container.removeClass('crt-carousel');
+        this.$container.removeClass('crt-widget-panel');
         delete this.$container;
 
         this.$el.remove();

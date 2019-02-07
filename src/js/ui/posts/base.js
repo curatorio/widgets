@@ -15,6 +15,8 @@ class BasePost extends Control {
         this.widget = widget;
         this.json = postJson;
         this.templateId = this.widget.config('post.template');
+
+        this.widget.on(Events.WIDGET_RESIZE, this.onWidgetResize.bind(this));
     }
 
     onShareFacebookClick () {
@@ -48,6 +50,9 @@ class BasePost extends Control {
     onReadMoreClick (ev) {
         this.widget.track('click:read-more');
         this.trigger(Events.POST_CLICK_READ_MORE, this, this.json, ev);
+    }
+
+    onWidgetResize () {
     }
 
     setupVideo () {
@@ -97,13 +102,18 @@ class BasePost extends Control {
     }
 
     setupShare () {
-
-
         if (this.json.url.indexOf('http') !== 0) {
             this.$el.addClass('crt-post-hide-share');
         } else if (!this.widget.config('post.showShare')) {
             this.$el.addClass('crt-post-hide-share');
         }
+    }
+
+    destroy() {
+        super.destroy();
+
+
+        this.widget.off(Events.WIDGET_RESIZE, this.onWidgetResize.bind(this));
     }
 }
 
