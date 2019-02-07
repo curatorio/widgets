@@ -57,7 +57,7 @@ class GeneralPost extends Base {
 
     setHeight () {
         let height = this.$refs.postC.height();
-        let maxHeight = this.widget.config('maxHeight',0);
+        let maxHeight = this.widget.config('post.maxHeight',0);
         if (maxHeight > 0 && height > maxHeight) {
             this.$refs.postC.css({maxHeight: maxHeight});
             this.$el.addClass('crt-post-max-height');

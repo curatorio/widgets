@@ -26,9 +26,7 @@ class Feed extends EventBus {
             before:null
         };
 
-        this.options = this.widget.options;
-
-        this.params = this.options.feedParams || {};
+        this.params = this.widget.config('feed.params') || {};
         this.params.limit = this.options.postsPerPage;
         this.params.hasPoweredBy = this.widget.hasPoweredBy;
         this.params.version = '1.2';
@@ -51,8 +49,8 @@ class Feed extends EventBus {
 
         let params = z.extend({},this.params,paramsIn);
 
-        params.limit = this.options.postsPerPage;
-        params.offset = page * this.options.postsPerPage;
+        params.limit = this.widget.config('feed.postsPerPage');
+        params.offset = page * params.limit;
 
         this._loadPosts (params);
     }
@@ -75,9 +73,9 @@ class Feed extends EventBus {
         }
 
         let params = {
-            limit:this.options.postsPerPage
+            limit:this.widget.config('feed.postsPerPage')
         };
-        z.extend(params,this.options.feedParams, paramsIn);
+        z.extend(params,this.widget.config('feed.params'), paramsIn);
 
         params.offset = this.posts.length;
 
@@ -289,7 +287,7 @@ class Feed extends EventBus {
     }
 
     getUrl (trail) {
-        return this.feedBase+'/'+this.options.feedId+trail;
+        return this.feedBase+'/'+this.widget.config('feed.id').feedId+trail;
     }
 
     destroy () {

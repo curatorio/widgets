@@ -19,7 +19,7 @@ class GridCarousel extends Widget {
 
             this.allLoaded = false;
 
-            this.templateId = this.options.templateWidget;
+            this.templateId = this.config('widget.template');
             this.render();
 
             this.$el.appendTo(this.$container);
@@ -53,7 +53,7 @@ class GridCarousel extends Widget {
 
         let pane = new LayoutCarouselPane ();
 
-        let rows = this.config('rows');
+        let rows = this.config('widget.rows');
 
         for (let c = 0 ; c < rows ; c ++) {
             let cX = (paneIndex * rows) + c;
@@ -91,7 +91,7 @@ class GridCarousel extends Widget {
         if (posts.length === 0) {
             this.allLoaded = true;
         } else {
-            let rows = this.config('rows');
+            let rows = this.config('widget.rows');
             let paneCount = Math.floor(this.feed.posts.length / rows);
             this.carousel.setPanesLength(paneCount);
 
@@ -101,9 +101,9 @@ class GridCarousel extends Widget {
 
     onCarouselChange (event, carouselLayout, currentPane) {
         Logger.log("GridCarousel->onCarouselChange currentPane: "+currentPane);
-        if (this.config('autoLoad')) {
+        if (this.config('widget.autoLoad')) {
             let pos = this.feed.postsLoaded - (this.carousel.PANES_VISIBLE * 2);
-            let rows = this.config('rows');
+            let rows = this.config('widget.rows');
             if (currentPane * rows >= pos) {
                 this.loadMorePosts();
             }

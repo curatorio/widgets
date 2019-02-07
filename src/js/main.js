@@ -7,7 +7,7 @@ import {} from './libraries/twitter-text-regex';
 import EventBus from './core/bus';
 import Globals from './core/globals';
 
-import LondonTheme from './config/themes/london';
+import Themes from './config/themes';
 
 import Post from './ui/posts/base';
 import Control from './ui/controls/control';
@@ -102,9 +102,7 @@ let Crt = {
         List: List,
     },
 
-    Themes : {
-        London : LondonTheme
-    },
+    Themes : Themes,
 
     Utils: {
         Html: HtmlUtils,

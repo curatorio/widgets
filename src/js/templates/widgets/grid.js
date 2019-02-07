@@ -2,7 +2,6 @@
 
 const template = `
 <div>
-    <button c-on:click="loadBefore">Load Newer</button>
 <div class="crt-feed-window" ref="feedWindow">
     <div class="crt-feed" ref="feed"></div>
 </div>

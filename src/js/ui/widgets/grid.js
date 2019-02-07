@@ -31,12 +31,11 @@ class Grid extends Widget {
         if (this.init (options,  config)) {
             Logger.log("Grid->init");
 
-            this.templateId = this.config('templateWidget');
+            this.templateId = this.config('widget.template');
             this.render ();
 
-            if (this.config('minWidth') < 100) {
-                console.log(this.options.minWidth);
-                this.options.minWidth = 100;
+            if (this.config('post.minWidth') < 100) {
+                this._config.minWidth = 100;
             }
 
             this.$container.append(this.$el);
@@ -45,7 +44,7 @@ class Grid extends Widget {
             this.$container.addClass('crt-grid');
             this.$container.addClass('crt-widget-grid');
 
-            if (this.config('showLoadMore')) {
+            if (this.config('widget.showLoadMore')) {
                 this.$refs.feedWindow.css({
                     'position':'relative'
                 });
@@ -56,7 +55,7 @@ class Grid extends Widget {
             this.createHandlers();
 
             // This triggers post loading
-            this.rowsMax = this.config('rows');
+            this.rowsMax = this.config('widget.rows');
             this.updateLayout ();
         }
     }
@@ -80,7 +79,7 @@ class Grid extends Widget {
 
         z(window).on('curatorCssLoaded.'+id, this._resize.bind(this));
 
-        if (this.config('continuousScroll')) {
+        if (this.config('widget.continuousScroll')) {
             z(window).on('scroll.'+id, CommonUtils.debounce(() => {
                 this.checkScroll();
             }, 100));
@@ -90,7 +89,7 @@ class Grid extends Widget {
             this.$refs.feed.find('.crt-grid-post').remove();
         });
 
-        if (this.options.autoLoadNew) {
+        if (this.config('widget.autoLoadNew')) {
             this.startAutoLoad ();
         }
     }
@@ -122,7 +121,7 @@ class Grid extends Widget {
 
     updateLayout ( ) {
         Logger.log("Grid->updateLayout ");
-        let cols = Math.floor(this.$container.width()/this.config('minWidth'));
+        let cols = Math.floor(this.$container.width()/this.config('post.minWidth'));
         cols = cols < 1 ? 1 : cols;
 
         // set col layout
@@ -188,7 +187,7 @@ class Grid extends Widget {
             // - let's reset
             this.$scroller.scrollTop(scrollTopOrig);
         }
-        if (this.config('showLoadMore')) {
+        if (this.config('widget.showLoadMore')) {
             let postsVisible = this.columnCount * rows;
             if (this.feed.allPostsLoaded && postsVisible >= this.feed.posts.length) {
                 this.$refs.loadMore.hide();
@@ -209,7 +208,7 @@ class Grid extends Widget {
         let windowBottom = scrollTop+z(window).height();
         let diff = windowBottom - feedBottom;
 
-        if (diff > this.config('continuousScrollOffset')) {
+        if (diff > this.config('widget.continuousScrollOffset')) {
             if (!this.feed.loading && !this.feed.allPostsLoaded) {
                 this.rowsMax += this.config('loadMoreRows');
                 this.updateLayout();
@@ -239,7 +238,7 @@ class Grid extends Widget {
                 }
                 post.layout();
 
-                if (this.config('animate')) {
+                if (this.config('widget.animate')) {
                     post.showAnim (i);
                     i++;
                 }

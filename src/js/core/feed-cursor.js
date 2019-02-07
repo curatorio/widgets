@@ -24,15 +24,13 @@ class FeedCursor extends EventBus {
             after:null,
             before:null
         };
-
-        this.options = this.widget.options;
-
-        this.params = this.options.feedParams || {};
-        this.params.limit = this.options.postsPerPage;
+        
+        this.params = this.widget.config('feed.params') || {};
+        this.params.limit = this.widget.config('feed.postsPerPage');
         this.params.hasPoweredBy = this.widget.hasPoweredBy;
         this.params.version = '1.2';
 
-        this.feedBase = this.options.apiEndpoint+'/restricted/feed';
+        this.feedBase = this.widget.config('feed.apiEndpoint')+'/restricted/feed';
     }
 
     /**
@@ -51,7 +49,7 @@ class FeedCursor extends EventBus {
 
         let params = z.extend({}, this.params, paramsIn);
 
-        params.limit = this.options.postsPerPage;
+        params.limit = this.widget.config('feed.postsPerPage');
 
         return this._loadPosts (params, 'first-load');
     }
@@ -234,7 +232,7 @@ class FeedCursor extends EventBus {
     }
 
     getUrl (trail) {
-        return this.feedBase+'/'+this.options.feedId+trail;
+        return this.feedBase+'/'+this.widget.config('feed.id')+trail;
     }
 
     destroy () {

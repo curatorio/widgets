@@ -5,50 +5,73 @@ import Events from '../../core/events';
 import config from '../../config/widget-panel';
 import LayoutCarousel from '../layouts/carousel';
 import z from '../../core/lib';
+import LayoutCarouselPane from "../layouts/carousel-pane";
 
 class Panel extends Widget {
 
     constructor  (options) {
         super ();
 
-        this.loading=false;
-        this.feed=null;
-        this.$container=null;
-        this.$feed=null;
-        this.posts=[];
+        options.postsPerPage = 100;
 
         if (this.init (options,  config)) {
             Logger.log("Panel->init with options:");
-            Logger.log(this.options);
 
             this.allLoaded = false;
+            this.templateId = this.config('widget.template');
+            this.$refs = {
+                stage:null,
+                slider:null,
+            };
+            this.render();
 
-            this.$feed = z('<div class="crt-feed"></div>').appendTo(this.$container);
+            this.$el.appendTo(this.$container);
             this.$container.addClass('crt-widget-carousel');
             this.$container.addClass('crt-widget-panel');
 
-            if (this.options.panel.fixedHeight) {
+            if (this.config('post.fixedHeight')) {
                 this.$container.addClass('crt-panel-fixed-height');
             }
 
-            this.carousel = new LayoutCarousel(this, this.$feed, this.options.panel);
+            this.carousel = new LayoutCarousel(this, this.$el, this.$refs.stage, this.$refs.slider, this.options);
             this.carousel.on(Events.CAROUSEL_CHANGED, this.onCarouselChange.bind(this));
+
+            this.on(Events.FILTER_CHANGED, () => {
+                this.carousel.reset ();
+            });
 
             // load first set of posts
             this.feed.load();
         }
     }
 
-    loadMorePosts   () {
-        Logger.log('Panel->loadMorePosts');
+    loadMorePosts  () {
+        Logger.log('Carousel->loadMorePosts');
 
-        this.feed.loadMore();
+        if (this.feed.postCount > this.feed.postsLoaded) {
+            this.feed.loadMore();
+        }
     }
 
-    onPostsLoaded  (event, posts) {
-        Logger.log("Panel->onPostsLoaded");
+    createPane (paneIndex) {
+        // Logger.log('Carousel->createPane '+paneIndex);
 
-        this.loading = false;
+        let postToLoad = paneIndex;
+        if (paneIndex < 0) {
+            postToLoad = this.feed.posts.length + paneIndex;
+        } else if (paneIndex > this.feed.posts.length - 1) {
+            postToLoad = paneIndex % this.feed.posts.length;
+        }
+
+        let pane = new LayoutCarouselPane ();
+        let postJson = this.feed.posts[postToLoad];
+        pane.addPost(this.createPostElement(postJson));
+
+        return pane;
+    }
+
+    onPostsLoaded (event, posts) {
+        Logger.log("Carousel->onPostsLoaded");
 
         if (posts.length === 0) {
             this.allLoaded = true;
@@ -59,37 +82,38 @@ class Panel extends Widget {
         }
     }
 
-    onPostImageLoaded () {
-        // Logger.log('Panel->onPostImageLoaded');
-        this.carousel.updateHeight();
-    }
-
-    onCarouselChange (event, currentSlide) {
-        if (this.options && this.options.panel.autoLoad) {
-            if (currentSlide >= this.feed.postsLoaded - 4) {
+    onCarouselChange (event, carouselLayout, currentPane) {
+        Logger.log("Carousel->onCarouselChange currentPane: "+currentPane);
+        if (this.config('widget.autoLoad')) {
+            let pos = this.feed.postsLoaded - (this.carousel.PANES_VISIBLE * 2);
+            if (currentPane >= pos) {
                 this.loadMorePosts();
             }
         }
     }
 
-    destroy   () {
+    onPrevClick () {
+        this.carousel.prev();
+    }
 
+    onNextClick () {
+        this.carousel.next();
+    }
+
+    destroy  () {
         super.destroy();
 
         this.carousel.destroy();
         delete this.carousel;
 
-        this.$container.removeClass('crt-panel');
-        this.$container.removeClass('crt-widget-panel');
-        this.$container.removeClass('crt-carousel');
         this.$container.removeClass('crt-widget-carousel');
+        this.$container.removeClass('crt-carousel');
+        delete this.$container;
 
         this.$el.remove();
 
-        delete this.$container;
-        delete this.feed.postsLoaded;
-        delete this.loading;
         delete this.allLoaded;
+
     }
 }
 

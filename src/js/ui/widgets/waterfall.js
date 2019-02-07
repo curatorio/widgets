@@ -14,17 +14,17 @@ class Waterfall extends Widget {
         if (this.init (options,  config)) {
             Logger.log("Waterfall->init with options:");
 
-            this.templateId = this.options.templateWidget;
+            this.templateId = this.config('widget.template');
             this.render();
 
             this.$container.append(this.$el);
             this.$container.addClass('crt-widget-waterfall');
 
-            if (!this.options.showLoadMore) {
+            if (!this.config('widget.showLoadMore')) {
                 this.$refs.loadMore.remove();
             }
 
-            this.ui = new LayoutWaterfall(this.options, this.$refs.feed);
+            this.ui = new LayoutWaterfall(this, this.$refs.feed);
 
             this.on(Events.FILTER_CHANGED, () => {
                 this.$refs.feed.find('.crt-post').remove();
@@ -38,7 +38,7 @@ class Waterfall extends Widget {
     }
 
     iniListeners () {
-        if (this.options.continuousScroll) {
+        if (this.config('widget.continuousScroll')) {
             z(this.$el).scroll(() => {
                 let height = this.$el.height();
                 let cHeight = this.$refs.feed.height();
@@ -49,7 +49,7 @@ class Waterfall extends Widget {
             });
         }
 
-        if (this.options.autoLoadNew) {
+        if (this.config('widget.autoLoadNew')) {
             this.startAutoLoad ();
         }
     }
@@ -86,7 +86,7 @@ class Waterfall extends Widget {
             }
         }
 
-        if (this.options.showLoadMore) {
+        if (this.config('widget.showLoadMore')) {
             if (this.feed.allPostsLoaded) {
                 this.$refs.loadMore.hide();
             } else {

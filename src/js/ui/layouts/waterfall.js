@@ -9,6 +9,17 @@
  *
  */
 
+let LayoutWaterfallConfig = {
+    colGutter: 0,
+    selector: '.crt-post-c',
+    animationSpeed: 200,
+    animationDuration: 300,
+    animationEffect: 'fadeInOnAppear',
+    animationQueue: true,
+    animationComplete: function () {}
+};
+
+
 import Logger from '../../core/logger';
 import CommonUtils from '../../utils/common';
 import HtmlUtils from '../../utils/html';
@@ -17,7 +28,7 @@ import z from '../../core/lib';
 import ResizeObserver from 'resize-observer-polyfill/dist/ResizeObserver.es';
 
 class LayoutWaterfall {
-    constructor(options, element) {
+    constructor(widget, element) {
         Logger.log("WaterfallLayout->constructor");
         this.element = z(element);
         this.id = CommonUtils.uId ();
@@ -37,8 +48,9 @@ class LayoutWaterfall {
         this.ifCallback = true;
         this.box = this.element;
         this.boxWidth = this.box.width();
-        this.options = options;
-        this.gridArr = makeArray(this.box.find(this.options.selector));
+        this.widget = widget;
+        this._layoutWaterfallConfig = LayoutWaterfallConfig;
+        this.gridArr = makeArray(this.box.find(this._layoutWaterfallConfig.selector));
         this.isResizing = false;
         this.w = 0;
         this.boxArr = [];
@@ -101,10 +113,12 @@ class LayoutWaterfall {
         if (this.cols < 1) {
             this.cols = 1;
         }
-        let diff = (boxWidth - (this.cols * this.options.colWidth) - this.options.colGutter) / this.cols;
-        let colWidth = (this.options.colWidth + diff) / boxWidth * 100;
+        let configColWidth = this.widget.config('widget.colWidth');
+        let colGutter = this.widget.config('widget.colGutter', 0);
+        let diff = (boxWidth - (this.cols * configColWidth) - colGutter) / this.cols;
+        let colWidth = (configColWidth + diff) / boxWidth * 100;
 
-        Logger.log('colWidth: '+colWidth);
+        // Logger.log('colWidth: '+colWidth);
 
         if (colWidth < 0 || colWidth > 100) {
             colWidth = 100;
@@ -236,7 +250,7 @@ class LayoutWaterfall {
 
     _collectItems() {
         let collection = [];
-        z(this.box).find(this.options.selector).each(function () {
+        z(this.box).find(this._layoutWaterfallConfig.selector).each(function () {
             collection.push(z(this));
         });
         return collection;
@@ -244,12 +258,12 @@ class LayoutWaterfall {
 
     _renderItem(items) {
 
-        let speed = this.options.animationSpeed;
-        let effect = this.options.animationEffect;
-        let duration = this.options.animationDuration;
-        let queue = this.options.animationQueue;
-        let animate = this.options.animate;
-        let complete = this.options.animationComplete;
+        let speed = this._layoutWaterfallConfig.animationSpeed;
+        let effect = this._layoutWaterfallConfig.animationEffect;
+        let duration = this._layoutWaterfallConfig.animationDuration;
+        let queue = this._layoutWaterfallConfig.animationQueue;
+        let animate = this._layoutWaterfallConfig.animate;
+        let complete = this._layoutWaterfallConfig.animationComplete;
 
         let i = 0;
         let t = 0;
@@ -329,7 +343,9 @@ class LayoutWaterfall {
     resize() {
         Logger.log("WaterfallLayout->resize");
 
-        let newCols = Math.floor(this.box.width() / this.options.colWidth);
+        let colWidth = this.widget.config('widget.colWidth');
+
+        let newCols = Math.floor(this.box.width() / colWidth);
 
         if (newCols < 1) {
             newCols = 1;

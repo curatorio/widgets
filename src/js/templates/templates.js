@@ -11,7 +11,7 @@ import postGridRetro from "./post/grid-retro";
 import postGeneral from "./post/general";
 import postGeneralLondon from "./post/general-london";
 import postGeneralBerlin from "./post/general-berlin";
-import postGridSydney from "./post/grid-sydney";
+import postGridNewYork from "./post/grid-new-york";
 import postList from "./post/list";
 
 import widgetCarousel from "./widgets/carousel";
@@ -31,7 +31,7 @@ let Templates = {
     'post-general-london'   : postGeneralLondon,
     'post-general-berlin'   : postGeneralBerlin,
     'post-grid'             : postGrid,
-    'post-grid-sydney'      : postGridSydney,
+    'post-grid-new-york'    : postGridNewYork,
     'post-grid-minimal'     : postGridMinimal,
     'post-grid-retro'       : postGridRetro,
     'post-list'             : postList,

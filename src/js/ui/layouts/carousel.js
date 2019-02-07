@@ -7,24 +7,6 @@ import Events from '../../core/events';
 import z from '../../core/lib';
 import ResizeObserver from 'resize-observer-polyfill/dist/ResizeObserver.es';
 
-const LayoutCarouselSettings = {
-    infinite: false,
-    speed: 5000,
-    duration: 700,
-    minWidth: 250,
-    panesVisible: null,
-    moveAmount: 0,
-    autoPlay: false,
-    useCss : true,
-    matchHeights : false,
-    controlsOver: true,
-    controlsShowOnHover: true,
-};
-
-if (z.zepto) {
-    LayoutCarouselSettings.easing = 'ease-in-out';
-}
-
 class LayoutCarousel extends EventBus {
     constructor (widget, $viewport, $stage, $slider, options) {
         Logger.log('LayoutCarousel->construct');
@@ -34,7 +16,7 @@ class LayoutCarousel extends EventBus {
         this.id = CommonUtils.uId ();
         this.widget = widget;
         this.currentPane = 0;
-        this.animating = false;
+        this._moving = false;
         this.autoPlayTimeout = null;
         this.PANES_VISIBLE = 0;
         this.PANES_LENGTH = 0;
@@ -42,12 +24,12 @@ class LayoutCarousel extends EventBus {
         this.paneCache = {};
         this.$panes = [];
 
-        this.options = z.extend({}, LayoutCarouselSettings, options);
+        // this.options = z.extend({}, LayoutCarouselSettings, options);
 
         // Validate options
-        if (!this.options.minWidth || this.options.minWidth < 100) {
-            this.options.minWidth = LayoutCarouselSettings.minWidth;
-        }
+        // if (!this.options.minWidth || this.options.minWidth < 100) {
+        //     this.options.minWidth = LayoutCarouselSettings.minWidth;
+        // }
 
         this.$viewport = $viewport;
         this.$stage = $stage;
@@ -57,15 +39,15 @@ class LayoutCarousel extends EventBus {
             this.$slider[0].crtTransformX = 0;
         }
 
-        if (this.options.matchHeights) {
+        if (this.widget.config('post.matchHeights')) {
             this.$stage.addClass('crt-match-heights');
         }
 
-        if (this.widget.config('controlsOver')) {
+        if (this.widget.config('widget.controlsOver')) {
             this.widget.$container.addClass('crt-controls-over');
         }
 
-        if (this.widget.config('controlsShowOnHover')) {
+        if (this.widget.config('widget.controlsShowOnHover')) {
             this.widget.$container.addClass('crt-controls-show-on-hover');
         }
 
@@ -114,7 +96,7 @@ class LayoutCarousel extends EventBus {
 
             this.updateHeight();
 
-            if (this.options.autoPlay) {
+            if (this.widget.config('widget.autoPlay')) {
                 this.autoPlayStart();
             }
 
@@ -127,12 +109,13 @@ class LayoutCarousel extends EventBus {
         this.VIEWPORT_WIDTH = this.$viewport.width();
         Logger.log('VIEWPORT_WIDTH = '+this.VIEWPORT_WIDTH);
 
-        if (this.options.panesVisible) {
+        if (this.widget.config('widget.panesVisible')) {
             // TODO - change to check if it's a function or a number
-            this.PANES_VISIBLE = this.options.panesVisible();
+            this.PANES_VISIBLE = this.widget.config('widget.panesVisible')();
             this.PANE_WIDTH = (this.VIEWPORT_WIDTH / this.PANES_VISIBLE);
         } else {
-            this.PANES_VISIBLE = this.VIEWPORT_WIDTH < this.options.minWidth ? 1 : Math.floor(this.VIEWPORT_WIDTH / this.options.minWidth);
+            let minWidth = this.widget.config('post.minWidth');
+            this.PANES_VISIBLE = this.VIEWPORT_WIDTH < minWidth ? 1 : Math.floor(this.VIEWPORT_WIDTH / minWidth);
             this.PANE_WIDTH = (this.VIEWPORT_WIDTH / this.PANES_VISIBLE);
         }
     }
@@ -247,7 +230,7 @@ class LayoutCarousel extends EventBus {
         this.controlsHideShow();
 
         // reset animation timer
-        if (this.options.autoPlay) {
+        if (this.widget.config('widget.autoPlay')) {
             this.autoPlayStart();
         }
     }
@@ -269,7 +252,7 @@ class LayoutCarousel extends EventBus {
         if (this.canRotate()) {
             this.autoPlayTimeout = window.setTimeout(() => {
                 this.next();
-            }, this.options.speed);
+            }, this.widget.config('widget.speed'));
         }
     }
 
@@ -282,13 +265,19 @@ class LayoutCarousel extends EventBus {
     }
 
     next () {
-        let move = this.options.moveAmount ? this.options.moveAmount : this.PANES_VISIBLE ;
-        this.move(move, false);
+        if (!this._moving) {
+            let moveAmt = this.widget.config('widget.moveAmount');
+            let move = moveAmt ? moveAmt : this.PANES_VISIBLE;
+            this.move(move, false);
+        }
     }
 
     prev () {
-        let move = this.options.moveAmount ? this.options.moveAmount : this.PANES_VISIBLE ;
-        this.move(0 - move, false);
+        if (!this._moving) {
+            let moveAmt = this.widget.config('widget.moveAmount');
+            let move = moveAmt ? moveAmt : this.PANES_VISIBLE ;
+            this.move(0 - move, false);
+        }
     }
 
     move (moveAmt, noAnimate) {
@@ -296,9 +285,9 @@ class LayoutCarousel extends EventBus {
 
         let previousPost = this.currentPane;
         let newPane = this.currentPane + moveAmt;
-        this.animating = true;
+        this._moving = true;
 
-        if (this.options.infinite) {
+        if (this.widget.config('widget.infinite')) {
             if (newPane < 0) {
                 newPane = this.PANES_LENGTH + newPane;
             } else if (newPane > this.PANES_LENGTH) {
@@ -325,12 +314,12 @@ class LayoutCarousel extends EventBus {
                 this.moveComplete();
             } else {
                 let options = {
-                    duration: this.options.duration,
+                    duration: this.widget.config('widget.duration'),
                     complete: this.moveComplete.bind(this),
                     // easing:'asd'
                 };
-                if (this.options.easing) {
-                    options.easing = this.options.easing;
+                if (this.widget.config('widget.easing')) {
+                    options.easing = this.widget.config('widget.easing');
                 }
 
                 if (z.zepto) {
@@ -356,6 +345,8 @@ class LayoutCarousel extends EventBus {
                     );
                 }
             }
+        } else {
+            this._moving = false;
         }
     }
 
@@ -363,6 +354,7 @@ class LayoutCarousel extends EventBus {
         Logger.log('LayoutCarousel->moveComplete');
 
         if (!this.alive) { return; }
+        this._moving = false;
 
         this.updatePanes();
 
@@ -373,7 +365,7 @@ class LayoutCarousel extends EventBus {
         // trigger change event
         this.trigger(Events.CAROUSEL_CHANGED, this, this.currentPane);
 
-        if (this.options.autoPlay) {
+        if (this.widget.config('widget.autoPlay')) {
             this.autoPlayStart();
         }
 
@@ -392,7 +384,7 @@ class LayoutCarousel extends EventBus {
             this.$stage.animate({height: paneMaxHeight}, 300);
         }
 
-        if (this.options.matchHeights) {
+        if (this.widget.config('post.matchHeights')) {
             this.setPaneHeights ();
         }
     }
@@ -400,7 +392,7 @@ class LayoutCarousel extends EventBus {
     setPaneHeights () {
         Logger.log('LayoutCarousel->setPaneHeights ');
 
-        if (this.options.matchHeights) {
+        if (this.widget.config('post.matchHeights')) {
             let paneMaxHeight = this.getMaxHeight();
 
             for (let pane of this.currentPanes)

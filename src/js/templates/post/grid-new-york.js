@@ -1,7 +1,7 @@
 
 
 const template = `
-<div class="crt-grid-post crt-grid-post-sydney crt-post-<%=id%> <%=this.contentImageClasses()%> <%=this.contentTextClasses()%>" data-post="<%=id%>"> \
+<div class="crt-grid-post crt-grid-post-new-york crt-post-<%=id%> <%=this.contentImageClasses()%> <%=this.contentTextClasses()%>" data-post="<%=id%>"> \
     <div class="crt-post-c" ref="postC" c-on:click="onPostClick"> 
         <div class="crt-grid-post-content" ref="spacer">
             <div class="crt-grid-post-image" style="background-image:url('<%=image%>');"></div> 

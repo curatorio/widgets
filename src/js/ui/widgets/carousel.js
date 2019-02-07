@@ -17,7 +17,7 @@ class Carousel extends Widget {
             Logger.log("Carousel->init");
 
             this.allLoaded = false;
-            this.templateId = this.config('templateWidget');
+            this.templateId = this.config('widget.template');
             this.$refs = {
                 stage:null,
                 slider:null,
@@ -78,7 +78,7 @@ class Carousel extends Widget {
 
     onCarouselChange (event, carouselLayout, currentPane) {
         Logger.log("Carousel->onCarouselChange currentPane: "+currentPane);
-        if (this.config('autoLoad')) {
+        if (this.config('widget.autoLoad')) {
             let pos = this.feed.postsLoaded - (this.carousel.PANES_VISIBLE * 2);
             if (currentPane >= pos) {
                 this.loadMorePosts();

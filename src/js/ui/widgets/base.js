@@ -24,7 +24,8 @@ class Widget extends Control {
         this.id = CommonUtils.uId();
         this.feed = null;
         this.$container = null;
-        this.options = {};
+        this._config = {};
+        this._responsiveConfig = null;
         this.autoLoadTimeout = null;
         this.autoLoading = false;
     }
@@ -35,42 +36,30 @@ class Widget extends Control {
             return false;
         }
 
-        this.options = z.extend(true, {}, defaults, options);
+        this._config = z.extend(true, {}, defaults, options);
 
-        if(!this.options.container) {
+        if(!this.config('container')) {
             Logger.error('options.container missing');
             return false;
         }
 
-        if (!HtmlUtils.checkContainer(this.options.container)) {
+        if (!HtmlUtils.checkContainer(this.config('container'))) {
             return false;
         }
         this.$container = z(options.container);
 
-        if (!this.options.feedId) {
+        this.configLoadInline();
+
+        if (!this.config('feed.id')) {
             Logger.error('options.feedId missing');
         }
 
-        // get inline options
-        let inlineOptions = [
-            'lang',
-            'debug'
-        ];
-        for (let option of inlineOptions) {
-            let val = this.$container.data('crt-'+option);
-            if (val) {
-                this.options[option] = val;
-            }
-        }
-
-        if (this.options.debug) {
+        if (this.config('debug')) {
             Logger.debug = true;
         }
 
-        this.updateResponsiveOptions ();
-
-        Logger.log ('Setting language to: '+this.options.lang);
-        translate.setLang(this.options.lang);
+        Logger.log ('Setting language to: '+this.config('lang'));
+        translate.setLang(this.config('lang'));
     }
 
     init (options, defaults) {
@@ -125,7 +114,7 @@ class Widget extends Control {
 
     addStyle(sheet, stylesObj, className) {
         if (stylesObj) {
-            console.log('Found style for '+className);
+            // console.log('Found style for '+className);
             let rules = [];
             for (let key in stylesObj) {
                 if (stylesObj.hasOwnProperty(key)) {
@@ -140,14 +129,15 @@ class Widget extends Control {
         }
     }
 
-    updateResponsiveOptions () {
-        if (!this.options.responsive) {
-            this.responsiveOptions = z.extend(true, {}, this.options);
+    updateResponsiveOptions ()
+    {
+        if (!this._config.responsive) {
+            this._responsiveConfig = z.extend(true, {}, this._config);
             return;
         }
 
         let width = z(window).width();
-        let keys = Object.keys(this.options.responsive);
+        let keys = Object.keys(this._config.responsive);
         keys = keys.map(x => parseInt(x));
         keys = keys.sort((a, b) => {
             return a - b;
@@ -162,36 +152,62 @@ class Widget extends Control {
         }
         if (!foundKey) {
             this.responsiveKey = null;
-            this.responsiveOptions = z.extend(true, {}, this.options);
+            this._responsiveConfig = z.extend(true, {}, this._config);
         }
 
         if (this.responsiveKey !== foundKey) {
             // console.log('CHANGING RESPONSIVE SETTINGS '+foundKey);
             this.responsiveKey = foundKey;
-            this.responsiveOptions = z.extend(true, {}, this.options, this.options.responsive[foundKey]);
+            this._responsiveConfig = z.extend(true, {}, this._config, this._config.responsive[foundKey]);
         }
     }
 
-    config(path, defaultValue) {
-        if (path.indexOf('.')>0) {
+    configLoadInline ()
+    {
+        // get inline options
+        let inlineOptions = [
+            'lang',
+            'debug'
+        ];
+        for (let option of inlineOptions) {
+            let val = this.$container.data('crt-'+option);
+            if (val) {
+                this._config[option] = val;
+            }
+        }
+    }
+
+    config(fullPath, defaultValue) {
+        defaultValue = defaultValue === undefined ? null : defaultValue;
+        if (!this._responsiveConfig) {
+            this.updateResponsiveOptions();
+        }
+        if (fullPath.indexOf('.') > 0) {
             // let pathParts = path.split('.');
             // window.console.log(pathParts);
             // throw new Error('NOT IMPLEMENTED');
-            path = path.split('.');
-            let current = this.options;
-            while(path.length) {
-                if(typeof current !== 'object') {
+            let path = fullPath.split('.');
+            let current = this._responsiveConfig;
+            while (path.length) {
+                if (typeof current !== 'object') {
+                    console.log('CONFIG ERROR: '+fullPath);
                     return defaultValue || null;
                 }
                 current = current[path.shift()];
             }
-            return current;
-        } else {
-            let r = this.responsiveOptions[path];
-            if (r === undefined) {
-                return defaultValue || null;
+            if (current === undefined) {
+                console.log('CONFIG ERROR: '+fullPath+ ' returning: '+defaultValue);
+                return defaultValue;
             } else {
-                return r;
+                return current;
+            }
+        } else {
+            let current = this._responsiveConfig[fullPath];
+            if (current === undefined) {
+                console.log('CONFIG ERROR: '+fullPath);
+                return defaultValue;
+            } else {
+                return current;
             }
         }
     }
@@ -210,7 +226,7 @@ class Widget extends Control {
     createFilter () {
         Logger.log('Widget->createFilter');
 
-        if (this.options.filter && (this.options.filter.showNetworks || this.options.filter.showSources)) {
+        if (this.config('filter') && (this.config('filter.showNetworks') || this.config('filter.showSources'))) {
             this.filter = new Filter(this);
 
             this.$container.append(this.filter.$el);
@@ -258,9 +274,9 @@ class Widget extends Control {
 
         this.trigger(Events.POST_CLICK, post);
 
-        if (this.options.postClickAction === Globals.POST_CLICK_ACTION_OPEN_POPUP) {
+        if (this.config('post.clickAction') === Globals.POST_CLICK_ACTION_OPEN_POPUP) {
             this.popupManager.showPopup(post.json);
-        } else if (this.options.postClickAction === Globals.POST_CLICK_ACTION_GOTO_SOURCE) {
+        } else if (this.config('post.clickAction') === Globals.POST_CLICK_ACTION_GOTO_SOURCE) {
             window.open(post.json.url);
         }
     }
@@ -272,9 +288,9 @@ class Widget extends Control {
 
         this.trigger(Events.POST_CLICK_READ_MORE, post);
 
-        if (this.options.postClickReadMoreAction === Globals.POST_CLICK_ACTION_OPEN_POPUP) {
+        if (this.config('post.clickReadMoreAction') === Globals.POST_CLICK_ACTION_OPEN_POPUP) {
             this.popupManager.showPopup(post.json);
-        } else if (this.options.postClickAction === Globals.POST_CLICK_ACTION_GOTO_SOURCE) {
+        } else if (this.config('post.clickReadMoreAction') === Globals.POST_CLICK_ACTION_GOTO_SOURCE) {
             window.open(post.json.url);
         }
     }
@@ -286,7 +302,7 @@ class Widget extends Control {
     }
 
     onFeedLoaded (ev, response) {
-        if (this.options.hidePoweredBy && response.account.plan.unbranded === 1) {
+        if (this.config('hidePoweredBy') && response.account.plan.unbranded === 1) {
             //<a href="http://curator.io" target="_blank" class="crt-logo crt-tag">Powered by Curator.io</a>
             this.$container.addClass('crt-widget-unbranded');
         } else {
@@ -298,7 +314,7 @@ class Widget extends Control {
         Logger.log('Feed->track '+a);
 
         ajax.get (
-            this.getUrl('/track/'+this.options.feedId),
+            this.getUrl('/track/'+this.config('feed.id')),
             {a:a},
             (data) => {
                 Logger.log('Feed->track success');
@@ -312,8 +328,8 @@ class Widget extends Control {
         );
     }
 
-    getUrl (trail) {
-        return this.options.apiEndpoint+trail;
+    getUrl (postfix) {
+        return this.config('feed.apiEndpoint')+postfix;
     }
 
     _t (s) {
