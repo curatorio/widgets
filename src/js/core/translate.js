@@ -24,7 +24,12 @@ const mod = {
         key = key.toLowerCase();
         key = key.replace(' ','-');
 
-        return _cache[lang](key, n);
+        let t = _cache[lang](key, n);
+        if (t === key) {
+            // if translation same as the key then no translation was found, fallback to English
+            return mod.t(key, n, 'en');
+        }
+        return t;
     }
 };
 

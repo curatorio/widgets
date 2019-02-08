@@ -33,7 +33,7 @@ const template = `
             </div> 
         </div> 
         <div class="crt-popup-read-more">
-            <a href="<%=url%>" target="_blank" class="crt-button">Goto original post</a> 
+            <a href="<%=url%>" target="_blank" class="crt-button"><%=this._t("go-to-original-post")%></a> 
         </div>
         <div class="crt-popup-footer">
             <div class="crt-popup-stats"><span><%=likes%></span> <%=this._t("likes", likes)%> <i class="sep"></i> <span><%=comments%></span> <%=this._t("comments", comments)%></div> 
