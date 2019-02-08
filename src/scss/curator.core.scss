@@ -1,12 +1,12 @@
 
-@import "~curator-icons/css/crt-icon";
-
 @import "variables";
+
+@import "~curator-icons/crt-icons";
+
 
 @import "_common/transitions";
 @import "_common/mixins";
 
-@import "_common/icons";
 @import "_common/general";
 
 @import "_ui/feed";

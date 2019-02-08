@@ -15,21 +15,18 @@
     <h1>Curator.io Examples</h1>
     <h2>Waterfall Widget</h2>
     <p class="center"><a href="index.html">Examples</a></p>
-    <div id="curator-feed" data-crt-lang="fr">
+    <div id="curator-feed">
         <a href="http://curator.io" target="_blank" class="crt-logo crt-tag">Powered by Curator.io</a>
     </div>
 
     <script type="text/javascript" src="../dist/js/curator.js"></script>
     <script type="text/javascript">
-        // While you're testing
-        Curator.Logger.debug = true;
 
         function createWidget () {
-            // Change FEED_ID to your unique FEED_ID
             window.widget = new Curator.Widgets.Waterfall({
-                container: '#curator-feed',
-                apiEndpoint:'http://curator-api.test/v1.1',
-                feedId: "5eb44fc8-258e-4dbe-83d9-773387a25e45"
+                debug:true,
+                container: '#curator-feed',                // While you're testing
+                feedId: "8558f0f9-043f-4bd9-bad1-037cf10a" // Change FEED_ID to your unique FEED_ID
             });
         }
 
