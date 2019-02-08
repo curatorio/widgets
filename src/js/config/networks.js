@@ -75,7 +75,7 @@ let networks = {
         id: 13,
         name:'Diffbot',
         slug:'difbot',
-        icon:'crt-icon-unknown'
+        icon:'crt-icon-cog'
     },
     14 : {
         id: 14,
@@ -87,7 +87,7 @@ let networks = {
         id: 15,
         name:'Glassdoor',
         slug:'glassdoor',
-        icon:'crt-icon-unknown'
+        icon:'crt-icon-cog'
     },
     16 : {
         id: 16,
@@ -95,6 +95,13 @@ let networks = {
         slug:'instagram',
         icon:'crt-icon-instagram'
     },
+    17 : {
+        id: 17,
+        name:'Yelp',
+        slug:'yelp',
+        icon:'crt-icon-yelp'
+    },
+
 };
 
 export default networks;

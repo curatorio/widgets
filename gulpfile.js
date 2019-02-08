@@ -44,10 +44,6 @@ function bubleError (err) {
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 // Gulp modules
 
-// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-// CSS / SCSS
-
-
 const gulp = require('gulp'),
     rename = require('gulp-rename'),
     concat = require('gulp-concat'),
@@ -61,6 +57,7 @@ const gulp = require('gulp'),
     sass = require('gulp-sass'),
     autoprefixer = require('gulp-autoprefixer'),
     cleanCSS = require('gulp-clean-css'),
+    tildeImporter = require('node-sass-tilde-importer'),
 
     // JS
     jshint = require('gulp-jshint'),
@@ -70,20 +67,35 @@ const gulp = require('gulp'),
     rollupResolve = require('rollup-plugin-node-resolve'),
     rollupBuble = require('rollup-plugin-buble');
 
+
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// Config
+
+const sassConfig = {
+    style: 'expanded',
+    includePaths: ['node_modules'],
+    importer: tildeImporter
+
+};
+
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// CSS / SCSS
+
 gulp.task('styles', () =>  {
     return gulp.src(srcScss+'*.scss')
-        .pipe(sass({ style: 'expanded' }).on('error', sass.logError))
+        .pipe(sass(sassConfig).on('error', sass.logError))
         .pipe(autoprefixer('last 2 version', 'safari 5', 'ie 8', 'ie 9', 'opera 12.1', 'ios 6', 'android 4'))
         .pipe(gulp.dest(destCss));
         // .pipe(notify({ message: 'Styles task complete' }));
 });
+
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 // CSS / SCSS - minified
 
 gulp.task('styles:prod', () =>  {
     return gulp.src(srcScss+'*.scss')
-        .pipe(sass({ style: 'expanded' }).on('error', sass.logError))
+        .pipe(sass(sassConfig).on('error', sass.logError))
         .pipe(autoprefixer('last 2 version', 'safari 5', 'ie 8', 'ie 9', 'opera 12.1', 'ios 6', 'android 4'))
         .pipe(gulp.dest(destCss))
         .pipe(rename({suffix: '.min'}))
