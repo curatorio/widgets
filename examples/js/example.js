@@ -18,7 +18,7 @@ var panel = '<div class="example-panel">\
         var pId = '.example-panel';
 
         $(pId+' a.bg').click(function(){
-            $('body').css('background-color',$(this).data('bg'))
+            $('body').css('background-color',$(this).data('bg'));
         });
 
         $(pId+' a.destroy').click(function(){
