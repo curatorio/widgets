@@ -215,7 +215,7 @@ class Grid extends Widget {
 
         if (diff > this.config('widget.continuousScrollOffset')) {
             if (!this.feed.loading && !this.feed.allPostsLoaded) {
-                this.rowsMax += this.config('loadMoreRows');
+                this.rowsMax += this.config('widget.loadMoreRows');
                 this.updateLayout();
             }
         }
@@ -258,7 +258,7 @@ class Grid extends Widget {
     }
 
     onMoreClick () {
-        this.rowsMax += this.config('loadMoreRows');
+        this.rowsMax += this.config('widget.loadMoreRows');
 
         this.updateLayout();
     }

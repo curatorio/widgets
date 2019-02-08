@@ -1,6 +1,6 @@
 
 .crt-grid-post-new-york {
-    padding: 0 10px;
+    padding: 0 10px 20px;
 
     .crt-grid-post-content {
         padding-bottom: 125%;
@@ -50,6 +50,9 @@
             top: 10px;
             left: 60px;
             line-height: 1em;
+            right:10px;
+            overflow: hidden;
+            text-align: left;
         }
 
         .crt-post-username {
@@ -57,6 +60,16 @@
             top: 30px;
             left: 60px;
             line-height: 1em;
+            right:45px;
+            overflow: hidden;
+            text-align: left;
+        }
+
+
+        .crt-post-share {
+            position: absolute;
+            top: auto;
+            bottom: 0px;
         }
     }
 }

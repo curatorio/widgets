@@ -15,7 +15,7 @@ class GridCarousel extends Widget {
     constructor (options) {
         super ();
 
-        options.postsPerPage = 100;
+        options.feed.postsPerPage = 100;
 
         if (this.init (options,  config)) {
             Logger.log("GridCarousel->init with options:");

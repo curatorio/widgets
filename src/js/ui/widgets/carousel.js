@@ -11,7 +11,7 @@ class Carousel extends Widget {
     constructor (options) {
         super ();
 
-        options.postsPerPage = 100;
+        options.feed.postsPerPage = 100;
 
         if (this.init (options,  config)) {
             Logger.log("Carousel->init");
