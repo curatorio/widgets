@@ -5,6 +5,7 @@ import Events from './events';
 import EventBus from './bus';
 import ajax from './ajax';
 import z from './lib';
+import Uri from './uri-builder';
 
 class FeedCursor extends EventBus {
 
@@ -28,9 +29,10 @@ class FeedCursor extends EventBus {
         this.params = this.widget.config('feed.params') || {};
         this.params.limit = this.widget.config('feed.postsPerPage');
         this.params.hasPoweredBy = this.widget.hasPoweredBy;
-        this.params.version = '1.2';
+        this.params.version = '4.0';
 
-        this.feedBase = this.widget.config('feed.apiEndpoint')+'/restricted/feed';
+        let uriBuilder = new Uri (this.widget.config('feed.apiEndpoint'));
+        this.urlFeedPosts = uriBuilder.build('/restricted/feeds/{{feedId}}/posts',{feedId:this.widget.config('feed.id')});
     }
 
     /**
@@ -131,10 +133,8 @@ class FeedCursor extends EventBus {
 
         params.rnd = (new Date ()).getTime();
 
-        let url =  this.getUrl('/posts');
-
         return new Promise ((resolve, reject) => {
-            ajax.get(url, params, (data) => {
+            ajax.get(this.urlFeedPosts, params, (data) => {
                     Logger.log('Feed->_loadPosts success');
                     this.loading = false;
 
@@ -229,10 +229,6 @@ class FeedCursor extends EventBus {
                 failure(jqXHR);
             }
         });
-    }
-
-    getUrl (trail) {
-        return this.feedBase+'/'+this.widget.config('feed.id')+trail;
     }
 
     destroy () {

@@ -110,15 +110,15 @@ class Popup extends Control {
         let rightPanel = 335;
         let leftPanelMax = 600;
 
+        let leftWidth = windowWidth-(paddingMobile*2); // Mobile
         if (windowWidth > 1055) {
-            this.$refs.left.width(leftPanelMax+rightPanel);
+            leftWidth = leftPanelMax+rightPanel;
         } else if (windowWidth > 910) {
-            this.$refs.left.width(windowWidth-(padding*2));
+            leftWidth = windowWidth-(padding*2);
         } else if (windowWidth > leftPanelMax+(paddingMobile*2)) {
-            this.$refs.left.width(600);
-        } else {
-            this.$refs.left.width(windowWidth-(paddingMobile*2));
+            leftWidth = leftPanelMax;
         }
+        this.$refs.left.css('width', leftWidth);
     }
 
     onPageClick (ev) {

@@ -4,7 +4,7 @@ let base = {
     hidePoweredBy: false,
     feed: {
         id: '',
-        apiEndpoint: '',
+        apiEndpoint:'https://api.curator.io',
         postsPerPage: 12,
         params: {}
     },

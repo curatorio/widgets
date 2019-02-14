@@ -12,7 +12,7 @@ import translate from '../../core/translate';
 import Globals from '../../core/globals';
 import Control from '../controls/control';
 import FeedCursor from "../../core/feed-cursor";
-// import objectAssign from 'object-assign-deep';
+import Tracker from "../../core/tracker";
 
 class Widget extends Control {
 
@@ -60,6 +60,8 @@ class Widget extends Control {
 
         Logger.log ('Setting language to: '+this.config('lang'));
         translate.setLang(this.config('lang'));
+
+
     }
 
     init (options, defaults) {
@@ -78,6 +80,7 @@ class Widget extends Control {
         this.createFeed();
         this.createFilter();
         this.createPopupManager();
+        this.createTracker();
 
         // this.setStyles({});
 
@@ -89,6 +92,7 @@ class Widget extends Control {
         };
 
         window.postMessage(crtEvent, '*');
+
 
         return true;
     }
@@ -223,6 +227,10 @@ class Widget extends Control {
         this.popupManager = new PopupManager(this);
     }
 
+    createTracker () {
+        this.tracker = new Tracker(this);
+    }
+
     createFilter () {
         Logger.log('Widget->createFilter');
 
@@ -313,19 +321,7 @@ class Widget extends Control {
     track (a) {
         Logger.log('Feed->track '+a);
 
-        ajax.get (
-            this.getUrl('/track/'+this.config('feed.id')),
-            {a:a},
-            (data) => {
-                Logger.log('Feed->track success');
-                Logger.log(data);
-            },
-            (jqXHR, textStatus, errorThrown) => {
-                Logger.log('Feed->track fail');
-                Logger.log(textStatus);
-                Logger.log(errorThrown);
-            }
-        );
+        this.tracker.track(a);
     }
 
     getUrl (postfix) {
