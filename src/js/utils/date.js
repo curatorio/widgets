@@ -119,7 +119,25 @@ let DateUtils = {
             day = date.getDate();
 
         if (isNaN(day_diff) || day_diff < 0 || day_diff >= 31) {
-            return year.toString() + '-' + ((month < 10) ? '0' + month.toString() : month.toString()) + '-' + ((day < 10) ? '0' + day.toString() : day.toString());
+            let months = [
+                '-',
+                'Jan',
+                'Feb',
+                'Mar',
+                'Apr',
+                'May',
+                'Jun',
+                'Jul',
+                'Aug',
+                'Sep',
+                'Oct',
+                'Nov',
+                'Dec',
+            ];
+            let yearS = year.toString();
+            let monthS = months[month];
+            let dayS = day.toString();
+            return  dayS+' '+monthS+' '+yearS;
         }
 
         let minute_diff = Math.floor(diff / 60);

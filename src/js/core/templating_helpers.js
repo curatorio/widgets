@@ -104,7 +104,7 @@ let helpers = {
         if (url) {
             return '<a href="' + url + '" target="_blank">' + helpers.prettyDate(created_at) + '</a>';
         } else {
-            return helpers.prettyDate(created_at);
+            return helpers.prettyDate (created_at);
         }
     },
 
