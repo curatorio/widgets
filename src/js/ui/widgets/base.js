@@ -93,30 +93,31 @@ class Widget extends Control {
 
         window.postMessage(crtEvent, '*');
 
-
         return true;
     }
 
     setStyles (styles) {
         if (!this.sheet) {
             this.sheet = HtmlUtils.createSheet();
+        } else {
+            HtmlUtils.deleteCSSRules(this.sheet);
         }
 
-        this.addStyle(this.sheet, styles.popup, '.crt-popup');
-        this.addStyle(this.sheet, styles.widget, '.crt-widget');
-        this.addStyle(this.sheet, styles.loadMore, '.crt-widget .crt-load-more');
-        this.addStyle(this.sheet, styles.post, '.crt-widget .crt-post');
-        this.addStyle(this.sheet, styles.postText, '.crt-widget .crt-post-text');
-        this.addStyle(this.sheet, styles.postTextLink, '.crt-widget .crt-post-text a');
-        this.addStyle(this.sheet, styles.postName, '.crt-widget .crt-post-fullname a');
-        this.addStyle(this.sheet, styles.postUsername, '.crt-widget .crt-post-username a');
-        this.addStyle(this.sheet, styles.postIcon, '.crt-widget .crt-social-icon i');
-        this.addStyle(this.sheet, styles.postComments, '.crt-widget .crt-comments-likes');
-        this.addStyle(this.sheet, styles.postShareIcons, '.crt-widget .crt-post-footer .crt-post-share a');
-        this.addStyle(this.sheet, styles.postDate, '.crt-widget .crt-post-date a');
+        this.addStyle(styles.popup, '.crt-popup');
+        this.addStyle(styles.widget, '.crt-widget');
+        this.addStyle(styles.loadMore, '.crt-widget .crt-load-more');
+        this.addStyle(styles.post, '.crt-widget .crt-post');
+        this.addStyle(styles.postText, '.crt-widget .crt-post-text');
+        this.addStyle(styles.postTextLink, '.crt-widget .crt-post-text a');
+        this.addStyle(styles.postName, '.crt-widget .crt-post-fullname a');
+        this.addStyle(styles.postUsername, '.crt-widget .crt-post-username a');
+        this.addStyle(styles.postIcon, '.crt-widget .crt-social-icon i');
+        this.addStyle(styles.postComments, '.crt-widget .crt-comments-likes');
+        this.addStyle(styles.postShareIcons, '.crt-widget .crt-post-footer .crt-post-share a');
+        this.addStyle(styles.postDate, '.crt-widget .crt-post-date a');
     }
 
-    addStyle(sheet, stylesObj, className) {
+    addStyle(stylesObj, className) {
         if (stylesObj) {
             // console.log('Found style for '+className);
             let rules = [];
@@ -128,7 +129,7 @@ class Widget extends Control {
                 }
             }
             if (rules.length > 0) {
-                HtmlUtils.addCSSRule(sheet, className, rules.join(';'));
+                HtmlUtils.addCSSRule(this.sheet, className, rules.join(';'));
             }
         }
     }
@@ -233,10 +234,8 @@ class Widget extends Control {
 
     createFilter () {
         Logger.log('Widget->createFilter');
-
-        if (this.config('filter') && (this.config('filter.showNetworks') || this.config('filter.showSources'))) {
+        if (this.config('filter.showNetworks') || this.config('filter.showSources')) {
             this.filter = new Filter(this);
-
             this.$container.append(this.filter.$el);
         }
     }
@@ -376,6 +375,11 @@ class Widget extends Control {
         if (this.popupManager) {
             this.popupManager.destroy();
             delete this.popupManager;
+        }
+
+        if (this.sheet) {
+            HtmlUtils.deleteCSSRules(this.sheet);
+            delete this.sheet;
         }
 
         this.$container.removeClass('crt-widget');

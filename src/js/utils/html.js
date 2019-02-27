@@ -1,6 +1,8 @@
 import Logger from '../core/logger';
 import z from '../core/lib';
 
+let sheetCounter = 0;
+
 const HtmlUtils = {
     checkContainer (container) {
         Logger.log("Curator->checkContainer: " + container);
@@ -33,12 +35,29 @@ const HtmlUtils = {
         }
     },
 
+    deleteCSSRules (sheet) {
+        if (sheet.cssRules) { // all browsers, except IE before version 9
+            for (let i = sheet.cssRules.length - 1; i > -1; i--) {
+                sheet.deleteRule (i);
+            }
+        }
+        else
+        {  // Internet Explorer before version 9
+            for (let j=0; j < sheet.rules.length; j++) {
+                sheet.removeRule (j);
+            }
+        }
+    },
+
     createSheet () {
         let style = document.createElement("style");
         // WebKit hack :(
         style.setAttribute('type','text/css');
+        style.setAttribute('data-sheet-num', sheetCounter+'');
         style.appendChild(document.createTextNode(""));
         document.head.appendChild(style);
+
+        sheetCounter++;
         return style.sheet;
     },
 

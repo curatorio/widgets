@@ -163,14 +163,8 @@ class Grid extends Widget {
     }
 
     updateHeight () {
-        let $post = this.$container.find('.crt-grid-post').first();
-        let postHeight = $post.height();
-        let postMarginBottom = parseInt($post.css("margin-bottom"));
-        // let postMarginTop = parseInt($post.css("margin-top"));
-        // let postPaddingBottom = parseInt($post.css("padding-bottom"));
-        // let postPaddingTop = parseInt($post.css("padding-top"));
-
-        postHeight += postMarginBottom;
+        let post = this.posts[0];
+        let postHeight = post.getHeight();
 
         this.$refs.feedWindow.css({'overflow':'hidden'});
 
@@ -223,7 +217,6 @@ class Grid extends Widget {
 
     onPostsLoaded (event, posts, position) {
         Logger.log("Grid->onPostsLoaded position:"+position);
-        console.log(posts.length);
 
         this.loading = false;
 
@@ -247,6 +240,8 @@ class Grid extends Widget {
                     post.showAnim (i);
                     i++;
                 }
+
+                this.posts.push(post);
             }
 
             this.popupManager.setPosts(posts);

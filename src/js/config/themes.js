@@ -5,8 +5,22 @@ import configGrid from './widget-grid';
 import configPanel from './widget-panel';
 import configList from './widget-list';
 
+const defaultColors = {
+    widgetBgColor:'transparent',
+    bgColor:'#ffffff',
+    borderColor:'#cccccc',
+    textColor:'#222222',
+    linkColor:'#999999',
+};
 
-let generalSydney = function (bgColor, textColor) {
+let generalSydney = function (colors) {
+
+    let bgColor = colors.bgColor;
+    let textColor = colors.textColor;
+    let linkColor = colors.linkColor;
+    let borderColor = colors.borderColor;
+    let widgetBgColor = colors.widgetBgColor;
+
     return {
         config: {
             post: {
@@ -14,17 +28,20 @@ let generalSydney = function (bgColor, textColor) {
             },
         },
         styles: {
+            widget : {
+                backgroundColor:widgetBgColor,
+            },
             post : {
                 backgroundColor:bgColor,
-                borderColor:bgColor,
-                borderWidth:'2px',
+                borderColor:borderColor,
+                borderWidth:'1px',
                 color:textColor
             },
             postText: {
                 color:textColor
             },
             postTextLink: {
-                color:textColor
+                color:linkColor
             },
             postName: {
                 color:textColor,
@@ -45,54 +62,23 @@ let generalSydney = function (bgColor, textColor) {
             postDate: {
                 color:textColor
             },
-        }
-    };
-};
-
-let generalBerlin = function (bgColor, textColor) {
-    return {
-        config: {
-            post: {
-                template: 'post-general-berlin'
-            },
-        },
-        styles: {
-            post : {
-                backgroundColor:bgColor,
-                borderColor:bgColor,
-                borderWidth:'2px',
-                color:textColor
-            },
-            postText: {
-                color:textColor
-            },
-            postTextLink: {
-                color:textColor
-            },
-            postName: {
+            loadMore: {
                 color:textColor,
-                textDecoration:'none'
-            },
-            postUsername: {
-                color:textColor
-            },
-            postIcon: {
-                color:textColor
-            },
-            postComments : {
-                color:textColor
-            },
-            postShareIcons: {
-                color:textColor
-            },
-            postDate: {
-                color:textColor
-            },
+                backgroundColor:bgColor,
+                borderColor:borderColor
+            }
         }
     };
 };
 
-let generalLondon = function (bgColor, textColor) {
+let generalLondon = function (colors) {
+
+    let bgColor = colors.bgColor;
+    let textColor = colors.textColor;
+    let linkColor = colors.linkColor;
+    let borderColor = colors.borderColor;
+    let widgetBgColor = colors.widgetBgColor;
+
     return {
         config: {
             post: {
@@ -100,17 +86,20 @@ let generalLondon = function (bgColor, textColor) {
             },
         },
         styles: {
+            widget : {
+                backgroundColor:widgetBgColor,
+            },
             post : {
-                backgroundColor:'transparent',
-                borderColor:bgColor,
-                borderWidth:'none',
+                backgroundColor:bgColor,
+                borderColor:borderColor,
+                borderWidth:'10px',
                 color:textColor
             },
             postText: {
                 color:textColor
             },
             postTextLink: {
-                color:textColor
+                color:linkColor
             },
             postName: {
                 color:textColor,
@@ -131,11 +120,73 @@ let generalLondon = function (bgColor, textColor) {
             postDate: {
                 color:textColor
             },
+            loadMore: {
+                color:textColor,
+                backgroundColor:bgColor,
+                borderColor:borderColor
+            }
         }
     };
 };
 
-let gridSydney = function (bgColor, textColor) {
+let generalBerlin = function (colors) {
+    let bgColor = colors.bgColor;
+    let textColor = colors.textColor;
+    let linkColor = colors.linkColor;
+    let borderColor = colors.borderColor;
+    let widgetBgColor = colors.widgetBgColor;
+
+    return {
+        config: {
+            post: {
+                template: 'post-general-berlin'
+            },
+        },
+        styles: {
+            widget : {
+                backgroundColor:widgetBgColor,
+            },
+            post : {
+                backgroundColor:'transparent',
+                borderColor:'transparent',
+                borderWidth:'0px',
+                color:textColor
+            },
+            postText: {
+                color:textColor
+            },
+            postTextLink: {
+                color:linkColor
+            },
+            postName: {
+                color:textColor,
+                textDecoration:'none'
+            },
+            postUsername: {
+                color:textColor
+            },
+            postIcon: {
+                color:textColor
+            },
+            postComments : {
+                color:textColor
+            },
+            postShareIcons: {
+                color:textColor
+            },
+            postDate: {
+                color:textColor
+            },
+            loadMore: {
+                color:textColor,
+                backgroundColor:bgColor,
+                borderColor:borderColor
+            }
+        }
+    };
+};
+
+let gridSydney = function (colors) {
     return {
         config: {
             post: {
@@ -147,7 +198,7 @@ let gridSydney = function (bgColor, textColor) {
     };
 };
 
-let gridNewYork = function (bgColor, textColor) {
+let gridNewYork = function (colors) {
     return {
         config: {
             post: {
@@ -159,7 +210,7 @@ let gridNewYork = function (bgColor, textColor) {
     };
 };
 
-let listSydney = function (bgColor, textColor) {
+let listSydney = function (colors) {
     return {
         config: {
             post: {
@@ -171,6 +222,25 @@ let listSydney = function (bgColor, textColor) {
 };
 
 let themes = {
+    defaultColors (widgetTheme) {
+        let colors = {};
+
+        // Very basic shallow clone ...
+        for (let key in defaultColors) {
+            colors[key] = defaultColors[key];
+        }
+
+        if (widgetTheme === 'berlin') {
+            colors.bgColor = 'transparent';
+        }
+
+        if (widgetTheme === 'london') {
+            colors.borderColor = colors.bgColor;
+        }
+
+        return colors;
+    },
+
     widgetThemes (widgetType) {
         if (themes.widgetThemeOptions[widgetType]) {
             return Object.keys(themes.widgetThemeOptions[widgetType]);
@@ -200,13 +270,21 @@ let themes = {
         }
     },
 
-    themeConfig (widgetType, widgetTheme, bgColor, textColor) {
-        if (themes.widgetThemeOptions[widgetType]) {
-            if (themes.widgetThemeOptions[widgetType][widgetTheme]) {
-                return themes.widgetThemeOptions[widgetType][widgetTheme](bgColor, textColor);
-            } else {
-                return {};
-            }
+    themeConfig (widgetType, widgetTheme) {
+        if (themes.widgetThemeOptions[widgetType] && themes.widgetThemeOptions[widgetType][widgetTheme]) {
+            let config = themes.widgetThemeOptions[widgetType][widgetTheme]({});
+            return config.config;
+        } else {
+            return {};
+        }
+    },
+
+    themeStyles (widgetType, widgetTheme, colors) {
+        if (themes.widgetThemeOptions[widgetType] && themes.widgetThemeOptions[widgetType][widgetTheme]) {
+            let config = themes.widgetThemeOptions[widgetType][widgetTheme](colors);
+            return config.styles;
+        } else {
+            return {};
         }
     },
 

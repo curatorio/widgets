@@ -17,7 +17,7 @@ class Filter extends Control {
         this.templateId = this.widget.config('filter.template');
         this.render ();
 
-        this.$el.on('click','.crt-filter-networks a', this.onNetworkClick.bind(this));
+        this.$el.on('click', '.crt-filter-networks a', this.onNetworkClick.bind(this));
         this.$el.on('click', '.crt-filter-sources a', this.onSourceClick.bind(this));
 
         this.widget.on(Events.FEED_LOADED, this.onPostsLoaded.bind(this));
@@ -63,18 +63,23 @@ class Filter extends Control {
         let t = z(ev.target);
         let sourceId = t.data('source');
 
-        this.$el.find('.crt-filter-sources li').removeClass('active');
-        t.parent().addClass('active');
+        if (!t.parent().hasClass('active')) {
+            this.$el.find('.crt-filter-sources li').removeClass('active');
+            t.parent().addClass('active');
+        } else {
+            this.$el.find('.crt-filter-sources li').removeClass('active');
+            sourceId = 0;
+        }
 
         this.widget.trigger(Events.FILTER_CHANGED, this);
 
         if (sourceId) {
             this.widget.feed.params.source_id = sourceId;
         } else {
-            this.widget.feed.params.source_id = 0;
+            delete this.widget.feed.params.source_id;
         }
 
-        this.widget.feed.loadPosts(0);
+        this.widget.feed.load();
     }
 
     onNetworkClick (ev) {
@@ -82,18 +87,23 @@ class Filter extends Control {
         let t = z(ev.target);
         let networkId = t.data('network');
 
-        this.$el.find('.crt-filter-networks li').removeClass('active');
-        t.parent().addClass('active');
+        if (!t.parent().hasClass('active')) {
+            this.$el.find('.crt-filter-networks li').removeClass('active');
+            t.parent().addClass('active');
+        } else {
+            this.$el.find('.crt-filter-networks li').removeClass('active');
+            networkId = 0;
+        }
 
         this.widget.trigger(Events.FILTER_CHANGED, this);
 
         if (networkId) {
             this.widget.feed.params.network_id = networkId;
         } else {
-            this.widget.feed.params.network_id = 0;
+            delete this.widget.feed.params.network_id;
         }
 
-        this.widget.feed.loadPosts(0);
+        this.widget.feed.load();
     }
 
     destroy () {

@@ -40,15 +40,15 @@ class LayoutCarousel extends EventBus {
         }
 
         if (this.widget.config('post.matchHeights')) {
-            this.$stage.addClass('crt-match-heights');
+            this.$viewport.addClass('crt-match-heights');
         }
 
         if (this.widget.config('widget.controlsOver')) {
-            this.widget.$container.addClass('crt-controls-over');
+            this.$viewport.addClass('crt-controls-over');
         }
 
         if (this.widget.config('widget.controlsShowOnHover')) {
-            this.widget.$container.addClass('crt-controls-show-on-hover');
+            this.$viewport.addClass('crt-controls-show-on-hover');
         }
 
         this.controlsHideShow();
@@ -379,6 +379,7 @@ class LayoutCarousel extends EventBus {
         Logger.log('LayoutCarousel->updateHeight');
 
         let paneMaxHeight = this.getMaxHeight();
+        console.log('paneMaxHeight='+paneMaxHeight);
 
         if (this.$stage.height() !== paneMaxHeight) {
             this.$stage.animate({height: paneMaxHeight}, 300);
@@ -397,9 +398,7 @@ class LayoutCarousel extends EventBus {
 
             for (let pane of this.currentPanes)
             {
-                let $pane = pane.$el;
-                // TODO - could move this to ui.post
-                $pane.find('.crt-post-c').animate({height: paneMaxHeight}, 300);
+                pane.forceHeight(paneMaxHeight);
             }
         }
     }
@@ -432,8 +431,10 @@ class LayoutCarousel extends EventBus {
     }
 
     onPaneHeightChanged () {
+        console.log('onPaneHeightChanged');
         window.clearTimeout(this.postLayoutChangedTO);
         this.postLayoutChangedTO = window.setTimeout(() => {
+            console.log('to');
             this.updateHeight ();
         },100);
     }
@@ -465,6 +466,10 @@ class LayoutCarousel extends EventBus {
                 this.paneCache[paneId].destroy();
             }
         }
+
+        this.$stage.removeClass('crt-match-heights');
+        this.widget.$container.removeClass('crt-controls-over');
+        this.widget.$container.removeClass('crt-controls-show-on-hover');
 
         this.paneCache = null;
         this.currentPanes = null;

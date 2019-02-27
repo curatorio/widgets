@@ -16,7 +16,7 @@ let base = {
         showShare: true,
         showComments: false,
         showLikes: false,
-        autoPlayVideos: true,
+        autoPlayVideos: false,
         clickAction: 'open-popup',             // open-popup | goto-source | nothing
         clickReadMoreAction: 'open-popup',     // open-popup | goto-source | nothing
     },

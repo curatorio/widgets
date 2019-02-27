@@ -25,10 +25,19 @@ class GridPost extends Base {
     }
 
     getHeight () {
-        // let $pane = z(this.$panes[i]);
-        let contentHeight = this.$el.find('.crt-post-content').height();
-        let footerHeight = this.$el.find('.crt-post-footer').height();
-        return contentHeight + footerHeight + 2;
+        let h = this.$el.height();
+
+        let marginBottom = parseInt(this.$el.css("margin-bottom"));
+        let paddingBottom = parseInt(this.$el.css("padding-bottom"));
+        let marginTop = parseInt(this.$el.css("margin-top"));
+        let paddingTop = parseInt(this.$el.css("padding-top"));
+
+        h += marginTop;
+        h += marginBottom;
+        h += paddingTop;
+        h += paddingBottom;
+
+        return h;
     }
 
     showAnim (i) {

@@ -67,7 +67,11 @@ class BasePost extends Control {
                         this.videoPlayer.on('state:changed', (event, playing) => {
                             this.$el.toggleClass('crt-post-video-playing', playing);
                         });
-                        this.videoPlayer.play();
+
+                        // Seems to need a delay ... maybe because it's not yet added to page?
+                        window.setTimeout(() => {
+                            this.videoPlayer.play();
+                        }, 200);
                     }
                 }
             }

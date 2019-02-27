@@ -5,7 +5,7 @@ let config = z.extend(true, {}, base, {
     post: {
         template: 'post-general',
         animate: true,
-        maxHeight: ''
+        maxHeight: 0
     },
     widget: {
         template: 'widget-waterfall',

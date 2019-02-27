@@ -24,10 +24,29 @@ class LayoutCarouselPane extends Control {
     }
 
     getHeight () {
+        console.log('LayoutCarouselPane->getHeight ');
+        let height = 0;
+
+        for (let post of this.posts) {
+            height += post.getHeight();
+        }
+
+        return height;
+    }
+
+    forceHeight (height) {
+        for (let post of this.posts) {
+            post.forceHeight (height);
+        }
+
         return this.$el.height();
     }
 
     destroy () {
+        for (let post of this.posts) {
+            post.destroy();
+        }
+
         super.destroy();
     }
 }

@@ -1,6 +1,7 @@
 
 import Base from './base';
 import Events from '../../core/events';
+import z from '../../core/lib';
 
 class GeneralPost extends Base {
     constructor (widget, postJson, options) {
@@ -39,6 +40,17 @@ class GeneralPost extends Base {
     onImageLoaded () {
         this.$refs.image.animate({opacity:1});
 
+        let img = this.$refs.image[0];
+
+
+        if (img) {
+            // adapt resize container to correct dimensions
+            if (img.naturalWidth > 0) {
+                let p = (img.naturalHeight / img.naturalWidth) * 100;
+                this.$refs.imageContainer.addClass('crt-image-responsive').css('padding-bottom', p + '%');
+            }
+        }
+
         this.setHeight();
 
         this.trigger(Events.POST_IMAGE_LOADED, this);
@@ -59,11 +71,23 @@ class GeneralPost extends Base {
         let height = this.$refs.postC.height();
         let maxHeight = this.widget.config('post.maxHeight',0);
         if (maxHeight > 0 && height > maxHeight) {
-            this.$refs.postC.css({maxHeight: maxHeight});
+            this.$el.css({maxHeight: maxHeight});
             this.$el.addClass('crt-post-max-height');
         }
 
         this.layout();
+    }
+
+    forceHeight (height)
+    {
+        console.log('->forceHeight '+height);
+
+        // TODO - change to animation ... below doesn't seem to work
+        // Stop Zepto Animations ...
+        // this.$el.off("webkitTransitionEnd webkitAnimationEnd");
+        // this.$el.get(0).style.cssText = "";
+
+        this.$el.css({height: height}, 300);
     }
 
     getHeight () {
@@ -71,9 +95,12 @@ class GeneralPost extends Base {
             return this.$refs.postC.height();
         } else {
             // let $pane = z(this.$panes[i]);
-            let contentHeight = this.$el.find('.crt-post-content').height();
-            let footerHeight = this.$el.find('.crt-post-footer').height();
-            return contentHeight + footerHeight + 2;
+            // let contentHeight = this.$el.find('.crt-post-content').height();
+            // console.log(contentHeight);
+            // let footerHeight = this.$el.find('.crt-post-footer').height();
+            // console.log(footerHeight);
+            // return contentHeight + footerHeight + 2;
+            return this.$refs.postC.height();
         }
     }
 

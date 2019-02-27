@@ -7,7 +7,7 @@ let config = z.extend(true, {}, base, {
         matchHeights: false,
         showComments: false,
         showLikes: false,
-        maxHeight: '',
+        maxHeight: 0,
         minWidth: 250,
     },
     widget: {
