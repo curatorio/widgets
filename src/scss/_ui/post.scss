@@ -200,6 +200,32 @@
         margin: 0.5em;
     }
 
+    .crt-post-max-height-read-more {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        text-align: center;
+        padding-bottom: 0.5em;
+        padding-top: 4em;
+
+        margin: 0em;
+
+        /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#000000+0,131313+100 */
+
+        $gradEnd: rgba(239, 239, 239, 1);
+        $gradEndStop: 50%;
+
+        background: rgba(0, 0, 0, 0);
+        background: -moz-linear-gradient(top, rgba(0, 0, 0, 0) 0%, $gradEnd $gradEndStop);
+        background: -webkit-gradient(left top, left bottom, color-stop(0%, rgba(0, 0, 0, 0)), color-stop($gradEndStop, $gradEnd));
+        background: -webkit-linear-gradient(top, rgba(0, 0, 0, 0) 0%, $gradEnd $gradEndStop);
+        background: -o-linear-gradient(top, rgba(0, 0, 0, 0) 0%, $gradEnd $gradEndStop);
+        background: -ms-linear-gradient(top, rgba(0, 0, 0, 0) 0%, $gradEnd $gradEndStop);
+        background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, $gradEnd $gradEndStop);
+        filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#000000', endColorstr='#000000', GradientType=0);
+    }
+
     .crt-post-read-more-button {
         display: inline-block;
         background-color: #ddd;
@@ -293,29 +319,6 @@
 
         .crt-post-max-height-read-more {
             display: block;
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            text-align: center;
-            padding-bottom: 0.5em;
-            padding-top: 4em;
-
-            margin: 0em;
-
-            /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#000000+0,131313+100 */
-
-            $gradEnd: rgba(239, 239, 239, 1);
-            $gradEndStop: 50%;
-
-            background: rgba(0, 0, 0, 0);
-            background: -moz-linear-gradient(top, rgba(0, 0, 0, 0) 0%, $gradEnd $gradEndStop);
-            background: -webkit-gradient(left top, left bottom, color-stop(0%, rgba(0, 0, 0, 0)), color-stop($gradEndStop, $gradEnd));
-            background: -webkit-linear-gradient(top, rgba(0, 0, 0, 0) 0%, $gradEnd $gradEndStop);
-            background: -o-linear-gradient(top, rgba(0, 0, 0, 0) 0%, $gradEnd $gradEndStop);
-            background: -ms-linear-gradient(top, rgba(0, 0, 0, 0) 0%, $gradEnd $gradEndStop);
-            background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, $gradEnd $gradEndStop);
-            filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#000000', endColorstr='#000000', GradientType=0);
         }
     }
 

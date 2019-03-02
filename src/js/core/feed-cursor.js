@@ -108,6 +108,27 @@ class FeedCursor extends EventBus {
         return this.loadBefore();
     }
 
+    /**
+     * Loads new posts - before the current set
+     * @returns {boolean}
+     */
+    loadPage (page) {
+        Logger.log ('Feed->loadPage '+page);
+
+        if (this.loading) {
+            return false;
+        }
+
+        let params = z.extend({}, this.params);
+
+        params.offset = page * params.limit;
+
+        delete params.before;
+        delete params.after;
+
+        return this._loadPosts (params, 'new');
+    }
+
 
     loadPost (id, successCallback, failCallback) {
         failCallback = failCallback || function(){};

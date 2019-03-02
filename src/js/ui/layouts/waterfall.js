@@ -152,26 +152,20 @@ class LayoutWaterfall {
     _renderGrid(method, arr, count) {
         let items = [];
         let boxes = [];
-        // let prependArray = prepArray || [];
         let itemCount = 0;
         let appendCount = this.appendCount;
         // let colGutter = this.options.colGutter;
         let cols = this.cols;
         let name = this.name;
-        // let i = 0;
-        // let w = z('.galcolumn').width();
 
-        // if arr
         if (arr) {
             boxes = arr;
-            // if append
             if (method === "append") {
                 // get total of items to append
                 appendCount += count;
                 // set itemCount to last count of appened items
                 itemCount = this.appendCount;
             }
-            // if prepend
             if (method === "prepend") {
                 // set itemCount
                 this.isPrepending = true;
@@ -366,10 +360,6 @@ class LayoutWaterfall {
             return;
         }
 
-        // if (newCols > 1) {
-        //     return;
-        // }
-
         this.visible = true;
         this.ifCallback = false;
         this.isResizing = true;
@@ -396,6 +386,17 @@ class LayoutWaterfall {
         this.ifCallback = false;
         this._renderGrid('prepend', items, z(items).length);
         this.ifCallback = true;
+    }
+
+    empty () {
+        for (let i = 0; i < this.cols; i++) {
+            z("#item" + i + this.name).empty();
+        }
+
+        this.colHeights = new Array(this.cols);
+        this.colHeights.fill(0);
+        this.colItems = new Array(this.cols);
+        this.colItems.fill([]);
     }
 
     destroy () {

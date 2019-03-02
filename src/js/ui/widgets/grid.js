@@ -259,7 +259,6 @@ class Grid extends Widget {
     }
 
     destroy () {
-        super.destroy();
 
         this.destroyHandlers();
 
@@ -268,14 +267,13 @@ class Grid extends Widget {
             .removeClass('crt-grid-col'+this.columnCount)
             .css({'height':'','overflow':''});
 
-        this.$el.remove();
-
         window.clearTimeout(this.updateHeightTimeout);
 
-        delete this.$container;
         delete this.totalPostsLoaded;
         delete this.loading;
         delete this.allLoaded;
+
+        super.destroy();
     }
 
 }

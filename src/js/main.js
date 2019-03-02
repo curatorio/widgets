@@ -53,7 +53,7 @@ let findContainer = function (config) {
     return false;
 };
 
-let loadWidget = function (config) {
+let loadWidget = function (config, colors, styles) {
     if (typeof window.onCuratorBeforeBootstrap === 'function') {
         window.onCuratorBeforeBootstrap();
     }
@@ -68,12 +68,20 @@ let loadWidget = function (config) {
     } else {
         config.container = container;
         let ConstructorClass = Crt.Widgets[config.type];
-        return new ConstructorClass(config);
+        let widget = new ConstructorClass(config);
+
+        if (colors) {
+            styles = Themes.themeStyles(config.type, config.theme, colors);
+        }
+        if (styles) {
+            widget.setStyles(styles);
+        }
+
+        return widget;
     }
 };
 
 let Crt = {
-
     loadWidget: loadWidget,
     loadCSS: () => {/* depreciated */},
     z: z,

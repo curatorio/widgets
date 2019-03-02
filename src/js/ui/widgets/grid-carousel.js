@@ -160,7 +160,6 @@ class GridCarousel extends Widget {
     }
 
     destroy  () {
-        super.destroy();
 
         this.destroyHandlers ();
 
@@ -169,9 +168,7 @@ class GridCarousel extends Widget {
 
         this.$container.removeClass('crt-widget-grid-carousel');
 
-        this.$el.remove();
-
-        delete this.$container;
+        super.destroy();
     }
 }
 

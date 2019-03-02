@@ -124,6 +124,9 @@ let generalLondon = function (colors) {
                 color:textColor,
                 backgroundColor:bgColor,
                 borderColor:borderColor
+            },
+            postMaxHeightReadMore: {
+                background:'linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, '+bgColor+' 50%)'
             }
         }
     };
@@ -206,6 +209,28 @@ let gridNewYork = function (colors) {
             },
         },
         styles: {
+        }
+    };
+};
+
+let gridTokyo = function (colors) {
+    let bgColor = colors.bgColor;
+    let textColor = colors.textColor;
+    let linkColor = colors.linkColor;
+    let borderColor = colors.borderColor;
+    let widgetBgColor = colors.widgetBgColor;
+
+    return {
+        config: {
+            post: {
+                template: 'post-grid-tokyo'
+            },
+        },
+        styles: {
+            gridPost : {
+                padding:'10px',
+                borderRadius:'10px'
+            },
         }
     };
 };
@@ -315,12 +340,14 @@ let themes = {
             'london': generalLondon,
         },
         'Grid': {
-            'sydney' : gridSydney,
-            'new-york' : gridNewYork
+            'sydney'   : gridSydney,
+            'new-york' : gridNewYork,
+            'tokyo'    : gridTokyo,
         },
         'GridCarousel': {
-            'sydney' : gridSydney,
-            'new-york' : gridNewYork
+            'sydney'   : gridSydney,
+            'new-york' : gridNewYork,
+            'tokyo'    : gridTokyo,
         },
         'List': {
             'listSydney': listSydney

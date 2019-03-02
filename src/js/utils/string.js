@@ -121,6 +121,11 @@ let StringUtils = {
         }
     },
 
+    isHtml (str) {
+        let reg = new RegExp('/<[a-z][\\s\\S]*>/i');
+        return reg.test(str);
+    },
+
     nl2br:function(s) {
         s = s.trim();
         s = s.replace(/(?:\r\n|\r|\n)/g, '<br />');

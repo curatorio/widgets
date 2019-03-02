@@ -1,0 +1,45 @@
+
+.crt-grid-post-tokyo {
+
+    .crt-grid-post-content {
+        border-radius: 10px;
+    }
+
+    .crt-post-hover,
+    .crt-grid-post-image {
+        border-radius: 10px;
+    }
+
+    .crt-social-icon {
+        position: relative;
+        top:auto;
+        left:auto;
+        right:auto;
+        text-align: center;
+        i {
+            color: #0b0b0b;
+        }
+    }
+
+    .crt-post-footer {
+        display: none;
+    }
+
+    .crt-post-header {
+        margin: 0;
+        padding: 0;
+        position: absolute;
+        top:50%;
+        left:0;
+        width: 100%;
+        transform: translateY(-50%);
+
+        .crt-social-icon {
+            margin-bottom: 0;
+        }
+
+        .crt-date {
+            margin-bottom: 4px;
+        }
+    }
+}

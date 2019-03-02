@@ -80,6 +80,14 @@ class Control extends EventBus {
 
         return postBottom > 0 && postTop < h;
     }
+
+    checkRefs (refNames) {
+        for (let refName of refNames) {
+            if (!this.$refs[refName]) {
+                throw new Error('Curator Widget Error: Missing ref: '+refName);
+            }
+        }
+    }
 }
 
 export default Control;

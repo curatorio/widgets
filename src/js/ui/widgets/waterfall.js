@@ -16,24 +16,30 @@ class Waterfall extends Widget {
 
             this.templateId = this.config('widget.template');
             this.render();
+            try {
+                this.$container.append(this.$el);
+                this.$container.addClass('crt-widget-waterfall');
 
-            this.$container.append(this.$el);
-            this.$container.addClass('crt-widget-waterfall');
+                this.checkRefs(['feed']);
 
-            if (!this.config('widget.showLoadMore')) {
-                this.$refs.loadMore.remove();
+                if (!this.config('widget.showLoadMore')) {
+                    this.$refs.loadMore.remove();
+                }
+
+                this.ui = new LayoutWaterfall(this, this.$refs.feed);
+
+                this.on(Events.FILTER_CHANGED, () => {
+                    this.$refs.feed.find('.crt-post').remove();
+                });
+
+                this.iniListeners();
+
+                // Load first set of posts
+                this.feed.load();
+            } catch (e) {
+                this.showMessage('Feed failed to load, check browser console for more info', 'error');
+                throw e;
             }
-
-            this.ui = new LayoutWaterfall(this, this.$refs.feed);
-
-            this.on(Events.FILTER_CHANGED, () => {
-                this.$refs.feed.find('.crt-post').remove();
-            });
-
-            this.iniListeners();
-
-            // Load first set of posts
-            this.feed.load();
         }
     }
 
@@ -70,11 +76,18 @@ class Waterfall extends Widget {
         this.feed.loadBefore();
     }
 
+    loadPage  (page) {
+        Logger.log('Waterfall->loadPage');
+
+        this.ui.empty ();
+
+        this.feed.loadPage(page);
+    }
+
     onPostsLoaded (event, posts, position) {
         Logger.log("Waterfall->onPostsLoaded "+position);
 
         if (posts.length > 0) {
-
             this.popupManager.setPosts(posts);
 
             let postElements = this.createPostElements(posts);
@@ -84,6 +97,8 @@ class Waterfall extends Widget {
             } else {
                 this.ui.append(postElements);
             }
+        } else {
+            this.showNoPostsMessage();
         }
 
         if (this.config('widget.showLoadMore')) {
@@ -100,17 +115,15 @@ class Waterfall extends Widget {
     destroy  () {
         Logger.log('Waterfall->destroy');
 
-        super.destroy();
-
         this.destroyListeners();
 
-        this.ui.destroy ();
+        if (this.ui) {
+            this.ui.destroy();
+        }
 
         this.$container.removeClass('crt-widget-waterfall');
 
-        this.$el.remove();
-
-        delete this.$container;
+        super.destroy();
     }
 }
 

@@ -1,6 +1,7 @@
 
 import Base from './base';
 import Events from '../../core/events';
+import z from '../../core/lib';
 
 class GridPost extends Base {
 
@@ -28,14 +29,17 @@ class GridPost extends Base {
         let h = this.$el.height();
 
         let marginBottom = parseInt(this.$el.css("margin-bottom"));
-        let paddingBottom = parseInt(this.$el.css("padding-bottom"));
         let marginTop = parseInt(this.$el.css("margin-top"));
-        let paddingTop = parseInt(this.$el.css("padding-top"));
+        // Zepto include the padding / jQuery doesn't
+        let paddingBottom = !z.zepto ? parseInt(this.$el.css("padding-bottom")) : 0;
+        let paddingTop = !z.zepto ? parseInt(this.$el.css("padding-top")) : 0;
 
         h += marginTop;
         h += marginBottom;
         h += paddingTop;
         h += paddingBottom;
+
+        console.log(h);
 
         return h;
     }

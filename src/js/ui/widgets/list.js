@@ -162,7 +162,6 @@ class List extends Widget {
     }
 
     destroy () {
-        super.destroy();
 
         this.destroyHandlers();
 
@@ -172,6 +171,8 @@ class List extends Widget {
             .css({'height':'','overflow':''});
 
         delete this.loading;
+
+        super.destroy();
     }
 
 }

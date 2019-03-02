@@ -35,3 +35,30 @@
         cursor: pointer;
     }
 }
+
+.crt-notice {
+    text-align: center;
+    margin: 20px;
+
+    span {
+        background-color: rgba(0, 0, 0, 0.05);
+        border-radius: 5px;
+        padding: 10px 20px;
+        color: #0b0b0b;
+        display: inline-block;
+    }
+
+    &.crt-notice-error {
+        span {
+            color: #ff0000;
+            background-color: rgba(255, 0, 0, 0.05);
+        }
+    }
+
+    &.crt-notice-info {
+        span {
+            color: #4e7291;
+            background-color: rgba(143, 188, 240, 0.25);
+        }
+    }
+}

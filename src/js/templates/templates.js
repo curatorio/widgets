@@ -6,6 +6,7 @@ import popup from './general/popup';
 import filter from './general/filter';
 
 import postGrid from "./post/grid";
+import postGridTokyo from "./post/grid-tokyo";
 import postGridMinimal from "./post/grid-minimal";
 import postGridRetro from "./post/grid-retro";
 import postGeneral from "./post/general";
@@ -33,6 +34,7 @@ let Templates = {
     'post-grid'             : postGrid,
     'post-grid-new-york'    : postGridNewYork,
     'post-grid-minimal'     : postGridMinimal,
+    'post-grid-tokyo'       : postGridTokyo,
     'post-grid-retro'       : postGridRetro,
     'post-list'             : postList,
 

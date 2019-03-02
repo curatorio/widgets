@@ -60,8 +60,6 @@ class Widget extends Control {
 
         Logger.log ('Setting language to: '+this.config('lang'));
         translate.setLang(this.config('lang'));
-
-
     }
 
     init (options, defaults) {
@@ -82,8 +80,6 @@ class Widget extends Control {
         this.createPopupManager();
         this.createTracker();
 
-        // this.setStyles({});
-
         let crtEvent = {
             name:'crt:widget:created',
             data:{
@@ -103,6 +99,8 @@ class Widget extends Control {
             HtmlUtils.deleteCSSRules(this.sheet);
         }
 
+        console.log(styles.gridPost);
+
         this.addStyle(styles.popup, '.crt-popup');
         this.addStyle(styles.widget, '.crt-widget');
         this.addStyle(styles.loadMore, '.crt-widget .crt-load-more');
@@ -115,6 +113,10 @@ class Widget extends Control {
         this.addStyle(styles.postComments, '.crt-widget .crt-comments-likes');
         this.addStyle(styles.postShareIcons, '.crt-widget .crt-post-footer .crt-post-share a');
         this.addStyle(styles.postDate, '.crt-widget .crt-post-date a');
+        this.addStyle(styles.postMaxHeightReadMore, '.crt-widget .crt-post.crt-post-max-height .crt-post-max-height-read-more');
+
+        this.addStyle(styles.gridPost, '.crt-widget .crt-grid-post');
+        // this.addStyle(styles.gridPost, '.crt-widget .crt-grid-post .crt-grid-post-image');
     }
 
     addStyle(stylesObj, className) {
@@ -338,6 +340,15 @@ class Widget extends Control {
         this.hasPoweredBy = html.indexOf('Powered by Curator.io') > -1;
     }
 
+    showNoPostsMessage(message) {
+        this.showMessage ('The feed contains no posts');
+    }
+
+    showMessage(message, type) {
+        type = type || 'info';
+        this.$el.append('<div class="crt-notice crt-notice-'+type+'"><span>'+message+'</span></div>');
+    }
+
     startAutoLoad () {
         Logger.log('Widget->startAutoLoad');
 
@@ -386,6 +397,12 @@ class Widget extends Control {
         this.$container.removeClass('crt-widget-unbranded');
         this.$container.removeClass('crt-widget-branded');
         this.$container.removeClass('crt-no-touch');
+
+        if (this.$el) {
+            this.$el.remove();
+        }
+
+        delete this.$container;
     }
 }
 

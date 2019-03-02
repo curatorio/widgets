@@ -6,6 +6,7 @@ import Templates from '../templates/templates';
 import helpers from './templating_helpers';
 import Logger from './logger';
 import z from './lib';
+import StringUtils from '../utils/string';
 
 let _rendererTmplCache = {};
 
@@ -27,28 +28,30 @@ let Templating = {
         return z(tmpl).filter('div');
     },
 
-    render (templateId, data) {
+    loadTemplate: function (templateId) {
+        let source = '', $t = '';
+        try {
+            $t = z('#' + templateId);
+        } catch (e) {
+        }
+
+        if ($t.length === 1) {
+            source = $t.html();
+        } else if (Templates[templateId] !== undefined) {
+            source = Templates[templateId];
+        } else if (StringUtils.isHtml(templateId)) {
+            source = templateId;
+            console.log(source);
+        }
+
+        if (source === '') {
+            throw new Error('Could not find template ' + templateId);
+        }
+        return source;
+    }, render (templateId, data) {
         let func = _rendererTmplCache[templateId];
         if (!func) {
-            let source = '', $t = '';
-            try {
-                $t = z('#' + templateId);
-            } catch (e) {}
-
-            if ($t.length===1)
-            {
-                source = $t.html();
-            } else if (Templates[templateId] !== undefined)
-            {
-                source = Templates[templateId];
-            } else {
-                source = templateId;
-            }
-
-            if (source === '')
-            {
-                throw new Error ('Could not find template '+templateId);
-            }
+            let source = this.loadTemplate(templateId);
 
             try {
                 let strComp = source.replace(/[\r\t\n]/g, " ")

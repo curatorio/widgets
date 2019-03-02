@@ -95,18 +95,15 @@ class Carousel extends Widget {
     }
 
     destroy  () {
-        super.destroy();
-
         this.carousel.destroy();
         delete this.carousel;
 
         this.$container.removeClass('crt-widget-carousel');
         this.$container.removeClass('crt-carousel');
-        delete this.$container;
-
-        this.$el.remove();
 
         delete this.allLoaded;
+
+        super.destroy();
 
     }
 }
