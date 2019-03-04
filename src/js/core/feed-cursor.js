@@ -102,6 +102,8 @@ class FeedCursor extends EventBus {
             delete params.after;
         }
 
+        console.log(params.before);
+        
         return this._loadPosts (params, 'before');
     }
     loadNew () {
@@ -185,6 +187,8 @@ class FeedCursor extends EventBus {
                                 this.pagination.before = data.pagination.before;
                             }
                         }
+
+                        console.log(this.pagination.before);
 
                         this.networks = data.networks;
 

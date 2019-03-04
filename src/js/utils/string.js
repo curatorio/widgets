@@ -122,8 +122,10 @@ let StringUtils = {
     },
 
     isHtml (str) {
-        let reg = new RegExp('/<[a-z][\\s\\S]*>/i');
-        return reg.test(str);
+        return str.trim().indexOf('<')===0;
+        // Below doesn't seem to work sometimes...
+        // let reg = new RegExp('/<[a-z][\\s\\S]*>/i');
+        // return reg.test(str);
     },
 
     nl2br:function(s) {

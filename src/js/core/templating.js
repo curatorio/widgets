@@ -30,6 +30,7 @@ let Templating = {
 
     loadTemplate: function (templateId) {
         let source = '', $t = '';
+        templateId = templateId.trim();
         try {
             $t = z('#' + templateId);
         } catch (e) {
@@ -41,7 +42,6 @@ let Templating = {
             source = Templates[templateId];
         } else if (StringUtils.isHtml(templateId)) {
             source = templateId;
-            console.log(source);
         }
 
         if (source === '') {

@@ -19,6 +19,8 @@ class Control extends EventBus {
         this.onHandler($el, 'c-on:click', 'click');
         this.onHandler($el, 'c-on:blur', 'blur');
         this.onHandler($el, 'c-on:change', 'change');
+        this.onHandler($el, 'c-on:load', 'load');
+        this.onHandler($el, 'c-on:error', 'error');
 
         // Setup refs
         let refs = $el.find('[ref]');
