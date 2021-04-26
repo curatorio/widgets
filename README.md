@@ -1,5 +1,11 @@
-# Curator.io Social Feed Widgets
+### This repository is not longer maintained and contains old code.
 
+You can find the latest [Curator documentation here](https://help.curator.io).
+
+We've left the code and documentation below for reference purposes.
+
+---
+# Curator.io Social Feed Widgets
 
 ## Demo
 
