@@ -23,7 +23,7 @@
     "email": "thomas@curator.io"
   },
   "devDependencies": {
-    "gulp": "^3.9.1",
+    "gulp": "^4.0.2",
     "gulp-add-src": "*",
     "gulp-autoprefixer": "*",
     "gulp-better-rollup": "^2.0.0",
